@@ -7,11 +7,9 @@ export function getHighlights(ontologyName, ontologyVersion, clickedIRI) {
 			  ],
 			  "highlightedEntities": {
 			    "classes": [
-            Persona_non_in_vita?,
-            Maschio?
-            Femmina?
-            Figlio id madre?
-            Persona giuridica?
+            "rbi:Maschio",
+            "rbi:Femmina",
+            "rbi:Figlio_di_madre",
             "http://www.datiopen.istat.it/Ontologie/RBI#Cittadino_straniero",
             "http://www.datiopen.istat.it/Ontologie/RBI#Residente",
             "http://www.datiopen.istat.it/Ontologie/RBI#Persona_minorenne",
@@ -58,7 +56,8 @@ export function getHighlights(ontologyName, ontologyVersion, clickedIRI) {
             {
               "objectPropertyIRI": "rbi:appartiene_a_famiglia_o_convivenza",
               "relatedClasses": [
-                ???
+                "rbi:Convivenza",
+                "rbi:Famiglia"
               ]
             },
             {
@@ -89,7 +88,6 @@ export function getHighlights(ontologyName, ontologyVersion, clickedIRI) {
               "objectPropertyIRI": "rbi:in_relazione_con",
               "relatedClasses": [
                 "rbi:Persona"
-                domain or range?
               ]
             },
             {
