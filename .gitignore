@@ -1,0 +1,8 @@
+node_modules/**
+releases/**
+build/**
+dists/**
+coverage/**
+.*/
+.size-snapshot.json
+app/graphol/grapholscape.min.js
