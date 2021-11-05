@@ -18,7 +18,7 @@ const dependencies = Object.keys(require('./package.json').dependencies)
 dependencies.splice(dependencies.indexOf('lit-html'), 1)
 dependencies.splice(dependencies.indexOf('lit-element'), 1)
 
-const input = './main.js'
+const input = './src/main.js'
 const name = 'sparqling'
 
 const envVariables = {
