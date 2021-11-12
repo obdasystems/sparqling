@@ -35,6 +35,6 @@
     "typescript": "^4.4.4"
   },
   "dependencies": {
-    "grapholscape": "^1.3.0"
+    "grapholscape": "file:lib/grapholscape-2.0.0-prerelease.tgz"
   }
 }
