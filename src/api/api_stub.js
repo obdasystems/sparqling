@@ -1,5 +1,5 @@
-export function getHighlights(ontologyName, ontologyVersion, clickedIRI) {
-  switch (clickedIRI) {
+export function getHighlights(ontologyName, ontologyVersion, clickedClassIRI) {
+  switch (clickedClassIRI) {
     case "rbi:Persona_in_vita":
       return {
         "classes": [
@@ -331,6 +331,487 @@ export function getHighlights(ontologyName, ontologyVersion, clickedIRI) {
           "rbi:denominazione_grado_istruzione"
         ]
       }
-    default: throw Error(`${clickedIRI} not found!`)
+    default: throw Error(`${clickedClassIRI} not found!`)
+  }
+}
+
+const graph0 = {
+  "filters": [],
+  "optionals": [],
+  "graph": {
+    "children": [],
+    "entity": {
+      "iri": "rbi:Persona_in_vita",
+      "labels": null,
+      "prefixedIri": "rbi:Persona_in_vita",
+      "type": "class"
+    },
+    "id": 0
+  },
+  "head": [
+    "Persona_in_vita"
+  ],
+  "sparql":
+    `SELECT ?Persona_in_vita 
+WHERE { 
+  ?Persona_in_vita a rbi:Persona_in_vita.
+}`
+}
+
+const graph1 = {
+  "filters": [],
+  "optionals": [],
+  "graph": {
+    "children": [
+      {
+        "children": [
+          {
+            "children": [],
+            "entity": {
+              "iri": "rbi:Cittadinanza_di_persona",
+              "labels": null,
+              "prefixedIri": "rbi:Cittadinanza_di_persona",
+              "type": "class"
+            },
+            "id": 2
+          }
+        ],
+        "entity": {
+          "iri": "rbi:ha_cittadinanza_di_persona",
+          "labels": null,
+          "prefixedIri": "rbi:ha_cittadinanza_di_persona",
+          "type": "objectProperty"
+        },
+        "id": 1
+      },
+    ],
+    "entity": {
+      "iri": "rbi:Persona_in_vita",
+      "labels": null,
+      "prefixedIri": "rbi:Persona_in_vita",
+      "type": "class"
+    },
+    "id": 0
+  },
+  "head": [
+    "Persona_in_vita"
+  ],
+  "sparql":
+    `SELECT ?Persona_in_vita 
+WHERE { 
+  ?Persona_in_vita a rbi:Persona_in_vita.
+  ?Persona_in_vita rbi:ha_cittadinanza_di_persona ?Cittadinanza_di_persona.
+  ?Cittadinanza_di_persona a rbi:Cittadinanza_di_persona.
+}`
+}
+
+const graph2 = {
+  "filters": [],
+  "optionals": [],
+  "graph": {
+    "children": [
+      {
+        "children": [
+          {
+            "children": [
+              {
+                "children": [
+                  {
+                    "children": [],
+                    "entity": {
+                      "iri": "rsbl:Cittadinanza",
+                      "labels": null,
+                      "prefixedIri": "rsbl:Cittadinanza",
+                      "type": "class"
+                    },
+                    "id": 4
+                  }
+                ],
+                "entity": {
+                  "iri": "rbi:cittadinanza_in",
+                  "labels": null,
+                  "prefixedIri": "rbi:cittadinanza_in",
+                  "type": "objectProperty"
+                },
+                "id": 3
+              }
+            ],
+            "entity": {
+              "iri": "rbi:Cittadinanza_di_persona",
+              "labels": null,
+              "prefixedIri": "rbi:Cittadinanza_di_persona",
+              "type": "class"
+            },
+            "id": 2
+          }
+        ],
+        "entity": {
+          "iri": "rbi:ha_cittadinanza_di_persona",
+          "labels": null,
+          "prefixedIri": "rbi:ha_cittadinanza_di_persona",
+          "type": "objectProperty"
+        },
+        "id": 1
+      },
+    ],
+    "entity": {
+      "iri": "rbi:Persona_in_vita",
+      "labels": null,
+      "prefixedIri": "rbi:Persona_in_vita",
+      "type": "class"
+    },
+    "id": 0
+  },
+  "head": [
+    "Persona_in_vita"
+  ],
+  "sparql":
+    `SELECT ?Persona_in_vita 
+WHERE { 
+  ?Persona_in_vita a rbi:Persona_in_vita.
+  ?Persona_in_vita rbi:ha_cittadinanza_di_persona ?Cittadinanza_di_persona.
+  ?Cittadinanza_di_persona a rbi:Cittadinanza_di_persona.
+  ?Cittadinanza_di_persona rbi:cittadinanza_in ?Cittadinanza.
+  ?Cittadinanza a rsbl:Cittadinanza.
+}`
+}
+
+const graph3 = {
+  "filters": [],
+  "optionals": [],
+  "graph": {
+    "children": [
+      {
+        "children": [
+          {
+            "children": [
+              {
+                "children": [
+                  {
+                    "children": [
+                      {
+                        "children": [],
+                        "entity": {
+                          "iri": "rsbl:denominazione_italiana_di_cittadinanza",
+                          "labels": null,
+                          "prefixedIri": "rsbl:denominazione_italiana_di_cittadinanza",
+                          "type": "dataProperty"
+                        },
+                        "id": 5
+                      }
+                    ],
+                    "entity": {
+                      "iri": "rsbl:Cittadinanza",
+                      "labels": null,
+                      "prefixedIri": "rsbl:Cittadinanza",
+                      "type": "class"
+                    },
+                    "id": 4
+                  }
+                ],
+                "entity": {
+                  "iri": "rbi:cittadinanza_in",
+                  "labels": null,
+                  "prefixedIri": "rbi:cittadinanza_in",
+                  "type": "objectProperty"
+                },
+                "id": 3
+              }
+            ],
+            "entity": {
+              "iri": "rbi:Cittadinanza_di_persona",
+              "labels": null,
+              "prefixedIri": "rbi:Cittadinanza_di_persona",
+              "type": "class"
+            },
+            "id": 2
+          }
+        ],
+        "entity": {
+          "iri": "rbi:ha_cittadinanza_di_persona",
+          "labels": null,
+          "prefixedIri": "rbi:ha_cittadinanza_di_persona",
+          "type": "objectProperty"
+        },
+        "id": 1
+      }
+    ],
+    "entity": {
+      "iri": "rbi:Persona_in_vita",
+      "labels": null,
+      "prefixedIri": "rbi:Persona_in_vita",
+      "type": "class"
+    },
+    "id": 0
+  },
+  "head": [
+    "Persona_in_vita",
+    "denominazione_italiana_di_cittadinanza"
+  ],
+  "sparql":
+    `SELECT ?Persona_in_vita ?denominazione_italiana_di_cittadinanza 
+WHERE { 
+  ?Persona_in_vita a rbi:Persona_in_vita.
+  ?Persona_in_vita rbi:ha_cittadinanza_di_persona ?Cittadinanza_di_persona.
+  ?Cittadinanza_di_persona a rbi:Cittadinanza_di_persona.
+  ?Cittadinanza_di_persona rbi:cittadinanza_in ?Cittadinanza.
+  ?Cittadinanza a rsbl:Cittadinanza.
+  ?Cittadinanza rsbl:denominazione_italiana_di_cittadinanza ?denominazione_italiana_di_cittadinanza.
+}`
+}
+
+const graph4 = {
+  "filters": [],
+  "optionals": [],
+  "graph": {
+    "children": [
+      {
+        "children": [
+          {
+            "children": [
+              {
+                "children": [
+                  {
+                    "children": [
+                      {
+                        "children": [],
+                        "entity": {
+                          "iri": "rsbl:denominazione_italiana_di_cittadinanza",
+                          "labels": null,
+                          "prefixedIri": "rsbl:denominazione_italiana_di_cittadinanza",
+                          "type": "dataProperty"
+                        },
+                        "id": 5
+                      }
+                    ],
+                    "entity": {
+                      "iri": "rsbl:Cittadinanza",
+                      "labels": null,
+                      "prefixedIri": "rsbl:Cittadinanza",
+                      "type": "class"
+                    },
+                    "id": 4
+                  }
+                ],
+                "entity": {
+                  "iri": "rbi:cittadinanza_in",
+                  "labels": null,
+                  "prefixedIri": "rbi:cittadinanza_in",
+                  "type": "objectProperty"
+                },
+                "id": 3
+              }
+            ],
+            "entity": {
+              "iri": "rbi:Cittadinanza_di_persona",
+              "labels": null,
+              "prefixedIri": "rbi:Cittadinanza_di_persona",
+              "type": "class"
+            },
+            "id": 2
+          }
+        ],
+        "entity": {
+          "iri": "rbi:ha_cittadinanza_di_persona",
+          "labels": null,
+          "prefixedIri": "rbi:ha_cittadinanza_di_persona",
+          "type": "objectProperty"
+        },
+        "id": 1
+      },
+      {
+        "children": [
+          {
+            "children": [],
+            "entity": {
+              "iri": "rbi:Grado_di_istruzione",
+              "labels": null,
+              "prefixedIri": "rbi:Grado_di_istruzione",
+              "type": "class"
+            },
+            "id": 7
+          }
+        ],
+        "entity": {
+          "iri": "rbi:ha_grado_di_istruzione_attuale",
+          "labels": null,
+          "prefixedIri": "rbi:ha_grado_di_istruzione_attuale",
+          "type": "objectProperty"
+        },
+        "id": 6
+      }
+    ],
+    "entity": {
+      "iri": "rbi:Persona_in_vita",
+      "labels": null,
+      "prefixedIri": "rbi:Persona_in_vita",
+      "type": "class"
+    },
+    "id": 0
+  },
+  "head": [
+    "Persona_in_vita",
+    "denominazione_italiana_di_cittadinanza"
+  ],
+  "sparql":
+    `SELECT ?Persona_in_vita ?denominazione_italiana_di_cittadinanza 
+WHERE { 
+  ?Persona_in_vita a rbi:Persona_in_vita.
+  ?Persona_in_vita rbi:ha_cittadinanza_di_persona ?Cittadinanza_di_persona.
+  ?Cittadinanza_di_persona a rbi:Cittadinanza_di_persona.
+  ?Cittadinanza_di_persona rbi:cittadinanza_in ?Cittadinanza.
+  ?Cittadinanza a rsbl:Cittadinanza.
+  ?Cittadinanza rsbl:denominazione_italiana_di_cittadinanza ?denominazione_italiana_di_cittadinanza.
+  ?Persona_in_vita rbi:ha_grado_di_istruzione_attuale ?Grado_di_istruzione.
+  ?Grado_di_istruzione a rbi:Grado_di_istruzione.
+}`
+}
+
+const graph5 = {
+  "filters": [],
+  "optionals": [],
+  "graph": {
+    "children": [
+      {
+        "children": [
+          {
+            "children": [
+              {
+                "children": [
+                  {
+                    "children": [
+                      {
+                        "children": [],
+                        "entity": {
+                          "iri": "rsbl:denominazione_italiana_di_cittadinanza",
+                          "labels": null,
+                          "prefixedIri": "rsbl:denominazione_italiana_di_cittadinanza",
+                          "type": "dataProperty"
+                        },
+                        "id": 5
+                      }
+                    ],
+                    "entity": {
+                      "iri": "rsbl:Cittadinanza",
+                      "labels": null,
+                      "prefixedIri": "rsbl:Cittadinanza",
+                      "type": "class"
+                    },
+                    "id": 4
+                  }
+                ],
+                "entity": {
+                  "iri": "rbi:cittadinanza_in",
+                  "labels": null,
+                  "prefixedIri": "rbi:cittadinanza_in",
+                  "type": "objectProperty"
+                },
+                "id": 3
+              }
+            ],
+            "entity": {
+              "iri": "rbi:Cittadinanza_di_persona",
+              "labels": null,
+              "prefixedIri": "rbi:Cittadinanza_di_persona",
+              "type": "class"
+            },
+            "id": 2
+          }
+        ],
+        "entity": {
+          "iri": "rbi:ha_cittadinanza_di_persona",
+          "labels": null,
+          "prefixedIri": "rbi:ha_cittadinanza_di_persona",
+          "type": "objectProperty"
+        },
+        "id": 1
+      },
+      {
+        "children": [
+          {
+            "children": [
+              {
+                "children": [],
+                "entity": {
+                  "iri": "rbi:denominazione_grado_istruzione",
+                  "labels": null,
+                  "prefixedIri": "rbi:denominazione_grado_istruzione",
+                  "type": "dataProperty"
+                },
+                "id": 8
+              }
+            ],
+            "entity": {
+              "iri": "rbi:Grado_di_istruzione",
+              "labels": null,
+              "prefixedIri": "rbi:Grado_di_istruzione",
+              "type": "class"
+            },
+            "id": 7
+          }
+        ],
+        "entity": {
+          "iri": "rbi:ha_grado_di_istruzione_attuale",
+          "labels": null,
+          "prefixedIri": "rbi:ha_grado_di_istruzione_attuale",
+          "type": "objectProperty"
+        },
+        "id": 6
+      }
+    ],
+    "entity": {
+      "iri": "rbi:Persona_in_vita",
+      "labels": null,
+      "prefixedIri": "rbi:Persona_in_vita",
+      "type": "class"
+    },
+    "id": 0
+  },
+  "head": [
+    "Persona_in_vita",
+    "denominazione_italiana_di_cittadinanza",
+    "denominazione_grado_istruzione"
+  ],
+  "sparql":
+    `SELECT ?Persona_in_vita ?denominazione_italiana_di_cittadinanza ?denominazione_grado_istruzione
+WHERE { 
+  ?Persona_in_vita a rbi:Persona_in_vita.
+  ?Persona_in_vita rbi:ha_cittadinanza_di_persona ?Cittadinanza_di_persona.
+  ?Cittadinanza_di_persona a rbi:Cittadinanza_di_persona.
+  ?Cittadinanza_di_persona rbi:cittadinanza_in ?Cittadinanza.
+  ?Cittadinanza a rsbl:Cittadinanza.
+  ?Cittadinanza rsbl:denominazione_italiana_di_cittadinanza ?denominazione_italiana_di_cittadinanza.
+  ?Persona_in_vita rbi:ha_grado_di_istruzione_attuale ?Grado_di_istruzione.
+  ?Grado_di_istruzione a rbi:Grado_di_istruzione.
+  ?Grado_di_istruzione rbi:denominazione_grado_istruzione ?denominazione_grado_istruzione.
+}`
+}
+
+export function getQueryGraphNode(ontologyName, ontologyVersion, clickedClassIRI) {
+  if (clickedClassIRI === 'rbi:Persona_in_vita') {
+    return graph0
+  } else throw new Error('Start from rbi:Persona_in_vita')
+}
+
+export function putQueryGraphNodeObjectProperty(ontologyName, ontologyVersion, graphNodeId, sourceClassIRI, predicateIRI, targetClassIRI, isPredicateCyclicDirect) {
+  switch (graphNodeId) {
+    case 0:
+      switch (predicateIRI) {
+        case 'rbi:ha_cittadinanza_di_persona': return graph1
+        case 'rbi:ha_grado_di_istruzione_attuale': return graph4
+        default: throw Error('Out of the stub!!!')
+      }
+    case 2: return graph2
+    default: throw Error('Out of the stub!!!')
+
+  }
+}
+
+export function putQueryGraphNodeDataProperty(ontologyName, ontologyVersion, graphNodeId, sourceClassIRI, predicateIRI) {
+  switch (graphNodeId) {
+    case 4: return graph3
+    case 7: return graph5
+    default: throw Error('Out of the stub!!!')
+
   }
 }
