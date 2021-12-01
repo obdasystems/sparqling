@@ -85,6 +85,7 @@ export default {
   plugins: [
     nodeResolve(),
     commonjs({ include: '**/node_modules/**' }),
+    replace(envVariables),
     BABEL ? babel(getBabelOptions()) : {},
   ]
 }

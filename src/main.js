@@ -1,67 +1,72 @@
-import { fullGrapholscape as Grapholscape} from 'grapholscape'
-import {getHighlights} from './api/api_stub'
+import { fullGrapholscape } from 'grapholscape'
+import { getHighlights } from './api/api_stub'
 import highlightStyle from './highlight-style';
 
-export default async function useGrapholscape(file) {
+export default function useGrapholscape(file) {
   document.getElementById('home').style.display = 'none';
   grapholscape_container.style.display = 'block';
 
-  /**
-   * @type {Grapholscape}
-   */
-  const gs = await Grapholscape(file, grapholscape_container)
-  gs.showDiagram(0)
-  sparqling(gs)
+  sparqling(file, grapholscape_container)
 }
 
-/**
- * 
- * @param {Grapholscape} grapholscape 
- */
-function sparqling( grapholscape ) {
-  let cy = grapholscape.renderer.cy
+async function sparqling(file, container) {
+  let a
+  const gscape = await fullGrapholscape(file, container)
+  gscape.showDiagram(0)
+  setHighlightedStylesheet(gscape.renderer.cy, highlightStyle)
 
-  cy.style().selector('.highlighted').style(highlightStyle).update()
-
-  let ontology = grapholscape.ontology
+  gscape.onRendererChange(_ => setHighlightedStylesheet(gscape.renderer.cy, highlightStyle))
+  gscape.onBackgroundClick(_ => resetHighlights(gscape.renderer.cy))
+  gscape.onThemeChange(_ => setHighlightedStylesheet(gscape.renderer.cy, highlightStyle))
   let clickedIRIs = []
   let highlights = []
-  console.log(ontology)
 
-  grapholscape.onEntitySelection( entity => {
-    let clickedIRI = entity.iri.prefix + entity.iri.remaining_chars
-    cy.$('.highlighted').removeClass('highlighted')
-    if (entity.type === 'Object Property') {
-      findNextClassFromObjProperty( entity )
+  gscape.onEntitySelection(entity => {
+    let clickedIRI = entity.data('iri').prefixed
+    console.log(clickedIRI)
+
+    resetHighlights(gscape.renderer.cy)
+
+    if (entity.data('type') === 'role') {
+      findNextClassFromObjProperty(entity)
       return
     }
 
-    try{
-      highlights = getHighlights(ontology.name, ontology.version, clickedIRI)
+    try {
+      highlights = getHighlights(gscape.ontology.name, gscape.ontology.version, clickedIRI)
     } catch {
       console.warn('wrong iri')
       return
     }
-    
+
     clickedIRIs.push(clickedIRI)
-    
+
     highlights.classes.forEach(iri => highlightIRI(iri))
-    highlights.dataProperties.forEach( iri => highlightIRI(iri))
-    highlights.objectProperties.forEach( o => highlightIRI(o.objectPropertyIRI) )
+    highlights.dataProperties.forEach(iri => highlightIRI(iri))
+    highlights.objectProperties.forEach(o => highlightIRI(o.objectPropertyIRI))
   })
 
   function findNextClassFromObjProperty(objProperty) {
-    let objPropertyIri = objProperty.iri.prefix + objProperty.iri.remaining_chars
-    let objPropertyFromApi = highlights.objectProperties.find( o => o.objectPropertyIRI === objPropertyIri)
+    let objPropertyFromApi = highlights.objectProperties.find(o =>
+      gscape.ontology.checkEntityIri(objProperty, o.objectPropertyIRI)
+    )
 
     if (objPropertyFromApi) {
-      if (objPropertyFromApi.relatedClasses.length > 1) { // TODO show popup dialog}
+      if (objPropertyFromApi.relatedClasses.length > 1) {
+        // TODO show popup dialog
       } else if (objPropertyFromApi.relatedClasses.length === 1) {
-        let connectedClasses = cy.$id(objProperty.id).neighborhood('node').neighborhood('node.concept')
+
+        let connectedClasses = objProperty.isEdge() ?
+          objProperty.connectedNodes('.concept') :
+          objProperty.neighborhood('node').neighborhood('node.concept')
+
         for (const i in connectedClasses) {
-          let classPrefixedIri = connectedClasses[i].data('iri').prefix + connectedClasses[i].data('iri').remaining_chars
-          if ( classPrefixedIri === objPropertyFromApi.relatedClasses[0] ) {
-            connectedClasses[i].select()
+          if (connectedClasses[i].selected()) continue
+          let classPrefixedIri = connectedClasses[i].data('iri').prefixed
+          if (classPrefixedIri === objPropertyFromApi.relatedClasses[0]) {
+            gscape.ontology.diagrams.forEach(d => {
+              gscape.selectEntity(classPrefixedIri, d)
+            })
             break
           }
         }
@@ -71,15 +76,16 @@ function sparqling( grapholscape ) {
 
   function highlightIRI(iri) {
     //let diagramID = grapholscape.view.actual_diagram_id
-    let nodes = ontology.getEntityOccurrences(iri)
-    nodes.forEach( n => cy.getElementById(n.data.id).addClass('highlighted') )
+    let nodes = gscape.ontology.getEntityOccurrences(iri)
+    if (nodes)
+      nodes.forEach(n => n.addClass('highlighted'))
   }
 
-  function selectIRI(iri) {
-    //let diagramID = grapholscape.view.actual_diagram_id
+  function setHighlightedStylesheet(cy, style) {
+    cy.style().selector('.highlighted').style(style).update()
+  }
 
-    let nodes = ontology.getOccurrences(iri)
-
-    nodes.forEach( n => cy.getElementById(n.data.id).select())
+  function resetHighlights(cy) {
+    cy.$('.highlighted').removeClass('highlighted')
   }
 }

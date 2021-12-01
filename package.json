@@ -5,7 +5,7 @@
   "main": "dist/sparlqing.js",
   "scripts": {
     "build": "run-p serve watch:build",
-    "watch:build": "cross-env FILE=main BABEL=false rollup -c -w",
+    "watch:build": "cross-env NODE_ENV=development FILE=main BABEL=false rollup -c -w",
     "serve": "ws -o"
   },
   "repository": {
@@ -35,6 +35,6 @@
     "typescript": "^4.4.4"
   },
   "dependencies": {
-    "grapholscape": "file:lib/grapholscape-2.0.0-prerelease.tgz"
+    "grapholscape": "file:lib/grapholscape-2.0.0-beta.1.tgz"
   }
 }
