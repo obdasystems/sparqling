@@ -218,7 +218,7 @@ export function getHighlights(ontologyName, ontologyVersion, clickedClassIRI) {
         ],
         "objectProperties": [
           {
-            "objectPropertyIRI": "rbi:Cittadinanza_di_persona",
+            "objectPropertyIRI": "rbi:ha_cittadinanza_di_persona",
             "relatedClasses": [
               "rbi:Persona"
             ]
