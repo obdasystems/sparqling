@@ -2,6 +2,8 @@ import nodeResolve from '@rollup/plugin-node-resolve'
 import commonjs from '@rollup/plugin-commonjs'
 import babel from '@rollup/plugin-babel'
 import replace from '@rollup/plugin-replace'
+import typescript from '@rollup/plugin-typescript'
+
 import { terser } from 'rollup-plugin-terser'
 import { sizeSnapshot } from 'rollup-plugin-size-snapshot'
 import license from 'rollup-plugin-license'
@@ -18,7 +20,7 @@ const dependencies = Object.keys(require('./package.json').dependencies)
 dependencies.splice(dependencies.indexOf('lit-html'), 1)
 dependencies.splice(dependencies.indexOf('lit-element'), 1)
 
-const input = './src/main.js'
+const input = './src/index.ts'
 const name = 'sparqling'
 
 const envVariables = {
@@ -78,7 +80,7 @@ export default {
   input,
   output: {
     file: 'build/sparqling.js',
-    format: 'umd',
+    format: 'iife',
     name,
     sourcemap: SOURCEMAPS ? 'inline' : false
   },
@@ -86,6 +88,6 @@ export default {
     nodeResolve(),
     commonjs({ include: '**/node_modules/**' }),
     replace(envVariables),
-    BABEL ? babel(getBabelOptions()) : {},
+    typescript(),
   ]
 }

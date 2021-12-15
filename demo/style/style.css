@@ -37,17 +37,19 @@
 }
 
 */
-
-#grapholscape_container {
-  height: 100%;
+#sparqling-query-graph {
+  height: 40%;
   position: relative;
   display: none;
+}
+
+#sparqling-query-graph { 
+  height: 100%;
 }
 
 body, html {
   font-family : "Montserrat", "Open Sans","Helvetica Neue",Helvetica,sans-serif;
   color: #555;
-  -webkit-user-select:none; 
   height: 100%;
 }
 
