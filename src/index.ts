@@ -2,7 +2,7 @@ import { fullGrapholscape } from 'grapholscape'
 //import { getHighlights, getQueryGraphNode, putQueryGraphNodeDataProperty, putQueryGraphNodeObjectProperty } from './api/api_stub'
 import highlightStyle from './style/highlight-style'
 import QueryGraphRenderer from './query-graph/renderer'
-import { QueryGraph, QueryGraphApi } from './api/swagger/api'
+import { QueryGraphApi, OntologyGraphApi } from './api/swagger/api'
 import * as containers from './get-container'
 
 export default async function sparqling(sparqlingContainer: HTMLDivElement, file: string | Blob) {
@@ -10,7 +10,7 @@ export default async function sparqling(sparqlingContainer: HTMLDivElement, file
 
   const gscape = await fullGrapholscape(file, containers.grapholscape, { owl_translator: false })
   const qgRenderer = new QueryGraphRenderer(containers.sparqlingQueryGraph)
-
+  new OntologyGraphApi().highligths('test')
   const qgApi = new QueryGraphApi()
   
   gscape.showDiagram(0)

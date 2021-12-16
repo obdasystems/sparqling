@@ -82,10 +82,14 @@ export default {
     file: 'build/sparqling.js',
     format: 'iife',
     name,
-    sourcemap: SOURCEMAPS ? 'inline' : false
+    sourcemap: SOURCEMAPS ? 'inline' : false,
+    globals:{
+      axios: 'axios'
+    },
   },
   plugins: [
-    nodeResolve(),
+    json(getJsonOptions()),
+    nodeResolve({ browser: true }),
     commonjs({ include: '**/node_modules/**' }),
     replace(envVariables),
     typescript(),
