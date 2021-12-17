@@ -37,14 +37,10 @@
 }
 
 */
-#sparqling-query-graph {
-  height: 40%;
-  position: relative;
-  display: none;
-}
 
-#sparqling-query-graph { 
-  height: 100%;
+#sparqling-container {
+  height:100%;
+  display: none;
 }
 
 body, html {
