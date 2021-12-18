@@ -63,7 +63,7 @@ export const StandaloneApiAxiosParamCreator = function (configuration?: Configur
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
-        standaloneOntologyUploadPost: async (file?: string, options: any = {}): Promise<RequestArgs> => {
+        standaloneOntologyUploadPost: async (file?: File, options: any = {}): Promise<RequestArgs> => {
             const localVarPath = `/standalone/ontology/upload`;
             // use dummy base URL string because the URL constructor only accepts absolute URLs.
             const localVarUrlObj = new URL(localVarPath, 'https://example.com');
@@ -78,7 +78,7 @@ export const StandaloneApiAxiosParamCreator = function (configuration?: Configur
 
 
             if (file !== undefined) { 
-                localVarFormParams.append('file', file as any);
+                localVarFormParams.append('file', file as any, file.name);
             }
 
             localVarHeaderParameter['Content-Type'] = 'multipart/form-data';
@@ -128,7 +128,7 @@ export const StandaloneApiFp = function(configuration?: Configuration) {
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
-        async standaloneOntologyUploadPost(file?: string, options?: any): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<void>> {
+        async standaloneOntologyUploadPost(file?: File, options?: any): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<void>> {
             const localVarAxiosArgs = await StandaloneApiAxiosParamCreator(configuration).standaloneOntologyUploadPost(file, options);
             return (axios: AxiosInstance = globalAxios, basePath: string = BASE_PATH) => {
                 const axiosRequestArgs = {...localVarAxiosArgs.options, url: basePath + localVarAxiosArgs.url};
@@ -160,7 +160,7 @@ export const StandaloneApiFactory = function (configuration?: Configuration, bas
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
-        standaloneOntologyUploadPost(file?: string, options?: any): AxiosPromise<void> {
+        standaloneOntologyUploadPost(file?: File, options?: any): AxiosPromise<void> {
             return StandaloneApiFp(configuration).standaloneOntologyUploadPost(file, options).then((request) => request(axios, basePath));
         },
     };
@@ -191,7 +191,7 @@ export class StandaloneApi extends BaseAPI {
      * @throws {RequiredError}
      * @memberof StandaloneApi
      */
-    public standaloneOntologyUploadPost(file?: string, options?: any) {
+    public standaloneOntologyUploadPost(file?: File, options?: any) {
         return StandaloneApiFp(this.configuration).standaloneOntologyUploadPost(file, options).then((request) => request(this.axios, this.basePath));
     }
 }
