@@ -1,3 +1,6 @@
+import { EntityTypeEnum } from "../api/swagger/models"
+
+const { DataProperty } = EntityTypeEnum
 export default [
   {
     selector: 'node',
@@ -20,15 +23,15 @@ export default [
   },
 
   {
-    selector: '[iri]',
+    selector: '[displayed_name]',
     style: {
-      'label': 'data(iri)',
+      'label': 'data(displayed_name)',
       'font-size': '8px'
     }
-  }, 
+  },
   
   {
-    selector: 'edge[type = "dataProperty"]',
+    selector: `edge[type = "${DataProperty}"]`,
     style: {
       'width': 1,
       'curve-style': 'haystack'
@@ -36,7 +39,7 @@ export default [
   },
 
   {
-    selector: 'node[type = "dataProperty"]',
+    selector: `node[type = "${DataProperty}"]`,
     style: {
       'height': 10,
       'width': 10

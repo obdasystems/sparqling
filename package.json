@@ -24,6 +24,7 @@
     "@rollup/plugin-node-resolve": "^13.0.5",
     "@rollup/plugin-replace": "^3.0.0",
     "@rollup/plugin-typescript": "^8.3.0",
+    "@types/cytoscape": "^3.19.2",
     "@types/jest": "^27.0.3",
     "cpy-cli": "^3.1.1",
     "cross-env": "^7.0.3",
@@ -40,6 +41,7 @@
   "dependencies": {
     "axios": "^0.21.1",
     "cytoscape": "^3.20.0",
+    "cytoscape-cola": "^2.5.0",
     "cytoscape-klay": "^3.1.4",
     "grapholscape": "file:lib/grapholscape-2.0.0-beta.1.tgz"
   }

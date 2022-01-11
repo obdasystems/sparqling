@@ -24,6 +24,7 @@ const input = './src/index.ts'
 const name = 'sparqling'
 
 const envVariables = {
+  preventAssignment: true,
   'process.env.VERSION': JSON.stringify(VERSION),
   'process.env.NODE_ENV': JSON.stringify(NODE_ENV)
 }
@@ -92,6 +93,9 @@ export default {
     nodeResolve({ browser: true }),
     commonjs({ include: '**/node_modules/**' }),
     replace(envVariables),
-    typescript(),
+    typescript({
+      allowSyntheticDefaultImports: true,
+      target: 'es6'
+    }),
   ]
 }

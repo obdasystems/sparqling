@@ -1,100 +1,124 @@
-import { fullGrapholscape } from 'grapholscape'
+import cytoscape, { CollectionReturnValue } from 'cytoscape'
+import { fullGrapholscape, Type } from 'grapholscape'
+import { QueryGraphApi, StandaloneApi } from './api/swagger/api'
+import { Highlights, QueryGraph } from './api/swagger/models'
+import { grapholscape as gscapeContainer } from './get-container'
+import * as ontologyGraph from './ontology-graph/ontology-graph'
+import QueryManager from './query-graph'
 //import { getHighlights, getQueryGraphNode, putQueryGraphNodeDataProperty, putQueryGraphNodeObjectProperty } from './api/api_stub'
 import highlightStyle from './style/highlight-style'
-import QueryGraphRenderer from './query-graph/renderer'
-import { QueryGraphApi, OntologyGraphApi, StandaloneApi } from './api/swagger/api'
-import * as containers from './get-container'
-import { fileToString } from './util'
-import { QueryGraph, GraphElement} from './api/swagger/models'
+import { EntityTypeEnum } from './api/swagger/models'
 
-export default async function sparqling(sparqlingContainer: HTMLDivElement, file: string | Blob) {
-  for (const key in containers) { sparqlingContainer.appendChild(containers[key]) }
+const { CONCEPT, OBJECT_PROPERTY, DATA_PROPERTY } = Type
 
-  const gscape = await fullGrapholscape(file, containers.grapholscape, { owl_translator: false })
-  const qgRenderer = new QueryGraphRenderer(containers.sparqlingQueryGraph)
-  
-  const ogApi = new OntologyGraphApi()
+export default async function sparqling(sparqlingContainer: HTMLDivElement, file: string | File, isStandalone?: boolean) {
+  //for (const key in containers) { sparqlingContainer.appendChild(containers[key]) }
+  sparqlingContainer.appendChild(gscapeContainer)
+  const gscape = await fullGrapholscape(file, gscapeContainer, { owl_translator: false })
+  ontologyGraph.init(gscape)
+  const queryManager = new QueryManager(gscape)
+
   const qgApi = new QueryGraphApi()
-  const soApi = new StandaloneApi()
 
-  let qg: QueryGraph
+  if (isStandalone) {
+    if (typeof file === 'string')
+      file = new File([file], `${gscape.ontology.name}-from-string.graphol`)
 
-  if (typeof file !== 'string')
-    file = await fileToString(file)
-  
-  soApi.standaloneOntologyUploadPost(file)
+    new StandaloneApi().standaloneOntologyUploadPost(file as File)
+  }
 
   gscape.showDiagram(0)
   setHighlightedStylesheet(gscape.renderer.cy, highlightStyle)
   gscape.onDiagramChange(() => setHighlightedStylesheet(gscape.renderer.cy, highlightStyle))
   gscape.onRendererChange(() => setHighlightedStylesheet(gscape.renderer.cy, highlightStyle))
-  gscape.onBackgroundClick(() => resetHighlights(gscape.renderer.cy))
+  // gscape.onBackgroundClick(() => resetHighlights(gscape.renderer.cy))
   gscape.onThemeChange(() => setHighlightedStylesheet(gscape.renderer.cy, highlightStyle))
+  gscape.onLanguageChange((newLanguage: string) => queryManager.setLanguage(newLanguage))
+  gscape.onEntityNameTypeChange((newNameType: string) => {
+    queryManager.setDisplayedNameType(newNameType, gscape.languages.selected)
+  })
 
-  let lastObjProperty: any
-  let highlights
+  queryManager.setDisplayedNameType(gscape.actualEntityNameType, gscape.languages.selected)
+  let lastObjProperty: cytoscape.CollectionReturnValue
+  let highlights: Highlights
 
-  gscape.onEntitySelection( async (cyEntity: any) => {
-    let clickedIRI: string = cyEntity.data('iri').prefixed
-    resetHighlights(gscape.renderer.cy)
+  gscape.onEntitySelection(async (cyEntity: CollectionReturnValue) => {
+    let clickedIRI: string = cyEntity.data('iri').fullIri
     let newQueryGraph: QueryGraph
 
     switch (cyEntity.data('type')) {
-      case '':
+      case OBJECT_PROPERTY:
         lastObjProperty = cyEntity
-        const connectedClass = findNextClassFromObjProperty(cyEntity)
-        cyEntity.unselect()
-        connectedClass.select()
+        if (queryManager.selectedGraphNode) {
+          ontologyGraph.findNextClassFromObjProperty(cyEntity).then(result => {
+            lastObjProperty['direct'] = result.objPropertyFromApi.direct
+            gscape.centerOnNode(result.connectedClass.id(), 1.8)
+          })
+            .finally(() => cyEntity.unselect())
+        }
         break
 
-      case 'concept':
-        /*
-        if (clickedIRI !== qgRenderer.selectedGraphNode?.entity.iri) {
+      case CONCEPT:
+        const iriInQueryGraph = queryManager.qg ? queryManager.getGraphElementByIRI(clickedIRI) : null
+        const selectedGraphNode = queryManager.selectedGraphNode
+        const isIriHighlighted = ontologyGraph.isHighlighted(clickedIRI)
+
+        /**
+         * if it's not the first click, 
+         * the class is not highlighted, 
+         * it's not connected to a objectProperty 
+         * and it's not already in the queryGraph, then skip this click
+         */ 
+        if (queryManager.qg && !isIriHighlighted && !lastObjProperty && !iriInQueryGraph) {
+          //cyEntity.unselect()
+          return
+        }
+        
+        if (clickedIRI !== selectedGraphNode?.entities[0].iri) {
           try {
             if (lastObjProperty) {
-              newQueryGraph = await qgApi.putQueryGraphObjectProperty(
-                qg,
-                qgRenderer.selectedGraphNode.entity.iri,
-                lastObjProperty.data('iri').prefixed,
+              console.log(lastObjProperty['direct'])
+              newQueryGraph = (await qgApi.putQueryGraphObjectProperty(
+                queryManager.qg, "", lastObjProperty.data('iri').fullIri, clickedIRI,
+                lastObjProperty['direct'],
+                selectedGraphNode.id
+              )).data
+
+            } else if (queryManager.qg && iriInQueryGraph && isIriHighlighted) {
+              newQueryGraph = (await qgApi.putQueryGraphClass(
+                queryManager.qg, '',
                 clickedIRI,
-                true,
-                qgRenderer.selectedGraphNode.id
-              )
+                selectedGraphNode.id)).data
+            } else
+              newQueryGraph = (await qgApi.getQueryGraph(clickedIRI)).data
 
-              newQueryGraph = putQueryGraphNodeObjectProperty(null, null,
-                qgRenderer.selectedGraphNode.id, // graphNodeId
-                null, // sourceClassIri
-                lastObjProperty.data('iri').prefixed // predicateIri
-              )
-            } else {
-              newQueryGraph = getQueryGraphNode(null, null, clickedIRI)
-            }
-
-            qgRenderer.graph = newQueryGraph.graph
+            queryManager.qg = newQueryGraph
           } catch (error) { console.error(error) }
         }
-        */
-        qgApi.getQueryGraph(clickedIRI).then(newQueryGraph => {
-          console.log(newQueryGraph)
-        })
-        //highlightSuggestions(clickedIRI)
+
+        queryManager.selectGraphElement(clickedIRI)
+        ontologyGraph.resetHighlights()
+        ontologyGraph.highlightSuggestions(clickedIRI)
         lastObjProperty = null
         break
-      /*
-      case 'attribute':
-        if (qgRenderer.selectedGraphNode?.entity.type === 'class') {
-          newQueryGraph = putQueryGraphNodeDataProperty(null, null,
-            qgRenderer.selectedGraphNode.id,
-            null,null)
 
-          qgRenderer.graph = newQueryGraph.graph
+      case DATA_PROPERTY:
+        if (queryManager.qg && !ontologyGraph.isHighlighted(clickedIRI)) {
+          cyEntity.unselect()
+          return
+        }
+
+        if (queryManager.selectedGraphNode?.entities[0].type === EntityTypeEnum.Class) {
+          queryManager.qg = (await qgApi.putQueryGraphDataProperty(
+            queryManager.qg, '', clickedIRI, queryManager.selectedGraphNode.id
+          )).data
         }
         lastObjProperty = null
         break
-        */
     }
   })
 
+  /*
   qgRenderer.onNodeSelect( selectedQueryGraphNode => {
     console.log(selectedQueryGraphNode.entity.iri)
     let elems = gscape.ontology
@@ -106,61 +130,9 @@ export default async function sparqling(sparqlingContainer: HTMLDivElement, file
 
     gscape.centerOnNode(elem.id())
   })
-
-  /*
-  function highlightSuggestions(clickedIRI) {
-    try {
-      highlights = getHighlights(gscape.ontology.name, gscape.ontology.version, clickedIRI)
-    } catch {
-      console.warn('wrong iri')
-      return
-    }
-    console.log(highlights)
-    highlights.classes.forEach(iri => highlightIRI(iri))
-    highlights.dataProperties.forEach(iri => highlightIRI(iri))
-    highlights.objectProperties.forEach(o => highlightIRI(o.objectPropertyIRI))
-  }
 */
-  function findNextClassFromObjProperty(objProperty) {
-    let objPropertyFromApi = highlights.objectProperties.find(o =>
-      gscape.ontology.checkEntityIri(objProperty, o.objectPropertyIRI)
-    )
-
-    if (objPropertyFromApi) {
-      if (objPropertyFromApi.relatedClasses.length > 1) {
-        // TODO show popup dialog
-      } else if (objPropertyFromApi.relatedClasses.length === 1) {
-
-        // if it's not and edge, connected classes are attached to domain/range
-        // nodes
-        let connectedClasses = objProperty.isEdge() 
-          ? objProperty.connectedNodes('.concept')
-          // TODO: be sure first neighborhood only select range/domain restrictions node
-          : objProperty.neighborhood('node').neighborhood('node.concept')
-
-        for (const i in connectedClasses) {
-          if (connectedClasses[i].selected()) continue
-          let classPrefixedIri = connectedClasses[i].data('iri').prefixed
-          if (classPrefixedIri === objPropertyFromApi.relatedClasses[0]) {
-            return connectedClasses[i]
-          }
-        }
-      }
-    }
-  }
-
-  function highlightIRI(iri) {
-    //let diagramID = grapholscape.view.actual_diagram_id
-    let nodes = gscape.ontology.getEntityOccurrences(iri)
-    if (nodes)
-      nodes.forEach(n => n.addClass('highlighted'))
-  }
 
   function setHighlightedStylesheet(cy, style) {
     cy.style().selector('.highlighted').style(style).update()
-  }
-
-  function resetHighlights(cy) {
-    cy.$('.highlighted').removeClass('highlighted')
   }
 }
