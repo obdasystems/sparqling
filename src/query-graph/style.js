@@ -25,6 +25,9 @@ export default [
   {
     selector: '[displayed_name]',
     style: {
+      'text-wrap': 'wrap',
+      'text-max-width': '50px',
+      'text-overflow-wrap': 'anywhere',
       'label': 'data(displayed_name)',
       'font-size': '8px'
     }
