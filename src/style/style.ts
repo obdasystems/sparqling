@@ -12,7 +12,7 @@ export default [
   {
     selector: '.faded',
     style: {
-      'opacity': 0.5,
+      'opacity': 0.25,
     }
   }
 ] as StylesheetStyle[]

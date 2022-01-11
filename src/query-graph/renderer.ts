@@ -23,12 +23,12 @@ export default class BGPRenderer {
   private cy = cytoscape({
     style: [] as Stylesheet[],
     wheelSensitivity: 0.4,
+    maxZoom: 2,
   })
   private layoutOptions = {
     nodeDimensionsIncludeLabels: true,
     name: 'klay',
-    fit: true, // Whether to fit
-    padding: '10%', // Padding on fit
+    fit: false, // Whether to fit
     klay: {
       direction: 'RIGHT',
       spacing: 60
@@ -43,9 +43,9 @@ export default class BGPRenderer {
       fit:false,
       concentric: (node) => {
         if (node.data('type') === EntityTypeEnum.Class) {
-          return 2
+          return 2 // higher value means center
         } else {
-          return 1
+          return 1 // lower value means outside center
         }
       },
       boundingBox: {
@@ -141,6 +141,8 @@ export default class BGPRenderer {
         layoutConcentric.run()
       }
     })
+
+    this.cy.fit()
     //dataPropSources.lock()
     // apply floaty layout only to dataproperties
     //this.cy.$(dataPropertySelector).closedNeighborhood().layout(this.radialLayoutOpt).run()
