@@ -1,4 +1,4 @@
-import cytoscape, { CollectionReturnValue } from 'cytoscape'
+import cytoscape, { CollectionReturnValue, Core, Stylesheet, StylesheetStyle } from 'cytoscape'
 import { fullGrapholscape, Type } from 'grapholscape'
 import { QueryGraphApi, StandaloneApi } from './api/swagger/api'
 import { Highlights, QueryGraph } from './api/swagger/models'
@@ -6,7 +6,7 @@ import { grapholscape as gscapeContainer } from './get-container'
 import * as ontologyGraph from './ontology-graph/ontology-graph'
 import QueryManager from './query-graph'
 //import { getHighlights, getQueryGraphNode, putQueryGraphNodeDataProperty, putQueryGraphNodeObjectProperty } from './api/api_stub'
-import highlightStyle from './style/highlight-style'
+import sparqlingStyle from './style/style'
 import { EntityTypeEnum } from './api/swagger/models'
 
 const { CONCEPT, OBJECT_PROPERTY, DATA_PROPERTY } = Type
@@ -28,11 +28,11 @@ export default async function sparqling(sparqlingContainer: HTMLDivElement, file
   }
 
   gscape.showDiagram(0)
-  setHighlightedStylesheet(gscape.renderer.cy, highlightStyle)
-  gscape.onDiagramChange(() => setHighlightedStylesheet(gscape.renderer.cy, highlightStyle))
-  gscape.onRendererChange(() => setHighlightedStylesheet(gscape.renderer.cy, highlightStyle))
+  addStylesheet(gscape.renderer.cy, sparqlingStyle)
+  gscape.onDiagramChange(() => addStylesheet(gscape.renderer.cy, sparqlingStyle))
+  gscape.onRendererChange(() => addStylesheet(gscape.renderer.cy, sparqlingStyle))
   // gscape.onBackgroundClick(() => resetHighlights(gscape.renderer.cy))
-  gscape.onThemeChange(() => setHighlightedStylesheet(gscape.renderer.cy, highlightStyle))
+  gscape.onThemeChange(() => addStylesheet(gscape.renderer.cy, sparqlingStyle))
   gscape.onLanguageChange((newLanguage: string) => queryManager.setLanguage(newLanguage))
   gscape.onEntityNameTypeChange((newNameType: string) => {
     queryManager.setDisplayedNameType(newNameType, gscape.languages.selected)
@@ -132,7 +132,9 @@ export default async function sparqling(sparqlingContainer: HTMLDivElement, file
   })
 */
 
-  function setHighlightedStylesheet(cy, style) {
-    cy.style().selector('.highlighted').style(style).update()
+  function addStylesheet(cy: any, stylesheet: StylesheetStyle[]) {
+    stylesheet.forEach( styleObj => {
+      cy.style().selector(styleObj.selector).style(styleObj.style)
+    })
   }
 }

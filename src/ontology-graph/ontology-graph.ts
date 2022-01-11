@@ -17,8 +17,11 @@ export function init(grapholscape: any) {
 
 export function highlightIRI(iri: string) {
   let nodes = gscape.ontology.getEntityOccurrences(iri)
-  if (nodes)
-    nodes.forEach((n: CollectionReturnValue) => n.addClass('highlighted'))
+  if (nodes) {
+    nodes.forEach((n: CollectionReturnValue) => {
+      n.addClass('highlighted')
+    })
+  }
 }
 
 export async function highlightSuggestions(clickedIRI: string) {
@@ -26,6 +29,10 @@ export async function highlightSuggestions(clickedIRI: string) {
   actualHighlights.classes.forEach((iri: string) => highlightIRI(iri))
   actualHighlights.dataProperties.forEach((iri: string) => highlightIRI(iri))
   actualHighlights.objectProperties.forEach((o: any) => highlightIRI(o.objectPropertyIRI))
+
+  let highlightedElems = gscape.renderer.cy.$('.highlighted, :selected')
+  gscape.renderer.cy.elements().difference(highlightedElems).addClass('faded')
+  // gscape.renderer.cy.fit(highlightedElems, '100')
 }
 
 export function findNextClassFromObjProperty(objProperty: CollectionReturnValue):
@@ -75,6 +82,7 @@ export function isHighlighted(iri:string): boolean {
 
 export function resetHighlights() {
   gscape.renderer.cy.$('.highlighted').removeClass('highlighted')
+  gscape.renderer.cy.$('.faded').removeClass('faded')
 }
 
 /**
