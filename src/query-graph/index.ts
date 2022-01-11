@@ -1,3 +1,4 @@
+import { Theme } from "grapholscape"
 import { GraphElement, QueryGraph } from "../api/swagger/models"
 import { EntityTypeEnum } from "../api/swagger/models"
 import { bgpContainer } from "../get-container"
@@ -37,6 +38,9 @@ export default class QueryManager {
       diagram.cy.$(':selected').unselect()
       gscape.centerOnNode(elem.id())
     })
+
+    this.bgp.theme = gscape.themesController.actualTheme
+    gscape.onThemeChange( (newTheme: Theme) => this.bgp.theme = newTheme)
   }
 
   public getGraphElementByID(id: string | number) {

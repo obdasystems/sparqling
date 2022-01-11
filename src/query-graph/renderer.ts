@@ -3,7 +3,8 @@ import klay from 'cytoscape-klay'
 import cola from 'cytoscape-cola'
 import { GraphElement } from '../api/swagger/models'
 import { EntityTypeEnum } from '../api/swagger/models'
-import stylesheet from './style'
+import getStylesheet from './style'
+import { Theme } from 'grapholscape'
 
 cytoscape.use(klay)
 cytoscape.use(cola)
@@ -20,7 +21,7 @@ export enum DisplayedNameType {
  */
 export default class BGPRenderer {
   private cy = cytoscape({
-    style: stylesheet as Stylesheet[],
+    style: [] as Stylesheet[],
     wheelSensitivity: 0.4,
   })
   private layoutOptions = {
@@ -184,4 +185,8 @@ export default class BGPRenderer {
   }
 
   public get container() { return this.cy.container() }
+
+  public set theme(newTheme: Theme) {
+    this.cy.style(getStylesheet(newTheme))
+  }
 }
