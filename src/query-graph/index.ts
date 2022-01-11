@@ -18,10 +18,8 @@ export default class QueryManager {
     this.gscape = gscape
 
     // Add query graph widget to grapholscape instance
-    gscape.container
-      .querySelector('#gscape-ui')
-      .querySelector('#gscape-ui-bottom-container')
-      .appendChild(this._qgWidget as any)
+    const uiContainer = gscape.container.querySelector('#gscape-ui')
+    uiContainer.insertBefore(this._qgWidget, uiContainer.firstChild)
 
     this.bgp = new BGPRenderer(bgpContainer)
     this.bgp.onNodeSelect((nodeId: string) => {
