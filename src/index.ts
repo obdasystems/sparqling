@@ -71,13 +71,13 @@ export default async function sparqling(sparqlingContainer: HTMLDivElement, file
          */ 
         if (queryManager.qg && !isIriHighlighted && !lastObjProperty && !iriInQueryGraph) {
           //cyEntity.unselect()
+          console.log('selection ignored for class '+ clickedIRI)
           return
         }
         
         if (clickedIRI !== selectedGraphNode?.entities[0].iri) {
           try {
             if (lastObjProperty) {
-              console.log(lastObjProperty['direct'])
               newQueryGraph = (await qgApi.putQueryGraphObjectProperty(
                 queryManager.qg, "", lastObjProperty.data('iri').fullIri, clickedIRI,
                 lastObjProperty['direct'],

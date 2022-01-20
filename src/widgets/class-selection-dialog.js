@@ -71,7 +71,6 @@ export default class ClassSelectionDialog extends GscapeWidget {
 
   handleSelection(e) {
     e.preventDefault()
-    console.log(e.target)
     this.selectionCallback(this.classes[e.currentTarget.getAttribute('index')])
   }
 

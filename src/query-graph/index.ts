@@ -23,7 +23,6 @@ export default class QueryManager {
 
     this.bgp = new BGPRenderer(bgpContainer)
     this.bgp.onNodeSelect((nodeId: string) => {
-      console.log(this.qg)
       this._selectedGraphNode = this.getGraphElementByID(nodeId)
 
       const elems = gscape.ontology
@@ -68,11 +67,8 @@ export default class QueryManager {
     const type = graphElem.entities[0].type
     // add new node only if it does not already exists
     // classes are allowed cause there might be multiple entities for a single graphElement (compound nodes)
-    console.log((!this.bgp.getNodeById(graphElem.id) || type === Class) && type !== ObjectProperty)
     if ((!this.bgp.getNodeById(graphElem.id) || type === Class) && type !== ObjectProperty ) {
       this.bgp.addNode(graphElem)
-      console.log('added '+ graphElem.id)
-      console.log(parent)
       if (parent) {
         this.bgp.addEdge(parent, graphElem, objectProperty)
       }
