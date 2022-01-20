@@ -41,7 +41,7 @@ export default class QueryManager {
   }
 
   public getGraphElementByID(id: string | number) {
-    return recursiveFind(this.graph, (elem) => elem.id == id)
+    return recursiveFind(this.graph, (elem) => elem.id === id)
   }
 
   public getGraphElementByIRI(iri: string) {

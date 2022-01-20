@@ -1,4 +1,4 @@
-import cytoscape, { CollectionReturnValue, Core, Stylesheet, StylesheetStyle } from 'cytoscape'
+import cytoscape, { CollectionReturnValue, StylesheetStyle } from 'cytoscape'
 import { fullGrapholscape, Type } from 'grapholscape'
 import { QueryGraphApi, StandaloneApi } from './api/swagger/api'
 import { Highlights, QueryGraph } from './api/swagger/models'
@@ -40,11 +40,14 @@ export default async function sparqling(sparqlingContainer: HTMLDivElement, file
 
   queryManager.setDisplayedNameType(gscape.actualEntityNameType, gscape.languages.selected)
   let lastObjProperty: cytoscape.CollectionReturnValue
-  let highlights: Highlights
 
   gscape.onEntitySelection(async (cyEntity: CollectionReturnValue) => {
     let clickedIRI: string = cyEntity.data('iri').fullIri
     let newQueryGraph: QueryGraph
+
+    const iriInQueryGraph = queryManager.qg ? queryManager.getGraphElementByIRI(clickedIRI) : null
+    const selectedGraphNode = queryManager.selectedGraphNode
+    const isIriHighlighted = ontologyGraph.isHighlighted(clickedIRI)
 
     switch (cyEntity.data('type')) {
       case OBJECT_PROPERTY:
@@ -59,10 +62,6 @@ export default async function sparqling(sparqlingContainer: HTMLDivElement, file
         break
 
       case CONCEPT:
-        const iriInQueryGraph = queryManager.qg ? queryManager.getGraphElementByIRI(clickedIRI) : null
-        const selectedGraphNode = queryManager.selectedGraphNode
-        const isIriHighlighted = ontologyGraph.isHighlighted(clickedIRI)
-
         /**
          * if it's not the first click, 
          * the class is not highlighted, 
@@ -103,7 +102,7 @@ export default async function sparqling(sparqlingContainer: HTMLDivElement, file
         break
 
       case DATA_PROPERTY:
-        if (queryManager.qg && !ontologyGraph.isHighlighted(clickedIRI)) {
+        if (!isIriHighlighted) {
           cyEntity.unselect()
           return
         }
@@ -112,25 +111,14 @@ export default async function sparqling(sparqlingContainer: HTMLDivElement, file
           queryManager.qg = (await qgApi.putQueryGraphDataProperty(
             queryManager.qg, '', clickedIRI, queryManager.selectedGraphNode.id
           )).data
+          
+          // select the current selected class on the ontology, prevent from selecting the attribute
+          gscape.selectEntityOccurrences(queryManager.selectedGraphNode?.entities[0].iri)
         }
         lastObjProperty = null
         break
     }
   })
-
-  /*
-  qgRenderer.onNodeSelect( selectedQueryGraphNode => {
-    console.log(selectedQueryGraphNode.entity.iri)
-    let elems = gscape.ontology
-      .getEntityOccurrences(selectedQueryGraphNode.entity.iri)
-
-    let elem = elems.find( occ => occ.data('diagram_id') === gscape.actualDiagramID)
-
-    if (!elem) elem = elems[0]
-
-    gscape.centerOnNode(elem.id())
-  })
-*/
 
   function addStylesheet(cy: any, stylesheet: StylesheetStyle[]) {
     stylesheet.forEach( styleObj => {

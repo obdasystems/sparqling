@@ -83,6 +83,7 @@ export function isHighlighted(iri:string): boolean {
 export function resetHighlights() {
   gscape.renderer.cy.$('.highlighted').removeClass('highlighted')
   gscape.renderer.cy.$('.faded').removeClass('faded')
+  actualHighlights = null
 }
 
 /**
