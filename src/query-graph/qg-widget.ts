@@ -21,7 +21,7 @@ export default class QueryGraphWidget extends GscapeWidget {
         :host {
           width: 800px;
           position: absolute;
-          bottom: 60px;
+          bottom: 10px;
           left: 10px;
         }
 

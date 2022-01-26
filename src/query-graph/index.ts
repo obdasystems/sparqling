@@ -1,7 +1,9 @@
 import { Theme } from "grapholscape"
-import { GraphElement, QueryGraph } from "../api/swagger/models"
+import { QueryGraphApi } from "../api/swagger"
+import { GraphElement, HeadElement, QueryGraph } from "../api/swagger/models"
 import { EntityTypeEnum } from "../api/swagger/models"
 import { bgpContainer } from "../get-container"
+import QueryHeadWidget from "../query-head/qh-widget"
 import QueryGraphWidget from "./qg-widget"
 import BGPRenderer, { DisplayedNameType } from "./renderer"
 
@@ -9,6 +11,7 @@ const { Class, ObjectProperty, DataProperty } = EntityTypeEnum
 
 export default class QueryManager {
   private _qgWidget = new QueryGraphWidget(bgpContainer)
+  private _qhWidget = new QueryHeadWidget()
   private bgp: BGPRenderer
   private _qg: QueryGraph
   private _selectedGraphNode: GraphElement
@@ -16,10 +19,17 @@ export default class QueryManager {
 
   constructor(gscape: any) {
     this.gscape = gscape
-
-    // Add query graph widget to grapholscape instance
+    const qgApi = new QueryGraphApi()
+    // Add query graph and query head widgets to grapholscape instance
     const uiContainer = gscape.container.querySelector('#gscape-ui')
     uiContainer.insertBefore(this._qgWidget, uiContainer.firstChild)
+    uiContainer.insertBefore(this._qhWidget, uiContainer.firstChild)
+  
+    this._qhWidget.onDeleteHeadElement(async (headElementId:number) => {
+      console.log(headElementId)
+      let headElement = this.qg.head.filter( (e: HeadElement) => e.id === headElementId)
+      this.qg = (await qgApi.deleteHeadTerm(this.qg, headElement)).data
+    })
 
     this.bgp = new BGPRenderer(bgpContainer)
     this.bgp.onNodeSelect((nodeId: string) => {
@@ -85,6 +95,10 @@ export default class QueryManager {
     }
   }
 
+  public renderHead(headElements: HeadElement[]) {
+    this._qhWidget.headElements = headElements
+  }
+
   public setDisplayedNameType(newDisplayedNameType: string, language: string) {
     this.bgp.setDisplayedNameType(DisplayedNameType[newDisplayedNameType], language)
   }
@@ -96,6 +110,7 @@ export default class QueryManager {
   set qg(newQueryGraph: QueryGraph) {
     this._qg = newQueryGraph
     this.renderGraph(this.qg.graph)
+    this.renderHead(this.qg.head)
   }
 
   get qg() { return this._qg }
