@@ -14,19 +14,35 @@
 /**
  * 
  * @export
- * @interface GroupByElement
+ * @interface FilterExpression
  */
-export interface GroupByElement {
-    /**
-     * 
-     * @type {Array&lt;number&gt;}
-     * @memberof GroupByElement
-     */
-    headElementIds?: any;
+export interface FilterExpression {
     /**
      * 
      * @type {string}
-     * @memberof GroupByElement
+     * @memberof FilterExpression
      */
-    aggregateFunction?: any;
+    operator?: FilterExpressionOperatorEnum;
+    /**
+     * 
+     * @type {Array&lt;VarOrConstant&gt;}
+     * @memberof FilterExpression
+     */
+    parameters?: any;
 }
+
+/**
+    * @export
+    * @enum {string}
+    */
+export enum FilterExpressionOperatorEnum {
+    Equal = '=',
+    NotEqual = '!=',
+    LessThan = '<',
+    GreaterThan = '>',
+    LessThanOrEqualTo = '<=',
+    GreaterThanOrEqualTo = '>=',
+    IN = 'IN',
+    NOTIN = 'NOT IN'
+}
+

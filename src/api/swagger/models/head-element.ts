@@ -25,7 +25,7 @@ export interface HeadElement {
     id?: any;
     /**
      * 
-     * @type {number}
+     * @type {string}
      * @memberof HeadElement
      */
     graphElementId?: any;
@@ -43,8 +43,8 @@ export interface HeadElement {
     alias?: any;
     /**
      * 
-     * @type {boolean}
+     * @type {ModelFunction}
      * @memberof HeadElement
      */
-    hidden?: any;
+    _function?: any;
 }

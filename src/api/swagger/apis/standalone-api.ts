@@ -24,7 +24,7 @@ export const StandaloneApiAxiosParamCreator = function (configuration?: Configur
     return {
         /**
          * 
-         * @summary Return the graphol file as a string to be parsed by GRAPHOLscape.
+         * @summary Return the graphol file as a string to be parsed by Grapholscape.
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
@@ -146,7 +146,7 @@ export const StandaloneApiFactory = function (configuration?: Configuration, bas
     return {
         /**
          * 
-         * @summary Return the graphol file as a string to be parsed by GRAPHOLscape.
+         * @summary Return the graphol file as a string to be parsed by Grapholscape.
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
@@ -175,7 +175,7 @@ export const StandaloneApiFactory = function (configuration?: Configuration, bas
 export class StandaloneApi extends BaseAPI {
     /**
      * 
-     * @summary Return the graphol file as a string to be parsed by GRAPHOLscape.
+     * @summary Return the graphol file as a string to be parsed by Grapholscape.
      * @param {*} [options] Override http request option.
      * @throws {RequiredError}
      * @memberof StandaloneApi

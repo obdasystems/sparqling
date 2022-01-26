@@ -73,6 +73,18 @@ export interface QueryGraph {
     having?: any;
     /**
      * 
+     * @type {number}
+     * @memberof QueryGraph
+     */
+    limit?: any;
+    /**
+     * 
+     * @type {number}
+     * @memberof QueryGraph
+     */
+    offset?: any;
+    /**
+     * 
      * @type {string}
      * @memberof QueryGraph
      */

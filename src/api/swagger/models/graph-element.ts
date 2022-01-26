@@ -24,6 +24,12 @@ export interface GraphElement {
      */
     id?: any;
     /**
+     * This element could refer to one variable (if it's a class) or to two variables (if it's a property)
+     * @type {Array&lt;string&gt;}
+     * @memberof GraphElement
+     */
+    variables?: any;
+    /**
      * It could have more than one entity only when entity type is a class (could be derived after clicking on two borther classes)
      * @type {Array&lt;Entity&gt;}
      * @memberof GraphElement

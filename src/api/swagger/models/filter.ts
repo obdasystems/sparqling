@@ -19,7 +19,7 @@
 export interface Filter {
     /**
      * 
-     * @type {BinaryExpression}
+     * @type {FilterExpression}
      * @memberof Filter
      */
     expression?: any;

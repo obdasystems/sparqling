@@ -14,13 +14,46 @@
 /**
  * 
  * @export
- * @interface Schema
+ * @interface ModelFunction
  */
-export interface Schema {
+export interface ModelFunction {
     /**
      * 
-     * @type {number}
-     * @memberof Schema
+     * @type {string}
+     * @memberof ModelFunction
      */
-    id?: any;
+    name?: ModelFunctionNameEnum;
+    /**
+     * 
+     * @type {Array&lt;VarOrConstant&gt;}
+     * @memberof ModelFunction
+     */
+    parameters?: any;
 }
+
+/**
+    * @export
+    * @enum {string}
+    */
+export enum ModelFunctionNameEnum {
+    Plus = '+',
+    Minus = '-',
+    Star = '*',
+    Slash = '/',
+    SUBSTR = 'SUBSTR',
+    UCASE = 'UCASE',
+    LCASE = 'LCASE',
+    CONTAINS = 'CONTAINS',
+    CONCAT = 'CONCAT',
+    REGEX = 'REGEX',
+    ROUND = 'ROUND',
+    CEIL = 'CEIL',
+    FLOOR = 'FLOOR',
+    YEAR = 'YEAR',
+    MONTH = 'MONTH',
+    DAY = 'DAY',
+    HOURS = 'HOURS',
+    MINUTES = 'MINUTES',
+    SECONDS = 'SECONDS'
+}
+

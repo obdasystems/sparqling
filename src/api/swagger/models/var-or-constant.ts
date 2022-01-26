@@ -14,25 +14,45 @@
 /**
  * 
  * @export
- * @interface BinaryExpression
+ * @interface VarOrConstant
  */
-export interface BinaryExpression {
+export interface VarOrConstant {
     /**
      * 
      * @type {string}
-     * @memberof BinaryExpression
+     * @memberof VarOrConstant
      */
-    operator?: any;
+    type?: VarOrConstantTypeEnum;
     /**
-     * Could be a value or a GraphElement id
+     * 
      * @type {string}
-     * @memberof BinaryExpression
+     * @memberof VarOrConstant
      */
-    leftOperand?: any;
+    value?: any;
     /**
-     * Could be a value or a GraphElement id
+     * 
      * @type {string}
-     * @memberof BinaryExpression
+     * @memberof VarOrConstant
      */
-    rightOperand?: any;
+    constantType?: VarOrConstantConstantTypeEnum;
 }
+
+/**
+    * @export
+    * @enum {string}
+    */
+export enum VarOrConstantTypeEnum {
+    Var = 'var',
+    Constant = 'constant',
+    Iri = 'iri'
+}
+/**
+    * @export
+    * @enum {string}
+    */
+export enum VarOrConstantConstantTypeEnum {
+    String = 'xsd:string',
+    Decimal = 'xsd:decimal',
+    DateTime = 'xsd:dateTime'
+}
+

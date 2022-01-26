@@ -24,7 +24,7 @@ export interface Optional {
      */
     id?: any;
     /**
-     * 
+     * Path of ids that describe optional.
      * @type {Array&lt;string&gt;}
      * @memberof Optional
      */

@@ -73,6 +73,66 @@ export const QueryGraphApiAxiosParamCreator = function (configuration?: Configur
             };
         },
         /**
+         * Add the triple pattern(s) identified by the `graphElementId` to the optional `optionalId` - If it is a class the query parameter should be used and the triple pattern `?graphElementId rdf:type <classIRI>` will be moved from the bgp to the optional. - If it is a data property the tp `?graphElementIdVar1 <graphElementIdDataPropertyIRI> ?graphElementIdVar2` will be added to the optional. - If it is a object property the tps `?graphElementIdVar1 <graphElementIdDataPropertyIRI> ?graphElementIdVar2. ?graphElementIdVar2 rdf:type <classIRI>` will be moved to the optional.  For translating this in SPARQL remove all optionals and translate them again.
+         * @summary Add the graphElementId to the optionalId optional.
+         * @param {QueryGraph} body 
+         * @param {string} graphElementId The GraphElement that should be added to the optional
+         * @param {string} optionalId The optional where to perform the adding
+         * @param {string} [classIRI] The IRI of the class that will be inserted in the optional.
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        addOptionalGraphElementId: async (body: QueryGraph, graphElementId: string, optionalId: string, classIRI?: string, options: any = {}): Promise<RequestArgs> => {
+            // verify required parameter 'body' is not null or undefined
+            if (body === null || body === undefined) {
+                throw new RequiredError('body','Required parameter body was null or undefined when calling addOptionalGraphElementId.');
+            }
+            // verify required parameter 'graphElementId' is not null or undefined
+            if (graphElementId === null || graphElementId === undefined) {
+                throw new RequiredError('graphElementId','Required parameter graphElementId was null or undefined when calling addOptionalGraphElementId.');
+            }
+            // verify required parameter 'optionalId' is not null or undefined
+            if (optionalId === null || optionalId === undefined) {
+                throw new RequiredError('optionalId','Required parameter optionalId was null or undefined when calling addOptionalGraphElementId.');
+            }
+            const localVarPath = `/queryGraph/node/optional/{optionalId}/add/{graphElementId}`
+                .replace(`{${"graphElementId"}}`, encodeURIComponent(String(graphElementId)))
+                .replace(`{${"optionalId"}}`, encodeURIComponent(String(optionalId)));
+            // use dummy base URL string because the URL constructor only accepts absolute URLs.
+            const localVarUrlObj = new URL(localVarPath, 'https://example.com');
+            let baseOptions;
+            if (configuration) {
+                baseOptions = configuration.baseOptions;
+            }
+            const localVarRequestOptions = { method: 'PUT', ...baseOptions, ...options};
+            const localVarHeaderParameter = {} as any;
+            const localVarQueryParameter = {} as any;
+
+            if (classIRI !== undefined) {
+                localVarQueryParameter['classIRI'] = classIRI;
+            }
+
+            localVarHeaderParameter['Content-Type'] = 'application/json';
+
+            const query = new URLSearchParams(localVarUrlObj.search);
+            for (const key in localVarQueryParameter) {
+                query.set(key, localVarQueryParameter[key]);
+            }
+            for (const key in options.query) {
+                query.set(key, options.query[key]);
+            }
+            localVarUrlObj.search = (new URLSearchParams(query)).toString();
+            let headersFromBaseOptions = baseOptions && baseOptions.headers ? baseOptions.headers : {};
+            localVarRequestOptions.headers = {...localVarHeaderParameter, ...headersFromBaseOptions, ...options.headers};
+            const needsSerialization = (typeof body !== "string") || localVarRequestOptions.headers['Content-Type'] === 'application/json';
+            localVarRequestOptions.data =  needsSerialization ? JSON.stringify(body !== undefined ? body : {}) : (body || "");
+
+            return {
+                url: localVarUrlObj.pathname + localVarUrlObj.search + localVarUrlObj.hash,
+                options: localVarRequestOptions,
+            };
+        },
+        /**
          * This path should be used to build the query graph using the path interaction. As a result there will be added to the query several triple pattern (depending on the length of the path) as a sequence of classes and object properties. Data properties never appear in paths, in order to add them use the simple PUT route.
          * @summary Get the query graph that will be rendered by Sparqling, the query head, the sparql code based on the chosen path.
          * @param {QueryGraph} body 
@@ -125,10 +185,117 @@ export const QueryGraphApiAxiosParamCreator = function (configuration?: Configur
             };
         },
         /**
+         * The having aggregation function is defined in the groupBy field of the query graph in the request body.
+         * @summary Set the having filter of the aggregation function to the head term.
+         * @param {QueryGraph} body 
+         * @param {string} direction 
+         * @param {string} headTerm The head term that should be involved in the having filter
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        aggregationHavingHeadTerm: async (body: QueryGraph, direction: string, headTerm: string, options: any = {}): Promise<RequestArgs> => {
+            // verify required parameter 'body' is not null or undefined
+            if (body === null || body === undefined) {
+                throw new RequiredError('body','Required parameter body was null or undefined when calling aggregationHavingHeadTerm.');
+            }
+            // verify required parameter 'direction' is not null or undefined
+            if (direction === null || direction === undefined) {
+                throw new RequiredError('direction','Required parameter direction was null or undefined when calling aggregationHavingHeadTerm.');
+            }
+            // verify required parameter 'headTerm' is not null or undefined
+            if (headTerm === null || headTerm === undefined) {
+                throw new RequiredError('headTerm','Required parameter headTerm was null or undefined when calling aggregationHavingHeadTerm.');
+            }
+            const localVarPath = `/queryGraph/head/aggregation/having/{headTerm}`
+                .replace(`{${"headTerm"}}`, encodeURIComponent(String(headTerm)));
+            // use dummy base URL string because the URL constructor only accepts absolute URLs.
+            const localVarUrlObj = new URL(localVarPath, 'https://example.com');
+            let baseOptions;
+            if (configuration) {
+                baseOptions = configuration.baseOptions;
+            }
+            const localVarRequestOptions = { method: 'PUT', ...baseOptions, ...options};
+            const localVarHeaderParameter = {} as any;
+            const localVarQueryParameter = {} as any;
+
+            if (direction !== undefined) {
+                localVarQueryParameter['direction'] = direction;
+            }
+
+            localVarHeaderParameter['Content-Type'] = 'application/json';
+
+            const query = new URLSearchParams(localVarUrlObj.search);
+            for (const key in localVarQueryParameter) {
+                query.set(key, localVarQueryParameter[key]);
+            }
+            for (const key in options.query) {
+                query.set(key, options.query[key]);
+            }
+            localVarUrlObj.search = (new URLSearchParams(query)).toString();
+            let headersFromBaseOptions = baseOptions && baseOptions.headers ? baseOptions.headers : {};
+            localVarRequestOptions.headers = {...localVarHeaderParameter, ...headersFromBaseOptions, ...options.headers};
+            const needsSerialization = (typeof body !== "string") || localVarRequestOptions.headers['Content-Type'] === 'application/json';
+            localVarRequestOptions.data =  needsSerialization ? JSON.stringify(body !== undefined ? body : {}) : (body || "");
+
+            return {
+                url: localVarUrlObj.pathname + localVarUrlObj.search + localVarUrlObj.hash,
+                options: localVarRequestOptions,
+            };
+        },
+        /**
+         * The aggregation function is defined in the group by field of the query graph in the request body. Remember to set the alias of the head based on function name and variable.
+         * @summary Set the aggregation function to the head term.
+         * @param {QueryGraph} body 
+         * @param {string} headTerm The head term that should be involved in the aggregation function
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        aggregationHeadTerm: async (body: QueryGraph, headTerm: string, options: any = {}): Promise<RequestArgs> => {
+            // verify required parameter 'body' is not null or undefined
+            if (body === null || body === undefined) {
+                throw new RequiredError('body','Required parameter body was null or undefined when calling aggregationHeadTerm.');
+            }
+            // verify required parameter 'headTerm' is not null or undefined
+            if (headTerm === null || headTerm === undefined) {
+                throw new RequiredError('headTerm','Required parameter headTerm was null or undefined when calling aggregationHeadTerm.');
+            }
+            const localVarPath = `/queryGraph/head/aggregation/{headTerm}`
+                .replace(`{${"headTerm"}}`, encodeURIComponent(String(headTerm)));
+            // use dummy base URL string because the URL constructor only accepts absolute URLs.
+            const localVarUrlObj = new URL(localVarPath, 'https://example.com');
+            let baseOptions;
+            if (configuration) {
+                baseOptions = configuration.baseOptions;
+            }
+            const localVarRequestOptions = { method: 'PUT', ...baseOptions, ...options};
+            const localVarHeaderParameter = {} as any;
+            const localVarQueryParameter = {} as any;
+
+            localVarHeaderParameter['Content-Type'] = 'application/json';
+
+            const query = new URLSearchParams(localVarUrlObj.search);
+            for (const key in localVarQueryParameter) {
+                query.set(key, localVarQueryParameter[key]);
+            }
+            for (const key in options.query) {
+                query.set(key, options.query[key]);
+            }
+            localVarUrlObj.search = (new URLSearchParams(query)).toString();
+            let headersFromBaseOptions = baseOptions && baseOptions.headers ? baseOptions.headers : {};
+            localVarRequestOptions.headers = {...localVarHeaderParameter, ...headersFromBaseOptions, ...options.headers};
+            const needsSerialization = (typeof body !== "string") || localVarRequestOptions.headers['Content-Type'] === 'application/json';
+            localVarRequestOptions.data =  needsSerialization ? JSON.stringify(body !== undefined ? body : {}) : (body || "");
+
+            return {
+                url: localVarUrlObj.pathname + localVarUrlObj.search + localVarUrlObj.hash,
+                options: localVarRequestOptions,
+            };
+        },
+        /**
          * This route is used when the user wants to delete a node from the query graph. All the children of this node will be deleted as well as we do not want to create query with completly separated branches. All the variables that are going to be deleted should also be deleted from the head of the query. **WARNING**, if the node has multiple occurrences (due to join operations) every node should be deleted.
          * @summary Delete the GraphElement (and all its children) from the query graph and head.
          * @param {QueryGraph} body 
-         * @param {string} graphElementId The GraphElement that should be delete
+         * @param {string} graphElementId The GraphElement that should be deleted
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
@@ -177,7 +344,7 @@ export const QueryGraphApiAxiosParamCreator = function (configuration?: Configur
          * 
          * @summary Delete the head term from the query graph.
          * @param {QueryGraph} body 
-         * @param {string} headTerm The head term that should be delete
+         * @param {string} headTerm The head term that should be deleted
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
@@ -191,6 +358,107 @@ export const QueryGraphApiAxiosParamCreator = function (configuration?: Configur
                 throw new RequiredError('headTerm','Required parameter headTerm was null or undefined when calling deleteHeadTerm.');
             }
             const localVarPath = `/queryGraph/head/delete/{headTerm}`
+                .replace(`{${"headTerm"}}`, encodeURIComponent(String(headTerm)));
+            // use dummy base URL string because the URL constructor only accepts absolute URLs.
+            const localVarUrlObj = new URL(localVarPath, 'https://example.com');
+            let baseOptions;
+            if (configuration) {
+                baseOptions = configuration.baseOptions;
+            }
+            const localVarRequestOptions = { method: 'PUT', ...baseOptions, ...options};
+            const localVarHeaderParameter = {} as any;
+            const localVarQueryParameter = {} as any;
+
+            localVarHeaderParameter['Content-Type'] = 'application/json';
+
+            const query = new URLSearchParams(localVarUrlObj.search);
+            for (const key in localVarQueryParameter) {
+                query.set(key, localVarQueryParameter[key]);
+            }
+            for (const key in options.query) {
+                query.set(key, options.query[key]);
+            }
+            localVarUrlObj.search = (new URLSearchParams(query)).toString();
+            let headersFromBaseOptions = baseOptions && baseOptions.headers ? baseOptions.headers : {};
+            localVarRequestOptions.headers = {...localVarHeaderParameter, ...headersFromBaseOptions, ...options.headers};
+            const needsSerialization = (typeof body !== "string") || localVarRequestOptions.headers['Content-Type'] === 'application/json';
+            localVarRequestOptions.data =  needsSerialization ? JSON.stringify(body !== undefined ? body : {}) : (body || "");
+
+            return {
+                url: localVarUrlObj.pathname + localVarUrlObj.search + localVarUrlObj.hash,
+                options: localVarRequestOptions,
+            };
+        },
+        /**
+         * The distinct value is defined in the query graph in the request body.
+         * @summary Set the distinct value.
+         * @param {QueryGraph} body 
+         * @param {boolean} distinct 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        distinctQueryGraph: async (body: QueryGraph, distinct: boolean, options: any = {}): Promise<RequestArgs> => {
+            // verify required parameter 'body' is not null or undefined
+            if (body === null || body === undefined) {
+                throw new RequiredError('body','Required parameter body was null or undefined when calling distinctQueryGraph.');
+            }
+            // verify required parameter 'distinct' is not null or undefined
+            if (distinct === null || distinct === undefined) {
+                throw new RequiredError('distinct','Required parameter distinct was null or undefined when calling distinctQueryGraph.');
+            }
+            const localVarPath = `/queryGraph/distinct`;
+            // use dummy base URL string because the URL constructor only accepts absolute URLs.
+            const localVarUrlObj = new URL(localVarPath, 'https://example.com');
+            let baseOptions;
+            if (configuration) {
+                baseOptions = configuration.baseOptions;
+            }
+            const localVarRequestOptions = { method: 'PUT', ...baseOptions, ...options};
+            const localVarHeaderParameter = {} as any;
+            const localVarQueryParameter = {} as any;
+
+            if (distinct !== undefined) {
+                localVarQueryParameter['distinct'] = distinct;
+            }
+
+            localVarHeaderParameter['Content-Type'] = 'application/json';
+
+            const query = new URLSearchParams(localVarUrlObj.search);
+            for (const key in localVarQueryParameter) {
+                query.set(key, localVarQueryParameter[key]);
+            }
+            for (const key in options.query) {
+                query.set(key, options.query[key]);
+            }
+            localVarUrlObj.search = (new URLSearchParams(query)).toString();
+            let headersFromBaseOptions = baseOptions && baseOptions.headers ? baseOptions.headers : {};
+            localVarRequestOptions.headers = {...localVarHeaderParameter, ...headersFromBaseOptions, ...options.headers};
+            const needsSerialization = (typeof body !== "string") || localVarRequestOptions.headers['Content-Type'] === 'application/json';
+            localVarRequestOptions.data =  needsSerialization ? JSON.stringify(body !== undefined ? body : {}) : (body || "");
+
+            return {
+                url: localVarUrlObj.pathname + localVarUrlObj.search + localVarUrlObj.hash,
+                options: localVarRequestOptions,
+            };
+        },
+        /**
+         * The function is defined in the head term of the query graph in the request body. Remember to set the alias of the head based on function name and variable.
+         * @summary Set a function to the head term from the query graph.
+         * @param {QueryGraph} body 
+         * @param {string} headTerm The head term that should be involved inthe function
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        functionHeadTerm: async (body: QueryGraph, headTerm: string, options: any = {}): Promise<RequestArgs> => {
+            // verify required parameter 'body' is not null or undefined
+            if (body === null || body === undefined) {
+                throw new RequiredError('body','Required parameter body was null or undefined when calling functionHeadTerm.');
+            }
+            // verify required parameter 'headTerm' is not null or undefined
+            if (headTerm === null || headTerm === undefined) {
+                throw new RequiredError('headTerm','Required parameter headTerm was null or undefined when calling functionHeadTerm.');
+            }
+            const localVarPath = `/queryGraph/head/function/{headTerm}`
                 .replace(`{${"headTerm"}}`, encodeURIComponent(String(headTerm)));
             // use dummy base URL string because the URL constructor only accepts absolute URLs.
             const localVarUrlObj = new URL(localVarPath, 'https://example.com');
@@ -266,18 +534,23 @@ export const QueryGraphApiAxiosParamCreator = function (configuration?: Configur
             };
         },
         /**
-         * This route will return the same query graph passed in the body but the SPARQL code with the new filters optionals group by and havings. Note that if the filters are related to optional variables they should be put inside the optional block.
-         * @summary Translate the query graph in sparql.
+         * The limit value is defined in the query graph in the request body.
+         * @summary Set the limit value.
          * @param {QueryGraph} body 
+         * @param {number} limit 
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
-        modifyFilters: async (body: QueryGraph, options: any = {}): Promise<RequestArgs> => {
+        limitQueryGraph: async (body: QueryGraph, limit: number, options: any = {}): Promise<RequestArgs> => {
             // verify required parameter 'body' is not null or undefined
             if (body === null || body === undefined) {
-                throw new RequiredError('body','Required parameter body was null or undefined when calling modifyFilters.');
+                throw new RequiredError('body','Required parameter body was null or undefined when calling limitQueryGraph.');
             }
-            const localVarPath = `/queryGraph/translate`;
+            // verify required parameter 'limit' is not null or undefined
+            if (limit === null || limit === undefined) {
+                throw new RequiredError('limit','Required parameter limit was null or undefined when calling limitQueryGraph.');
+            }
+            const localVarPath = `/queryGraph/limit`;
             // use dummy base URL string because the URL constructor only accepts absolute URLs.
             const localVarUrlObj = new URL(localVarPath, 'https://example.com');
             let baseOptions;
@@ -287,6 +560,174 @@ export const QueryGraphApiAxiosParamCreator = function (configuration?: Configur
             const localVarRequestOptions = { method: 'PUT', ...baseOptions, ...options};
             const localVarHeaderParameter = {} as any;
             const localVarQueryParameter = {} as any;
+
+            if (limit !== undefined) {
+                localVarQueryParameter['limit'] = limit;
+            }
+
+            localVarHeaderParameter['Content-Type'] = 'application/json';
+
+            const query = new URLSearchParams(localVarUrlObj.search);
+            for (const key in localVarQueryParameter) {
+                query.set(key, localVarQueryParameter[key]);
+            }
+            for (const key in options.query) {
+                query.set(key, options.query[key]);
+            }
+            localVarUrlObj.search = (new URLSearchParams(query)).toString();
+            let headersFromBaseOptions = baseOptions && baseOptions.headers ? baseOptions.headers : {};
+            localVarRequestOptions.headers = {...localVarHeaderParameter, ...headersFromBaseOptions, ...options.headers};
+            const needsSerialization = (typeof body !== "string") || localVarRequestOptions.headers['Content-Type'] === 'application/json';
+            localVarRequestOptions.data =  needsSerialization ? JSON.stringify(body !== undefined ? body : {}) : (body || "");
+
+            return {
+                url: localVarUrlObj.pathname + localVarUrlObj.search + localVarUrlObj.hash,
+                options: localVarRequestOptions,
+            };
+        },
+        /**
+         * Create a new optional in the query and add the triple pattern(s) identified by the GraphElementId. - If it is a class the query parameter should be used and the triple pattern `?graphElementId rdf:type <classIRI>` will be moved from the bgp to the new optional. - If it is a data property the tp `?graphElementIdVar1 <graphElementIdDataPropertyIRI> ?graphElementIdVar2` will be added to the new optional. - If it is a object property the tps `?graphElementIdVar1 <graphElementIdDataPropertyIRI> ?graphElementIdVar2. ?graphElementIdVar2 rdf:type <classIRI>` will be moved to the new optional.
+         * @summary Add the `graphElementId` to a new optional.
+         * @param {QueryGraph} body 
+         * @param {string} graphElementId The GraphElement that should be added to the optional
+         * @param {string} [classIRI] The IRI of the class that will be inserted in the optional.
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        newOptionalGraphElementId: async (body: QueryGraph, graphElementId: string, classIRI?: string, options: any = {}): Promise<RequestArgs> => {
+            // verify required parameter 'body' is not null or undefined
+            if (body === null || body === undefined) {
+                throw new RequiredError('body','Required parameter body was null or undefined when calling newOptionalGraphElementId.');
+            }
+            // verify required parameter 'graphElementId' is not null or undefined
+            if (graphElementId === null || graphElementId === undefined) {
+                throw new RequiredError('graphElementId','Required parameter graphElementId was null or undefined when calling newOptionalGraphElementId.');
+            }
+            const localVarPath = `/queryGraph/node/optional/{graphElementId}`
+                .replace(`{${"graphElementId"}}`, encodeURIComponent(String(graphElementId)));
+            // use dummy base URL string because the URL constructor only accepts absolute URLs.
+            const localVarUrlObj = new URL(localVarPath, 'https://example.com');
+            let baseOptions;
+            if (configuration) {
+                baseOptions = configuration.baseOptions;
+            }
+            const localVarRequestOptions = { method: 'PUT', ...baseOptions, ...options};
+            const localVarHeaderParameter = {} as any;
+            const localVarQueryParameter = {} as any;
+
+            if (classIRI !== undefined) {
+                localVarQueryParameter['classIRI'] = classIRI;
+            }
+
+            localVarHeaderParameter['Content-Type'] = 'application/json';
+
+            const query = new URLSearchParams(localVarUrlObj.search);
+            for (const key in localVarQueryParameter) {
+                query.set(key, localVarQueryParameter[key]);
+            }
+            for (const key in options.query) {
+                query.set(key, options.query[key]);
+            }
+            localVarUrlObj.search = (new URLSearchParams(query)).toString();
+            let headersFromBaseOptions = baseOptions && baseOptions.headers ? baseOptions.headers : {};
+            localVarRequestOptions.headers = {...localVarHeaderParameter, ...headersFromBaseOptions, ...options.headers};
+            const needsSerialization = (typeof body !== "string") || localVarRequestOptions.headers['Content-Type'] === 'application/json';
+            localVarRequestOptions.data =  needsSerialization ? JSON.stringify(body !== undefined ? body : {}) : (body || "");
+
+            return {
+                url: localVarUrlObj.pathname + localVarUrlObj.search + localVarUrlObj.hash,
+                options: localVarRequestOptions,
+            };
+        },
+        /**
+         * The offset value is defined in the query graph in the request body.
+         * @summary Set the offset value.
+         * @param {QueryGraph} body 
+         * @param {boolean} offset 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        offsetQueryGraph: async (body: QueryGraph, offset: boolean, options: any = {}): Promise<RequestArgs> => {
+            // verify required parameter 'body' is not null or undefined
+            if (body === null || body === undefined) {
+                throw new RequiredError('body','Required parameter body was null or undefined when calling offsetQueryGraph.');
+            }
+            // verify required parameter 'offset' is not null or undefined
+            if (offset === null || offset === undefined) {
+                throw new RequiredError('offset','Required parameter offset was null or undefined when calling offsetQueryGraph.');
+            }
+            const localVarPath = `/queryGraph/offset`;
+            // use dummy base URL string because the URL constructor only accepts absolute URLs.
+            const localVarUrlObj = new URL(localVarPath, 'https://example.com');
+            let baseOptions;
+            if (configuration) {
+                baseOptions = configuration.baseOptions;
+            }
+            const localVarRequestOptions = { method: 'PUT', ...baseOptions, ...options};
+            const localVarHeaderParameter = {} as any;
+            const localVarQueryParameter = {} as any;
+
+            if (offset !== undefined) {
+                localVarQueryParameter['offset'] = offset;
+            }
+
+            localVarHeaderParameter['Content-Type'] = 'application/json';
+
+            const query = new URLSearchParams(localVarUrlObj.search);
+            for (const key in localVarQueryParameter) {
+                query.set(key, localVarQueryParameter[key]);
+            }
+            for (const key in options.query) {
+                query.set(key, options.query[key]);
+            }
+            localVarUrlObj.search = (new URLSearchParams(query)).toString();
+            let headersFromBaseOptions = baseOptions && baseOptions.headers ? baseOptions.headers : {};
+            localVarRequestOptions.headers = {...localVarHeaderParameter, ...headersFromBaseOptions, ...options.headers};
+            const needsSerialization = (typeof body !== "string") || localVarRequestOptions.headers['Content-Type'] === 'application/json';
+            localVarRequestOptions.data =  needsSerialization ? JSON.stringify(body !== undefined ? body : {}) : (body || "");
+
+            return {
+                url: localVarUrlObj.pathname + localVarUrlObj.search + localVarUrlObj.hash,
+                options: localVarRequestOptions,
+            };
+        },
+        /**
+         * The OrderBy object is passed in the request body in the Query Graph.
+         * @summary Order by the head from the query graph.
+         * @param {QueryGraph} body 
+         * @param {string} direction 
+         * @param {string} headTerm The head term that should be ordered
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        orderByHeadTerm: async (body: QueryGraph, direction: string, headTerm: string, options: any = {}): Promise<RequestArgs> => {
+            // verify required parameter 'body' is not null or undefined
+            if (body === null || body === undefined) {
+                throw new RequiredError('body','Required parameter body was null or undefined when calling orderByHeadTerm.');
+            }
+            // verify required parameter 'direction' is not null or undefined
+            if (direction === null || direction === undefined) {
+                throw new RequiredError('direction','Required parameter direction was null or undefined when calling orderByHeadTerm.');
+            }
+            // verify required parameter 'headTerm' is not null or undefined
+            if (headTerm === null || headTerm === undefined) {
+                throw new RequiredError('headTerm','Required parameter headTerm was null or undefined when calling orderByHeadTerm.');
+            }
+            const localVarPath = `/queryGraph/head/orderBy/{headTerm}`
+                .replace(`{${"headTerm"}}`, encodeURIComponent(String(headTerm)));
+            // use dummy base URL string because the URL constructor only accepts absolute URLs.
+            const localVarUrlObj = new URL(localVarPath, 'https://example.com');
+            let baseOptions;
+            if (configuration) {
+                baseOptions = configuration.baseOptions;
+            }
+            const localVarRequestOptions = { method: 'PUT', ...baseOptions, ...options};
+            const localVarHeaderParameter = {} as any;
+            const localVarQueryParameter = {} as any;
+
+            if (direction !== undefined) {
+                localVarQueryParameter['direction'] = direction;
+            }
 
             localVarHeaderParameter['Content-Type'] = 'application/json';
 
@@ -443,8 +884,8 @@ export const QueryGraphApiAxiosParamCreator = function (configuration?: Configur
             };
         },
         /**
-         * Starting from a query graph which has two nodes representing the same class, it returns the query graph in which the two nodes have been joined into a single one. The children of the selected nodes will be grouped in `graphElementId1` and each time we add a children through the previous routes they will be added to this node.
-         * @summary Join two GraphNodeElement in one. graph through a data property.
+         * Starting from a query graph which has two nodes representing the same class(es), it returns the query graph in which the two nodes have been joined into a single one. The children of the selected nodes will be grouped in `graphElementId1` and each time we add a children through the previous routes they will be added to this node.
+         * @summary Join two GraphNodeElement in one.
          * @param {QueryGraph} body 
          * @param {string} graphElementId1 The id of the node of the selected class in the query graph.
          * @param {string} graphElementId2 The id of the node of the selected class in the query graph.
@@ -582,6 +1023,115 @@ export const QueryGraphApiAxiosParamCreator = function (configuration?: Configur
                 options: localVarRequestOptions,
             };
         },
+        /**
+         * Remove the triple pattern(s) identified by the `graphElementId` from the optional `optionalId` - If it is a class the query parameter should be used and the triple pattern `?graphElementId rdf:type <classIRI>` will be moved from the optional to the bgp. - If it is a data property the tp `?graphElementIdVar1 <graphElementIdDataPropertyIRI> ?graphElementIdVar2` will be moved from the optional to the bgp. - If it is a object property the tps `?graphElementIdVar1 <graphElementIdDataPropertyIRI> ?graphElementIdVar2. ?graphElementIdVar2 rdf:type <classIRI>` will be moved from the optional to the bgp.
+         * @summary Remove the graphElementId from the optionalId optional and move it back to the bgp.
+         * @param {QueryGraph} body 
+         * @param {string} graphElementId The GraphElement that should be removed from the optional
+         * @param {string} optionalId The optional where to perform the removing
+         * @param {string} [classIRI] The IRI of the class that will be inserted in the optional.
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        removeOptionalGraphElementId: async (body: QueryGraph, graphElementId: string, optionalId: string, classIRI?: string, options: any = {}): Promise<RequestArgs> => {
+            // verify required parameter 'body' is not null or undefined
+            if (body === null || body === undefined) {
+                throw new RequiredError('body','Required parameter body was null or undefined when calling removeOptionalGraphElementId.');
+            }
+            // verify required parameter 'graphElementId' is not null or undefined
+            if (graphElementId === null || graphElementId === undefined) {
+                throw new RequiredError('graphElementId','Required parameter graphElementId was null or undefined when calling removeOptionalGraphElementId.');
+            }
+            // verify required parameter 'optionalId' is not null or undefined
+            if (optionalId === null || optionalId === undefined) {
+                throw new RequiredError('optionalId','Required parameter optionalId was null or undefined when calling removeOptionalGraphElementId.');
+            }
+            const localVarPath = `/queryGraph/node/optional/{optionalId}/remove/{graphElementId}`
+                .replace(`{${"graphElementId"}}`, encodeURIComponent(String(graphElementId)))
+                .replace(`{${"optionalId"}}`, encodeURIComponent(String(optionalId)));
+            // use dummy base URL string because the URL constructor only accepts absolute URLs.
+            const localVarUrlObj = new URL(localVarPath, 'https://example.com');
+            let baseOptions;
+            if (configuration) {
+                baseOptions = configuration.baseOptions;
+            }
+            const localVarRequestOptions = { method: 'PUT', ...baseOptions, ...options};
+            const localVarHeaderParameter = {} as any;
+            const localVarQueryParameter = {} as any;
+
+            if (classIRI !== undefined) {
+                localVarQueryParameter['classIRI'] = classIRI;
+            }
+
+            localVarHeaderParameter['Content-Type'] = 'application/json';
+
+            const query = new URLSearchParams(localVarUrlObj.search);
+            for (const key in localVarQueryParameter) {
+                query.set(key, localVarQueryParameter[key]);
+            }
+            for (const key in options.query) {
+                query.set(key, options.query[key]);
+            }
+            localVarUrlObj.search = (new URLSearchParams(query)).toString();
+            let headersFromBaseOptions = baseOptions && baseOptions.headers ? baseOptions.headers : {};
+            localVarRequestOptions.headers = {...localVarHeaderParameter, ...headersFromBaseOptions, ...options.headers};
+            const needsSerialization = (typeof body !== "string") || localVarRequestOptions.headers['Content-Type'] === 'application/json';
+            localVarRequestOptions.data =  needsSerialization ? JSON.stringify(body !== undefined ? body : {}) : (body || "");
+
+            return {
+                url: localVarUrlObj.pathname + localVarUrlObj.search + localVarUrlObj.hash,
+                options: localVarRequestOptions,
+            };
+        },
+        /**
+         * Put the alias in the HeadElement passed via request body.
+         * @summary Rename the head term from the query graph using alias.
+         * @param {QueryGraph} body 
+         * @param {string} headTerm The head term that should be renamed
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        renameHeadTerm: async (body: QueryGraph, headTerm: string, options: any = {}): Promise<RequestArgs> => {
+            // verify required parameter 'body' is not null or undefined
+            if (body === null || body === undefined) {
+                throw new RequiredError('body','Required parameter body was null or undefined when calling renameHeadTerm.');
+            }
+            // verify required parameter 'headTerm' is not null or undefined
+            if (headTerm === null || headTerm === undefined) {
+                throw new RequiredError('headTerm','Required parameter headTerm was null or undefined when calling renameHeadTerm.');
+            }
+            const localVarPath = `/queryGraph/head/rename/{headTerm}`
+                .replace(`{${"headTerm"}}`, encodeURIComponent(String(headTerm)));
+            // use dummy base URL string because the URL constructor only accepts absolute URLs.
+            const localVarUrlObj = new URL(localVarPath, 'https://example.com');
+            let baseOptions;
+            if (configuration) {
+                baseOptions = configuration.baseOptions;
+            }
+            const localVarRequestOptions = { method: 'PUT', ...baseOptions, ...options};
+            const localVarHeaderParameter = {} as any;
+            const localVarQueryParameter = {} as any;
+
+            localVarHeaderParameter['Content-Type'] = 'application/json';
+
+            const query = new URLSearchParams(localVarUrlObj.search);
+            for (const key in localVarQueryParameter) {
+                query.set(key, localVarQueryParameter[key]);
+            }
+            for (const key in options.query) {
+                query.set(key, options.query[key]);
+            }
+            localVarUrlObj.search = (new URLSearchParams(query)).toString();
+            let headersFromBaseOptions = baseOptions && baseOptions.headers ? baseOptions.headers : {};
+            localVarRequestOptions.headers = {...localVarHeaderParameter, ...headersFromBaseOptions, ...options.headers};
+            const needsSerialization = (typeof body !== "string") || localVarRequestOptions.headers['Content-Type'] === 'application/json';
+            localVarRequestOptions.data =  needsSerialization ? JSON.stringify(body !== undefined ? body : {}) : (body || "");
+
+            return {
+                url: localVarUrlObj.pathname + localVarUrlObj.search + localVarUrlObj.hash,
+                options: localVarRequestOptions,
+            };
+        },
     }
 };
 
@@ -607,6 +1157,23 @@ export const QueryGraphApiFp = function(configuration?: Configuration) {
             };
         },
         /**
+         * Add the triple pattern(s) identified by the `graphElementId` to the optional `optionalId` - If it is a class the query parameter should be used and the triple pattern `?graphElementId rdf:type <classIRI>` will be moved from the bgp to the optional. - If it is a data property the tp `?graphElementIdVar1 <graphElementIdDataPropertyIRI> ?graphElementIdVar2` will be added to the optional. - If it is a object property the tps `?graphElementIdVar1 <graphElementIdDataPropertyIRI> ?graphElementIdVar2. ?graphElementIdVar2 rdf:type <classIRI>` will be moved to the optional.  For translating this in SPARQL remove all optionals and translate them again.
+         * @summary Add the graphElementId to the optionalId optional.
+         * @param {QueryGraph} body 
+         * @param {string} graphElementId The GraphElement that should be added to the optional
+         * @param {string} optionalId The optional where to perform the adding
+         * @param {string} [classIRI] The IRI of the class that will be inserted in the optional.
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        async addOptionalGraphElementId(body: QueryGraph, graphElementId: string, optionalId: string, classIRI?: string, options?: any): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<QueryGraph>> {
+            const localVarAxiosArgs = await QueryGraphApiAxiosParamCreator(configuration).addOptionalGraphElementId(body, graphElementId, optionalId, classIRI, options);
+            return (axios: AxiosInstance = globalAxios, basePath: string = BASE_PATH) => {
+                const axiosRequestArgs = {...localVarAxiosArgs.options, url: basePath + localVarAxiosArgs.url};
+                return axios.request(axiosRequestArgs);
+            };
+        },
+        /**
          * This path should be used to build the query graph using the path interaction. As a result there will be added to the query several triple pattern (depending on the length of the path) as a sequence of classes and object properties. Data properties never appear in paths, in order to add them use the simple PUT route.
          * @summary Get the query graph that will be rendered by Sparqling, the query head, the sparql code based on the chosen path.
          * @param {QueryGraph} body 
@@ -622,10 +1189,41 @@ export const QueryGraphApiFp = function(configuration?: Configuration) {
             };
         },
         /**
+         * The having aggregation function is defined in the groupBy field of the query graph in the request body.
+         * @summary Set the having filter of the aggregation function to the head term.
+         * @param {QueryGraph} body 
+         * @param {string} direction 
+         * @param {string} headTerm The head term that should be involved in the having filter
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        async aggregationHavingHeadTerm(body: QueryGraph, direction: string, headTerm: string, options?: any): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<QueryGraph>> {
+            const localVarAxiosArgs = await QueryGraphApiAxiosParamCreator(configuration).aggregationHavingHeadTerm(body, direction, headTerm, options);
+            return (axios: AxiosInstance = globalAxios, basePath: string = BASE_PATH) => {
+                const axiosRequestArgs = {...localVarAxiosArgs.options, url: basePath + localVarAxiosArgs.url};
+                return axios.request(axiosRequestArgs);
+            };
+        },
+        /**
+         * The aggregation function is defined in the group by field of the query graph in the request body. Remember to set the alias of the head based on function name and variable.
+         * @summary Set the aggregation function to the head term.
+         * @param {QueryGraph} body 
+         * @param {string} headTerm The head term that should be involved in the aggregation function
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        async aggregationHeadTerm(body: QueryGraph, headTerm: string, options?: any): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<QueryGraph>> {
+            const localVarAxiosArgs = await QueryGraphApiAxiosParamCreator(configuration).aggregationHeadTerm(body, headTerm, options);
+            return (axios: AxiosInstance = globalAxios, basePath: string = BASE_PATH) => {
+                const axiosRequestArgs = {...localVarAxiosArgs.options, url: basePath + localVarAxiosArgs.url};
+                return axios.request(axiosRequestArgs);
+            };
+        },
+        /**
          * This route is used when the user wants to delete a node from the query graph. All the children of this node will be deleted as well as we do not want to create query with completly separated branches. All the variables that are going to be deleted should also be deleted from the head of the query. **WARNING**, if the node has multiple occurrences (due to join operations) every node should be deleted.
          * @summary Delete the GraphElement (and all its children) from the query graph and head.
          * @param {QueryGraph} body 
-         * @param {string} graphElementId The GraphElement that should be delete
+         * @param {string} graphElementId The GraphElement that should be deleted
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
@@ -640,12 +1238,42 @@ export const QueryGraphApiFp = function(configuration?: Configuration) {
          * 
          * @summary Delete the head term from the query graph.
          * @param {QueryGraph} body 
-         * @param {string} headTerm The head term that should be delete
+         * @param {string} headTerm The head term that should be deleted
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
         async deleteHeadTerm(body: QueryGraph, headTerm: string, options?: any): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<QueryGraph>> {
             const localVarAxiosArgs = await QueryGraphApiAxiosParamCreator(configuration).deleteHeadTerm(body, headTerm, options);
+            return (axios: AxiosInstance = globalAxios, basePath: string = BASE_PATH) => {
+                const axiosRequestArgs = {...localVarAxiosArgs.options, url: basePath + localVarAxiosArgs.url};
+                return axios.request(axiosRequestArgs);
+            };
+        },
+        /**
+         * The distinct value is defined in the query graph in the request body.
+         * @summary Set the distinct value.
+         * @param {QueryGraph} body 
+         * @param {boolean} distinct 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        async distinctQueryGraph(body: QueryGraph, distinct: boolean, options?: any): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<QueryGraph>> {
+            const localVarAxiosArgs = await QueryGraphApiAxiosParamCreator(configuration).distinctQueryGraph(body, distinct, options);
+            return (axios: AxiosInstance = globalAxios, basePath: string = BASE_PATH) => {
+                const axiosRequestArgs = {...localVarAxiosArgs.options, url: basePath + localVarAxiosArgs.url};
+                return axios.request(axiosRequestArgs);
+            };
+        },
+        /**
+         * The function is defined in the head term of the query graph in the request body. Remember to set the alias of the head based on function name and variable.
+         * @summary Set a function to the head term from the query graph.
+         * @param {QueryGraph} body 
+         * @param {string} headTerm The head term that should be involved inthe function
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        async functionHeadTerm(body: QueryGraph, headTerm: string, options?: any): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<QueryGraph>> {
+            const localVarAxiosArgs = await QueryGraphApiAxiosParamCreator(configuration).functionHeadTerm(body, headTerm, options);
             return (axios: AxiosInstance = globalAxios, basePath: string = BASE_PATH) => {
                 const axiosRequestArgs = {...localVarAxiosArgs.options, url: basePath + localVarAxiosArgs.url};
                 return axios.request(axiosRequestArgs);
@@ -666,14 +1294,62 @@ export const QueryGraphApiFp = function(configuration?: Configuration) {
             };
         },
         /**
-         * This route will return the same query graph passed in the body but the SPARQL code with the new filters optionals group by and havings. Note that if the filters are related to optional variables they should be put inside the optional block.
-         * @summary Translate the query graph in sparql.
+         * The limit value is defined in the query graph in the request body.
+         * @summary Set the limit value.
          * @param {QueryGraph} body 
+         * @param {number} limit 
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
-        async modifyFilters(body: QueryGraph, options?: any): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<QueryGraph>> {
-            const localVarAxiosArgs = await QueryGraphApiAxiosParamCreator(configuration).modifyFilters(body, options);
+        async limitQueryGraph(body: QueryGraph, limit: number, options?: any): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<QueryGraph>> {
+            const localVarAxiosArgs = await QueryGraphApiAxiosParamCreator(configuration).limitQueryGraph(body, limit, options);
+            return (axios: AxiosInstance = globalAxios, basePath: string = BASE_PATH) => {
+                const axiosRequestArgs = {...localVarAxiosArgs.options, url: basePath + localVarAxiosArgs.url};
+                return axios.request(axiosRequestArgs);
+            };
+        },
+        /**
+         * Create a new optional in the query and add the triple pattern(s) identified by the GraphElementId. - If it is a class the query parameter should be used and the triple pattern `?graphElementId rdf:type <classIRI>` will be moved from the bgp to the new optional. - If it is a data property the tp `?graphElementIdVar1 <graphElementIdDataPropertyIRI> ?graphElementIdVar2` will be added to the new optional. - If it is a object property the tps `?graphElementIdVar1 <graphElementIdDataPropertyIRI> ?graphElementIdVar2. ?graphElementIdVar2 rdf:type <classIRI>` will be moved to the new optional.
+         * @summary Add the `graphElementId` to a new optional.
+         * @param {QueryGraph} body 
+         * @param {string} graphElementId The GraphElement that should be added to the optional
+         * @param {string} [classIRI] The IRI of the class that will be inserted in the optional.
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        async newOptionalGraphElementId(body: QueryGraph, graphElementId: string, classIRI?: string, options?: any): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<QueryGraph>> {
+            const localVarAxiosArgs = await QueryGraphApiAxiosParamCreator(configuration).newOptionalGraphElementId(body, graphElementId, classIRI, options);
+            return (axios: AxiosInstance = globalAxios, basePath: string = BASE_PATH) => {
+                const axiosRequestArgs = {...localVarAxiosArgs.options, url: basePath + localVarAxiosArgs.url};
+                return axios.request(axiosRequestArgs);
+            };
+        },
+        /**
+         * The offset value is defined in the query graph in the request body.
+         * @summary Set the offset value.
+         * @param {QueryGraph} body 
+         * @param {boolean} offset 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        async offsetQueryGraph(body: QueryGraph, offset: boolean, options?: any): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<QueryGraph>> {
+            const localVarAxiosArgs = await QueryGraphApiAxiosParamCreator(configuration).offsetQueryGraph(body, offset, options);
+            return (axios: AxiosInstance = globalAxios, basePath: string = BASE_PATH) => {
+                const axiosRequestArgs = {...localVarAxiosArgs.options, url: basePath + localVarAxiosArgs.url};
+                return axios.request(axiosRequestArgs);
+            };
+        },
+        /**
+         * The OrderBy object is passed in the request body in the Query Graph.
+         * @summary Order by the head from the query graph.
+         * @param {QueryGraph} body 
+         * @param {string} direction 
+         * @param {string} headTerm The head term that should be ordered
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        async orderByHeadTerm(body: QueryGraph, direction: string, headTerm: string, options?: any): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<QueryGraph>> {
+            const localVarAxiosArgs = await QueryGraphApiAxiosParamCreator(configuration).orderByHeadTerm(body, direction, headTerm, options);
             return (axios: AxiosInstance = globalAxios, basePath: string = BASE_PATH) => {
                 const axiosRequestArgs = {...localVarAxiosArgs.options, url: basePath + localVarAxiosArgs.url};
                 return axios.request(axiosRequestArgs);
@@ -714,8 +1390,8 @@ export const QueryGraphApiFp = function(configuration?: Configuration) {
             };
         },
         /**
-         * Starting from a query graph which has two nodes representing the same class, it returns the query graph in which the two nodes have been joined into a single one. The children of the selected nodes will be grouped in `graphElementId1` and each time we add a children through the previous routes they will be added to this node.
-         * @summary Join two GraphNodeElement in one. graph through a data property.
+         * Starting from a query graph which has two nodes representing the same class(es), it returns the query graph in which the two nodes have been joined into a single one. The children of the selected nodes will be grouped in `graphElementId1` and each time we add a children through the previous routes they will be added to this node.
+         * @summary Join two GraphNodeElement in one.
          * @param {QueryGraph} body 
          * @param {string} graphElementId1 The id of the node of the selected class in the query graph.
          * @param {string} graphElementId2 The id of the node of the selected class in the query graph.
@@ -748,6 +1424,38 @@ export const QueryGraphApiFp = function(configuration?: Configuration) {
                 return axios.request(axiosRequestArgs);
             };
         },
+        /**
+         * Remove the triple pattern(s) identified by the `graphElementId` from the optional `optionalId` - If it is a class the query parameter should be used and the triple pattern `?graphElementId rdf:type <classIRI>` will be moved from the optional to the bgp. - If it is a data property the tp `?graphElementIdVar1 <graphElementIdDataPropertyIRI> ?graphElementIdVar2` will be moved from the optional to the bgp. - If it is a object property the tps `?graphElementIdVar1 <graphElementIdDataPropertyIRI> ?graphElementIdVar2. ?graphElementIdVar2 rdf:type <classIRI>` will be moved from the optional to the bgp.
+         * @summary Remove the graphElementId from the optionalId optional and move it back to the bgp.
+         * @param {QueryGraph} body 
+         * @param {string} graphElementId The GraphElement that should be removed from the optional
+         * @param {string} optionalId The optional where to perform the removing
+         * @param {string} [classIRI] The IRI of the class that will be inserted in the optional.
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        async removeOptionalGraphElementId(body: QueryGraph, graphElementId: string, optionalId: string, classIRI?: string, options?: any): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<QueryGraph>> {
+            const localVarAxiosArgs = await QueryGraphApiAxiosParamCreator(configuration).removeOptionalGraphElementId(body, graphElementId, optionalId, classIRI, options);
+            return (axios: AxiosInstance = globalAxios, basePath: string = BASE_PATH) => {
+                const axiosRequestArgs = {...localVarAxiosArgs.options, url: basePath + localVarAxiosArgs.url};
+                return axios.request(axiosRequestArgs);
+            };
+        },
+        /**
+         * Put the alias in the HeadElement passed via request body.
+         * @summary Rename the head term from the query graph using alias.
+         * @param {QueryGraph} body 
+         * @param {string} headTerm The head term that should be renamed
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        async renameHeadTerm(body: QueryGraph, headTerm: string, options?: any): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<QueryGraph>> {
+            const localVarAxiosArgs = await QueryGraphApiAxiosParamCreator(configuration).renameHeadTerm(body, headTerm, options);
+            return (axios: AxiosInstance = globalAxios, basePath: string = BASE_PATH) => {
+                const axiosRequestArgs = {...localVarAxiosArgs.options, url: basePath + localVarAxiosArgs.url};
+                return axios.request(axiosRequestArgs);
+            };
+        },
     }
 };
 
@@ -769,6 +1477,19 @@ export const QueryGraphApiFactory = function (configuration?: Configuration, bas
             return QueryGraphApiFp(configuration).addHeadTerm(body, graphElementId, options).then((request) => request(axios, basePath));
         },
         /**
+         * Add the triple pattern(s) identified by the `graphElementId` to the optional `optionalId` - If it is a class the query parameter should be used and the triple pattern `?graphElementId rdf:type <classIRI>` will be moved from the bgp to the optional. - If it is a data property the tp `?graphElementIdVar1 <graphElementIdDataPropertyIRI> ?graphElementIdVar2` will be added to the optional. - If it is a object property the tps `?graphElementIdVar1 <graphElementIdDataPropertyIRI> ?graphElementIdVar2. ?graphElementIdVar2 rdf:type <classIRI>` will be moved to the optional.  For translating this in SPARQL remove all optionals and translate them again.
+         * @summary Add the graphElementId to the optionalId optional.
+         * @param {QueryGraph} body 
+         * @param {string} graphElementId The GraphElement that should be added to the optional
+         * @param {string} optionalId The optional where to perform the adding
+         * @param {string} [classIRI] The IRI of the class that will be inserted in the optional.
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        addOptionalGraphElementId(body: QueryGraph, graphElementId: string, optionalId: string, classIRI?: string, options?: any): AxiosPromise<QueryGraph> {
+            return QueryGraphApiFp(configuration).addOptionalGraphElementId(body, graphElementId, optionalId, classIRI, options).then((request) => request(axios, basePath));
+        },
+        /**
          * This path should be used to build the query graph using the path interaction. As a result there will be added to the query several triple pattern (depending on the length of the path) as a sequence of classes and object properties. Data properties never appear in paths, in order to add them use the simple PUT route.
          * @summary Get the query graph that will be rendered by Sparqling, the query head, the sparql code based on the chosen path.
          * @param {QueryGraph} body 
@@ -780,10 +1501,33 @@ export const QueryGraphApiFactory = function (configuration?: Configuration, bas
             return QueryGraphApiFp(configuration).addPathToQueryGraph(body, path, options).then((request) => request(axios, basePath));
         },
         /**
+         * The having aggregation function is defined in the groupBy field of the query graph in the request body.
+         * @summary Set the having filter of the aggregation function to the head term.
+         * @param {QueryGraph} body 
+         * @param {string} direction 
+         * @param {string} headTerm The head term that should be involved in the having filter
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        aggregationHavingHeadTerm(body: QueryGraph, direction: string, headTerm: string, options?: any): AxiosPromise<QueryGraph> {
+            return QueryGraphApiFp(configuration).aggregationHavingHeadTerm(body, direction, headTerm, options).then((request) => request(axios, basePath));
+        },
+        /**
+         * The aggregation function is defined in the group by field of the query graph in the request body. Remember to set the alias of the head based on function name and variable.
+         * @summary Set the aggregation function to the head term.
+         * @param {QueryGraph} body 
+         * @param {string} headTerm The head term that should be involved in the aggregation function
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        aggregationHeadTerm(body: QueryGraph, headTerm: string, options?: any): AxiosPromise<QueryGraph> {
+            return QueryGraphApiFp(configuration).aggregationHeadTerm(body, headTerm, options).then((request) => request(axios, basePath));
+        },
+        /**
          * This route is used when the user wants to delete a node from the query graph. All the children of this node will be deleted as well as we do not want to create query with completly separated branches. All the variables that are going to be deleted should also be deleted from the head of the query. **WARNING**, if the node has multiple occurrences (due to join operations) every node should be deleted.
          * @summary Delete the GraphElement (and all its children) from the query graph and head.
          * @param {QueryGraph} body 
-         * @param {string} graphElementId The GraphElement that should be delete
+         * @param {string} graphElementId The GraphElement that should be deleted
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
@@ -794,12 +1538,34 @@ export const QueryGraphApiFactory = function (configuration?: Configuration, bas
          * 
          * @summary Delete the head term from the query graph.
          * @param {QueryGraph} body 
-         * @param {string} headTerm The head term that should be delete
+         * @param {string} headTerm The head term that should be deleted
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
         deleteHeadTerm(body: QueryGraph, headTerm: string, options?: any): AxiosPromise<QueryGraph> {
             return QueryGraphApiFp(configuration).deleteHeadTerm(body, headTerm, options).then((request) => request(axios, basePath));
+        },
+        /**
+         * The distinct value is defined in the query graph in the request body.
+         * @summary Set the distinct value.
+         * @param {QueryGraph} body 
+         * @param {boolean} distinct 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        distinctQueryGraph(body: QueryGraph, distinct: boolean, options?: any): AxiosPromise<QueryGraph> {
+            return QueryGraphApiFp(configuration).distinctQueryGraph(body, distinct, options).then((request) => request(axios, basePath));
+        },
+        /**
+         * The function is defined in the head term of the query graph in the request body. Remember to set the alias of the head based on function name and variable.
+         * @summary Set a function to the head term from the query graph.
+         * @param {QueryGraph} body 
+         * @param {string} headTerm The head term that should be involved inthe function
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        functionHeadTerm(body: QueryGraph, headTerm: string, options?: any): AxiosPromise<QueryGraph> {
+            return QueryGraphApiFp(configuration).functionHeadTerm(body, headTerm, options).then((request) => request(axios, basePath));
         },
         /**
          * Starting from only the clicked class get the query graph that will be rendered by Sparqling, the query head, the sparql code. The sparql query returned will be somthing like `select ?x { ?x a <clickedClassIRI>` }. The variable `?x` should be called according to the entity remainder or label. The variable will be added to the head of the query in order to create a valid SPARQL query.
@@ -812,14 +1578,50 @@ export const QueryGraphApiFactory = function (configuration?: Configuration, bas
             return QueryGraphApiFp(configuration).getQueryGraph(clickedClassIRI, options).then((request) => request(axios, basePath));
         },
         /**
-         * This route will return the same query graph passed in the body but the SPARQL code with the new filters optionals group by and havings. Note that if the filters are related to optional variables they should be put inside the optional block.
-         * @summary Translate the query graph in sparql.
+         * The limit value is defined in the query graph in the request body.
+         * @summary Set the limit value.
          * @param {QueryGraph} body 
+         * @param {number} limit 
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
-        modifyFilters(body: QueryGraph, options?: any): AxiosPromise<QueryGraph> {
-            return QueryGraphApiFp(configuration).modifyFilters(body, options).then((request) => request(axios, basePath));
+        limitQueryGraph(body: QueryGraph, limit: number, options?: any): AxiosPromise<QueryGraph> {
+            return QueryGraphApiFp(configuration).limitQueryGraph(body, limit, options).then((request) => request(axios, basePath));
+        },
+        /**
+         * Create a new optional in the query and add the triple pattern(s) identified by the GraphElementId. - If it is a class the query parameter should be used and the triple pattern `?graphElementId rdf:type <classIRI>` will be moved from the bgp to the new optional. - If it is a data property the tp `?graphElementIdVar1 <graphElementIdDataPropertyIRI> ?graphElementIdVar2` will be added to the new optional. - If it is a object property the tps `?graphElementIdVar1 <graphElementIdDataPropertyIRI> ?graphElementIdVar2. ?graphElementIdVar2 rdf:type <classIRI>` will be moved to the new optional.
+         * @summary Add the `graphElementId` to a new optional.
+         * @param {QueryGraph} body 
+         * @param {string} graphElementId The GraphElement that should be added to the optional
+         * @param {string} [classIRI] The IRI of the class that will be inserted in the optional.
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        newOptionalGraphElementId(body: QueryGraph, graphElementId: string, classIRI?: string, options?: any): AxiosPromise<QueryGraph> {
+            return QueryGraphApiFp(configuration).newOptionalGraphElementId(body, graphElementId, classIRI, options).then((request) => request(axios, basePath));
+        },
+        /**
+         * The offset value is defined in the query graph in the request body.
+         * @summary Set the offset value.
+         * @param {QueryGraph} body 
+         * @param {boolean} offset 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        offsetQueryGraph(body: QueryGraph, offset: boolean, options?: any): AxiosPromise<QueryGraph> {
+            return QueryGraphApiFp(configuration).offsetQueryGraph(body, offset, options).then((request) => request(axios, basePath));
+        },
+        /**
+         * The OrderBy object is passed in the request body in the Query Graph.
+         * @summary Order by the head from the query graph.
+         * @param {QueryGraph} body 
+         * @param {string} direction 
+         * @param {string} headTerm The head term that should be ordered
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        orderByHeadTerm(body: QueryGraph, direction: string, headTerm: string, options?: any): AxiosPromise<QueryGraph> {
+            return QueryGraphApiFp(configuration).orderByHeadTerm(body, direction, headTerm, options).then((request) => request(axios, basePath));
         },
         /**
          * This call is used when the user click on a highlighted class and should add a triple pattern of the form like `?x rdf:type <targetClassIRI>`. The server should find `?x` in the SPARQL code as the variable associated to the `sourceClassIRI`.
@@ -848,8 +1650,8 @@ export const QueryGraphApiFactory = function (configuration?: Configuration, bas
             return QueryGraphApiFp(configuration).putQueryGraphDataProperty(body, sourceClassIRI, predicateIRI, graphElementId, options).then((request) => request(axios, basePath));
         },
         /**
-         * Starting from a query graph which has two nodes representing the same class, it returns the query graph in which the two nodes have been joined into a single one. The children of the selected nodes will be grouped in `graphElementId1` and each time we add a children through the previous routes they will be added to this node.
-         * @summary Join two GraphNodeElement in one. graph through a data property.
+         * Starting from a query graph which has two nodes representing the same class(es), it returns the query graph in which the two nodes have been joined into a single one. The children of the selected nodes will be grouped in `graphElementId1` and each time we add a children through the previous routes they will be added to this node.
+         * @summary Join two GraphNodeElement in one.
          * @param {QueryGraph} body 
          * @param {string} graphElementId1 The id of the node of the selected class in the query graph.
          * @param {string} graphElementId2 The id of the node of the selected class in the query graph.
@@ -874,6 +1676,30 @@ export const QueryGraphApiFactory = function (configuration?: Configuration, bas
         putQueryGraphObjectProperty(body: QueryGraph, sourceClassIRI: string, predicateIRI: string, targetClassIRI: string, isPredicateDirect: boolean, graphElementId: string, options?: any): AxiosPromise<QueryGraph> {
             return QueryGraphApiFp(configuration).putQueryGraphObjectProperty(body, sourceClassIRI, predicateIRI, targetClassIRI, isPredicateDirect, graphElementId, options).then((request) => request(axios, basePath));
         },
+        /**
+         * Remove the triple pattern(s) identified by the `graphElementId` from the optional `optionalId` - If it is a class the query parameter should be used and the triple pattern `?graphElementId rdf:type <classIRI>` will be moved from the optional to the bgp. - If it is a data property the tp `?graphElementIdVar1 <graphElementIdDataPropertyIRI> ?graphElementIdVar2` will be moved from the optional to the bgp. - If it is a object property the tps `?graphElementIdVar1 <graphElementIdDataPropertyIRI> ?graphElementIdVar2. ?graphElementIdVar2 rdf:type <classIRI>` will be moved from the optional to the bgp.
+         * @summary Remove the graphElementId from the optionalId optional and move it back to the bgp.
+         * @param {QueryGraph} body 
+         * @param {string} graphElementId The GraphElement that should be removed from the optional
+         * @param {string} optionalId The optional where to perform the removing
+         * @param {string} [classIRI] The IRI of the class that will be inserted in the optional.
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        removeOptionalGraphElementId(body: QueryGraph, graphElementId: string, optionalId: string, classIRI?: string, options?: any): AxiosPromise<QueryGraph> {
+            return QueryGraphApiFp(configuration).removeOptionalGraphElementId(body, graphElementId, optionalId, classIRI, options).then((request) => request(axios, basePath));
+        },
+        /**
+         * Put the alias in the HeadElement passed via request body.
+         * @summary Rename the head term from the query graph using alias.
+         * @param {QueryGraph} body 
+         * @param {string} headTerm The head term that should be renamed
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        renameHeadTerm(body: QueryGraph, headTerm: string, options?: any): AxiosPromise<QueryGraph> {
+            return QueryGraphApiFp(configuration).renameHeadTerm(body, headTerm, options).then((request) => request(axios, basePath));
+        },
     };
 };
 
@@ -897,6 +1723,20 @@ export class QueryGraphApi extends BaseAPI {
         return QueryGraphApiFp(this.configuration).addHeadTerm(body, graphElementId, options).then((request) => request(this.axios, this.basePath));
     }
     /**
+     * Add the triple pattern(s) identified by the `graphElementId` to the optional `optionalId` - If it is a class the query parameter should be used and the triple pattern `?graphElementId rdf:type <classIRI>` will be moved from the bgp to the optional. - If it is a data property the tp `?graphElementIdVar1 <graphElementIdDataPropertyIRI> ?graphElementIdVar2` will be added to the optional. - If it is a object property the tps `?graphElementIdVar1 <graphElementIdDataPropertyIRI> ?graphElementIdVar2. ?graphElementIdVar2 rdf:type <classIRI>` will be moved to the optional.  For translating this in SPARQL remove all optionals and translate them again.
+     * @summary Add the graphElementId to the optionalId optional.
+     * @param {QueryGraph} body 
+     * @param {string} graphElementId The GraphElement that should be added to the optional
+     * @param {string} optionalId The optional where to perform the adding
+     * @param {string} [classIRI] The IRI of the class that will be inserted in the optional.
+     * @param {*} [options] Override http request option.
+     * @throws {RequiredError}
+     * @memberof QueryGraphApi
+     */
+    public addOptionalGraphElementId(body: QueryGraph, graphElementId: string, optionalId: string, classIRI?: string, options?: any) {
+        return QueryGraphApiFp(this.configuration).addOptionalGraphElementId(body, graphElementId, optionalId, classIRI, options).then((request) => request(this.axios, this.basePath));
+    }
+    /**
      * This path should be used to build the query graph using the path interaction. As a result there will be added to the query several triple pattern (depending on the length of the path) as a sequence of classes and object properties. Data properties never appear in paths, in order to add them use the simple PUT route.
      * @summary Get the query graph that will be rendered by Sparqling, the query head, the sparql code based on the chosen path.
      * @param {QueryGraph} body 
@@ -909,10 +1749,35 @@ export class QueryGraphApi extends BaseAPI {
         return QueryGraphApiFp(this.configuration).addPathToQueryGraph(body, path, options).then((request) => request(this.axios, this.basePath));
     }
     /**
+     * The having aggregation function is defined in the groupBy field of the query graph in the request body.
+     * @summary Set the having filter of the aggregation function to the head term.
+     * @param {QueryGraph} body 
+     * @param {string} direction 
+     * @param {string} headTerm The head term that should be involved in the having filter
+     * @param {*} [options] Override http request option.
+     * @throws {RequiredError}
+     * @memberof QueryGraphApi
+     */
+    public aggregationHavingHeadTerm(body: QueryGraph, direction: string, headTerm: string, options?: any) {
+        return QueryGraphApiFp(this.configuration).aggregationHavingHeadTerm(body, direction, headTerm, options).then((request) => request(this.axios, this.basePath));
+    }
+    /**
+     * The aggregation function is defined in the group by field of the query graph in the request body. Remember to set the alias of the head based on function name and variable.
+     * @summary Set the aggregation function to the head term.
+     * @param {QueryGraph} body 
+     * @param {string} headTerm The head term that should be involved in the aggregation function
+     * @param {*} [options] Override http request option.
+     * @throws {RequiredError}
+     * @memberof QueryGraphApi
+     */
+    public aggregationHeadTerm(body: QueryGraph, headTerm: string, options?: any) {
+        return QueryGraphApiFp(this.configuration).aggregationHeadTerm(body, headTerm, options).then((request) => request(this.axios, this.basePath));
+    }
+    /**
      * This route is used when the user wants to delete a node from the query graph. All the children of this node will be deleted as well as we do not want to create query with completly separated branches. All the variables that are going to be deleted should also be deleted from the head of the query. **WARNING**, if the node has multiple occurrences (due to join operations) every node should be deleted.
      * @summary Delete the GraphElement (and all its children) from the query graph and head.
      * @param {QueryGraph} body 
-     * @param {string} graphElementId The GraphElement that should be delete
+     * @param {string} graphElementId The GraphElement that should be deleted
      * @param {*} [options] Override http request option.
      * @throws {RequiredError}
      * @memberof QueryGraphApi
@@ -924,13 +1789,37 @@ export class QueryGraphApi extends BaseAPI {
      * 
      * @summary Delete the head term from the query graph.
      * @param {QueryGraph} body 
-     * @param {string} headTerm The head term that should be delete
+     * @param {string} headTerm The head term that should be deleted
      * @param {*} [options] Override http request option.
      * @throws {RequiredError}
      * @memberof QueryGraphApi
      */
     public deleteHeadTerm(body: QueryGraph, headTerm: string, options?: any) {
         return QueryGraphApiFp(this.configuration).deleteHeadTerm(body, headTerm, options).then((request) => request(this.axios, this.basePath));
+    }
+    /**
+     * The distinct value is defined in the query graph in the request body.
+     * @summary Set the distinct value.
+     * @param {QueryGraph} body 
+     * @param {boolean} distinct 
+     * @param {*} [options] Override http request option.
+     * @throws {RequiredError}
+     * @memberof QueryGraphApi
+     */
+    public distinctQueryGraph(body: QueryGraph, distinct: boolean, options?: any) {
+        return QueryGraphApiFp(this.configuration).distinctQueryGraph(body, distinct, options).then((request) => request(this.axios, this.basePath));
+    }
+    /**
+     * The function is defined in the head term of the query graph in the request body. Remember to set the alias of the head based on function name and variable.
+     * @summary Set a function to the head term from the query graph.
+     * @param {QueryGraph} body 
+     * @param {string} headTerm The head term that should be involved inthe function
+     * @param {*} [options] Override http request option.
+     * @throws {RequiredError}
+     * @memberof QueryGraphApi
+     */
+    public functionHeadTerm(body: QueryGraph, headTerm: string, options?: any) {
+        return QueryGraphApiFp(this.configuration).functionHeadTerm(body, headTerm, options).then((request) => request(this.axios, this.basePath));
     }
     /**
      * Starting from only the clicked class get the query graph that will be rendered by Sparqling, the query head, the sparql code. The sparql query returned will be somthing like `select ?x { ?x a <clickedClassIRI>` }. The variable `?x` should be called according to the entity remainder or label. The variable will be added to the head of the query in order to create a valid SPARQL query.
@@ -944,15 +1833,54 @@ export class QueryGraphApi extends BaseAPI {
         return QueryGraphApiFp(this.configuration).getQueryGraph(clickedClassIRI, options).then((request) => request(this.axios, this.basePath));
     }
     /**
-     * This route will return the same query graph passed in the body but the SPARQL code with the new filters optionals group by and havings. Note that if the filters are related to optional variables they should be put inside the optional block.
-     * @summary Translate the query graph in sparql.
+     * The limit value is defined in the query graph in the request body.
+     * @summary Set the limit value.
      * @param {QueryGraph} body 
+     * @param {number} limit 
      * @param {*} [options] Override http request option.
      * @throws {RequiredError}
      * @memberof QueryGraphApi
      */
-    public modifyFilters(body: QueryGraph, options?: any) {
-        return QueryGraphApiFp(this.configuration).modifyFilters(body, options).then((request) => request(this.axios, this.basePath));
+    public limitQueryGraph(body: QueryGraph, limit: number, options?: any) {
+        return QueryGraphApiFp(this.configuration).limitQueryGraph(body, limit, options).then((request) => request(this.axios, this.basePath));
+    }
+    /**
+     * Create a new optional in the query and add the triple pattern(s) identified by the GraphElementId. - If it is a class the query parameter should be used and the triple pattern `?graphElementId rdf:type <classIRI>` will be moved from the bgp to the new optional. - If it is a data property the tp `?graphElementIdVar1 <graphElementIdDataPropertyIRI> ?graphElementIdVar2` will be added to the new optional. - If it is a object property the tps `?graphElementIdVar1 <graphElementIdDataPropertyIRI> ?graphElementIdVar2. ?graphElementIdVar2 rdf:type <classIRI>` will be moved to the new optional.
+     * @summary Add the `graphElementId` to a new optional.
+     * @param {QueryGraph} body 
+     * @param {string} graphElementId The GraphElement that should be added to the optional
+     * @param {string} [classIRI] The IRI of the class that will be inserted in the optional.
+     * @param {*} [options] Override http request option.
+     * @throws {RequiredError}
+     * @memberof QueryGraphApi
+     */
+    public newOptionalGraphElementId(body: QueryGraph, graphElementId: string, classIRI?: string, options?: any) {
+        return QueryGraphApiFp(this.configuration).newOptionalGraphElementId(body, graphElementId, classIRI, options).then((request) => request(this.axios, this.basePath));
+    }
+    /**
+     * The offset value is defined in the query graph in the request body.
+     * @summary Set the offset value.
+     * @param {QueryGraph} body 
+     * @param {boolean} offset 
+     * @param {*} [options] Override http request option.
+     * @throws {RequiredError}
+     * @memberof QueryGraphApi
+     */
+    public offsetQueryGraph(body: QueryGraph, offset: boolean, options?: any) {
+        return QueryGraphApiFp(this.configuration).offsetQueryGraph(body, offset, options).then((request) => request(this.axios, this.basePath));
+    }
+    /**
+     * The OrderBy object is passed in the request body in the Query Graph.
+     * @summary Order by the head from the query graph.
+     * @param {QueryGraph} body 
+     * @param {string} direction 
+     * @param {string} headTerm The head term that should be ordered
+     * @param {*} [options] Override http request option.
+     * @throws {RequiredError}
+     * @memberof QueryGraphApi
+     */
+    public orderByHeadTerm(body: QueryGraph, direction: string, headTerm: string, options?: any) {
+        return QueryGraphApiFp(this.configuration).orderByHeadTerm(body, direction, headTerm, options).then((request) => request(this.axios, this.basePath));
     }
     /**
      * This call is used when the user click on a highlighted class and should add a triple pattern of the form like `?x rdf:type <targetClassIRI>`. The server should find `?x` in the SPARQL code as the variable associated to the `sourceClassIRI`.
@@ -983,8 +1911,8 @@ export class QueryGraphApi extends BaseAPI {
         return QueryGraphApiFp(this.configuration).putQueryGraphDataProperty(body, sourceClassIRI, predicateIRI, graphElementId, options).then((request) => request(this.axios, this.basePath));
     }
     /**
-     * Starting from a query graph which has two nodes representing the same class, it returns the query graph in which the two nodes have been joined into a single one. The children of the selected nodes will be grouped in `graphElementId1` and each time we add a children through the previous routes they will be added to this node.
-     * @summary Join two GraphNodeElement in one. graph through a data property.
+     * Starting from a query graph which has two nodes representing the same class(es), it returns the query graph in which the two nodes have been joined into a single one. The children of the selected nodes will be grouped in `graphElementId1` and each time we add a children through the previous routes they will be added to this node.
+     * @summary Join two GraphNodeElement in one.
      * @param {QueryGraph} body 
      * @param {string} graphElementId1 The id of the node of the selected class in the query graph.
      * @param {string} graphElementId2 The id of the node of the selected class in the query graph.
@@ -1010,5 +1938,31 @@ export class QueryGraphApi extends BaseAPI {
      */
     public putQueryGraphObjectProperty(body: QueryGraph, sourceClassIRI: string, predicateIRI: string, targetClassIRI: string, isPredicateDirect: boolean, graphElementId: string, options?: any) {
         return QueryGraphApiFp(this.configuration).putQueryGraphObjectProperty(body, sourceClassIRI, predicateIRI, targetClassIRI, isPredicateDirect, graphElementId, options).then((request) => request(this.axios, this.basePath));
+    }
+    /**
+     * Remove the triple pattern(s) identified by the `graphElementId` from the optional `optionalId` - If it is a class the query parameter should be used and the triple pattern `?graphElementId rdf:type <classIRI>` will be moved from the optional to the bgp. - If it is a data property the tp `?graphElementIdVar1 <graphElementIdDataPropertyIRI> ?graphElementIdVar2` will be moved from the optional to the bgp. - If it is a object property the tps `?graphElementIdVar1 <graphElementIdDataPropertyIRI> ?graphElementIdVar2. ?graphElementIdVar2 rdf:type <classIRI>` will be moved from the optional to the bgp.
+     * @summary Remove the graphElementId from the optionalId optional and move it back to the bgp.
+     * @param {QueryGraph} body 
+     * @param {string} graphElementId The GraphElement that should be removed from the optional
+     * @param {string} optionalId The optional where to perform the removing
+     * @param {string} [classIRI] The IRI of the class that will be inserted in the optional.
+     * @param {*} [options] Override http request option.
+     * @throws {RequiredError}
+     * @memberof QueryGraphApi
+     */
+    public removeOptionalGraphElementId(body: QueryGraph, graphElementId: string, optionalId: string, classIRI?: string, options?: any) {
+        return QueryGraphApiFp(this.configuration).removeOptionalGraphElementId(body, graphElementId, optionalId, classIRI, options).then((request) => request(this.axios, this.basePath));
+    }
+    /**
+     * Put the alias in the HeadElement passed via request body.
+     * @summary Rename the head term from the query graph using alias.
+     * @param {QueryGraph} body 
+     * @param {string} headTerm The head term that should be renamed
+     * @param {*} [options] Override http request option.
+     * @throws {RequiredError}
+     * @memberof QueryGraphApi
+     */
+    public renameHeadTerm(body: QueryGraph, headTerm: string, options?: any) {
+        return QueryGraphApiFp(this.configuration).renameHeadTerm(body, headTerm, options).then((request) => request(this.axios, this.basePath));
     }
 }
