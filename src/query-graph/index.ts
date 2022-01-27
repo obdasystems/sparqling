@@ -46,6 +46,10 @@ export default class QueryManager {
       gscape.centerOnNode(elem.id())
     })
 
+    this.bgp.onAddHead(async (nodeId: string) => {
+      this.qg = (await qgApi.addHeadTerm(this.qg, nodeId)).data
+    })
+
     this.bgp.theme = gscape.themesController.actualTheme
     gscape.onThemeChange( (newTheme: Theme) => this.bgp.theme = newTheme)
   }

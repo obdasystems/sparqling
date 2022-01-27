@@ -51,7 +51,8 @@ export default class HeadElementComponent extends UI.GscapeWidget {
         }
 
         #bottom-buttons-container {
-          text-align: center;
+          display: flex;
+          justify-content:center;
         }
       `
     ]

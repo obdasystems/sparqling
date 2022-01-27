@@ -1,13 +1,16 @@
-import cytoscape, { Stylesheet } from 'cytoscape'
+import cytoscape, { CollectionReturnValue, Stylesheet } from 'cytoscape'
 import klay from 'cytoscape-klay'
 import cola from 'cytoscape-cola'
+import cxtmenu from 'cytoscape-cxtmenu'
 import { GraphElement } from '../api/swagger/models'
 import { EntityTypeEnum } from '../api/swagger/models'
 import getStylesheet from './style'
-import { Theme } from 'grapholscape'
+import { Theme, Nod } from 'grapholscape'
+import { commandList, Command } from './cxt-menu-commands'
 
 cytoscape.use(klay)
 cytoscape.use(cola)
+cytoscape.use(cxtmenu)
 
 const DISPLAYED_NAME = 'displayed_name'
 export enum DisplayedNameType {
@@ -60,14 +63,14 @@ export default class BGPRenderer {
   private _onNodeSelectionCallback = (nodeId: string) => { }
   private _displayedNameType: DisplayedNameType = DisplayedNameType.full
   private _language = ''
+  private menu: any
+  private _onAddHeadCallback = (id: string) => { }
 
   constructor(container?: HTMLDivElement) {
-    this.cy.on('tap', 'node[type = "class"]', e => {
-      //this.selectedGraphNode = this.getGraphElementByID(e.target.id())
-      this._onNodeSelectionCallback(e.target.id())
-    })
-
-    if (container) this.cy.mount(container)
+    if (container) {
+      this.cy.mount(container)
+      this.menu = (this.cy as any).cxtmenu(this.menuOption)
+    }
   }
 
   /**
@@ -117,6 +120,14 @@ export default class BGPRenderer {
    */
   public onNodeSelect(callback: (id: string) => void) {
     this._onNodeSelectionCallback = callback
+  }
+
+  /**
+   * Register callback to be called when user add element to head, 
+   * @param callback the callback you pass will be passed the id of the involved node
+   */
+  public onAddHead(callback: (id: string) => void ) {
+    this._onAddHeadCallback = callback
   }
 
   /**
@@ -186,9 +197,38 @@ export default class BGPRenderer {
     return data
   }
 
+  // ***************** CXT COMMANDS CALLBACKS ***********************
+
+  private handleElementSelection(elem: CollectionReturnValue) {
+    if (elem.data('type') === EntityTypeEnum.Class) {
+      this._onNodeSelectionCallback(elem.id())
+    }
+  }
+
+  private handleAddHead(elem: CollectionReturnValue) {
+    this._onAddHeadCallback(elem.id())
+  }
+
   public get container() { return this.cy.container() }
 
   public set theme(newTheme: Theme) {
     this.cy.style(getStylesheet(newTheme))
+  }
+
+  private get menuOption() {
+    const getCallback = (command: Command, elem: CollectionReturnValue) => {
+      switch (command) {
+        case Command.select: this.handleElementSelection(elem)
+        case Command.addHead: this.handleAddHead(elem)
+      }
+    }
+
+    return {
+      selector: '*',
+      commands: commandList(getCallback),
+      // fillColor: '',
+      // activeFillColor: '',
+      // itemColor: '',
+    }
   }
 }
