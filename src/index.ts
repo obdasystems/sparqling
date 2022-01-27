@@ -68,7 +68,7 @@ export default async function sparqling(sparqlingContainer: HTMLDivElement, file
          * it's not connected to a objectProperty 
          * and it's not already in the queryGraph, then skip this click
          */ 
-        if (queryManager.qg && !isIriHighlighted && !lastObjProperty && !iriInQueryGraph) {
+        if (queryManager.qg?.graph && !isIriHighlighted && !lastObjProperty && !iriInQueryGraph) {
           //cyEntity.unselect()
           console.log('selection ignored for class '+ clickedIRI)
           return
@@ -83,7 +83,7 @@ export default async function sparqling(sparqlingContainer: HTMLDivElement, file
                 selectedGraphNode.id
               )).data
 
-            } else if (queryManager.qg && iriInQueryGraph && isIriHighlighted) {
+            } else if (queryManager.qg?.graph && iriInQueryGraph && isIriHighlighted) {
               newQueryGraph = (await qgApi.putQueryGraphClass(
                 queryManager.qg, '',
                 clickedIRI,

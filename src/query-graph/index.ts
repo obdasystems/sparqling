@@ -6,6 +6,7 @@ import { bgpContainer } from "../get-container"
 import QueryHeadWidget from "../query-head/qh-widget"
 import QueryGraphWidget from "./qg-widget"
 import BGPRenderer, { DisplayedNameType } from "./renderer"
+import * as OntologyGraph from '../ontology-graph/ontology-graph'
 
 const { Class, ObjectProperty, DataProperty } = EntityTypeEnum
 
@@ -50,6 +51,13 @@ export default class QueryManager {
       this.qg = (await qgApi.addHeadTerm(this.qg, nodeId)).data
     })
 
+    this.bgp.onDelete( async (elemId: string) => {
+      this.qg = (await qgApi.deleteGraphElementId(this.qg, elemId)).data
+      OntologyGraph.resetHighlights()
+      gscape.unselectEntity([])
+      this._selectedGraphNode = null
+    })
+
     this.bgp.theme = gscape.themesController.actualTheme
     gscape.onThemeChange( (newTheme: Theme) => this.bgp.theme = newTheme)
   }
@@ -78,6 +86,8 @@ export default class QueryManager {
   }
 
   public renderGraph(graphElem: GraphElement, parent?: GraphElement, objectProperty?: GraphElement) {
+    if (!graphElem) return
+
     const type = graphElem.entities[0].type
     // add new node only if it does not already exists
     // classes are allowed cause there might be multiple entities for a single graphElement (compound nodes)
@@ -114,6 +124,12 @@ export default class QueryManager {
   set qg(newQueryGraph: QueryGraph) {
     this._qg = newQueryGraph
     this.renderGraph(this.qg.graph)
+    setTimeout(() => {
+      this.bgp.elements.forEach( elem => {
+        if ( elem.data('displayed_name') && !this.getGraphElementByID(elem.id()))
+          this.bgp.removeNode(elem.id())
+      })
+    },0)
     this.renderHead(this.qg.head)
   }
 
@@ -125,6 +141,8 @@ export default class QueryManager {
 }
 
 function recursiveFind(elem: GraphElement, check: (elem: GraphElement) => boolean): GraphElement {
+  if (!elem) return null
+  
   if (check(elem)) return elem
 
   if (elem.children) {

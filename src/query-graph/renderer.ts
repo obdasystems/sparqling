@@ -65,6 +65,7 @@ export default class BGPRenderer {
   private _language = ''
   private menu: any
   private _onAddHeadCallback = (id: string) => { }
+  private _onDeleteCallback = (id: string) => { }
 
   constructor(container?: HTMLDivElement) {
     if (container) {
@@ -112,22 +113,8 @@ export default class BGPRenderer {
   /**
    * Remove a node from query graph, it will remove also all subsequent nodes
    */
-  public removeNode(nodeID: any) { }
-
-  /**
-   * Perform an action on a node selection, 
-   * the callback you pass will be passed the id of selected node
-   */
-  public onNodeSelect(callback: (id: string) => void) {
-    this._onNodeSelectionCallback = callback
-  }
-
-  /**
-   * Register callback to be called when user add element to head, 
-   * @param callback the callback you pass will be passed the id of the involved node
-   */
-  public onAddHead(callback: (id: string) => void ) {
-    this._onAddHeadCallback = callback
+  public removeNode(nodeID: any) {
+    this.cy.$id(nodeID).remove()
   }
 
   /**
@@ -164,7 +151,7 @@ export default class BGPRenderer {
    * Unselect element by id, if you don't specify the id, every selected node is unselected
    */
   public unselect(nodeId?: string) {
-    nodeId ? this.cy.$id(nodeId).unselect : this.cy.elements().unselect()
+    nodeId ? this.cy.$id(nodeId).unselect : this.elements.unselect()
   }
 
   public setDisplayedNameType(newDisplayedNameType: DisplayedNameType, language?: string) {
@@ -179,6 +166,30 @@ export default class BGPRenderer {
 
     this._displayedNameType = newDisplayedNameType
     this._language = language
+  }
+
+  /**
+   * Perform an action on a node selection, 
+   * the callback you pass will be passed the id of selected node
+   */
+   public onNodeSelect(callback: (id: string) => void) {
+    this._onNodeSelectionCallback = callback
+  }
+
+  /**
+   * Register callback to be called when user add element to head, 
+   * @param callback the callback you pass will be passed the id of the involved node
+   */
+  public onAddHead(callback: (id: string) => void ) {
+    this._onAddHeadCallback = callback
+  }
+
+  /**
+   * Register callback to be called when user delete an element, 
+   * @param callback the callback you pass will be passed the id of the involved node
+   */
+  public onDelete(callback: (id: string) => void) {
+    this._onDeleteCallback = callback
   }
 
   private getDataObj(graphElement: GraphElement, i = null) {
@@ -209,17 +220,42 @@ export default class BGPRenderer {
     this._onAddHeadCallback(elem.id())
   }
 
+  private handleDelete(elem:CollectionReturnValue) {
+    this._onDeleteCallback(elem.id())
+  }
+
+
+  // ***************** GETTERS & SETTERS *************************
   public get container() { return this.cy.container() }
 
   public set theme(newTheme: Theme) {
     this.cy.style(getStylesheet(newTheme))
   }
 
+  public get nodes() {
+    return this.cy.nodes()
+  }
+
+  public get edges() {
+    return this.cy.edges()
+  }
+
+  public get elements() {
+    return this.cy.elements()
+  }
+
   private get menuOption() {
     const getCallback = (command: Command, elem: CollectionReturnValue) => {
       switch (command) {
-        case Command.select: this.handleElementSelection(elem)
-        case Command.addHead: this.handleAddHead(elem)
+        case Command.select:
+          this.handleElementSelection(elem)
+          break
+        case Command.addHead: 
+          this.handleAddHead(elem)
+          break
+        case Command.delete: 
+          this.handleDelete(elem)
+          break
       }
     }
 
