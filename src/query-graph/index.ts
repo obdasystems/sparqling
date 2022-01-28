@@ -68,7 +68,9 @@ export default class QueryManager {
 
   public getGraphElementByIRI(iri: string) {
     return recursiveFind(this.graph, (elem) =>
-      (elem.entities[0].iri === iri) || (elem.entities[0].prefixedIri === iri)
+      elem.entities?.some( entity => {
+        return entity.iri === iri || entity.prefixedIri === iri
+      })
     )
   }
 
