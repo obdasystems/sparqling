@@ -2,9 +2,9 @@ import { CollectionReturnValue } from "cytoscape"
 
 export enum Command {
   select = 'Select',
-  addHead = 'Add to Head',
+  addHead = 'Add to Query Head',
   delete = 'Delete',
-  defineFilters = 'Define Filters'
+  addFilter = 'Add Filter'
 }
 
 export const commandList = (getCallback: (command: Command, elem: CollectionReturnValue ) => void) => [
@@ -21,7 +21,7 @@ export const commandList = (getCallback: (command: Command, elem: CollectionRetu
     select: (e: CollectionReturnValue) =>  getCallback(Command.delete, e)
   },
   {
-    content: Command.defineFilters,
-    select: (e: CollectionReturnValue) =>  getCallback(Command.defineFilters, e)
+    content: Command.addFilter,
+    select: (e: CollectionReturnValue) =>  getCallback(Command.addFilter, e)
   },
 ]
