@@ -8,6 +8,7 @@ import QueryManager from './query-graph'
 //import { getHighlights, getQueryGraphNode, putQueryGraphNodeDataProperty, putQueryGraphNodeObjectProperty } from './api/api_stub'
 import sparqlingStyle from './style/style'
 import { EntityTypeEnum } from './api/swagger/models'
+import { graphElementHasIri } from './query-graph/util'
 
 const { CONCEPT, OBJECT_PROPERTY, DATA_PROPERTY } = Type
 
@@ -52,7 +53,7 @@ export default async function sparqling(sparqlingContainer: HTMLDivElement, file
     switch (cyEntity.data('type')) {
       case OBJECT_PROPERTY:
         lastObjProperty = cyEntity
-        if (queryManager.selectedGraphNode) {
+        if (selectedGraphNode) {
           ontologyGraph.findNextClassFromObjProperty(cyEntity).then(result => {
             lastObjProperty['direct'] = result.objPropertyFromApi.direct
             gscape.centerOnNode(result.connectedClass.id(), 1.8)
@@ -74,7 +75,7 @@ export default async function sparqling(sparqlingContainer: HTMLDivElement, file
           return
         }
         
-        if (clickedIRI !== selectedGraphNode?.entities[0].iri) {
+        if (!graphElementHasIri(selectedGraphNode, clickedIRI)) {
           try {
             if (lastObjProperty) {
               newQueryGraph = (await qgApi.putQueryGraphObjectProperty(
@@ -83,15 +84,16 @@ export default async function sparqling(sparqlingContainer: HTMLDivElement, file
                 selectedGraphNode.id
               )).data
 
-            } else if (queryManager.qg?.graph && iriInQueryGraph && isIriHighlighted) {
+            } else if (queryManager.qg?.graph && isIriHighlighted) {
               newQueryGraph = (await qgApi.putQueryGraphClass(
                 queryManager.qg, '',
                 clickedIRI,
                 selectedGraphNode.id)).data
-            } else
+            } else if (!queryManager.qg?.graph) {
               newQueryGraph = (await qgApi.getQueryGraph(clickedIRI)).data
+            }
 
-            queryManager.qg = newQueryGraph
+            if (newQueryGraph) queryManager.qg = newQueryGraph
           } catch (error) { console.error(error) }
         }
 

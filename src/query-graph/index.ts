@@ -7,6 +7,7 @@ import QueryHeadWidget from "../query-head/qh-widget"
 import QueryGraphWidget from "./qg-widget"
 import BGPRenderer, { DisplayedNameType } from "./renderer"
 import * as OntologyGraph from '../ontology-graph/ontology-graph'
+import { graphElementHasIri } from "./util"
 
 const { Class, ObjectProperty, DataProperty } = EntityTypeEnum
 
@@ -34,10 +35,18 @@ export default class QueryManager {
 
     this.bgp = new BGPRenderer(bgpContainer)
     this.bgp.onNodeSelect((nodeId: string) => {
-      this._selectedGraphNode = this.getGraphElementByID(nodeId)
+      const cyNode = this.bgp.getNodeById(nodeId)
+      let elems: any
 
-      const elems = gscape.ontology
-        .getEntityOccurrences(this._selectedGraphNode.entities[0].iri)
+      // If it's a child, use its own iri to find it on the ontology graph
+      // if it's a parent, use the first iri he has in its entity list instead
+      if (cyNode.isChild()) {
+        this._selectedGraphNode =  this.getGraphElementByIRI(nodeId) // child nodes have IRI as id
+        elems = gscape.ontology.getEntityOccurrences(cyNode.data().iri)
+      } else {
+        this._selectedGraphNode =  this.getGraphElementByID(nodeId)
+        elems = gscape.ontology.getEntityOccurrences(this._selectedGraphNode.entities[0].iri)
+      }
 
       let elem = elems.find((occ: any) => occ.data('diagram_id') === gscape.actualDiagramID)
       if (!elem) elem = elems[0]
@@ -67,11 +76,7 @@ export default class QueryManager {
   }
 
   public getGraphElementByIRI(iri: string) {
-    return recursiveFind(this.graph, (elem) =>
-      elem.entities?.some( entity => {
-        return entity.iri === iri || entity.prefixedIri === iri
-      })
-    )
+    return recursiveFind(this.graph, (elem) => graphElementHasIri(elem, iri))
   }
 
   public selectGraphElement(nodeIri: string): void
@@ -128,7 +133,7 @@ export default class QueryManager {
     this.renderGraph(this.qg.graph)
     setTimeout(() => {
       this.bgp.elements.forEach( elem => {
-        if ( elem.data('displayed_name') && !this.getGraphElementByID(elem.id()))
+        if ( elem.data('displayed_name') && !this.getGraphElementByID(elem.id()) && !this.getGraphElementByIRI(elem.data('iri')))
           this.bgp.removeNode(elem.id())
       })
     },0)

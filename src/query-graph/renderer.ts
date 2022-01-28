@@ -93,12 +93,19 @@ export default class BGPRenderer {
    * Add a node to the query graph
    */
   public addNode(node: GraphElement) {
-    if (!this.getNodeById(node.id)) {
+    if (!node) return
+
+    let existingParentNode = this.getNodeById(node.id)
+    if (existingParentNode) {
+      if (node.entities.length > 1 ) {
+        node.entities.forEach((child: Entity, i: number) => {
+          if (!existingParentNode.children().some( c => c[0].data('iri') === child.iri)) {
+            this.cy.add({ data: this.getDataObj(node, i) })
+          }
+        })
+      }
+    } else {
       this.cy.add({ data: this.getDataObj(node) })
-    } else if (node.entities.length > 1) {
-      node.entities.forEach( (_e: any, i: number) => {
-        this.cy.add({ data: this.getDataObj(node, i) })
-      })
     }
   }
 
@@ -197,11 +204,17 @@ export default class BGPRenderer {
     this._onDeleteCallback = callback
   }
 
+  /**
+   * Given a graphElement, build a data object for its instance in cytoscape
+   * @param graphElement the graphElement you want to get data from
+   * @param i the index of the entity you want are interested to
+   * @returns the data object for cytoscape's instanc of the graphElement
+   */
   private getDataObj(graphElement: GraphElement, i = null) {
     let data = graphElement.entities[i || 0]
     if (i !== null) {
       data.parent = graphElement.id
-      data.id = `${graphElement.id}-${i}`
+      data.id = data.iri
     } else {
       data.id = graphElement.id
     }
