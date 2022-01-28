@@ -2,8 +2,7 @@ import cytoscape, { CollectionReturnValue, Stylesheet } from 'cytoscape'
 import klay from 'cytoscape-klay'
 import cola from 'cytoscape-cola'
 import cxtmenu from 'cytoscape-cxtmenu'
-import { GraphElement } from '../api/swagger/models'
-import { EntityTypeEnum } from '../api/swagger/models'
+import { GraphElement, EntityTypeEnum, Entity } from '../api/swagger/models'
 import getStylesheet from './style'
 import { Theme, Nod } from 'grapholscape'
 import { commandList, Command } from './cxt-menu-commands'
@@ -68,6 +67,12 @@ export default class BGPRenderer {
   private _onDeleteCallback = (id: string) => { }
 
   constructor(container?: HTMLDivElement) {
+
+    this.cy.on('tap', 'node[type = "class"]', e => {
+      //this.selectedGraphNode = this.getGraphElementByID(e.target.id())
+      this._onNodeSelectionCallback(e.target.id())
+    })
+
     if (container) {
       this.cy.mount(container)
       this.menu = (this.cy as any).cxtmenu(this.menuOption)
@@ -210,11 +215,11 @@ export default class BGPRenderer {
 
   // ***************** CXT COMMANDS CALLBACKS ***********************
 
-  private handleElementSelection(elem: CollectionReturnValue) {
-    if (elem.data('type') === EntityTypeEnum.Class) {
-      this._onNodeSelectionCallback(elem.id())
-    }
-  }
+  // private handleElementSelection(elem: CollectionReturnValue) {
+  //   if (elem.data('type') === EntityTypeEnum.Class) {
+  //     this._onNodeSelectionCallback(elem.id())
+  //   }
+  // }
 
   private handleAddHead(elem: CollectionReturnValue) {
     this._onAddHeadCallback(elem.id())
@@ -247,9 +252,9 @@ export default class BGPRenderer {
   private get menuOption() {
     const getCallback = (command: Command, elem: CollectionReturnValue) => {
       switch (command) {
-        case Command.select:
-          this.handleElementSelection(elem)
-          break
+        // case Command.select:
+        //   this.handleElementSelection(elem)
+        //   break
         case Command.addHead: 
           this.handleAddHead(elem)
           break
@@ -262,6 +267,7 @@ export default class BGPRenderer {
     return {
       selector: '*',
       commands: commandList(getCallback),
+      // openMenuEvents: 'tap',
       // fillColor: '',
       // activeFillColor: '',
       // itemColor: '',
