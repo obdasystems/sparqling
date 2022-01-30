@@ -26,9 +26,9 @@ export function highlightIRI(iri: string) {
 
 export async function highlightSuggestions(clickedIRI: string) {
   actualHighlights = (await ogApi.highligths(clickedIRI)).data
-  actualHighlights.classes.forEach((iri: string) => highlightIRI(iri))
-  actualHighlights.dataProperties.forEach((iri: string) => highlightIRI(iri))
-  actualHighlights.objectProperties.forEach((o: any) => highlightIRI(o.objectPropertyIRI))
+  actualHighlights.classes?.forEach((iri: string) => highlightIRI(iri))
+  actualHighlights.dataProperties?.forEach((iri: string) => highlightIRI(iri))
+  actualHighlights.objectProperties?.forEach((o: any) => highlightIRI(o.objectPropertyIRI))
 
   let highlightedElems = gscape.renderer.cy.$('.highlighted, :selected')
   gscape.renderer.cy.elements().difference(highlightedElems).addClass('faded')
@@ -48,6 +48,8 @@ export function findNextClassFromObjProperty(objProperty: CollectionReturnValue)
   result.objPropertyFromApi = actualHighlights.objectProperties.find((o: Branch) =>
     gscape.ontology.checkEntityIri(objProperty, o.objectPropertyIRI)
   )
+
+  console.log(actualHighlights)
 
   return new Promise((resolve, reject) => {
     if (!result.objPropertyFromApi.relatedClasses) reject()
@@ -75,9 +77,9 @@ export function findNextClassFromObjProperty(objProperty: CollectionReturnValue)
 
 export function isHighlighted(iri:string): boolean {
   // if ((actualHighlights as AxiosError).isAxiosError) return true
-  return actualHighlights?.classes.includes(iri) ||
-    actualHighlights?.dataProperties.includes(iri) ||
-    actualHighlights?.objectProperties.map( obj => obj.objectPropertyIRI).includes(iri)
+  return actualHighlights?.classes?.includes(iri) ||
+    actualHighlights?.dataProperties?.includes(iri) ||
+    actualHighlights?.objectProperties?.map( obj => obj.objectPropertyIRI).includes(iri)
 }
 
 export function resetHighlights() {

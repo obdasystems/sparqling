@@ -1,15 +1,17 @@
-import cytoscape, { CollectionReturnValue, Stylesheet } from 'cytoscape'
+import cytoscape, { CollectionReturnValue, EventObject, Stylesheet } from 'cytoscape'
 import klay from 'cytoscape-klay'
 import cola from 'cytoscape-cola'
 import cxtmenu from 'cytoscape-cxtmenu'
+import compoundDragAndDrop from 'cytoscape-compound-drag-and-drop'
 import { GraphElement, EntityTypeEnum, Entity } from '../api/swagger/models'
 import getStylesheet from './style'
-import { Theme, Nod } from 'grapholscape'
+import { Theme } from 'grapholscape'
 import { commandList, Command } from './cxt-menu-commands'
 
 cytoscape.use(klay)
 cytoscape.use(cola)
 cytoscape.use(cxtmenu)
+cytoscape.use(compoundDragAndDrop)
 
 const DISPLAYED_NAME = 'displayed_name'
 export enum DisplayedNameType {
@@ -65,14 +67,26 @@ export default class BGPRenderer {
   private menu: any
   private _onAddHeadCallback = (id: string) => { }
   private _onDeleteCallback = (id: string) => { }
+  private _onJoinCallback = (node1ID: string, node2ID: string) => { }
+  
+  constructor(container?: HTMLDivElement, dragAndDropCompundOptions?) {
 
-  constructor(container?: HTMLDivElement) {
-
-    this.cy.on('tap', 'node[type = "class"]', e => {
+    this.cy.on('tap', `node[type = ${EntityTypeEnum.Class}]`, e => {
       //this.selectedGraphNode = this.getGraphElementByID(e.target.id())
       this._onNodeSelectionCallback(e.target.id())
     })
 
+    let cy = this.cy as any
+    cy.on('cdnddrop', (e: EventObject, parent:CollectionReturnValue, dropSibling: CollectionReturnValue) => {
+      if (!parent.empty() && !dropSibling.empty()) {
+        // avoid creating a compound node
+        dropSibling.move({ parent: null })
+        e.target.move({parent: null})
+        parent.remove()
+
+        this._onJoinCallback(e.target.id(), dropSibling.id())
+      }
+    })
     if (container) {
       this.cy.mount(container)
       this.menu = (this.cy as any).cxtmenu(this.menuOption)
@@ -80,13 +94,13 @@ export default class BGPRenderer {
   }
 
   /**
-   * Get a node by its id
-   * @param nodeID the node ID
-   * @returns a cytoscape representation of the node or null if it does not exist
+   * Get an elem by its id
+   * @param elemID the node/edge ID
+   * @returns a cytoscape representation of the element or null if it does not exist
    */
-  public getNodeById(nodeID: string) {
-    const node = this.cy.$id(nodeID)
-    return node.empty() ? null : node
+  public getElementById(elemID: string) {
+    const elem = this.cy.$id(elemID)
+    return elem.empty() ? null : elem
   }
 
   /**
@@ -94,32 +108,62 @@ export default class BGPRenderer {
    */
   public addNode(node: GraphElement) {
     if (!node) return
+    const existingNode = this.getElementById(node.id)
 
-    let existingParentNode = this.getNodeById(node.id)
-    if (existingParentNode) {
-      if (node.entities.length > 1 ) {
-        node.entities.forEach((child: Entity, i: number) => {
-          if (!existingParentNode.children().some( c => c[0].data('iri') === child.iri)) {
-            this.cy.add({ data: this.getDataObj(node, i) })
-          }
-        })
-      }
-    } else {
+    if (node.entities?.length > 1 && existingNode?.children().length !== node.entities?.length) {
+      node.entities.forEach((child: Entity, i: number) => {
+        if (!existingNode.children().some( c => c[0].data('iri') === child.iri)) {
+          this.cy.add({ data: this.getDataObj(node, i) })
+        }
+      })
+    } else if (!existingNode) {
       this.cy.add({ data: this.getDataObj(node) })
     }
   }
 
   public addEdge(sourceNode: GraphElement, targetNode: GraphElement, edgeData?: GraphElement) {
-    this.addNode(targetNode)
-    const edge = edgeData
-      ? this.getDataObj(edgeData) // the edge is an entity, get its data
-      : { id: `${sourceNode.id}-${targetNode.id}`, type: targetNode.entities[0].type } // the edge is not an entity
-
-    if (this.cy.$id(edge.id).empty()) {
-      edge.source = sourceNode.id
-      edge.target = targetNode.id
-      this.cy.add({ data: edge })
+    let newEdgeData: any
+    //const sourceCyNode = this.getElementById(sourceNode.id)
+    const targetCyNode = this.getElementById(targetNode.id)
+    if (!targetCyNode) {
+      this.addNode(targetNode)
     }
+
+    // the edge is an entity
+    if (edgeData) {
+      const cyEdge = this.getElementById(edgeData.id)
+
+      // if edge is already in graph, make sure it has the right source and target
+      // a join operation might have changed one of the two
+      if (cyEdge) {
+        cyEdge.move({
+          source: sourceNode.id,
+          target: targetNode.id
+        })
+      } else {
+        // add a new edge, get its data object since it's an entity and set source and target
+        newEdgeData = this.getDataObj(edgeData)
+      }
+    } else {
+      // not an entity (e.g. dataProperty connectors)
+      newEdgeData = { id: `${sourceNode.id}-${targetNode.id}`, type: targetNode.entities[0].type }
+    }
+
+    if (newEdgeData) {
+      newEdgeData.source = sourceNode.id
+      newEdgeData.target = targetNode.id
+      this.cy.add({ data: newEdgeData})
+    }
+    
+    // const edge = edgeData
+    //   ? this.getDataObj(edgeData) // the edge is an entity, get its data
+    //   : { id: `${sourceNode.id}-${targetNode.id}`, type: targetNode.entities[0].type } // the edge is not an entity
+
+    // if (this.cy.$id(edge.id).empty()) {
+    //   edge.source = sourceNode.id
+    //   edge.target = targetNode.id
+    //   this.cy.add({ data: edge })
+    // }
   }
 
   /**
@@ -204,6 +248,10 @@ export default class BGPRenderer {
     this._onDeleteCallback = callback
   }
 
+  public onJoin(callback: (node1ID: string, node2ID: string) => void) {
+    this._onJoinCallback = callback
+  }
+
   /**
    * Given a graphElement, build a data object for its instance in cytoscape
    * @param graphElement the graphElement you want to get data from
@@ -284,6 +332,20 @@ export default class BGPRenderer {
       // fillColor: '',
       // activeFillColor: '',
       // itemColor: '',
+    }
+  }
+
+  public canStartJoin: (nodeID: string) => boolean
+  public isJoinAllowed: (targetNodeID: string, startNodeID: string) => boolean
+  private coumpoundDragAndDrop = (this.cy as any).compoundDragAndDrop(this.compoundDragAndDropOption)
+
+  private get compoundDragAndDropOption() {
+    return {
+      grabbedNode: (node: CollectionReturnValue) => this.canStartJoin(node.id()),
+      dropTarget: (dropTarget: CollectionReturnValue) =>
+        this.isJoinAllowed(dropTarget?.id(), this.cy.$(':grabbed').id()),
+      dropSibling: (dropTarget: CollectionReturnValue, grabbedNode: CollectionReturnValue) => 
+        this.isJoinAllowed(dropTarget?.id(), this.cy.$(':grabbed').id())
     }
   }
 }

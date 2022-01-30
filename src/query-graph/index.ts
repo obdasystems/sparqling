@@ -7,7 +7,7 @@ import QueryHeadWidget from "../query-head/qh-widget"
 import QueryGraphWidget from "./qg-widget"
 import BGPRenderer, { DisplayedNameType } from "./renderer"
 import * as OntologyGraph from '../ontology-graph/ontology-graph'
-import { graphElementHasIri } from "./util"
+import { canStartJoin, graphElementHasIri, isJoinAllowed } from "./util"
 
 const { Class, ObjectProperty, DataProperty } = EntityTypeEnum
 
@@ -34,8 +34,18 @@ export default class QueryManager {
     })
 
     this.bgp = new BGPRenderer(bgpContainer)
-    this.bgp.onNodeSelect((nodeId: string) => {
-      const cyNode = this.bgp.getNodeById(nodeId)
+    
+    // inject tests for allowing joins into renderer, keep renderer logic agnostic
+    this.bgp.canStartJoin = (nodeId) => canStartJoin(this.getGraphElementByID(nodeId))
+    this.bgp.isJoinAllowed = (targetNodeID, startNodeID) => {
+      return isJoinAllowed(
+        this.getGraphElementByID(targetNodeID),
+        this.getGraphElementByID(startNodeID)
+      )
+    }
+
+    this.bgp.onNodeSelect((nodeId) => {
+      const cyNode = this.bgp.getElementById(nodeId)
       let elems: any
 
       // If it's a child, use its own iri to find it on the ontology graph
@@ -56,15 +66,20 @@ export default class QueryManager {
       gscape.centerOnNode(elem.id())
     })
 
-    this.bgp.onAddHead(async (nodeId: string) => {
+    this.bgp.onAddHead(async (nodeId) => {
       this.qg = (await qgApi.addHeadTerm(this.qg, nodeId)).data
     })
 
-    this.bgp.onDelete( async (elemId: string) => {
+    this.bgp.onDelete( async (elemId) => {
       this.qg = (await qgApi.deleteGraphElementId(this.qg, elemId)).data
       OntologyGraph.resetHighlights()
       gscape.unselectEntity([])
       this._selectedGraphNode = null
+    })
+
+    this.bgp.onJoin( async (elem1ID, elem2ID) => {
+      this.qg = (await qgApi.putQueryGraphJoin(this.qg, elem1ID, elem2ID)).data
+      this._selectedGraphNode = this.getGraphElementByID(elem1ID)
     })
 
     this.bgp.theme = gscape.themesController.actualTheme
@@ -96,9 +111,7 @@ export default class QueryManager {
     if (!graphElem) return
 
     const type = graphElem.entities[0].type
-    // add new node only if it does not already exists
-    // classes are allowed cause there might be multiple entities for a single graphElement (compound nodes)
-    if ((!this.bgp.getNodeById(graphElem.id) || type === Class) && type !== ObjectProperty ) {
+    if (type !== ObjectProperty) {
       this.bgp.addNode(graphElem)
       if (parent) {
         this.bgp.addEdge(parent, graphElem, objectProperty)
@@ -131,10 +144,18 @@ export default class QueryManager {
   set qg(newQueryGraph: QueryGraph) {
     this._qg = newQueryGraph
     this.renderGraph(this.qg.graph)
+    // remove elements not in query anymore, asynchronously
     setTimeout(() => {
       this.bgp.elements.forEach( elem => {
-        if ( elem.data('displayed_name') && !this.getGraphElementByID(elem.id()) && !this.getGraphElementByIRI(elem.data('iri')))
-          this.bgp.removeNode(elem.id())
+        if ( elem.data('displayed_name') && !this.getGraphElementByID(elem.id())) {
+          /**
+           * remove it if elem is:
+           *  - not a child
+           *  - a child and its iri is not in the query anymore
+           */
+          if (!elem.isChild() || !this.getGraphElementByIRI(elem.data('iri')))
+            this.bgp.removeNode(elem.id())
+        }
       })
     },0)
     this.renderHead(this.qg.head)

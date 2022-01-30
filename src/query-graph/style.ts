@@ -29,7 +29,7 @@ export default (theme: Theme) => { return [
       'line-style': 'solid',
       'target-arrow-shape': 'triangle',
       'target-arrow-fill': 'filled',
-      'curve-style': 'straight',
+      'curve-style': 'bezier',
       'text-rotation': 'autorotate',
       'text-margin-y': -10,
       'width': 2,
@@ -72,6 +72,17 @@ export default (theme: Theme) => { return [
       'line-color': theme.role_dark,
       'target-arrow-color': theme.role_dark,
       'text-max-width': '60px'
+    }
+  },
+
+  {
+    selector: '.cdnd-drop-target',
+    style: {
+      'border-style': 'dashed',
+      'border-color': theme.secondary,
+      'shape': 'round-rectangle',
+      'label': 'Release to join these classes',
+      'font-size': '12px',
     }
   },
 
