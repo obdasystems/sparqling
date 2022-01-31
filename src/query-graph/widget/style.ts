@@ -1,6 +1,6 @@
 import { Stylesheet } from "cytoscape"
 import { Theme } from "grapholscape"
-import { EntityTypeEnum } from "../api/swagger/models"
+import { EntityTypeEnum } from "../../api/swagger/models"
 
 // TODO: fix colors for black/white theme
 const { DataProperty, Class, ObjectProperty } = EntityTypeEnum
@@ -78,6 +78,7 @@ export default (theme: Theme) => { return [
   {
     selector: '.cdnd-drop-target',
     style: {
+      'background-color': theme.primary_dark,
       'border-style': 'dashed',
       'border-color': theme.secondary,
       'shape': 'round-rectangle',

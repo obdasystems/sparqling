@@ -3,10 +3,11 @@ import klay from 'cytoscape-klay'
 import cola from 'cytoscape-cola'
 import cxtmenu from 'cytoscape-cxtmenu'
 import compoundDragAndDrop from 'cytoscape-compound-drag-and-drop'
-import { GraphElement, EntityTypeEnum, Entity } from '../api/swagger/models'
+import { GraphElement, EntityTypeEnum, Entity } from '../../api/swagger/models'
 import getStylesheet from './style'
 import { Theme } from 'grapholscape'
 import { commandList, Command } from './cxt-menu-commands'
+import { DisplayedNameType } from '../displayed-name-type'
 
 cytoscape.use(klay)
 cytoscape.use(cola)
@@ -14,11 +15,6 @@ cytoscape.use(cxtmenu)
 cytoscape.use(compoundDragAndDrop)
 
 const DISPLAYED_NAME = 'displayed_name'
-export enum DisplayedNameType {
-  full = 'iri',
-  prefixed = 'prefixedIri',
-  label = 'labels',
-}
 
 /**
  * Class for creating, updating and manipulating the query's BGP
@@ -129,41 +125,26 @@ export default class BGPRenderer {
       this.addNode(targetNode)
     }
 
-    // the edge is an entity
-    if (edgeData) {
-      const cyEdge = this.getElementById(edgeData.id)
-
-      // if edge is already in graph, make sure it has the right source and target
-      // a join operation might have changed one of the two
-      if (cyEdge) {
-        cyEdge.move({
-          source: sourceNode.id,
-          target: targetNode.id
-        })
-      } else {
-        // add a new edge, get its data object since it's an entity and set source and target
-        newEdgeData = this.getDataObj(edgeData)
-      }
-    } else {
+    newEdgeData = edgeData
+      // get data object since it's an entity and set source and target
+      ? this.getDataObj(edgeData)
       // not an entity (e.g. dataProperty connectors)
-      newEdgeData = { id: `${sourceNode.id}-${targetNode.id}`, type: targetNode.entities[0].type }
-    }
-
-    if (newEdgeData) {
-      newEdgeData.source = sourceNode.id
-      newEdgeData.target = targetNode.id
-      this.cy.add({ data: newEdgeData})
-    }
+      : { id: `${sourceNode.id}-${targetNode.id}`, type: targetNode.entities[0].type } 
     
-    // const edge = edgeData
-    //   ? this.getDataObj(edgeData) // the edge is an entity, get its data
-    //   : { id: `${sourceNode.id}-${targetNode.id}`, type: targetNode.entities[0].type } // the edge is not an entity
+    const cyEdge = this.getElementById(newEdgeData.id)
+    // if edge is already in graph, make sure it has the right source and target
+    // a join operation might have changed one of the two
+    if (cyEdge) {
+      cyEdge.move({
+        source: sourceNode.id,
+        target: targetNode.id
+      })
+      return // no need to add a new edge
+    }
 
-    // if (this.cy.$id(edge.id).empty()) {
-    //   edge.source = sourceNode.id
-    //   edge.target = targetNode.id
-    //   this.cy.add({ data: edge })
-    // }
+    newEdgeData.source = sourceNode.id
+    newEdgeData.target = targetNode.id
+    this.cy.add({ data: newEdgeData})
   }
 
   /**

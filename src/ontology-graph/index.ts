@@ -1,8 +1,8 @@
-import { AxiosError } from "axios"
-import { CollectionReturnValue, NodeSingular } from "cytoscape"
+import { CollectionReturnValue, NodeSingular, StylesheetStyle } from "cytoscape"
 import { OntologyGraphApi } from "../api/swagger"
 import { Branch, Highlights } from "../api/swagger/models"
 import ClassSelectionDialog from "../widgets/class-selection-dialog"
+import sparqlingStyle from './style'
 
 const ogApi = new OntologyGraphApi()
 let gscape: any
@@ -13,6 +13,13 @@ const selectClassDialog = new ClassSelectionDialog()
 export function init(grapholscape: any) {
   gscape = grapholscape
   gscape.container.querySelector('#gscape-ui').appendChild(selectClassDialog)
+
+  gscape.showDiagram(0)
+  addStylesheet(gscape.renderer.cy, sparqlingStyle)
+  gscape.onDiagramChange(() => addStylesheet(gscape.renderer.cy, sparqlingStyle))
+  gscape.onRendererChange(() => addStylesheet(gscape.renderer.cy, sparqlingStyle))
+  // gscape.onBackgroundClick(() => resetHighlights(gscape.renderer.cy))
+  gscape.onThemeChange(() => addStylesheet(gscape.renderer.cy, sparqlingStyle))
 }
 
 export function highlightIRI(iri: string) {
@@ -105,4 +112,10 @@ export function selectNode(nodeID: string) {
       node.addClass('selected')
     })
   }
+}
+
+function addStylesheet(cy: any, stylesheet: StylesheetStyle[]) {
+  stylesheet.forEach( styleObj => {
+    cy.style().selector(styleObj.selector).style(styleObj.style)
+  })
 }
