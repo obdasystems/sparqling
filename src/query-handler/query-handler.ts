@@ -7,6 +7,7 @@ import * as queryGraph from "../query-graph"
 import * as queryHead from "../query-head"
 import { highlightSuggestions, resetHighlights } from "../ontology-graph"
 import { getGraphElementByID, getGraphElementByIRI } from "../query-graph/graph-element-utility"
+import { messageDialog } from "../widgets"
 
 const { CONCEPT, OBJECT_PROPERTY, DATA_PROPERTY } = Type
 let body: QueryGraph
@@ -116,6 +117,19 @@ export function init(grapholscape: Grapholscape) {
     let newBody = (await qgApi.deleteHeadTerm(body, headElement.id)).data
     updateQueryBody(newBody)
   })
+
+  queryHead.sparqlButton.onClick = () => {
+    console.log(messageDialog.isVisible)
+    if (!messageDialog.isVisible) {
+      messageDialog.message = {
+        type: 'SPARQL',
+        text: body?.sparql
+      }
+      messageDialog.show()
+    } else {
+      messageDialog.hide()
+    }
+  }
 }
 
 function updateQueryBody(newBody: QueryGraph) {

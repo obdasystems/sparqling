@@ -8,15 +8,19 @@ const { GscapeWidget, GscapeHeader } = UI
  * Widget extending base grapholscape widget which uses Lit-element inside
  */
 export default class QueryHeadWidget extends GscapeWidget {
-  private collapsible : boolean
-  private draggable: boolean
-  private header : typeof GscapeHeader
+  public collapsible : boolean
+  public draggable: boolean
+  private headSlottedWidget: Element
   public headElements: HeadElement[] = []
-  private deleteHeadElementCallback: (headElementId: number) => void
+  private deleteElementCallback: (headElementId: number) => void
 
-  static properties = {
-    headElements: { attribute: false }
+  static get properties() {
+
+    let result = super.properties 
+    result.headElements = { attribute: false }
+    return result
   }
+
   shadowRoot: any
 
   static get styles() {
@@ -48,11 +52,11 @@ export default class QueryHeadWidget extends GscapeWidget {
     ]
   }
 
-  constructor() {
+  constructor(headSlottedWidget?: Element) {
     super()
     this.collapsible = true
     // this.draggable = true
-    this.header = new GscapeHeader('Query Head')
+    this.headSlottedWidget = headSlottedWidget
 
     super.makeDraggable()
   }
@@ -63,21 +67,25 @@ export default class QueryHeadWidget extends GscapeWidget {
       <div class="widget-body">
         ${this.headElements.map( headElement => new QHElementComponent(headElement))}
       </div>
-      ${this.header}
+      <gscape-head>
+        ${this.headSlottedWidget}
+      </gscape-head>
     `
   }
 
   updated() {
     // register callbacks for all head elements
     this.shadowRoot.querySelectorAll('head-element').forEach((element: HeadElementComponent) => {
-      element.deleteButton.onClick = () => this.deleteHeadElementCallback(element._id)
+      element.deleteButton.onClick = () => this.deleteElementCallback(element._id)
       // bind all other interaction callbacks
     });
   }
 
   firstUpdated() {
     super.firstUpdated()
-    this.header.invertIcons()
+    
+    let self = this as any
+    self.header.invertIcons()
     // super.makeDraggableHeadTitle()
   }
 
@@ -85,8 +93,8 @@ export default class QueryHeadWidget extends GscapeWidget {
    * Delete a HeadElement
    * @param callback callback receiving the ID of the headElement to delete
    */
-  onDeleteHeadElement(callback: (headElemId:number) => void) {
-    this.deleteHeadElementCallback = callback
+  onDelete(callback: (headElemId:number) => void) {
+    this.deleteElementCallback = callback
   }
 
   //createRenderRoot() { return this as any }

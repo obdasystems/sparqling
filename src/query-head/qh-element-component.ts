@@ -1,7 +1,7 @@
 import { UI } from 'grapholscape'
 import { LitElement, html, css } from 'lit'
 import { HeadElement, ModelFunctionNameEnum, ModelFunction, FilterExpressionOperatorEnum } from '../api/swagger/models';
-import deleteIcon from './delete-icon'
+import { del } from './icons'
 
 export default class HeadElementComponent extends UI.GscapeWidget {
   public _id: number
@@ -62,7 +62,7 @@ export default class HeadElementComponent extends UI.GscapeWidget {
     super()
 
     this.headElement = headElement
-    this.deleteButton = new UI.GscapeButton(deleteIcon, 'Delete Field')
+    this.deleteButton = new UI.GscapeButton(del, 'Delete Field')
     this.deleteButton.onClick = () => {}
   }
 

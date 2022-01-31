@@ -1,7 +1,7 @@
 import { CollectionReturnValue, NodeSingular, StylesheetStyle } from "cytoscape"
 import { OntologyGraphApi } from "../api/swagger"
 import { Branch, Highlights } from "../api/swagger/models"
-import ClassSelectionDialog from "../widgets/class-selection-dialog"
+import { ClassSelectionDialog, messageDialog } from "../widgets"
 import sparqlingStyle from './style'
 
 const ogApi = new OntologyGraphApi()
@@ -13,6 +13,7 @@ const selectClassDialog = new ClassSelectionDialog()
 export function init(grapholscape: any) {
   gscape = grapholscape
   gscape.container.querySelector('#gscape-ui').appendChild(selectClassDialog)
+  gscape.container.querySelector('#gscape-ui').appendChild(messageDialog)
 
   gscape.showDiagram(0)
   addStylesheet(gscape.renderer.cy, sparqlingStyle)
