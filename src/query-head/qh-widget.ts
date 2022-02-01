@@ -1,9 +1,9 @@
 import { UI } from 'grapholscape'
-import { html, css, CSSResult } from 'lit'
+import { html, css } from 'lit'
 import { HeadElement } from '../api/swagger/models'
-import HeadElementComponent, {default as QHElementComponent} from './qh-element-component'
+import HeadElementComponent from './qh-element-component'
 
-const { GscapeWidget, GscapeHeader } = UI
+const { GscapeWidget } = UI
 /**
  * Widget extending base grapholscape widget which uses Lit-element inside
  */
@@ -33,8 +33,9 @@ export default class QueryHeadWidget extends GscapeWidget {
         :host {
           width: 800px;
           position: absolute;
-          bottom: 10px;
           right: 54px;
+          top: 100%;
+          transform: translate(0, calc(-100% - 10px));
         }
 
         .widget-body {
@@ -45,7 +46,9 @@ export default class QueryHeadWidget extends GscapeWidget {
           border-radius: inherit;
           border-bottom-left-radius:0;
           border-bottom-right-radius:0;
+        }
 
+        #elems-wrapper {
           display: flex;
         }
       `
@@ -55,19 +58,19 @@ export default class QueryHeadWidget extends GscapeWidget {
   constructor(headSlottedWidget?: Element) {
     super()
     this.collapsible = true
-    // this.draggable = true
+    this.draggable = true
     this.headSlottedWidget = headSlottedWidget
-
-    super.makeDraggable()
   }
 
   render() {
     console.log('rendering head')
     return html`
       <div class="widget-body">
-        ${this.headElements.map( headElement => new QHElementComponent(headElement))}
+        <div id="elems-wrapper">
+          ${this.headElements.map( headElement => new HeadElementComponent(headElement))}
+        </div>
       </div>
-      <gscape-head>
+      <gscape-head title="Query Head">
         ${this.headSlottedWidget}
       </gscape-head>
     `
@@ -86,7 +89,7 @@ export default class QueryHeadWidget extends GscapeWidget {
     
     let self = this as any
     self.header.invertIcons()
-    // super.makeDraggableHeadTitle()
+    super.makeDraggableHeadTitle()
   }
 
   /**

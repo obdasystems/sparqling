@@ -1,5 +1,5 @@
 import { UI } from 'grapholscape'
-import { html, css, CSSResult } from 'lit'
+import { html, css } from 'lit'
 
 const { GscapeWidget, GscapeHeader } = UI
 /**
@@ -21,8 +21,9 @@ export default class QueryGraphWidget extends GscapeWidget {
         :host {
           width: 800px;
           position: absolute;
-          bottom: 10px;
           left: 10px;
+          top: 100%;
+          transform: translate(0, calc(-100% - 10px));
         }
 
         .widget-body {
@@ -45,7 +46,7 @@ export default class QueryGraphWidget extends GscapeWidget {
     // this.draggable = true
     this.header = new GscapeHeader('Query Graph')
 
-    super.makeDraggable()
+    //super.makeDraggable()
   }
 
   render() {
@@ -58,7 +59,7 @@ export default class QueryGraphWidget extends GscapeWidget {
   firstUpdated() {
     super.firstUpdated()
     this.header.invertIcons()
-    // super.makeDraggableHeadTitle()
+    super.makeDraggableHeadTitle()
   }
 
   //createRenderRoot() { return this as any }
