@@ -15,7 +15,7 @@ export default (theme: Theme) => { return [
   {
     selector: `node[type = "${Class}"]`,
     style: {
-      'shape': 'rectangle',
+      'shape': 'round-rectangle',
       'background-color': theme.concept,
       'border-color': theme.concept_dark,
       'text-halign': 'center',
