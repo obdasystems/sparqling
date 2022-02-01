@@ -123,7 +123,7 @@ export function init(grapholscape: Grapholscape) {
     if (!messageDialog.isVisible) {
       messageDialog.message = {
         type: 'SPARQL',
-        text: body?.sparql
+        text: body?.sparql || 'Empty Query'
       }
       messageDialog.show()
     } else {
