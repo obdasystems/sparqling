@@ -1,6 +1,6 @@
 import { UI } from 'grapholscape'
-import { LitElement, html, css } from 'lit'
-import { HeadElement, ModelFunctionNameEnum, ModelFunction, FilterExpressionOperatorEnum } from '../api/swagger/models';
+import { html, css } from 'lit'
+import { HeadElement, ModelFunctionNameEnum, ModelFunction, VarOrConstantConstantTypeEnum, FilterExpressionOperatorEnum } from '../api/swagger/models';
 import { del } from './icons'
 
 export default class HeadElementComponent extends UI.GscapeWidget {
@@ -9,12 +9,15 @@ export default class HeadElementComponent extends UI.GscapeWidget {
   private alias: string
   private function: ModelFunction
   private variable: string
+  private entityType: string;
   public deleteButton: UI.GscapeWidget
+  private input = (value = 'value') => html`<input placeholder="${value}"></input>`
 
   static properties = {
     alias: { attribute: false },
     graphElementId: { attribute: false },
     function: { attribute: false },
+    _entityType: { type: String },
   }
 
   static get styles() {
@@ -26,7 +29,7 @@ export default class HeadElementComponent extends UI.GscapeWidget {
       css`
         :host {
           display:block;
-          width: 200px;
+          width: 250px;
           margin:5px 2.5px;
           box-sizing: border-box;
           padding: 5px;
@@ -46,6 +49,13 @@ export default class HeadElementComponent extends UI.GscapeWidget {
           margin-bottom: 20px;
         }
 
+        .section-head {
+          display:flex;
+          gap:5px;
+          justify-content: space-between;
+          align-items: center;
+        }
+
         .section-title {
           font-weight: bold;
         }
@@ -53,6 +63,22 @@ export default class HeadElementComponent extends UI.GscapeWidget {
         #bottom-buttons-container {
           display: flex;
           justify-content:center;
+        }
+
+        input {
+          font-size: inherit;
+          text-align: center;
+          padding:2px;
+          border-radius: 4px;
+          border: solid 1px var(--theme-gscape-shadows, ${colors.shadows});
+          color: inherit;
+          font-weight: bold;
+          width:100%;
+          box-sizing: border-box;
+        }
+
+        .input-wrapper {
+          margin:5px;
         }
       `
     ]
@@ -74,40 +100,30 @@ export default class HeadElementComponent extends UI.GscapeWidget {
         <!-- ******************  FILTER  ****************** -->
         <div class="section">
           <div class="section-title">Filter</div>
-          <div>
-            <select id="function-select" name="function">
-              <option value="foo" selected>Operator</option>
-              ${Object.keys(FilterExpressionOperatorEnum).map( operator => {
-                return html`<option value="${FilterExpressionOperatorEnum[operator]}">${FilterExpressionOperatorEnum[operator]}</option>`
-              })}
-            </select>
-
-            <span contenteditable="true">Operand</span>
+          <div class="section-head">            
+            ${this.getSelect('function', 'Operator', FilterExpressionOperatorEnum)}
+            ${this.getSelect('filter-value-type', 'Type', VarOrConstantConstantTypeEnum)}
+          </div>
+          <div class="input-wrapper">
+            ${this.input()}
           </div>
         </div>
         
         <!-- ******************  FUNCTION  ****************** -->
         <div class="section">
           <div class="section-title">Function</div>
-          <div>
-            <select id="function-select" name="function">
-              <option value="foo" selected>Operator</option>
-              ${Object.keys(ModelFunctionNameEnum).map( operator => {
-                return html`<option value="${ModelFunctionNameEnum[operator]}">${ModelFunctionNameEnum[operator]}</option>`
-              })}
-            </select>
-
-            <span contenteditable="true">Operand</span>
+          <div class="section-head">
+            ${this.getSelect('function', 'Operator', ModelFunctionNameEnum)}
+            ${this.getSelect('function-value-type', 'Type', VarOrConstantConstantTypeEnum)}            
+          </div>
+          <div class="input-wrapper">
+            ${this.input()}
           </div>
         </div>
         
         <!-- ******************  SORT  ****************** -->
         <div class="section">
-          <select id="sort-select" name="sort">
-            <option value="sort" selected>sort</option>
-            <option value="asc">ascending</option>
-            <option value="desc">descending</option>
-          </select>
+          ${this.getSelect('sort', 'sort', {asc: 'Ascending', desc: 'Descending'})}
         </div>
 
         <div id="bottom-buttons-container">
@@ -121,6 +137,24 @@ export default class HeadElementComponent extends UI.GscapeWidget {
     this.alias = newElement.alias
     this.graphElementId = newElement.graphElementId
     this._id = newElement.id
+    this.entityType = newElement['entityType']
+    let types = {
+      'class': 'concept',
+      'objectProperty': 'role',
+      'dataProperty': 'attribute'
+    }
+    let self = this as any
+    self.style.backgroundColor = `var(--theme-gscape-${types[this.entityType]})`
+  }
+  
+  getSelect(name: string, defaultOpt: string, options: object) {
+    return html`
+      <select id="${name}-select" name="${name}">
+        <option selected>${defaultOpt}</option>
+        ${Object.keys(options).map( operator => {
+          return html`<option value="${operator}">${options[operator]}</option>`
+        })}
+      </select>`
   }
 }
 

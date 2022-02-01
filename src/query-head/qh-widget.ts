@@ -8,7 +8,7 @@ const { GscapeWidget } = UI
  * Widget extending base grapholscape widget which uses Lit-element inside
  */
 export default class QueryHeadWidget extends GscapeWidget {
-  public collapsible : boolean
+  public collapsible: boolean
   public draggable: boolean
   private headSlottedWidget: Element
   public headElements: HeadElement[] = []
@@ -16,7 +16,7 @@ export default class QueryHeadWidget extends GscapeWidget {
 
   static get properties() {
 
-    let result = super.properties 
+    let result = super.properties
     result.headElements = { attribute: false }
     return result
   }
@@ -67,7 +67,7 @@ export default class QueryHeadWidget extends GscapeWidget {
     return html`
       <div class="widget-body">
         <div id="elems-wrapper">
-          ${this.headElements.map( headElement => new HeadElementComponent(headElement))}
+          ${this.headElements.map(headElement => new HeadElementComponent(headElement))}
         </div>
       </div>
       <gscape-head title="Query Head">
@@ -86,7 +86,7 @@ export default class QueryHeadWidget extends GscapeWidget {
 
   firstUpdated() {
     super.firstUpdated()
-    
+
     let self = this as any
     self.header.invertIcons()
     super.makeDraggableHeadTitle()
@@ -96,7 +96,7 @@ export default class QueryHeadWidget extends GscapeWidget {
    * Delete a HeadElement
    * @param callback callback receiving the ID of the headElement to delete
    */
-  onDelete(callback: (headElemId:number) => void) {
+  onDelete(callback: (headElemId: number) => void) {
     this.deleteElementCallback = callback
   }
 
