@@ -2,6 +2,14 @@ import { Stylesheet, StylesheetStyle } from "cytoscape"
 
 export default [
   {
+    selector: '.sparqling-selected',
+    style: {
+      'underlay-color': 'green',
+      'underlay-padding': '10px',
+      'underlay-opacity': 0.5,
+    }
+  },
+  {
     selector: '.highlighted',
     style: {
       'underlay-color': 'red',

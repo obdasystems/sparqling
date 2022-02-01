@@ -15,7 +15,7 @@ export default (theme: Theme) => { return [
   {
     selector: `node[type = "${Class}"]`,
     style: {
-      'shape': 'round-rectangle',
+      'shape': 'rectangle',
       'background-color': theme.concept,
       'border-color': theme.concept_dark,
       'text-halign': 'center',
@@ -90,12 +90,12 @@ export default (theme: Theme) => { return [
   //-----------------------------------------------------------
   // selected selector always last
   {
-    selector: ':selected',
+    selector: '.sparqling-selected',
     style: {
-      'overlay-color': theme.secondary,
-      'overlay-opacity': 0.2,
-      'z-index': '100'
+      'underlay-color': 'green',
+      'underlay-padding': '10px',
+      'underlay-opacity': 0.5,
     }
-  }
+  },
 ] as Stylesheet[]
 }

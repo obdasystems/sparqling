@@ -63,7 +63,6 @@ export default class QueryHeadWidget extends GscapeWidget {
   }
 
   render() {
-    console.log('rendering head')
     return html`
       <div class="widget-body">
         <div id="elems-wrapper">

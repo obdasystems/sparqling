@@ -65,9 +65,9 @@ export default class BGPRenderer {
   private _onDeleteCallback = (id: string) => { }
   private _onJoinCallback = (node1ID: string, node2ID: string) => { }
   
-  constructor(container?: HTMLDivElement, dragAndDropCompundOptions?) {
+  constructor(container?: HTMLDivElement) {
 
-    this.cy.on('tap', `node[type = ${EntityTypeEnum.Class}]`, e => {
+    this.cy.on('tap', 'node, edge', e => {
       //this.selectedGraphNode = this.getGraphElementByID(e.target.id())
       this._onNodeSelectionCallback(e.target.id())
     })
@@ -158,7 +158,10 @@ export default class BGPRenderer {
    * Select a node given its id and return the node in cytoscape representation
    */
   public selectNode(nodeId: string): cytoscape.CollectionReturnValue {
-    return this.cy.$id(nodeId).select()
+    this.elements.removeClass('sparqling-selected')
+    let cyNode = this.cy.$id(nodeId)
+    cyNode.addClass('sparqling-selected')
+    return cyNode
   }
 
   /**

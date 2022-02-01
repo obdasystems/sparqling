@@ -18,6 +18,5 @@ export function getHeadElementByID(headElemID: number): HeadElement {
 }
 
 export function render(head: HeadElement[]) {
-  console.log(head)
   qhWidget.headElements = head
 }

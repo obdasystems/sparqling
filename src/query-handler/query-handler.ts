@@ -1,11 +1,11 @@
 import { CollectionReturnValue } from "cytoscape"
 import { Grapholscape, Theme, Type } from "grapholscape"
 import { QueryGraphApiFactory } from "../api/swagger"
-import { GraphElement, QueryGraph } from "../api/swagger/models"
+import { EntityTypeEnum, GraphElement, HeadElement, QueryGraph } from "../api/swagger/models"
 import { handleConceptSelection, handleDataPropertySelection, handleObjectPropertySelection } from "./handle-entity-selection"
 import * as queryGraph from "../query-graph"
 import * as queryHead from "../query-head"
-import { highlightSuggestions, resetHighlights } from "../ontology-graph"
+import * as ontologyGraph from "../ontology-graph"
 import { getGraphElementByID, getGraphElementByIRI } from "../query-graph/graph-element-utility"
 import { messageDialog } from "../widgets"
 
@@ -32,27 +32,27 @@ export function init(grapholscape: Grapholscape) {
     let newBody: QueryGraph = null
     switch (cyEntity.data('type')) {
       case OBJECT_PROPERTY: {
-        let result = await handleObjectPropertySelection(cyEntity)
+        let result = await handleObjectPropertySelection(cyEntity, selectedGraphElement)
         if (result && result.connectedClass) {
           gscape.centerOnNode(result.connectedClass.id(), 1.8)
         }
         break
       }
       case CONCEPT: {
-        newBody = await handleConceptSelection(cyEntity, body)
+        newBody = await handleConceptSelection(cyEntity, body, selectedGraphElement)
         if (newBody) {
           updateQueryBody(newBody)
         }
 
         let clickedIRI = cyEntity.data('iri').fullIri
-        queryGraph.selectElement(clickedIRI)
-        resetHighlights()
-        highlightSuggestions(clickedIRI)
+        selectedGraphElement = queryGraph.selectElement(clickedIRI)
+        ontologyGraph.resetHighlights()
+        ontologyGraph.highlightSuggestions(clickedIRI)
         break
       }
       case DATA_PROPERTY: {
         let newBody: QueryGraph = null
-        newBody = await handleDataPropertySelection(cyEntity, body)
+        newBody = await handleDataPropertySelection(cyEntity, body, selectedGraphElement)
         // select the current selected class on the ontology, prevent from selecting the attribute
         gscape.selectEntityOccurrences(selectedGraphElement?.entities[0].iri)
         if (newBody)
@@ -76,7 +76,7 @@ export function init(grapholscape: Grapholscape) {
   queryGraph.onDelete( async graphElement => {
     let newBody = (await qgApi.deleteGraphElementId(body, graphElement.id)).data
     if (newBody) {
-      resetHighlights()
+      ontologyGraph.resetHighlights()
       gscape.unselectEntity([])
       selectedGraphElement = null
       updateQueryBody(newBody)
@@ -93,24 +93,28 @@ export function init(grapholscape: Grapholscape) {
   })
 
   queryGraph.onElementClick( (graphElement, cyNode) => {
-    let elems: any
+    if (graphElement.entities[0]?.type === EntityTypeEnum.Class) {
+      let iri: string
+      // If it's a child, use its own iri to find it on the ontology graph
+      // if it's a parent, use the first iri he has in its entity list instead
+      if (cyNode.isChild()) {
+        selectedGraphElement =  getGraphElementByIRI(body.graph, graphElement.id) // child nodes have IRI as id
+        iri = graphElement.id
+      } else {
+        selectedGraphElement =  graphElement
+        iri = selectedGraphElement?.entities[0].iri
+      }
 
-    // If it's a child, use its own iri to find it on the ontology graph
-    // if it's a parent, use the first iri he has in its entity list instead
-    if (cyNode.isChild()) {
-      selectedGraphElement =  getGraphElementByIRI(body.graph, graphElement.id) // child nodes have IRI as id
-      elems = gscape.ontology.getEntityOccurrences(cyNode.data().iri)
+      const elems = gscape.ontology.getEntityOccurrences(iri)
+      const elem = elems.find((occ: any) => occ.data('diagram_id') === gscape.actualDiagramID)
+      gscape.centerOnNode(elem.id())
     } else {
-      selectedGraphElement =  getGraphElementByID(body.graph, graphElement.id)
-      elems = gscape.ontology.getEntityOccurrences(selectedGraphElement?.entities[0].iri)
+      // move ontology graph to show selected obj/data property
+      ontologyGraph.focusNodeByIRI(graphElement.entities[0].iri)
     }
 
-    let elem = elems.find((occ: any) => occ.data('diagram_id') === gscape.actualDiagramID)
-    if (!elem) elem = elems[0]
-
-    const diagram = gscape.ontology.getDiagram(elem.data('diagram_id'))
-    diagram.cy.$(':selected').unselect()
-    gscape.centerOnNode(elem.id())
+    // keep focus on selected class
+    queryGraph.selectElement(selectedGraphElement.id)
   })
 
   queryHead.onDelete( async headElement => {
@@ -119,7 +123,6 @@ export function init(grapholscape: Grapholscape) {
   })
 
   queryHead.sparqlButton.onClick = () => {
-    console.log(messageDialog.isVisible)
     if (!messageDialog.isVisible) {
       messageDialog.message = {
         type: 'SPARQL',
@@ -141,6 +144,10 @@ function updateQueryBody(newBody: QueryGraph) {
     headElem['entityType'] = getGraphElementByID(body.graph, headElem.graphElementId)?.entities[0]?.type
     return headElem
   }))
+}
+
+function changeSelectedGraphElement(newGraphElement: GraphElement) {
+  
 }
 
 

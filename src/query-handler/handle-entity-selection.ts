@@ -7,7 +7,7 @@ import * as queryGraph from "../query-graph"
 import { graphElementHasIri } from "../query-graph/graph-element-utility"
 
 let lastObjProperty: CollectionReturnValue
-let selectedGraphElement: GraphElement
+//let selectedGraphElement: GraphElement
 let isIriHighlighted: boolean
 let iriInQueryGraph: boolean
 let clickedIRI: string
@@ -15,7 +15,7 @@ const qgApi = QueryGraphApiFactory()
 // const iriInQueryGraph = actualBody ? queryManager.getGraphElementByIRI(clickedIRI) : null
 
 
-export async function handleObjectPropertySelection(cyEntity: CollectionReturnValue) {
+export async function handleObjectPropertySelection(cyEntity: CollectionReturnValue, selectedGraphElement: GraphElement) {
   getInitialInfo(cyEntity)
   lastObjProperty = cyEntity
   if (selectedGraphElement) {
@@ -26,7 +26,12 @@ export async function handleObjectPropertySelection(cyEntity: CollectionReturnVa
   }
 }
 
-export async function handleConceptSelection(cyEntity: CollectionReturnValue, actualBody: QueryGraph): Promise<QueryGraph> {
+export async function handleConceptSelection(
+  cyEntity: CollectionReturnValue, 
+  actualBody: QueryGraph,
+  selectedGraphElement: GraphElement
+): Promise<QueryGraph> {
+  
   getInitialInfo(cyEntity)
   let newQueryGraph: QueryGraph
   /**
@@ -66,7 +71,12 @@ export async function handleConceptSelection(cyEntity: CollectionReturnValue, ac
   return newQueryGraph
 }
 
-export async function handleDataPropertySelection(cyEntity: CollectionReturnValue, actualBody: QueryGraph): Promise<QueryGraph> {
+export async function handleDataPropertySelection(
+    cyEntity: CollectionReturnValue, 
+    actualBody: QueryGraph,
+    selectedGraphElement: GraphElement
+  ): Promise<QueryGraph> {
+
   getInitialInfo(cyEntity)
   let newQueryGraph: QueryGraph
 
@@ -86,7 +96,7 @@ export async function handleDataPropertySelection(cyEntity: CollectionReturnValu
 
 function getInitialInfo(cyEntity: CollectionReturnValue) {
   clickedIRI = cyEntity.data('iri').fullIri
-  selectedGraphElement = queryGraph.getSelectedGraphElement()
+  //selectedGraphElement = queryGraph.getSelectedGraphElement()
   isIriHighlighted = ontologyGraph.isHighlighted(clickedIRI)
   iriInQueryGraph = queryGraph.iriInQueryGraph(clickedIRI)
 }

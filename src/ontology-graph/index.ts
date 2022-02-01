@@ -33,12 +33,20 @@ export function highlightIRI(iri: string) {
 }
 
 export async function highlightSuggestions(clickedIRI: string) {
+  resetHighlights()
   actualHighlights = (await ogApi.highligths(clickedIRI)).data
   actualHighlights.classes?.forEach((iri: string) => highlightIRI(iri))
   actualHighlights.dataProperties?.forEach((iri: string) => highlightIRI(iri))
   actualHighlights.objectProperties?.forEach((o: any) => highlightIRI(o.objectPropertyIRI))
 
-  let highlightedElems = gscape.renderer.cy.$('.highlighted, :selected')
+  // select all nodes having iri = clickedIRI
+  gscape.ontology
+    .getEntityOccurrences(clickedIRI)
+    .forEach((node: CollectionReturnValue) => {
+      if (node.data('diagram_id') === gscape.actualDiagramID) node.addClass('sparqling-selected')
+    })
+  
+  let highlightedElems = gscape.renderer.cy.$('.highlighted, .sparqling-selected')
   gscape.renderer.cy.elements().difference(highlightedElems).addClass('faded')
   // gscape.renderer.cy.fit(highlightedElems, '100')
 }
@@ -56,8 +64,6 @@ export function findNextClassFromObjProperty(objProperty: CollectionReturnValue)
   result.objPropertyFromApi = actualHighlights.objectProperties.find((o: Branch) =>
     gscape.ontology.checkEntityIri(objProperty, o.objectPropertyIRI)
   )
-
-  console.log(actualHighlights)
 
   return new Promise((resolve, reject) => {
     if (!result.objPropertyFromApi.relatedClasses) reject()
@@ -91,6 +97,7 @@ export function isHighlighted(iri:string): boolean {
 }
 
 export function resetHighlights() {
+  gscape.renderer.cy.$('.sparqling-selected').removeClass('sparqling-selected')
   gscape.renderer.cy.$('.highlighted').removeClass('highlighted')
   gscape.renderer.cy.$('.faded').removeClass('faded')
   actualHighlights = null
@@ -99,20 +106,26 @@ export function resetHighlights() {
 /**
  * Select a node without firing cytoscape's selection event
  */
-export function selectNode(nodeID: string) {
-  let node: CollectionReturnValue = gscape.ontology.getElem(nodeID)
+export async function focusNodeByIRI(iri: string) {
+  let occurrences = gscape.ontology.getEntityOccurrences(iri)
+  // find the first one in the actual diagram
+  let node = occurrences.find((occ: any) => occ.data('diagram_id') === gscape.actualDiagramID)
+    if (!node) node = node[0]
 
   if (node.data('diagram_id') !== gscape.actualDiagramID) {
-    gscape.performActionInvolvingOntology( () => {
-      gscape.showDiagram(node.data('diagram_id'))
-      gscape.setViewport({
-        x: node.position('x'),
-        y: node.position('y'),
-        zoom: 1
-      })
-      node.addClass('selected')
-    })
+    await gscape.showDiagram(node.data('diagram_id'))
   }
+
+  gscape.setViewport({
+    x: node.position('x'),
+    y: node.position('y'),
+  })
+}
+
+export function clearSelected() {
+  gscape.ontology.diagrams.forEach((diagram:any) => {
+    diagram.unselectAll()
+  })
 }
 
 function addStylesheet(cy: any, stylesheet: StylesheetStyle[]) {

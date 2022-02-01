@@ -18,14 +18,15 @@ bgp.isJoinAllowed = (node1ID, node2ID) => {
 
 let graph: GraphElement
 
-export function selectElement(nodeIDorIRI: string) {
+export function selectElement(nodeIDorIRI: string): GraphElement {
   let graphElem = GEUtility.getGraphElementByID(graph, nodeIDorIRI) || GEUtility.getGraphElementByIRI(graph, nodeIDorIRI)
-  console.log(graphElem)
-  bgp.unselect()
+  //bgp.unselect()
   if (graphElem) {
     bgp.selectNode(graphElem.id)
     // selectedGraphElement = graphElem
   }
+
+  return graphElem
 }
 
 export function render(graphElem: GraphElement, parent?: GraphElement, objectProperty?: GraphElement) {
@@ -68,7 +69,7 @@ export function removeNodesNotInQuery() {
 }
 
 export function getSelectedGraphElement() {
-  return GEUtility.getGraphElementByID(graph, bgp.elements.filter(':selected')[0]?.id())
+  return GEUtility.getGraphElementByID(graph, bgp.elements.filter('.sparqling-selected')[0]?.id())
 }
 
 // ******************************* GRAPH INTERACTION CALLBACKS ******************************* //
