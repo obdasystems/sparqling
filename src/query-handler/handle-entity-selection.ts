@@ -4,7 +4,7 @@ import { QueryGraphApiFactory } from "../api/swagger"
 import { EntityTypeEnum, GraphElement, QueryGraph } from "../api/swagger/models"
 import * as ontologyGraph from "../ontology-graph"
 import * as queryGraph from "../query-graph"
-import { graphElementHasIri } from "../query-graph/graph-element-utility"
+import { getEntityType, graphElementHasIri } from "../query-graph/graph-element-utility"
 
 let lastObjProperty: CollectionReturnValue
 //let selectedGraphElement: GraphElement
@@ -85,7 +85,7 @@ export async function handleDataPropertySelection(
     return null
   }
 
-  if (selectedGraphElement?.entities[0].type === EntityTypeEnum.Class) {
+  if (getEntityType(selectedGraphElement) === EntityTypeEnum.Class) {
     newQueryGraph = (await qgApi.putQueryGraphDataProperty(
       actualBody, '', clickedIRI, selectedGraphElement.id
     )).data

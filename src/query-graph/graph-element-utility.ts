@@ -51,15 +51,15 @@ export function canStartJoin(elem: GraphElement): boolean {
   if (!elem) return false
 
   return elem.entities?.length === 1
-      && elem.entities[0].type === EntityTypeEnum.Class
+      && getEntityType(elem) === EntityTypeEnum.Class
 }
 
 export function isJoinAllowed(targetElem: GraphElement, startElem: GraphElement): boolean {
   if (!targetElem || !startElem) return false
 
   const areBothClasses = 
-    startElem.entities[0].type === EntityTypeEnum.Class &&
-    targetElem.entities[0].type === EntityTypeEnum.Class
-  const doesTargetHasSameIri = graphElementHasIri(targetElem, startElem.entities[0].iri)
+    getEntityType(startElem) === EntityTypeEnum.Class &&
+    getEntityType(targetElem) === EntityTypeEnum.Class
+  const doesTargetHasSameIri = graphElementHasIri(targetElem, getIri(startElem))
   return areBothClasses && doesTargetHasSameIri
 }

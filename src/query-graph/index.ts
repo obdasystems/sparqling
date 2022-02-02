@@ -32,7 +32,7 @@ export function selectElement(nodeIDorIRI: string): GraphElement {
 export function render(graphElem: GraphElement, parent?: GraphElement, objectProperty?: GraphElement) {
   if (!graphElem) return
 
-  const type = graphElem.entities[0].type
+  const type = GEUtility.getEntityType(graphElem)
   if (type !== EntityTypeEnum.ObjectProperty) {
     bgp.addNode(graphElem)
     if (parent) {

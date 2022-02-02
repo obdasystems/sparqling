@@ -6,7 +6,7 @@ import { handleConceptSelection, handleDataPropertySelection, handleObjectProper
 import * as queryGraph from "../query-graph"
 import * as queryHead from "../query-head"
 import * as ontologyGraph from "../ontology-graph"
-import { findGraphElement, getGraphElementByID, getGraphElementByIRI, getIri } from "../query-graph/graph-element-utility"
+import { findGraphElement, getEntityType, getGraphElementByID, getGraphElementByIRI, getIri } from "../query-graph/graph-element-utility"
 import { messageDialog } from "../widgets"
 
 const { CONCEPT, OBJECT_PROPERTY, DATA_PROPERTY } = Type
@@ -54,7 +54,7 @@ export function init(grapholscape: Grapholscape) {
         let newBody: QueryGraph = null
         newBody = await handleDataPropertySelection(cyEntity, body, selectedGraphElement)
         // select the current selected class on the ontology, prevent from selecting the attribute
-        gscape.selectEntityOccurrences(selectedGraphElement?.entities[0].iri)
+        gscape.selectEntityOccurrences(getIri(selectedGraphElement))
         if (newBody)
           updateQueryBody(newBody)
         break
@@ -113,7 +113,7 @@ export function init(grapholscape: Grapholscape) {
   })
 
   queryGraph.onElementClick( (graphElement, cyNode) => {
-    if (graphElement.entities[0]?.type === EntityTypeEnum.Class) {
+    if (getEntityType(graphElement) === EntityTypeEnum.Class) {
       let iri: string
       // If it's a child, use its own iri to find it on the ontology graph
       // if it's a parent, use the first iri he has in its entity list instead
@@ -122,7 +122,7 @@ export function init(grapholscape: Grapholscape) {
         iri = graphElement.id
       } else {
         selectedGraphElement =  graphElement
-        iri = selectedGraphElement?.entities[0].iri
+        iri = getIri(selectedGraphElement)
       }
 
       const elems = gscape.ontology.getEntityOccurrences(iri)
@@ -130,7 +130,7 @@ export function init(grapholscape: Grapholscape) {
       gscape.centerOnNode(elem.id())
     } else {
       // move ontology graph to show selected obj/data property
-      ontologyGraph.focusNodeByIRI(graphElement.entities[0].iri)
+      ontologyGraph.focusNodeByIRI(getIri(graphElement))
     }
 
     // keep focus on selected class
@@ -164,9 +164,9 @@ function updateQueryBody(newBody: QueryGraph) {
   queryHead.setHead(body.head)
   queryHead.render(body.head.map( (headElem: HeadElement) => {
     let relatedGraphElem = getGraphElementByID(body.graph, headElem.graphElementId)
-    headElem['entityType'] = relatedGraphElem?.entities[0].type
+    headElem['entityType'] = getEntityType(relatedGraphElem)
     headElem['dataType'] = headElem['entityType'] === EntityTypeEnum.DataProperty
-      ? ontologyGraph.guessDataType(relatedGraphElem?.entities[0].iri)
+      ? ontologyGraph.guessDataType(getIri(relatedGraphElem))
       : null
     console.log(headElem['dataType'])
     return headElem
