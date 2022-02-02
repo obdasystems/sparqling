@@ -9,7 +9,8 @@ export default class HeadElementComponent extends UI.GscapeWidget {
   private alias: string
   private function: ModelFunction
   private variable: string
-  private entityType: string;
+  private entityType: string
+  private dataType: VarOrConstantConstantTypeEnum
   public deleteButton: UI.GscapeWidget
   private input = (value = 'value') => html`<input placeholder="${value}"></input>`
 
@@ -100,9 +101,9 @@ export default class HeadElementComponent extends UI.GscapeWidget {
         <!-- ******************  FILTER  ****************** -->
         <div class="section">
           <div class="section-title">Filter</div>
-          <div class="section-head">            
-            ${this.getSelect('function', 'Operator', FilterExpressionOperatorEnum)}
-            ${this.getSelect('filter-value-type', 'Type', VarOrConstantConstantTypeEnum)}
+          <div class="section-head">
+            ${this.getSelect('filter', 'Operator', FilterExpressionOperatorEnum)}
+            ${this.getSelect('filter-value-type', this.dataType, VarOrConstantConstantTypeEnum)}
           </div>
           <div class="input-wrapper">
             ${this.input()}
@@ -114,7 +115,7 @@ export default class HeadElementComponent extends UI.GscapeWidget {
           <div class="section-title">Function</div>
           <div class="section-head">
             ${this.getSelect('function', 'Operator', ModelFunctionNameEnum)}
-            ${this.getSelect('function-value-type', 'Type', VarOrConstantConstantTypeEnum)}            
+            ${this.getSelect('function-value-type', this.dataType, VarOrConstantConstantTypeEnum)}            
           </div>
           <div class="input-wrapper">
             ${this.input()}
@@ -134,10 +135,12 @@ export default class HeadElementComponent extends UI.GscapeWidget {
   }
 
   set headElement(newElement: HeadElement) {
+    if (this._id === newElement.id) return
+    this._id = newElement.id
     this.alias = newElement.alias
     this.graphElementId = newElement.graphElementId
-    this._id = newElement.id
     this.entityType = newElement['entityType']
+    this.dataType = newElement['dataType'] || 'Type'
     let types = {
       'class': 'concept',
       'objectProperty': 'role',
@@ -148,13 +151,18 @@ export default class HeadElementComponent extends UI.GscapeWidget {
   }
   
   getSelect(name: string, defaultOpt: string, options: object) {
+    const isDefaultAlreadySet = Object.values(options).includes(defaultOpt)
     return html`
       <select id="${name}-select" name="${name}">
-        <option selected>${defaultOpt}</option>
-        ${Object.keys(options).map( operator => {
-          return html`<option value="${operator}">${options[operator]}</option>`
+        ${isDefaultAlreadySet ? null : html`<option selected>${defaultOpt}</option>`}
+        ${Object.keys(options).map( key => {
+          if (options[key] === defaultOpt)
+            return html`<option value="${key}" selected>${options[key]}</option>`
+          else 
+            return html`<option value="${key}">${options[key]}</option>`
         })}
-      </select>`
+      </select>
+    `
   }
 }
 

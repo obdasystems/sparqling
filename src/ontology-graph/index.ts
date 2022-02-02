@@ -1,8 +1,9 @@
 import { CollectionReturnValue, NodeSingular, StylesheetStyle } from "cytoscape"
 import { OntologyGraphApi } from "../api/swagger"
-import { Branch, Highlights } from "../api/swagger/models"
+import { Branch, Highlights, VarOrConstantConstantTypeEnum } from "../api/swagger/models"
 import { ClassSelectionDialog, messageDialog } from "../widgets"
 import sparqlingStyle from './style'
+import { Type } from 'grapholscape'
 
 const ogApi = new OntologyGraphApi()
 let gscape: any
@@ -126,6 +127,30 @@ export function clearSelected() {
   gscape.ontology.diagrams.forEach((diagram:any) => {
     diagram.unselectAll()
   })
+}
+
+/**
+ * Search a value-domain node in the neighborhood of an Entity
+ * @param iri the Entity IRI
+ */
+export function guessDataType(iri:string): VarOrConstantConstantTypeEnum {
+  // search entities in the standard graphol ontologies because in simplified versions
+  // datatype are not present
+  let nodes: CollectionReturnValue[] = gscape.ontologies.default.getEntityOccurrences(iri)
+  // for each node we have, find a range node leading to a datatype
+  for (let node of nodes) {
+    let valueDomainNodes = node
+      .openNeighborhood(`[type = "${Type.RANGE_RESTRICTION}"]`)
+      .openNeighborhood(`[type = "${Type.VALUE_DOMAIN}"]`)
+
+    if (valueDomainNodes[0] && valueDomainNodes.length > 0) {
+      let valueDomainType = valueDomainNodes[0].data().iri.prefixed // xsd:(??)
+      let key = Object.keys(VarOrConstantConstantTypeEnum).find( k => {
+        return VarOrConstantConstantTypeEnum[k] === valueDomainType
+      })
+      if (key) return VarOrConstantConstantTypeEnum[key]
+    }
+  }
 }
 
 function addStylesheet(cy: any, stylesheet: StylesheetStyle[]) {

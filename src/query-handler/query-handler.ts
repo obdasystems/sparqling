@@ -140,8 +140,13 @@ function updateQueryBody(newBody: QueryGraph) {
   queryGraph.setGraph(body.graph)
   queryGraph.render(body.graph)
   queryGraph.removeNodesNotInQuery()
-  queryHead.render(body.head.map( (headElem: HeadElement) => { 
-    headElem['entityType'] = getGraphElementByID(body.graph, headElem.graphElementId)?.entities[0]?.type
+  queryHead.render(body.head.map( (headElem: HeadElement) => {
+    let relatedGraphElem = getGraphElementByID(body.graph, headElem.graphElementId)
+    headElem['entityType'] = relatedGraphElem?.entities[0].type
+    headElem['dataType'] = headElem['entityType'] === EntityTypeEnum.DataProperty
+      ? ontologyGraph.guessDataType(relatedGraphElem?.entities[0].iri)
+      : null
+    console.log(headElem['dataType'])
     return headElem
   }))
 }
