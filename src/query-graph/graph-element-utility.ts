@@ -27,6 +27,20 @@ export function findGraphElement(elem: GraphElement, test: (elem: GraphElement) 
   }
 }
 
+/**
+ * Get the iri of an entity contained in a GraphElement
+ * @param elem the GraphElement to extract IRI from
+ * @param i the entity index in the array, default first one
+ * @returns 
+ */
+export function getIri(elem: GraphElement, i = 0): string {
+  return elem?.entities[i]?.iri
+}
+
+export function getEntityType(elem: GraphElement): EntityTypeEnum {
+  return elem?.entities[0]?.type
+}
+
 export function graphElementHasIri(elem: GraphElement, iri: string) {
   return elem?.entities?.some( (entity: Entity) => {
     return entity.iri === iri || entity.prefixedIri === iri

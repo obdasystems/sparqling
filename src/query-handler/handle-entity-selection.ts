@@ -17,8 +17,8 @@ const qgApi = QueryGraphApiFactory()
 
 export async function handleObjectPropertySelection(cyEntity: CollectionReturnValue, selectedGraphElement: GraphElement) {
   getInitialInfo(cyEntity)
-  lastObjProperty = cyEntity
   if (selectedGraphElement) {
+    lastObjProperty = cyEntity
     const result = await ontologyGraph.findNextClassFromObjProperty(cyEntity).finally(() => cyEntity.unselect())
     lastObjProperty['direct'] = result.objPropertyFromApi.direct
     // gscape.centerOnNode(result.connectedClass.id(), 1.8)

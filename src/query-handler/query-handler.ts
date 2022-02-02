@@ -6,7 +6,7 @@ import { handleConceptSelection, handleDataPropertySelection, handleObjectProper
 import * as queryGraph from "../query-graph"
 import * as queryHead from "../query-head"
 import * as ontologyGraph from "../ontology-graph"
-import { getGraphElementByID, getGraphElementByIRI } from "../query-graph/graph-element-utility"
+import { findGraphElement, getGraphElementByID, getGraphElementByIRI, getIri } from "../query-graph/graph-element-utility"
 import { messageDialog } from "../widgets"
 
 const { CONCEPT, OBJECT_PROPERTY, DATA_PROPERTY } = Type
@@ -76,9 +76,29 @@ export function init(grapholscape: Grapholscape) {
   queryGraph.onDelete( async graphElement => {
     let newBody = (await qgApi.deleteGraphElementId(body, graphElement.id)).data
     if (newBody) {
-      ontologyGraph.resetHighlights()
-      gscape.unselectEntity([])
-      selectedGraphElement = null
+      if (newBody.graph && !getGraphElementByID(newBody?.graph, selectedGraphElement.id)) {
+        // if we deleted selectedGraphElem, then select its parent
+        selectedGraphElement = findGraphElement(body.graph, ge => {
+          return ge.children?.find(c => {
+            if( c.children?.find(c2 => c2.id === graphElement.id) )
+              return true
+          })
+        })
+
+        ontologyGraph.resetHighlights()
+        gscape.unselectEntity([])
+        ontologyGraph.focusNodeByIRI(getIri(selectedGraphElement))
+        ontologyGraph.highlightSuggestions(getIri(selectedGraphElement))
+        queryGraph.selectElement(selectedGraphElement.id) // force selecting a new class
+      }
+
+      // empty query
+      if (!newBody.graph) {
+        selectedGraphElement = null
+        ontologyGraph.resetHighlights()
+        gscape.unselectEntity([])
+      }
+      
       updateQueryBody(newBody)
     }
     
