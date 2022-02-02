@@ -93,6 +93,11 @@ export default class QueryHeadWidget extends GscapeWidget {
     let self = this as any
     self.header.invertIcons()
     super.makeDraggableHeadTitle()
+    
+    self.body.addEventListener("wheel", (evt: WheelEvent) => {
+      evt.preventDefault();
+      self.body.scrollLeft += evt.deltaY;
+    })
   }
 
   /**
