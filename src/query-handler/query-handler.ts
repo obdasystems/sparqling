@@ -142,6 +142,12 @@ export function init(grapholscape: Grapholscape) {
     updateQueryBody(newBody)
   })
 
+  queryHead.onRename(async (headElement, alias) => {
+    headElement.alias = alias
+    let newBody = (await qgApi.renameHeadTerm(body, headElement.id)).data
+    updateQueryBody(newBody)
+  })
+
   queryHead.sparqlButton.onClick = () => {
     if (!messageDialog.isVisible) {
       messageDialog.message = {

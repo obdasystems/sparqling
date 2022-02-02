@@ -13,6 +13,7 @@ export default class QueryHeadWidget extends GscapeWidget {
   private headSlottedWidget: Element
   public headElements: HeadElement[] = []
   private deleteElementCallback: (headElementId: number) => void
+  private renameElementCallback: (headElemId: number, alias: string) => void
 
   static get properties() {
 
@@ -83,7 +84,7 @@ export default class QueryHeadWidget extends GscapeWidget {
     // register callbacks for all head elements
     this.shadowRoot.querySelectorAll('head-element').forEach((element: HeadElementComponent) => {
       element.deleteButton.onClick = () => this.deleteElementCallback(element._id)
-      // bind all other interaction callbacks
+      element.onRename(this.renameElementCallback)
     });
   }
 
@@ -106,6 +107,10 @@ export default class QueryHeadWidget extends GscapeWidget {
    */
   onDelete(callback: (headElemId: number) => void) {
     this.deleteElementCallback = callback
+  }
+
+  onRename(callback: (headElemId: number, alias: string) => void) {
+    this.renameElementCallback = callback
   }
 
   //createRenderRoot() { return this as any }
