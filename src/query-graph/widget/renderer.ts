@@ -195,17 +195,12 @@ export default class BGPRenderer {
   }
 
   public setDisplayedNameType(newDisplayedNameType: DisplayedNameType, language?: string) {
-    this.cy.elements(`[${DISPLAYED_NAME}]`).forEach(elem => {
-      if (newDisplayedNameType === DisplayedNameType.label) {
-        if (!language) throw Error('can\'t display labels not knowing which language')
-        elem.data(DISPLAYED_NAME, elem.data(DisplayedNameType.label)[language].replace(/\r?\n|\r/g,''))
-      } else {
-        elem.data(DISPLAYED_NAME, elem.data(newDisplayedNameType))
-      }
-    })
+    this._displayedNameType = newDisplayedNameType || this._displayedNameType
+    this._language = language || this._language
 
-    this._displayedNameType = newDisplayedNameType
-    this._language = language
+    this.cy.elements(`[${DISPLAYED_NAME}]`).forEach(elem => {
+      elem.data(DISPLAYED_NAME, this.getDisplayedName(elem.data()))
+    })
   }
 
   /**
@@ -251,9 +246,7 @@ export default class BGPRenderer {
       data.id = graphElement.id
     }
 
-    data.displayed_name = (this._displayedNameType === DisplayedNameType.label)
-      ? data[this._displayedNameType][this._language].replace(/\r?\n|\r/g,'')
-      : data[this._displayedNameType] || data[DisplayedNameType.full] || data[DisplayedNameType.prefixed]
+    data.displayed_name = this.getDisplayedName(data)
 
     return data
   }
@@ -272,6 +265,16 @@ export default class BGPRenderer {
 
   private handleDelete(elem:CollectionReturnValue) {
     this._onDeleteCallback(elem.id())
+  }
+
+  private getDisplayedName(data: object) {
+    let labels = data[DisplayedNameType.label]
+    
+    if (this._displayedNameType === DisplayedNameType.label && labels)
+      // use first language found if the actual one is not available
+      return labels[this._language] || labels[Object.keys(labels)[0]]
+    else 
+      return data[this._displayedNameType] || data[DisplayedNameType.prefixed] || data[DisplayedNameType.full]
   }
 
 
