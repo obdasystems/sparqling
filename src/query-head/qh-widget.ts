@@ -39,7 +39,6 @@ export default class QueryHeadWidget extends GscapeWidget {
         }
 
         .widget-body {
-          height: 300px;
           margin:0;
           border-top: none;
           border-bottom: 1px solid var(--theme-gscape-shadows, ${colors.shadows});
@@ -66,7 +65,12 @@ export default class QueryHeadWidget extends GscapeWidget {
     return html`
       <div class="widget-body">
         <div id="elems-wrapper">
-          ${this.headElements.map(headElement => new HeadElementComponent(headElement))}
+          ${this.headElements.map((headElement, i) => {
+            let headElemComponent = new HeadElementComponent(headElement)
+            if (i === 0) headElemComponent.deleteButton.enabled = false
+
+            return headElemComponent
+          })}
         </div>
       </div>
       <gscape-head title="Query Head">

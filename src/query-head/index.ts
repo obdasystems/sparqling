@@ -17,6 +17,10 @@ export function getHeadElementByID(headElemID: number): HeadElement {
   return head.find(headElement => headElement.id === headElemID)
 }
 
-export function render(head: HeadElement[]) {
-  qhWidget.headElements = head
+export function render(newHead = head) {
+  qhWidget.headElements = newHead
+}
+
+export function setHead(newHhead: HeadElement[]) {
+  head = newHhead
 }

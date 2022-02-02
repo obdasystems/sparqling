@@ -61,11 +61,6 @@ export default class HeadElementComponent extends UI.GscapeWidget {
           font-weight: bold;
         }
 
-        #bottom-buttons-container {
-          display: flex;
-          justify-content:center;
-        }
-
         input {
           font-size: inherit;
           text-align: center;
@@ -80,6 +75,16 @@ export default class HeadElementComponent extends UI.GscapeWidget {
 
         .input-wrapper {
           margin:5px;
+        }
+
+        #bottom-buttons-container {
+          display: flex;
+          justify-content:center;
+        }
+
+        #bottom-buttons-container > * {
+          position:initial;
+          width: fit-content;
         }
       `
     ]

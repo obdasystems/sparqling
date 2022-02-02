@@ -140,6 +140,8 @@ function updateQueryBody(newBody: QueryGraph) {
   queryGraph.setGraph(body.graph)
   queryGraph.render(body.graph)
   queryGraph.removeNodesNotInQuery()
+
+  queryHead.setHead(body.head)
   queryHead.render(body.head.map( (headElem: HeadElement) => {
     let relatedGraphElem = getGraphElementByID(body.graph, headElem.graphElementId)
     headElem['entityType'] = relatedGraphElem?.entities[0].type
