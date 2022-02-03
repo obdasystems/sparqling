@@ -49,10 +49,13 @@ export default class HeadElementComponent extends UI.GscapeWidget {
         :host {
           display:block;
           width: 250px;
+          height: fit-content;
           margin:5px 2.5px;
           box-sizing: border-box;
           padding: 5px;
-          position: initial;
+          padding-bottom: 34px;
+          position: relative;
+          align-self: end;
         }
 
         #field-name {
@@ -98,6 +101,12 @@ export default class HeadElementComponent extends UI.GscapeWidget {
         #bottom-buttons-container {
           display: flex;
           justify-content:center;
+          position: absolute;
+          padding: 5px;
+          width: 100%;
+          box-sizing: border-box;
+          left: 0;
+          bottom: 0;
         }
 
         #bottom-buttons-container > * {
@@ -204,8 +213,10 @@ export default class HeadElementComponent extends UI.GscapeWidget {
     let target = evt.currentTarget as HTMLInputElement
     switch (target.id) {
       case ALIAS_INPUT_ID: {
-        if (this.alias !== target.value) {
+        if (this.alias !== target.value && target.value.length > 0 && target.value !== this.graphElementId) {
           this.renameCallback(this._id, target.value)
+        } else {
+          target.value = this.alias || this.graphElementId
         }
         break
       }
