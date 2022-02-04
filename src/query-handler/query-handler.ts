@@ -7,7 +7,7 @@ import * as queryGraph from "../query-graph"
 import * as queryHead from "../query-head"
 import * as ontologyGraph from "../ontology-graph"
 import { findGraphElement, getEntityType, getGraphElementByID, getGraphElementByIRI, getIri } from "../query-graph/graph-element-utility"
-import { messageDialog } from "../widgets"
+import { sparqlDialog } from "../widgets"
 
 const { CONCEPT, OBJECT_PROPERTY, DATA_PROPERTY } = Type
 let body: QueryGraph
@@ -149,15 +149,7 @@ export function init(grapholscape: Grapholscape) {
   })
 
   queryHead.sparqlButton.onClick = () => {
-    if (!messageDialog.isVisible) {
-      messageDialog.message = {
-        type: 'SPARQL',
-        text: body?.sparql || 'Empty Query'
-      }
-      messageDialog.show()
-    } else {
-      messageDialog.hide()
-    }
+    sparqlDialog.isVisible ? sparqlDialog.hide() : sparqlDialog.show()
   }
 }
 
@@ -177,6 +169,11 @@ function updateQueryBody(newBody: QueryGraph) {
     console.log(headElem['dataType'])
     return headElem
   }))
+
+  sparqlDialog.message = {
+    type: 'SPARQL',
+    text: body?.sparql || 'Empty Query'
+  }
 }
 
 function changeSelectedGraphElement(newGraphElement: GraphElement) {
