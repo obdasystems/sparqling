@@ -1,6 +1,7 @@
 import { UI } from 'grapholscape'
 import { html, css } from 'lit'
 import { HeadElement } from '../api/swagger/models'
+import { tableEye } from './icons'
 import HeadElementComponent from './qh-element-component'
 
 const { GscapeWidget } = UI
@@ -32,17 +33,31 @@ export default class QueryHeadWidget extends GscapeWidget {
       super_styles[0],
       css`
         :host {
-          width: 800px;
+          width: fit-content;
+          max-width: calc(50% - 59px);
           position: absolute;
           right: 54px;
           top: 100%;
           transform: translate(0, calc(-100% - 10px));
+          background: transparent;
+          box-shadow: none;
+        }
+
+        :host(:hover){
+          box-shadow: none;
+          cursor: pointer;
+        }
+
+        gscape-head {
+          --title-text-align: 'left';
+          background-color: var(--theme-gscape-primary, ${colors.primary});
+          box-shadow: 0 2px 4px 0 var(--theme-gscape-shadows, ${colors.shadows});
+          border-radius: 8px;
         }
 
         .widget-body {
           margin:0;
           border-top: none;
-          border-bottom: 1px solid var(--theme-gscape-shadows, ${colors.shadows});
           border-radius: inherit;
           border-bottom-left-radius:0;
           border-bottom-right-radius:0;
@@ -50,6 +65,19 @@ export default class QueryHeadWidget extends GscapeWidget {
 
         #elems-wrapper {
           display: flex;
+        }
+
+        #buttons-tray > * {
+          position: initial;
+        }
+
+        #buttons-tray {
+          display: flex;
+          align-items: center;
+          justify-content: end;
+          gap:10px;
+          flex-grow: 3;
+          padding: 0 10px;
         }
       `
     ]
@@ -75,7 +103,9 @@ export default class QueryHeadWidget extends GscapeWidget {
         </div>
       </div>
       <gscape-head title="Query Head">
-        ${this.headSlottedWidget}
+        <div id="buttons-tray">
+          ${this.headSlottedWidget}
+        </div>
       </gscape-head>
     `
   }
@@ -93,6 +123,7 @@ export default class QueryHeadWidget extends GscapeWidget {
 
     let self = this as any
     self.header.invertIcons()
+    self.header.left_icon = tableEye
     super.makeDraggableHeadTitle()
     
     self.body.addEventListener("wheel", (evt: WheelEvent) => {

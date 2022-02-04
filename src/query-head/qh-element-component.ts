@@ -92,6 +92,7 @@ export default class HeadElementComponent extends UI.GscapeWidget {
           font-weight: bold;
           width:100%;
           box-sizing: border-box;
+          background-color: var(--theme-gscape-primary, ${colors.primary});
         }
 
         .input-wrapper, select {

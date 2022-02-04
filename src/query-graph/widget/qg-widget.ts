@@ -1,5 +1,6 @@
 import { UI } from 'grapholscape'
 import { html, css } from 'lit'
+import { rdfLogo } from './icons'
 
 const { GscapeWidget, GscapeHeader } = UI
 /**
@@ -19,7 +20,7 @@ export default class QueryGraphWidget extends GscapeWidget {
       super_styles[0],
       css`
         :host {
-          width: 800px;
+          width: calc(50% - 15px);
           position: absolute;
           left: 10px;
           top: 100%;
@@ -43,15 +44,15 @@ export default class QueryGraphWidget extends GscapeWidget {
     super()
     this.bgpContainer = bgpContainer
     this.collapsible = true
-    // this.draggable = true
-    this.header = new GscapeHeader('Query Graph')
+    this.draggable = true
+    this.header = new GscapeHeader('Query Graph', rdfLogo)
 
     //super.makeDraggable()
   }
 
   render() {
     return html`
-      <div class="widget-body hide">${this.bgpContainer}</div>
+      <div class="widget-body">${this.bgpContainer}</div>
       ${this.header}
     `
   }
