@@ -2,6 +2,10 @@ import { Stylesheet, StylesheetStyle } from "cytoscape"
 
 export default [
   {
+    selector: 'node[shape = "ellipse"], .bubble',
+    style: { 'underlay-shape': 'ellipse' }
+  },
+  {
     selector: '.sparqling-selected',
     style: {
       'underlay-color': 'green',
