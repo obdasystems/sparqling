@@ -8,6 +8,7 @@ import * as queryHead from "../query-head"
 import * as ontologyGraph from "../ontology-graph"
 import { findGraphElement, getEntityType, getGraphElementByID, getGraphElementByIRI, getIri } from "../query-graph/graph-element-utility"
 import { sparqlDialog } from "../widgets"
+import { emptyQueryMsg } from "../widgets/assets/texts"
 
 const { CONCEPT, OBJECT_PROPERTY, DATA_PROPERTY } = Type
 let body: QueryGraph
@@ -177,6 +178,6 @@ function updateQueryBody(newBody: QueryGraph) {
 
   sparqlDialog.message = {
     type: 'SPARQL',
-    text: body?.sparql || 'Empty Query'
+    text: body?.sparql || emptyQueryMsg()
   }
 }
