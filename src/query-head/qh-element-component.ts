@@ -25,7 +25,7 @@ const ALIAS_INPUT_ID = 'alias'
 export default class HeadElementComponent extends UI.GscapeWidget {
   private collapsible = true;
 
-  public _id: number
+  public _id: string
   private graphElementId: string
   private alias: string
   private function: ModelFunction
@@ -255,8 +255,8 @@ export default class HeadElementComponent extends UI.GscapeWidget {
     }
   }
 
-  private renameCallback = (headElemID: number, alias: string) => {}
-  public onRename(callback: (headElemID: number, alias: string) => void) { this.renameCallback = callback }
+  private renameCallback = (headElemID: string, alias: string) => {}
+  public onRename(callback: (headElemID: string, alias: string) => void) { this.renameCallback = callback }
   public onFunctionSet(callback: (fun: ModelFunction) => void) { }
   public onFilterSet(callback: (filter: Filter) => void) { }
 }

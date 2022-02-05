@@ -14,12 +14,12 @@ export function onDelete(callback: (headElem: HeadElement) => void) {
 }
 
 export function onRename(callback: (headElemID: HeadElement, alias: string) => void) {
-  qhWidget.onRename( (headElemID: number, alias:string) => {
+  qhWidget.onRename( (headElemID: string, alias:string) => {
     callback(getHeadElementByID(headElemID), alias)
   })
 }
 
-export function getHeadElementByID(headElemID: number): HeadElement {
+export function getHeadElementByID(headElemID: string): HeadElement {
   return head.find(headElement => headElement.id === headElemID)
 }
 

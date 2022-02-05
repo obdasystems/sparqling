@@ -341,7 +341,7 @@ export const QueryGraphApiAxiosParamCreator = function (configuration?: Configur
             };
         },
         /**
-         * 
+         * The path param should be the id of the HeadElement.
          * @summary Delete the head term from the query graph.
          * @param {QueryGraph} body 
          * @param {string} headTerm The head term that should be deleted
@@ -1235,7 +1235,7 @@ export const QueryGraphApiFp = function(configuration?: Configuration) {
             };
         },
         /**
-         * 
+         * The path param should be the id of the HeadElement.
          * @summary Delete the head term from the query graph.
          * @param {QueryGraph} body 
          * @param {string} headTerm The head term that should be deleted
@@ -1535,7 +1535,7 @@ export const QueryGraphApiFactory = function (configuration?: Configuration, bas
             return QueryGraphApiFp(configuration).deleteGraphElementId(body, graphElementId, options).then((request) => request(axios, basePath));
         },
         /**
-         * 
+         * The path param should be the id of the HeadElement.
          * @summary Delete the head term from the query graph.
          * @param {QueryGraph} body 
          * @param {string} headTerm The head term that should be deleted
@@ -1786,7 +1786,7 @@ export class QueryGraphApi extends BaseAPI {
         return QueryGraphApiFp(this.configuration).deleteGraphElementId(body, graphElementId, options).then((request) => request(this.axios, this.basePath));
     }
     /**
-     * 
+     * The path param should be the id of the HeadElement.
      * @summary Delete the head term from the query graph.
      * @param {QueryGraph} body 
      * @param {string} headTerm The head term that should be deleted

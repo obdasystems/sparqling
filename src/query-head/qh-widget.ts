@@ -13,8 +13,8 @@ export default class QueryHeadWidget extends GscapeWidget {
   public draggable: boolean
   private headSlottedWidget: Element
   public headElements: HeadElement[] = []
-  private deleteElementCallback: (headElementId: number) => void
-  private renameElementCallback: (headElemId: number, alias: string) => void
+  private deleteElementCallback: (headElementId: string) => void
+  private renameElementCallback: (headElemntId: string, alias: string) => void
 
   static get properties() {
 
@@ -135,11 +135,11 @@ export default class QueryHeadWidget extends GscapeWidget {
    * Delete a HeadElement
    * @param callback callback receiving the ID of the headElement to delete
    */
-  onDelete(callback: (headElemId: number) => void) {
+  onDelete(callback: (headElemId: string) => void) {
     this.deleteElementCallback = callback
   }
 
-  onRename(callback: (headElemId: number, alias: string) => void) {
+  onRename(callback: (headElemId: string, alias: string) => void) {
     this.renameElementCallback = callback
   }
 

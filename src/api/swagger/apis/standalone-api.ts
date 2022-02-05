@@ -110,7 +110,7 @@ export const StandaloneApiFp = function(configuration?: Configuration) {
     return {
         /**
          * 
-         * @summary Return the graphol file as a string to be parsed by GRAPHOLscape.
+         * @summary Return the graphol file as a string to be parsed by Grapholscape.
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */

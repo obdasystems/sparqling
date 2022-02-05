@@ -19,7 +19,7 @@
 export interface HeadElement {
     /**
      * 
-     * @type {number}
+     * @type {string}
      * @memberof HeadElement
      */
     id?: any;
