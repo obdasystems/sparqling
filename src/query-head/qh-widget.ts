@@ -16,6 +16,7 @@ export default class QueryHeadWidget extends GscapeWidget {
   public headElements: HeadElement[] = []
   private deleteElementCallback: (headElementId: string) => void
   private renameElementCallback: (headElemntId: string, alias: string) => void
+  private localizeElementCallback: (headElementId: string) => void
 
   static get properties() {
 
@@ -42,7 +43,6 @@ export default class QueryHeadWidget extends GscapeWidget {
           transform: translate(0, calc(-100% - 10px));
           background: transparent;
           box-shadow: none;
-          overflow: hidden;
         }
 
         :host(:hover){
@@ -51,6 +51,9 @@ export default class QueryHeadWidget extends GscapeWidget {
 
         gscape-head {
           --title-text-align: 'left';
+        }
+
+        gscape-head, #empty-head {
           background-color: var(--theme-gscape-primary, ${colors.primary});
           box-shadow: 0 2px 4px 0 var(--theme-gscape-shadows, ${colors.shadows});
           border-radius: 8px;
@@ -87,7 +90,6 @@ export default class QueryHeadWidget extends GscapeWidget {
         }
 
         #empty-head {
-          background-color: var(--theme-gscape-primary, ${colors.primary});
           padding: 20px;
           display: flex;
           flex-direction: column;
@@ -159,6 +161,7 @@ export default class QueryHeadWidget extends GscapeWidget {
     this.shadowRoot.querySelectorAll('head-element').forEach((element: HeadElementComponent) => {
       element.deleteButton.onClick = () => this.deleteElementCallback(element._id)
       element.onRename(this.renameElementCallback)
+      element.onLocalize(this.localizeElementCallback)
     });
   }
 
@@ -180,6 +183,10 @@ export default class QueryHeadWidget extends GscapeWidget {
 
   onRename(callback: (headElemId: string, alias: string) => void) {
     this.renameElementCallback = callback
+  }
+
+  onLocalize(callback: (headElemId: string) => void) {
+    this.localizeElementCallback = callback
   }
 
   //createRenderRoot() { return this as any }

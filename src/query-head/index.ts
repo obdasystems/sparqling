@@ -9,18 +9,22 @@ let head: HeadElement[]
 
 export {qhWidget as widget}
 
-export function onDelete(callback: (headElem: HeadElement) => void) {
-  qhWidget.onDelete( headElemID => callback(getHeadElementByID(headElemID)))
+export function onDelete(callback: (headElement: HeadElement) => void) {
+  qhWidget.onDelete( headElementId => callback(getHeadElementByID(headElementId)))
 }
 
-export function onRename(callback: (headElemID: HeadElement, alias: string) => void) {
-  qhWidget.onRename( (headElemID: string, alias:string) => {
-    callback(getHeadElementByID(headElemID), alias)
+export function onRename(callback: (headElement: HeadElement, alias: string) => void) {
+  qhWidget.onRename( (headElementId: string, alias:string) => {
+    callback(getHeadElementByID(headElementId), alias)
   })
 }
 
-export function getHeadElementByID(headElemID: string): HeadElement {
-  return head.find(headElement => headElement.id === headElemID)
+export function onLocalize(callback: (headElement: HeadElement) => void) {
+  qhWidget.onLocalize( headElementId => callback(getHeadElementByID(headElementId)))
+}
+
+export function getHeadElementByID(headElementId: string): HeadElement {
+  return head.find(headElement => headElement.id === headElementId)
 }
 
 export function render(newHead = head) {

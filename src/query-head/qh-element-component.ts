@@ -1,7 +1,7 @@
 import { UI } from 'grapholscape'
 import { html, css } from 'lit'
 import { HeadElement, ModelFunctionNameEnum, ModelFunction, VarOrConstantConstantTypeEnum, FilterExpressionOperatorEnum, Filter } from '../api/swagger/models';
-import { del } from '../widgets/assets/icons'
+import { crosshair, del } from '../widgets/assets/icons'
 
 const SECTIONS = {
   function: {
@@ -34,6 +34,7 @@ export default class HeadElementComponent extends UI.GscapeWidget {
   private dataType: VarOrConstantConstantTypeEnum
   public deleteButton: UI.GscapeWidget
   private toggleBodyButton: UI.GscapeButton
+  public localizeButton: UI.GscapeButton
 
   static properties = {
     alias: { attribute: false },
@@ -112,22 +113,33 @@ export default class HeadElementComponent extends UI.GscapeWidget {
           border: solid 1px var(--theme-gscape-shadows, ${colors.shadows});
         }
 
+        #field-head:hover > #actions {
+          display: flex;
+        }
+
         #field-head > input:focus {
           background-color: var(--theme-gscape-primary, ${colors.primary});
         }
 
-        #field-head > gscape-button {
+        #field-head > input:focus + #actions {
+          display: none;
+        }
+
+        #field-head gscape-button {
           position:initial;
           width: fit-content;
           --gscape-icon-size: 20px;
+          background: inherit;
+        }
+
+        #actions {
+          display: none;
+          align-items: center;
+          gap: 10px;
         }
 
         .danger:hover {
           color: var(--theme-gscape-error, ${colors.error});
-        }
-
-        .flat-button {
-          background: inherit;
         }
 
         summary:hover {
@@ -144,11 +156,12 @@ export default class HeadElementComponent extends UI.GscapeWidget {
     this.deleteButton = new UI.GscapeButton(del, 'Delete Field')
     this.deleteButton.onClick = () => { }
     this.deleteButton.classList.add('danger')
-    this.deleteButton.classList.add('flat-button')
     this.toggleBodyButton = new UI.GscapeButton(UI.triangle_down, 'Show More', UI.triangle_up)
     this.toggleBodyButton.onClick = () => (this as any).toggleBody()
-    this.toggleBodyButton.classList.add('flat-button')
     this.toggleBodyButton.style.boxShadow = 'none'
+
+    this.localizeButton = new UI.GscapeButton(crosshair, 'Find in Query Graph')
+    this.localizeButton.onClick = () => { this.localizeCallback(this._id)}
   }
 
   render() {
@@ -156,7 +169,10 @@ export default class HeadElementComponent extends UI.GscapeWidget {
       <div>
         <div id="field-head">
           ${this.getInput(ALIAS_INPUT_ID, this.alias || this.graphElementId, 'Rename Field')}
-          ${this.deleteButton}
+          <div id="actions">
+            ${this.localizeButton}
+            ${this.deleteButton}
+          </div> 
           ${this.toggleBodyButton}
         </div>
         <div id="field-body" class="widget-body hide">
@@ -204,7 +220,7 @@ export default class HeadElementComponent extends UI.GscapeWidget {
   }
 
 
-  getInput(id: string, value?: string, titleText = '') {
+  private getInput(id: string, value?: string, titleText = '') {
     let placeholder = value || 'value'
     return html`
       <input 
@@ -216,7 +232,7 @@ export default class HeadElementComponent extends UI.GscapeWidget {
         />`
   }
 
-  getSelect(name: string, defaultOpt: string, options: object) {
+  private getSelect(name: string, defaultOpt: string, options: object) {
     const isDefaultAlreadySet = Object.values(options).includes(defaultOpt)
     return html`
       <select id="${name}-select" name="${name}">
@@ -255,8 +271,12 @@ export default class HeadElementComponent extends UI.GscapeWidget {
     }
   }
 
-  private renameCallback = (headElemID: string, alias: string) => {}
-  public onRename(callback: (headElemID: string, alias: string) => void) { this.renameCallback = callback }
+  private renameCallback = (headElemntID: string, alias: string) => { }
+  public onRename(callback: (headElemntID: string, alias: string) => void) { this.renameCallback = callback }
+
+  private localizeCallback = (headElementId: string) => { }
+  public onLocalize(callback: (headElementId: string) => void) { this.localizeCallback = callback }
+
   public onFunctionSet(callback: (fun: ModelFunction) => void) { }
   public onFilterSet(callback: (filter: Filter) => void) { }
 }

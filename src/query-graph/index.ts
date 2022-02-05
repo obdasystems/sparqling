@@ -68,6 +68,15 @@ export function removeNodesNotInQuery() {
   },0)
 }
 
+export function centerOnElem(graphElem: GraphElement) {
+  let cyEntity = bgp.getElementById(graphElem.id)
+  let cy = cyEntity.cy()
+  cy.zoom(cy.maxZoom())
+  let pos = cyEntity.renderedPosition()
+  let center = { x: cy.width() / 2, y: cy.height() / 2 }
+  cy.panBy({ x: -(pos.x -= center.x), y: -(pos.y -= center.y)})
+}
+
 export function getSelectedGraphElement() {
   return GEUtility.getGraphElementByID(graph, bgp.elements.filter('.sparqling-selected')[0]?.id())
 }
