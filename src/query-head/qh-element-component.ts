@@ -1,7 +1,7 @@
 import { UI } from 'grapholscape'
 import { html, css } from 'lit'
 import { HeadElement, ModelFunctionNameEnum, ModelFunction, VarOrConstantConstantTypeEnum, FilterExpressionOperatorEnum, Filter } from '../api/swagger/models';
-import { del } from '../widgets/icons'
+import { del } from '../widgets/assets/icons'
 
 const SECTIONS = {
   function: {

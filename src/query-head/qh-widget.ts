@@ -1,7 +1,8 @@
 import { UI } from 'grapholscape'
 import { html, css } from 'lit'
 import { HeadElement } from '../api/swagger/models'
-import { tableEye } from '../widgets/icons'
+import { asterisk, tableEye } from '../widgets/assets/icons'
+import { emptyHeadMsg, emptyHeadTipMsg, tipWhy } from '../widgets/assets/texts'
 import HeadElementComponent from './qh-element-component'
 
 const { GscapeWidget } = UI
@@ -41,6 +42,7 @@ export default class QueryHeadWidget extends GscapeWidget {
           transform: translate(0, calc(-100% - 10px));
           background: transparent;
           box-shadow: none;
+          overflow: hidden;
         }
 
         :host(:hover){
@@ -60,7 +62,6 @@ export default class QueryHeadWidget extends GscapeWidget {
           border-radius: inherit;
           border-bottom-left-radius:0;
           border-bottom-right-radius:0;
-          overflow-y: scroll;
         }
 
         #elems-wrapper {
@@ -84,6 +85,36 @@ export default class QueryHeadWidget extends GscapeWidget {
         #buttons-tray > gscape-button {
           --gscape-icon-size: 20px;
         }
+
+        #empty-head {
+          background-color: var(--theme-gscape-primary, ${colors.primary});
+          padding: 20px;
+          display: flex;
+          flex-direction: column;
+          align-items: center;
+          gap: 20px;
+          width: 228.5px;
+          text-align: center;
+        }
+
+        #empty-head > .icon {
+          --gscape-icon-size: 60px;
+        }
+
+        #empty-head-msg {
+          font-weight: bold;
+        }
+
+        .tip {
+          font-size: 90%;
+          color: var(--theme-gscape-shadows, ${colors.shadows});
+          border-bottom: dotted 2px;
+          cursor: help;
+        }
+
+        .tip: hover {
+          color:inherit;
+        }
       `
     ]
   }
@@ -98,14 +129,22 @@ export default class QueryHeadWidget extends GscapeWidget {
   render() {
     return html`
       <div class="widget-body">
-        <div id="elems-wrapper">
-          ${this.headElements.map((headElement, i) => {
-            let headElemComponent = new HeadElementComponent(headElement)
-            if (i === 0) headElemComponent.deleteButton.enabled = false
-
-            return headElemComponent
-          })}
-        </div>
+      ${this.headElements.length === 0
+        ? html`
+          <div id="empty-head">
+            <div class="icon">${asterisk}</div>
+            <div id="empty-head-msg">${emptyHeadMsg()}</div>
+            <div class="tip" title="${emptyHeadTipMsg()}">${tipWhy()}</div>
+          </div>
+          `
+        : html`
+          <div style="overflow-y:scroll; max-height:inherit; scrollbar-width: inherit;">
+          <div id="elems-wrapper">
+            ${this.headElements.map(headElement => new HeadElementComponent(headElement))}
+          </div>
+          </div>
+          `
+      }
       </div>
       <gscape-head title="Query Head">
         <div id="buttons-tray">

@@ -1,5 +1,5 @@
 import { HeadElement } from "../api/swagger/models";
-import { code } from "../widgets/icons";
+import { code } from "../widgets/assets/icons";
 import QueryHeadWidget from "./qh-widget";
 import { UI } from "grapholscape"
 
