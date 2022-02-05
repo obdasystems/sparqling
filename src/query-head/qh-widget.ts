@@ -1,7 +1,7 @@
 import { UI } from 'grapholscape'
 import { html, css } from 'lit'
 import { HeadElement } from '../api/swagger/models'
-import { tableEye } from './icons'
+import { tableEye } from '../widgets/icons'
 import HeadElementComponent from './qh-element-component'
 
 const { GscapeWidget } = UI
@@ -36,7 +36,7 @@ export default class QueryHeadWidget extends GscapeWidget {
           width: fit-content;
           max-width: calc(50% - 59px);
           position: absolute;
-          right: 54px;
+          left: 10px;
           top: 100%;
           transform: translate(0, calc(-100% - 10px));
           background: transparent;
@@ -45,7 +45,6 @@ export default class QueryHeadWidget extends GscapeWidget {
 
         :host(:hover){
           box-shadow: none;
-          cursor: pointer;
         }
 
         gscape-head {
@@ -61,10 +60,12 @@ export default class QueryHeadWidget extends GscapeWidget {
           border-radius: inherit;
           border-bottom-left-radius:0;
           border-bottom-right-radius:0;
+          overflow-y: scroll;
         }
 
         #elems-wrapper {
           display: flex;
+          flex-direction: column;
         }
 
         #buttons-tray > * {
@@ -78,6 +79,10 @@ export default class QueryHeadWidget extends GscapeWidget {
           gap:10px;
           flex-grow: 3;
           padding: 0 10px;
+        }
+
+        #buttons-tray > gscape-button {
+          --gscape-icon-size: 20px;
         }
       `
     ]
@@ -122,14 +127,8 @@ export default class QueryHeadWidget extends GscapeWidget {
     super.firstUpdated()
 
     let self = this as any
-    self.header.invertIcons()
     self.header.left_icon = tableEye
     super.makeDraggableHeadTitle()
-    
-    self.body.addEventListener("wheel", (evt: WheelEvent) => {
-      evt.preventDefault();
-      self.body.scrollLeft += evt.deltaY;
-    })
   }
 
   /**

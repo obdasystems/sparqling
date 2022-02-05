@@ -1,6 +1,6 @@
 import { UI } from 'grapholscape'
 import { html, css } from 'lit'
-import { rdfLogo } from './icons'
+import { rdfLogo } from '../../widgets/icons'
 
 const { GscapeWidget, GscapeHeader } = UI
 /**
@@ -20,11 +20,11 @@ export default class QueryGraphWidget extends GscapeWidget {
       super_styles[0],
       css`
         :host {
-          width: calc(50% - 15px);
+          width: calc(50%);
           position: absolute;
-          left: 10px;
+          left: 50%;
           top: 100%;
-          transform: translate(0, calc(-100% - 10px));
+          transform: translate(-50%, calc(-100% - 10px));
         }
 
         .widget-body {

@@ -1,7 +1,7 @@
 import { UI } from 'grapholscape'
 import { html, css } from 'lit'
 import { HeadElement, ModelFunctionNameEnum, ModelFunction, VarOrConstantConstantTypeEnum, FilterExpressionOperatorEnum, Filter } from '../api/swagger/models';
-import { del } from './icons'
+import { del } from '../widgets/icons'
 
 const SECTIONS = {
   function: {
@@ -23,6 +23,8 @@ const SECTIONS = {
 const ALIAS_INPUT_ID = 'alias'
 
 export default class HeadElementComponent extends UI.GscapeWidget {
+  private collapsible = true;
+
   public _id: number
   private graphElementId: string
   private alias: string
@@ -31,6 +33,7 @@ export default class HeadElementComponent extends UI.GscapeWidget {
   private entityType: string
   private dataType: VarOrConstantConstantTypeEnum
   public deleteButton: UI.GscapeWidget
+  private toggleBodyButton: UI.GscapeButton
 
   static properties = {
     alias: { attribute: false },
@@ -50,25 +53,19 @@ export default class HeadElementComponent extends UI.GscapeWidget {
           display:block;
           width: 250px;
           height: fit-content;
-          margin:5px 2.5px;
-          box-sizing: border-box;
+          margin:5px 2.5px 5px 0;
           padding: 5px;
-          padding-bottom: 34px;
           position: relative;
           align-self: end;
         }
 
-        #field-name {
-          padding: 5px;
-          text-align: center;
-          box-sizing: border-box;
-          font-weight: bold;
-          font-size: 16px;
+        .widget-body {
+          margin-top: 5px;
         }
 
         .section {
           padding: 0;
-          margin-bottom: 20px;
+          margin: 10px 0;
         }
 
         .section-head {
@@ -99,20 +96,38 @@ export default class HeadElementComponent extends UI.GscapeWidget {
           margin:5px 0;
         }
 
-        #bottom-buttons-container {
+        #field-head {
           display: flex;
-          justify-content:center;
-          position: absolute;
-          padding: 5px;
-          width: 100%;
-          box-sizing: border-box;
-          left: 0;
-          bottom: 0;
+          align-items: center;
+          gap: 10px;
         }
 
-        #bottom-buttons-container > * {
+        #field-head > input {
+          margin: 0;
+          background-color: inherit;
+          border: none;
+        }
+
+        #field-head > input:hover {
+          border: solid 1px var(--theme-gscape-shadows, ${colors.shadows});
+        }
+
+        #field-head > input:focus {
+          background-color: var(--theme-gscape-primary, ${colors.primary});
+        }
+
+        #field-head > gscape-button {
           position:initial;
           width: fit-content;
+          --gscape-icon-size: 20px;
+        }
+
+        .danger:hover {
+          color: var(--theme-gscape-error, ${colors.error});
+        }
+
+        .flat-button {
+          background: inherit;
         }
 
         summary:hover {
@@ -128,40 +143,45 @@ export default class HeadElementComponent extends UI.GscapeWidget {
     this.headElement = headElement
     this.deleteButton = new UI.GscapeButton(del, 'Delete Field')
     this.deleteButton.onClick = () => { }
+    this.deleteButton.classList.add('danger')
+    this.deleteButton.classList.add('flat-button')
+    this.toggleBodyButton = new UI.GscapeButton(UI.triangle_down, 'Show More', UI.triangle_up)
+    this.toggleBodyButton.onClick = () => (this as any).toggleBody()
+    this.toggleBodyButton.classList.add('flat-button')
+    this.toggleBodyButton.style.boxShadow = 'none'
   }
 
   render() {
     return html`
       <div>
-        <div class="section">
-          ${this.getInput(ALIAS_INPUT_ID, this.alias || this.graphElementId)}
-        </div>
-
-        ${Object.keys(SECTIONS).map(k => {
-          let section = SECTIONS[k]
-          return html`
-            <div class="section">
-              <details>
-                <summary><span class="section-title">${section.name}</span></summary>
-                <div class="section-head">
-                  ${this.getSelect(k, 'Operator', section.options)}
-                  ${this.getSelect(section.type, this.dataType, VarOrConstantConstantTypeEnum)}
-                </div>
-                <div class="input-wrapper">
-                  ${this.getInput(section.value)}
-                </div>
-              </details>
-            </div>
-          `
-        })}
-        
-        <!-- ******************  SORT  ****************** -->
-        <div class="section">
-          ${this.getSelect('sort', 'sort', { asc: 'Ascending', desc: 'Descending' })}
-        </div>
-
-        <div id="bottom-buttons-container">
+        <div id="field-head">
+          ${this.getInput(ALIAS_INPUT_ID, this.alias || this.graphElementId, 'Rename Field')}
           ${this.deleteButton}
+          ${this.toggleBodyButton}
+        </div>
+        <div id="field-body" class="widget-body hide">
+          ${Object.keys(SECTIONS).map(k => {
+            let section = SECTIONS[k]
+            return html`
+              <div class="section">
+                <details>
+                  <summary><span class="section-title">${section.name}</span></summary>
+                  <div class="section-head">
+                    ${this.getSelect(k, 'Operator', section.options)}
+                    ${this.getSelect(section.type, this.dataType, VarOrConstantConstantTypeEnum)}
+                  </div>
+                  <div class="input-wrapper">
+                    ${this.getInput(section.value)}
+                  </div>
+                </details>
+              </div>
+            `
+          })}
+          
+          <!-- ******************  SORT  ****************** -->
+          <div class="section" style="text-align: center; margin-bottom:0">
+            ${this.getSelect('sort', 'sort', { asc: 'Ascending', desc: 'Descending' })}
+          </div>
         </div>
       </div>
     `
@@ -184,7 +204,7 @@ export default class HeadElementComponent extends UI.GscapeWidget {
   }
 
 
-  getInput(id: string, value?: string) {
+  getInput(id: string, value?: string, titleText = '') {
     let placeholder = value || 'value'
     return html`
       <input 
@@ -192,6 +212,7 @@ export default class HeadElementComponent extends UI.GscapeWidget {
         @focusout="${this.handleInputChange}"
         placeholder="${placeholder}" 
         value="${value}"
+        title="${titleText}"
         />`
   }
 
