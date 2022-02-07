@@ -1,19 +1,18 @@
 import { CollectionReturnValue, NodeSingular, StylesheetStyle } from "cytoscape"
 import { OntologyGraphApi } from "../api/swagger"
 import { Branch, Highlights, VarOrConstantConstantTypeEnum } from "../api/swagger/models"
-import { ClassSelectionDialog, sparqlDialog } from "../widgets"
+import { listSelectionDialog, sparqlDialog } from "../widgets"
 import sparqlingStyle from './style'
 import { Type } from 'grapholscape'
+import { classSelectDialogTitle } from "../widgets/assets/texts"
 
 const ogApi = new OntologyGraphApi()
 let gscape: any
 let actualHighlights: Highlights
 
-const selectClassDialog = new ClassSelectionDialog()
-
 export function init(grapholscape: any) {
   gscape = grapholscape
-  gscape.container.querySelector('#gscape-ui').appendChild(selectClassDialog)
+  gscape.container.querySelector('#gscape-ui').appendChild(listSelectionDialog)
   gscape.container.querySelector('#gscape-ui').appendChild(sparqlDialog)
 
   gscape.showDiagram(0)
@@ -74,17 +73,18 @@ export function findNextClassFromObjProperty(objProperty: CollectionReturnValue)
         result.objPropertyFromApi.relatedClasses[0])[0] as CollectionReturnValue
       resolve(result)
     } else {
+      listSelectionDialog.title = classSelectDialogTitle()
       // Use prefixed iri if possible, full iri as fallback
-      selectClassDialog.classes = result.objPropertyFromApi.relatedClasses.map((iri: string) => {
+      listSelectionDialog.list = result.objPropertyFromApi.relatedClasses.map((iri: string) => {
         return gscape.ontology.destructureIri(iri)
           ? gscape.ontology.destructureIri(iri).prefixed
           : iri
       })
-      selectClassDialog.show()
-      selectClassDialog.onSelection( (iri: string) => {
+      listSelectionDialog.show()
+      listSelectionDialog.onSelection( (iri: string) => {
         result.connectedClass = (gscape.ontology.getEntityOccurrences(iri)[0] as CollectionReturnValue)
         resolve(result)
-        selectClassDialog.hide()
+        listSelectionDialog.hide()
       })
     }
   })
@@ -111,16 +111,9 @@ export async function focusNodeByIRI(iri: string) {
   let occurrences = gscape.ontology.getEntityOccurrences(iri)
   // find the first one in the actual diagram
   let node = occurrences.find((occ: any) => occ.data('diagram_id') === gscape.actualDiagramID)
-    if (!node) node = node[0]
-
-  if (node.data('diagram_id') !== gscape.actualDiagramID) {
-    await gscape.showDiagram(node.data('diagram_id'))
+  if (node) {
+    gscape.setViewport(node.position())
   }
-
-  gscape.setViewport({
-    x: node.position('x'),
-    y: node.position('y'),
-  })
 }
 
 export function clearSelected() {

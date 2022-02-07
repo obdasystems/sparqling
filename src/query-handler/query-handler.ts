@@ -114,6 +114,9 @@ export function init(grapholscape: Grapholscape) {
   })
 
   queryGraph.onElementClick( (graphElement, cyNode) => {
+    // move ontology graph to show selected obj/data property
+    ontologyGraph.focusNodeByIRI(getIri(graphElement))
+
     if (getEntityType(graphElement) === EntityTypeEnum.Class) {
       let iri: string
       // If it's a child, use its own iri to find it on the ontology graph
@@ -125,13 +128,10 @@ export function init(grapholscape: Grapholscape) {
         selectedGraphElement =  graphElement
         iri = getIri(selectedGraphElement)
       }
-
-      const elems = gscape.ontology.getEntityOccurrences(iri)
-      const elem = elems.find((occ: any) => occ.data('diagram_id') === gscape.actualDiagramID)
-      gscape.centerOnNode(elem.id())
-    } else {
-      // move ontology graph to show selected obj/data property
-      ontologyGraph.focusNodeByIRI(getIri(graphElement))
+      ontologyGraph.highlightSuggestions(iri)
+      // const elems = gscape.ontology.getEntityOccurrences(iri)
+      // const elem = elems.find((occ: any) => occ.data('diagram_id') === gscape.actualDiagramID)
+      // gscape.centerOnNode(elem.id())
     }
 
     // keep focus on selected class
@@ -176,8 +176,5 @@ function updateQueryBody(newBody: QueryGraph) {
     return headElem
   }))
 
-  sparqlDialog.message = {
-    type: 'SPARQL',
-    text: body?.sparql || emptyQueryMsg()
-  }
+  sparqlDialog.text = body?.sparql ? body.sparql : emptyQueryMsg()
 }

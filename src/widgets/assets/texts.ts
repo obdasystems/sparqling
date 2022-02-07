@@ -34,3 +34,21 @@ export const tipWhy = (l = lang) => {
 
   return text[l]
 }
+
+export const defaultSelectDialogTitle = (l = lang) => {
+  const text = {
+    en: 'Select Item',
+    it: 'Seleziona un elemento'
+  }
+
+  return text[l]
+}
+
+export const classSelectDialogTitle = (l = lang) => {
+  const text = {
+    en: 'Select a Class',
+    it: 'Seleziona una Classe'
+  }
+
+  return text[l]
+}

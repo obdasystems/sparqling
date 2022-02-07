@@ -1,7 +1,9 @@
 import { UI } from "grapholscape"
 import { emptyQueryMsg } from "./assets/texts"
-import ClassSelectionDialog from "./class-selection-dialog"
+import ListSelectionDialog from "./list-selection-dialog"
 
 export const sparqlDialog = new UI.GscapeDialog()
-sparqlDialog.message = { type: 'SPARQL', text: emptyQueryMsg() }
-export { ClassSelectionDialog }
+sparqlDialog.title = 'SPARQL'
+sparqlDialog.text = emptyQueryMsg()
+
+export const listSelectionDialog = new ListSelectionDialog()
