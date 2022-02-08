@@ -1,4 +1,4 @@
-import { CollectionReturnValue, NodeSingular, StylesheetStyle } from "cytoscape"
+import { CollectionReturnValue, Core, NodeSingular, StylesheetStyle } from "cytoscape"
 import { OntologyGraphApi } from "../api/swagger"
 import { Branch, Highlights, VarOrConstantConstantTypeEnum } from "../api/swagger/models"
 import { listSelectionDialog, sparqlDialog } from "../widgets"
@@ -48,7 +48,9 @@ export async function highlightSuggestions(clickedIRI: string) {
     })
   
   let highlightedElems = gscape.renderer.cy.$('.highlighted, .sparqling-selected')
-  gscape.renderer.cy.elements().difference(highlightedElems).addClass('faded')
+  const fadedElems = gscape.renderer.cy.elements().difference(highlightedElems)
+  fadedElems.addClass('faded')
+  fadedElems.unselectify()
   // gscape.renderer.cy.fit(highlightedElems, '100')
 }
 
@@ -72,6 +74,8 @@ export function findNextClassFromObjProperty(objProperty: CollectionReturnValue)
     if (result.objPropertyFromApi.relatedClasses.length === 1) {
       result.connectedClass = gscape.ontology.getEntityOccurrences(
         result.objPropertyFromApi.relatedClasses[0])[0] as CollectionReturnValue
+
+      result.connectedClass.selectify()
       resolve(result)
     } else {
       listSelectionDialog.title = classSelectDialogTitle()
@@ -84,6 +88,7 @@ export function findNextClassFromObjProperty(objProperty: CollectionReturnValue)
       listSelectionDialog.show()
       listSelectionDialog.onSelection( (iri: string) => {
         result.connectedClass = (gscape.ontology.getEntityOccurrences(iri)[0] as CollectionReturnValue)
+        result.connectedClass.selectify()
         resolve(result)
         listSelectionDialog.hide()
       })
@@ -99,9 +104,12 @@ export function isHighlighted(iri:string): boolean {
 }
 
 export function resetHighlights() {
-  gscape.renderer.cy.$('.sparqling-selected').removeClass('sparqling-selected')
-  gscape.renderer.cy.$('.highlighted').removeClass('highlighted')
-  gscape.renderer.cy.$('.faded').removeClass('faded')
+  let cy: Core = gscape.renderer.cy
+  cy.$('.sparqling-selected').removeClass('sparqling-selected')
+  cy.$('.highlighted').removeClass('highlighted')
+  cy.$('.faded')
+    .removeClass('faded')
+    .selectify()
   actualHighlights = null
 }
 
@@ -119,7 +127,7 @@ export async function focusNodeByIRI(iri: string) {
   }
 
   if (node) {
-    centerOnElement(node, 1.5)
+    centerOnElement(node)
   }
 }
 

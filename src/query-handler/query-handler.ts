@@ -27,9 +27,13 @@ export function init(grapholscape: Grapholscape) {
 
   queryGraph.setDisplayedNameType(gscape.actualEntityNameType, gscape.languages.selected)
   queryGraph.setTheme(gscape.themesController.actualTheme)
-  gscape.onThemeChange( (newTheme: Theme) => queryGraph.setTheme(newTheme))
+  gscape.onThemeChange((newTheme: Theme) => queryGraph.setTheme(newTheme))
 
   gscape.onEntitySelection(async (cyEntity: CollectionReturnValue) => {
+    let clickedIRI = cyEntity.data('iri').fullIri
+
+    if (getIri(selectedGraphElement) === clickedIRI) return
+
     let newBody: QueryGraph = null
     switch (cyEntity.data('type')) {
       case OBJECT_PROPERTY: {
@@ -45,7 +49,6 @@ export function init(grapholscape: Grapholscape) {
           updateQueryBody(newBody)
         }
 
-        let clickedIRI = cyEntity.data('iri').fullIri
         selectedGraphElement = queryGraph.selectElement(clickedIRI)
         ontologyGraph.resetHighlights()
         ontologyGraph.highlightSuggestions(clickedIRI)
@@ -68,20 +71,20 @@ export function init(grapholscape: Grapholscape) {
   uiContainer.insertBefore(queryGraph.widget, uiContainer.firstChild)
   uiContainer.insertBefore(queryHead.widget, uiContainer.firstChild)
 
-  queryGraph.onAddHead( async graphElement => {
+  queryGraph.onAddHead(async graphElement => {
     let newBody = (await qgApi.addHeadTerm(body, graphElement.id)).data
     if (newBody)
       updateQueryBody(newBody)
   })
-  
-  queryGraph.onDelete( async graphElement => {
+
+  queryGraph.onDelete(async graphElement => {
     let newBody = (await qgApi.deleteGraphElementId(body, graphElement.id)).data
     if (newBody) {
       if (newBody.graph && !getGraphElementByID(newBody?.graph, selectedGraphElement.id)) {
         // if we deleted selectedGraphElem, then select its parent
         selectedGraphElement = findGraphElement(body.graph, ge => {
           return ge.children?.find(c => {
-            if( c.children?.find(c2 => c2.id === graphElement.id) )
+            if (c.children?.find(c2 => c2.id === graphElement.id))
               return true
           })
         })
@@ -99,13 +102,13 @@ export function init(grapholscape: Grapholscape) {
         ontologyGraph.resetHighlights()
         gscape.unselectEntity([])
       }
-      
+
       updateQueryBody(newBody)
     }
-    
+
   })
 
-  queryGraph.onJoin( async (ge1, ge2) => {
+  queryGraph.onJoin(async (ge1, ge2) => {
     let newBody = (await qgApi.putQueryGraphJoin(body, ge1.id, ge2.id)).data
     if (newBody) {
       selectedGraphElement = ge1
@@ -113,22 +116,26 @@ export function init(grapholscape: Grapholscape) {
     }
   })
 
-  queryGraph.onElementClick( (graphElement, cyNode) => {
+  queryGraph.onElementClick((graphElement, cyNode) => {
+
     // move ontology graph to show selected obj/data property
     ontologyGraph.focusNodeByIRI(getIri(graphElement))
 
     if (getEntityType(graphElement) === EntityTypeEnum.Class) {
+      let previousGraphElem = selectedGraphElement
       let iri: string
       // If it's a child, use its own iri to find it on the ontology graph
       // if it's a parent, use the first iri he has in its entity list instead
       if (cyNode.isChild()) {
-        selectedGraphElement =  getGraphElementByIRI(body.graph, graphElement.id) // child nodes have IRI as id
+        selectedGraphElement = getGraphElementByIRI(body.graph, graphElement.id) // child nodes have IRI as id
         iri = graphElement.id
       } else {
-        selectedGraphElement =  graphElement
+        selectedGraphElement = graphElement
         iri = getIri(selectedGraphElement)
       }
-      ontologyGraph.highlightSuggestions(iri)
+
+      if (previousGraphElem !== graphElement)
+        ontologyGraph.highlightSuggestions(iri)
       // const elems = gscape.ontology.getEntityOccurrences(iri)
       // const elem = elems.find((occ: any) => occ.data('diagram_id') === gscape.actualDiagramID)
       // gscape.centerOnNode(elem.id())
@@ -138,7 +145,7 @@ export function init(grapholscape: Grapholscape) {
     queryGraph.selectElement(selectedGraphElement.id)
   })
 
-  queryHead.onDelete( async headElement => {
+  queryHead.onDelete(async headElement => {
     let newBody = (await qgApi.deleteHeadTerm(body, headElement.id)).data
     updateQueryBody(newBody)
   })
@@ -167,7 +174,7 @@ function updateQueryBody(newBody: QueryGraph) {
   queryGraph.removeNodesNotInQuery()
 
   queryHead.setHead(body.head)
-  queryHead.render(body.head.map( (headElem: HeadElement) => {
+  queryHead.render(body.head.map((headElem: HeadElement) => {
     let relatedGraphElem = getGraphElementByID(body.graph, headElem.graphElementId)
     headElem['entityType'] = getEntityType(relatedGraphElem)
     headElem['dataType'] = headElem['entityType'] === EntityTypeEnum.DataProperty
