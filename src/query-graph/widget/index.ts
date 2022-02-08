@@ -1,4 +1,4 @@
-import { bgpContainer } from "../../get-container";
+import { bgpContainer } from "../../util/get-container";
 import QueryGraphWidget from "./qg-widget";
 import BGPRenderer from "./renderer";
 

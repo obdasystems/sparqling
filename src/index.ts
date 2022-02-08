@@ -1,6 +1,6 @@
 import { fullGrapholscape } from 'grapholscape'
 import { StandaloneApi } from './api/swagger/api'
-import { grapholscape as gscapeContainer } from './get-container'
+import { grapholscape as gscapeContainer } from './util/get-container'
 import * as ontologyGraph from './ontology-graph'
 import * as queryHandler from './query-handler/query-handler'
 

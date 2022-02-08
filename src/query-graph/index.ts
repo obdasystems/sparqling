@@ -4,6 +4,7 @@ import * as GEUtility from "./graph-element-utility"
 import { GraphElement, EntityTypeEnum } from "../api/swagger/models"
 import { Theme } from "grapholscape"
 import { CollectionReturnValue } from "cytoscape"
+import centerOnElement from "../util/center-on-element"
 
 export { GEUtility }
 export { qgWidget as widget }
@@ -69,12 +70,8 @@ export function removeNodesNotInQuery() {
 }
 
 export function centerOnElem(graphElem: GraphElement) {
-  let cyEntity = bgp.getElementById(graphElem.id)
-  let cy = cyEntity.cy()
-  cy.zoom(cy.maxZoom())
-  let pos = cyEntity.renderedPosition()
-  let center = { x: cy.width() / 2, y: cy.height() / 2 }
-  cy.panBy({ x: -(pos.x -= center.x), y: -(pos.y -= center.y)})
+  let cyElem = bgp.getElementById(graphElem.id)
+  centerOnElement(cyElem, cyElem.cy().maxZoom())
 }
 
 export function getSelectedGraphElement() {

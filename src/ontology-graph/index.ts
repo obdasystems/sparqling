@@ -5,6 +5,7 @@ import { listSelectionDialog, sparqlDialog } from "../widgets"
 import sparqlingStyle from './style'
 import { Type } from 'grapholscape'
 import { classSelectDialogTitle } from "../widgets/assets/texts"
+import centerOnElement from "../util/center-on-element"
 
 const ogApi = new OntologyGraphApi()
 let gscape: any
@@ -110,9 +111,15 @@ export function resetHighlights() {
 export async function focusNodeByIRI(iri: string) {
   let occurrences = gscape.ontology.getEntityOccurrences(iri)
   // find the first one in the actual diagram
-  let node = occurrences.find((occ: any) => occ.data('diagram_id') === gscape.actualDiagramID)
+  let node: CollectionReturnValue = occurrences.find((occ: any) => occ.data('diagram_id') === gscape.actualDiagramID)
+  if (!node) node = occurrences[0]
+  
+  if (node?.data('diagram_id') !== gscape.actualDiagramID) {
+    await gscape.showDiagram(node.data('diagram_id'))
+  }
+
   if (node) {
-    gscape.setViewport(node.position())
+    centerOnElement(node, 1.5)
   }
 }
 
