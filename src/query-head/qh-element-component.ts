@@ -156,7 +156,7 @@ export default class HeadElementComponent extends UI.GscapeWidget {
     this.deleteButton = new UI.GscapeButton(del, 'Delete Field')
     this.deleteButton.onClick = () => { }
     this.deleteButton.classList.add('danger')
-    this.toggleBodyButton = new UI.GscapeButton(UI.triangle_down, 'Show More', UI.triangle_up)
+    this.toggleBodyButton = new UI.GscapeButton(UI.icons.triangle_down, 'Show More', UI.icons.triangle_up)
     this.toggleBodyButton.onClick = () => (this as any).toggleBody()
     this.toggleBodyButton.style.boxShadow = 'none'
 
