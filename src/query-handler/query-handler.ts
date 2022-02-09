@@ -1,5 +1,5 @@
 import { CollectionReturnValue } from "cytoscape"
-import { Grapholscape, Theme, Type } from "grapholscape"
+import { Grapholscape, Theme, Type, UI } from "grapholscape"
 import { QueryGraphApiFactory } from "../api/swagger"
 import { EntityTypeEnum, GraphElement, HeadElement, QueryGraph } from "../api/swagger/models"
 import { handleConceptSelection, handleDataPropertySelection, handleObjectPropertySelection } from "./handle-entity-selection"
@@ -120,6 +120,7 @@ export function init(grapholscape: Grapholscape) {
 
     // move ontology graph to show selected obj/data property
     ontologyGraph.focusNodeByIRI(getIri(graphElement))
+    UI.entityDetails.setEntity(gscape.ontology.getEntityOccurrences(getIri(graphElement))[0])
 
     if (getEntityType(graphElement) === EntityTypeEnum.Class) {
       let previousGraphElem = selectedGraphElement
