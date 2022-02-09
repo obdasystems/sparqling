@@ -39,8 +39,6 @@ export function render(graphElem: GraphElement, parent?: GraphElement, objectPro
     if (parent) {
       bgp.addEdge(parent, graphElem, objectProperty)
     }
-
-    bgp.arrange()
   }
 
   // if the actual elem was an object property, it will be added at next step as edge

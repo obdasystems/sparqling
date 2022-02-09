@@ -50,7 +50,8 @@ export default (theme: Theme) => { return [
   {
     selector: `edge[type = "${DataProperty}"]`,
     style: {
-      'curve-style': 'haystack',
+      'curve-style': 'straight',
+      'target-arrow-shape': 'none',
       'line-color': theme.attribute_dark,
     },
   },
@@ -84,6 +85,12 @@ export default (theme: Theme) => { return [
       'shape': 'round-rectangle',
       'label': 'Release to join these classes',
       'font-size': '12px',
+    }
+  },
+
+  {
+    selector: ':parent',
+    style: {
     }
   },
 

@@ -31,7 +31,9 @@ export default class BGPRenderer {
     fit: false, // Whether to fit
     klay: {
       direction: 'RIGHT',
-      spacing: 60
+      spacing: 60,
+      layoutHierarchy: true,
+      fixedAlignment: 'BALANCED'
     }
   }
 
@@ -110,6 +112,7 @@ export default class BGPRenderer {
       node.entities.forEach((child: Entity, i: number) => {
         if (!existingNode.children().some( c => c[0].data('iri') === child.iri)) {
           this.cy.add({ data: this.getDataObj(node, i) })
+          this.arrange()
         }
       })
     } else if (!existingNode) {
@@ -145,6 +148,7 @@ export default class BGPRenderer {
     newEdgeData.source = sourceNode.id
     newEdgeData.target = targetNode.id
     this.cy.add({ data: newEdgeData})
+    this.arrange()
   }
 
   /**
@@ -175,7 +179,7 @@ export default class BGPRenderer {
     this.cy.$(classSelector).forEach( node => {
       const dataProperties = node.neighborhood(dataPropertySelector)
       if (!dataProperties.empty()) {
-        let layoutConcentric = node.union(dataProperties).layout(this.radialLayoutOpt(node))
+        let layoutConcentric = node.union(node.children()).union(dataProperties).layout(this.radialLayoutOpt(node))
         layoutConcentric.run()
       }
     })
