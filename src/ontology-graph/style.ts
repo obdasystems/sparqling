@@ -1,4 +1,4 @@
-import { Stylesheet, StylesheetStyle } from "cytoscape"
+import { StylesheetStyle } from "cytoscape"
 
 export default [
   {

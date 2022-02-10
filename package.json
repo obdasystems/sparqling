@@ -28,6 +28,7 @@
     "@types/jest": "^27.0.3",
     "cpy-cli": "^3.1.1",
     "cross-env": "^7.0.3",
+    "grapholscape": "git+https://github.com/obdasystems/grapholscape.git#develop",
     "local-web-server": "^5.1.1",
     "npm-run-all": "^4.1.5",
     "rimraf": "^3.0.2",
@@ -45,7 +46,9 @@
     "cytoscape-compound-drag-and-drop": "^1.0.0",
     "cytoscape-context-menus": "^4.1.0",
     "cytoscape-cxtmenu": "^3.4.0",
-    "cytoscape-klay": "^3.1.4",
+    "cytoscape-klay": "^3.1.4"
+  },
+  "peerDependencies": {
     "grapholscape": "git+https://github.com/obdasystems/grapholscape.git#develop"
   }
 }

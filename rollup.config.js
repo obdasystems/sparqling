@@ -85,7 +85,8 @@ export default {
     name,
     sourcemap: SOURCEMAPS ? 'inline' : false,
     globals:{
-      axios: 'axios'
+      axios: 'axios',
+      grapholscape: 'Grapholscape'
     },
   },
   plugins: [
@@ -97,5 +98,6 @@ export default {
       allowSyntheticDefaultImports: true,
       target: 'es6'
     }),
-  ]
+  ],
+  external: ['grapholscape'],
 }

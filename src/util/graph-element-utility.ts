@@ -1,26 +1,29 @@
-import { Entity, EntityTypeEnum, GraphElement } from "../api/swagger/models";
+import { Entity, EntityTypeEnum, GraphElement } from "../api/swagger/models"
+import * as queryBody from '../query-handler/query-body'
 
-export function getGraphElementByID(elem: GraphElement, id: string | number) {
-  return findGraphElement(elem, (elem) => elem.id === id)
+export function getGraphElementByID(id: string | number) {
+  const graph = queryBody.getBody()?.graph
+  return findGraphElement(graph, (elem) => elem.id === id)
 }
 
-export function getGraphElementByIRI(elem: GraphElement, iri: string) {
-  return findGraphElement(elem, (elem) => graphElementHasIri(elem, iri))
+export function getGraphElementByIRI(iri: string) {
+  const graph = queryBody.getBody()?.graph
+  return findGraphElement(graph, (elem) => graphElementHasIri(elem, iri))
 }
 
 /**
  * Find an element in the query-graph satisfying the test condition
- * @param elem the element to test
+ * @param graph the element to test
  * @param test boolean test function
  * @returns the first element satisfying the condition
  */
-export function findGraphElement(elem: GraphElement, test: (elem: GraphElement) => boolean): GraphElement {
-  if (!elem) return null
+export function findGraphElement(graph: GraphElement, test: (elem: GraphElement) => boolean): GraphElement {
+  if (!graph) return null
   
-  if (test(elem)) return elem
+  if (test(graph)) return graph
 
-  if (elem.children) {
-    for (let child of elem.children) {
+  if (graph.children) {
+    for (let child of graph.children) {
       let res = findGraphElement(child, test)
       if (res) return res
     }

@@ -1,26 +1,25 @@
 import { qgWidget, bgp } from "./widget"
 import { DisplayedNameType } from "./displayed-name-type"
-import * as GEUtility from "./graph-element-utility"
+import * as GEUtility from "../util/graph-element-utility"
 import { GraphElement, EntityTypeEnum } from "../api/swagger/models"
 import { Theme } from "grapholscape"
 import { CollectionReturnValue } from "cytoscape"
 import centerOnElement from "../util/center-on-element"
 
-export { GEUtility }
 export { qgWidget as widget }
 
 // inject tests for allowing joins into renderer, keep renderer logic agnostic
-bgp.canStartJoin = nodeID => GEUtility.canStartJoin(GEUtility.getGraphElementByID(graph, nodeID))
+bgp.canStartJoin = nodeID => GEUtility.canStartJoin(GEUtility.getGraphElementByID(nodeID))
 bgp.isJoinAllowed = (node1ID, node2ID) => {
-  let ge1 = GEUtility.getGraphElementByID(graph, node1ID)
-  let ge2 = GEUtility.getGraphElementByID(graph, node2ID)
+  let ge1 = GEUtility.getGraphElementByID(node1ID)
+  let ge2 = GEUtility.getGraphElementByID(node2ID)
   return GEUtility.isJoinAllowed(ge1, ge2)
 }
 
 let graph: GraphElement
 
 export function selectElement(nodeIDorIRI: string): GraphElement {
-  let graphElem = GEUtility.getGraphElementByID(graph, nodeIDorIRI) || GEUtility.getGraphElementByIRI(graph, nodeIDorIRI)
+  let graphElem = GEUtility.getGraphElementByID(nodeIDorIRI) || GEUtility.getGraphElementByIRI(nodeIDorIRI)
   //bgp.unselect()
   if (graphElem) {
     bgp.selectNode(graphElem.id)
@@ -54,13 +53,13 @@ export function render(graphElem: GraphElement, parent?: GraphElement, objectPro
 export function removeNodesNotInQuery() {
   setTimeout(() => {
     bgp.elements.forEach( elem => {
-      if ( elem.data('displayed_name') && !GEUtility.getGraphElementByID(graph, elem.id())) {
+      if ( elem.data('displayed_name') && !GEUtility.getGraphElementByID(elem.id())) {
         /**
          * remove it if elem is:
          *  - not a child
          *  - a child and its iri is not in the query anymore
          */
-        if (!elem.isChild() || !GEUtility.getGraphElementByIRI(graph, elem.data('iri')))
+        if (!elem.isChild() || !GEUtility.getGraphElementByIRI(elem.data('iri')))
           bgp.removeNode(elem.id())
       }
     })
@@ -73,28 +72,28 @@ export function centerOnElem(graphElem: GraphElement) {
 }
 
 export function getSelectedGraphElement() {
-  return GEUtility.getGraphElementByID(graph, bgp.elements.filter('.sparqling-selected')[0]?.id())
+  return GEUtility.getGraphElementByID(bgp.elements.filter('.sparqling-selected')[0]?.id())
 }
 
 // ******************************* GRAPH INTERACTION CALLBACKS ******************************* //
 export function onAddHead(callback: (graphElem: GraphElement) => void) {
-  bgp.onAddHead(id => callback(GEUtility.getGraphElementByID(graph, id)))
+  bgp.onAddHead(id => callback(GEUtility.getGraphElementByID(id)))
 }
 
 export function onDelete(callback: (graphElem: GraphElement) => void) {
-  bgp.onDelete(id => callback(GEUtility.getGraphElementByID(graph, id)))
+  bgp.onDelete(id => callback(GEUtility.getGraphElementByID(id)))
 }
 
 export function onJoin(callback: (graphElem1: GraphElement, graphElem2: GraphElement) => void) {
   bgp.onJoin((node1ID, node2ID) => {
-    let graphElem1 = GEUtility.getGraphElementByID(graph, node1ID)
-    let graphElem2 = GEUtility.getGraphElementByID(graph, node2ID)
+    let graphElem1 = GEUtility.getGraphElementByID(node1ID)
+    let graphElem2 = GEUtility.getGraphElementByID(node2ID)
     callback(graphElem1, graphElem2)
   })
 }
 
 export function onElementClick(callback: (graphElem: GraphElement, cyNode: CollectionReturnValue) => void) {
-  bgp.onNodeSelect(id => callback(GEUtility.getGraphElementByID(graph, id), bgp.getElementById(id)))
+  bgp.onNodeSelect(id => callback(GEUtility.getGraphElementByID(id), bgp.getElementById(id)))
 }
 // ********************************************************************************************* //
 
@@ -117,5 +116,5 @@ export function setGraph(newGraph: GraphElement) {
 export function getGraph() { return graph }
 
 export function iriInQueryGraph(iri: string): boolean {
-  return GEUtility.getGraphElementByIRI(graph, iri) ? true : false
+  return GEUtility.getGraphElementByIRI(iri) ? true : false
 }
