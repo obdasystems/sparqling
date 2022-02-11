@@ -117,6 +117,7 @@ export default class BGPRenderer {
       })
     } else if (!existingNode) {
       this.cy.add({ data: this.getDataObj(node) })
+      this.arrange()
     }
   }
 
