@@ -1,4 +1,4 @@
-import { GraphElement, QueryGraph } from "../api/swagger/models"
+import { GraphElement, QueryGraph } from "../api/swagger"
 
 let body: QueryGraph
 let selectedGraphElement: GraphElement

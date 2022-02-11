@@ -1,6 +1,6 @@
 import { Stylesheet } from "cytoscape"
 import { Theme } from "grapholscape"
-import { EntityTypeEnum } from "../../api/swagger/models"
+import { EntityTypeEnum } from "../../api/swagger"
 
 // TODO: fix colors for black/white theme
 const { DataProperty, Class, ObjectProperty } = EntityTypeEnum

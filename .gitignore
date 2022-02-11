@@ -7,3 +7,4 @@ coverage/**
 .size-snapshot.json
 app/graphol/grapholscape.min.js
 sparqling.code-workspace
+openapitools.json

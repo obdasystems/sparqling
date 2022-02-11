@@ -1,6 +1,6 @@
 import { UI } from 'grapholscape'
 import { html, css } from 'lit'
-import { HeadElement, ModelFunctionNameEnum, ModelFunction, VarOrConstantConstantTypeEnum, FilterExpressionOperatorEnum, Filter } from '../api/swagger/models';
+import { HeadElement, FunctionNameEnum, Function, VarOrConstantConstantTypeEnum, FilterExpressionOperatorEnum, Filter } from '../api/swagger';
 import { crosshair, del } from '../widgets/assets/icons'
 
 const SECTIONS = {
@@ -9,7 +9,7 @@ const SECTIONS = {
     op: 'function-operator',
     type: 'function-type',
     value: 'function-value',
-    options: ModelFunctionNameEnum,
+    options: FunctionNameEnum,
   },
   filter: {
     name: 'Filter',
@@ -28,7 +28,7 @@ export default class HeadElementComponent extends UI.GscapeWidget {
   public _id: string
   private graphElementId: string
   private alias: string
-  private function: ModelFunction
+  private function: Function
   private variable: string
   private entityType: string
   private dataType: VarOrConstantConstantTypeEnum
@@ -277,7 +277,7 @@ export default class HeadElementComponent extends UI.GscapeWidget {
   private localizeCallback = (headElementId: string) => { }
   public onLocalize(callback: (headElementId: string) => void) { this.localizeCallback = callback }
 
-  public onFunctionSet(callback: (fun: ModelFunction) => void) { }
+  public onFunctionSet(callback: (fun: Function) => void) { }
   public onFilterSet(callback: (filter: Filter) => void) { }
 }
 

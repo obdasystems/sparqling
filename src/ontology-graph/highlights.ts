@@ -1,6 +1,6 @@
 import { CollectionReturnValue, Core } from "cytoscape"
 import { OntologyGraphApi } from "../api/swagger"
-import { Highlights } from "../api/swagger/models"
+import { Highlights } from "../api/swagger"
 import { getSelectedGraphElement } from "../query-handler/query-body"
 import { getIri } from "../util/graph-element-utility"
 import getGscape from "./get-gscape"

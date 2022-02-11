@@ -3,7 +3,7 @@ import klay from 'cytoscape-klay'
 import cola from 'cytoscape-cola'
 import cxtmenu from 'cytoscape-cxtmenu'
 import compoundDragAndDrop from 'cytoscape-compound-drag-and-drop'
-import { GraphElement, EntityTypeEnum, Entity } from '../../api/swagger/models'
+import { GraphElement, EntityTypeEnum, Entity } from '../../api/swagger'
 import getStylesheet from './style'
 import { Theme } from 'grapholscape'
 import { commandList, Command } from './cxt-menu-commands'
@@ -242,7 +242,7 @@ export default class BGPRenderer {
    * @returns the data object for cytoscape's instanc of the graphElement
    */
   private getDataObj(graphElement: GraphElement, i = null) {
-    let data = graphElement.entities[i || 0]
+    let data = graphElement.entities[i || 0] as any
     if (i !== null) {
       data.parent = graphElement.id
       data.id = data.iri

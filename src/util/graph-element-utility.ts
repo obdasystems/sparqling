@@ -1,4 +1,4 @@
-import { Entity, EntityTypeEnum, GraphElement } from "../api/swagger/models"
+import { Entity, EntityTypeEnum, GraphElement } from "../api/swagger"
 import * as queryBody from '../query-handler/query-body'
 
 export function getGraphElementByID(id: string | number) {

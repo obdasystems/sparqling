@@ -1,7 +1,7 @@
 import { qgWidget, bgp } from "./widget"
 import { DisplayedNameType } from "./displayed-name-type"
 import * as GEUtility from "../util/graph-element-utility"
-import { GraphElement, EntityTypeEnum } from "../api/swagger/models"
+import { GraphElement, EntityTypeEnum } from "../api/swagger"
 import { Theme } from "grapholscape"
 import { CollectionReturnValue } from "cytoscape"
 import centerOnElement from "../util/center-on-element"

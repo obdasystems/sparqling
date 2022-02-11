@@ -1,6 +1,6 @@
 import { UI } from 'grapholscape'
 import { QueryGraphApiFactory } from '../api/swagger'
-import { EntityTypeEnum } from '../api/swagger/models'
+import { EntityTypeEnum } from '../api/swagger'
 import * as ontologyGraph from '../ontology-graph'
 import getGscape from '../ontology-graph/get-gscape'
 import * as queryGraph from '../query-graph'
@@ -11,7 +11,7 @@ import * as GEUtility from '../util/graph-element-utility'
 queryGraph.onAddHead(async graphElement => {
   const qgApi = QueryGraphApiFactory()
   const body = queryBody.getBody()
-  let newBody = (await qgApi.addHeadTerm(body, graphElement.id)).data
+  let newBody = (await qgApi.addHeadTerm(graphElement.id, body)).data
   if (newBody)
     onNewBody(newBody)
 })
@@ -22,12 +22,12 @@ queryGraph.onDelete(async graphElement => {
   const selectedGraphElement = queryBody.getSelectedGraphElement()
   const gscape = getGscape()
 
-  let newBody = (await qgApi.deleteGraphElementId(body, graphElement.id)).data
+  let newBody = (await qgApi.deleteGraphElementId(graphElement.id, body)).data
   if (newBody) {
     if (newBody.graph && graphElement === selectedGraphElement) {
       // if we deleted selectedGraphElem, then select its parent
       let newSelectedGE = GEUtility.findGraphElement(body.graph, ge => {
-        return ge.children?.find(c => {
+        return ge.children?.some(c => {
           if (c.children?.find(c2 => c2.id === graphElement.id))
             return true
         })
@@ -56,7 +56,7 @@ queryGraph.onJoin(async (ge1, ge2) => {
   const qgApi = QueryGraphApiFactory()
   const body = queryBody.getBody()
 
-  let newBody = (await qgApi.putQueryGraphJoin(body, ge1.id, ge2.id)).data
+  let newBody = (await qgApi.putQueryGraphJoin(ge1.id, ge2.id, body)).data
   if (newBody) {
     queryBody.setSelectedGraphElement(ge1)
     onNewBody(newBody)

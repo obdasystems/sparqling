@@ -1,6 +1,6 @@
 import { CollectionReturnValue } from "cytoscape"
 import { getActualHighlights } from "./highlights"
-import { Branch } from "../api/swagger/models"
+import { Branch } from "../api/swagger"
 import getGscape from "./get-gscape"
 import { listSelectionDialog } from "../widgets"
 import { classSelectDialogTitle } from "../widgets/assets/texts"

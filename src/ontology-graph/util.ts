@@ -1,5 +1,5 @@
 import { CollectionReturnValue, StylesheetStyle } from "cytoscape"
-import { VarOrConstantConstantTypeEnum } from "../api/swagger/models"
+import { VarOrConstantConstantTypeEnum } from "../api/swagger"
 import getGscape from "./get-gscape"
 import { Type } from "grapholscape"
 

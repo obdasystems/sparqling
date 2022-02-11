@@ -10,7 +10,7 @@ import { getGraphElementByID, getIri } from '../util/graph-element-utility'
 queryHead.onDelete(async headElement => {
   const qgApi = QueryGraphApiFactory()
   const body = queryBody.getBody()
-  let newBody = (await qgApi.deleteHeadTerm(body, headElement.id)).data
+  let newBody = (await qgApi.deleteHeadTerm(headElement.id, body)).data
   onNewBody(newBody)
 })
 
@@ -18,12 +18,11 @@ queryHead.onRename(async (headElement, alias) => {
   const qgApi = QueryGraphApiFactory()
   const body = queryBody.getBody()
   headElement.alias = alias
-  let newBody = (await qgApi.renameHeadTerm(body, headElement.id)).data
+  let newBody = (await qgApi.renameHeadTerm(headElement.id, body)).data
   onNewBody(newBody)
 })
 
 queryHead.onLocalize(headElement => {
-  const body = queryBody.getBody()
   let graphElement = getGraphElementByID(headElement.graphElementId)
   queryGraph.centerOnElem(graphElement)
   ontologyGraph.focusNodeByIRI(getIri(graphElement))

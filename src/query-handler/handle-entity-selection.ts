@@ -1,7 +1,7 @@
 import { CollectionReturnValue } from "cytoscape"
 import { Type } from "grapholscape"
 import { QueryGraphApiFactory } from "../api/swagger"
-import { EntityTypeEnum, QueryGraph } from "../api/swagger/models"
+import { EntityTypeEnum, QueryGraph } from "../api/swagger"
 import * as ontologyGraph from "../ontology-graph"
 import getGscape from "../ontology-graph/get-gscape"
 import * as queryGraph from "../query-graph"
@@ -93,16 +93,16 @@ async function handleConceptSelection(cyEntity: CollectionReturnValue): Promise<
       if (lastObjProperty) {
         // this comes after a selection of a object property
         newQueryGraph = (await qgApi.putQueryGraphObjectProperty(
-          actualBody, "", lastObjProperty.data('iri').fullIri, clickedIRI,
+          selectedGraphElement.id, "", lastObjProperty.data('iri').fullIri, clickedIRI,
           lastObjProperty['direct'],
-          selectedGraphElement.id
+          actualBody
         )).data
 
       } else if (actualBody?.graph && isIriHighlighted) {
         newQueryGraph = (await qgApi.putQueryGraphClass(
-          actualBody, '',
+          selectedGraphElement.id, '',
           clickedIRI,
-          selectedGraphElement.id)).data
+          actualBody)).data
       } else if (!actualBody?.graph) {
         // initial selection
         newQueryGraph = (await qgApi.getQueryGraph(clickedIRI)).data
@@ -127,7 +127,7 @@ async function handleDataPropertySelection(cyEntity: CollectionReturnValue): Pro
   const selectedGraphElement = queryBody.getSelectedGraphElement()
   if (getEntityType(selectedGraphElement) === EntityTypeEnum.Class) {
     newQueryGraph = (await qgApi.putQueryGraphDataProperty(
-      actualBody, '', clickedIRI, selectedGraphElement.id
+      selectedGraphElement.id, '', clickedIRI, actualBody
     )).data
   }
   lastObjProperty = null

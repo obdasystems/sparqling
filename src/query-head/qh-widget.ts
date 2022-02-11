@@ -1,6 +1,6 @@
 import { UI } from 'grapholscape'
 import { html, css } from 'lit'
-import { HeadElement } from '../api/swagger/models'
+import { HeadElement } from '../api/swagger'
 import { asterisk, tableEye } from '../widgets/assets/icons'
 import { emptyHeadMsg, emptyHeadTipMsg, tipWhy } from '../widgets/assets/texts'
 import HeadElementComponent from './qh-element-component'

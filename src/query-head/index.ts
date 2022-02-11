@@ -1,4 +1,4 @@
-import { HeadElement } from "../api/swagger/models";
+import { HeadElement } from "../api/swagger";
 import { code } from "../widgets/assets/icons";
 import QueryHeadWidget from "./qh-widget";
 import { UI } from "grapholscape"
