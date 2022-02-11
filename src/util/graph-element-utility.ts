@@ -53,16 +53,25 @@ export function graphElementHasIri(elem: GraphElement, iri: string) {
 export function canStartJoin(elem: GraphElement): boolean {
   if (!elem) return false
 
-  return elem.entities?.length === 1
-      && getEntityType(elem) === EntityTypeEnum.Class
+  return elem.entities?.length === 1 && isClass(elem)
 }
 
 export function isJoinAllowed(targetElem: GraphElement, startElem: GraphElement): boolean {
   if (!targetElem || !startElem) return false
 
-  const areBothClasses = 
-    getEntityType(startElem) === EntityTypeEnum.Class &&
-    getEntityType(targetElem) === EntityTypeEnum.Class
+  const areBothClasses = isClass(startElem) && isClass(targetElem)
   const doesTargetHasSameIri = graphElementHasIri(targetElem, getIri(startElem))
   return areBothClasses && doesTargetHasSameIri
+}
+
+export function isClass(graphElement: GraphElement) {
+  return getEntityType(graphElement) === EntityTypeEnum.Class
+}
+
+export function isDataProperty(graphElement: GraphElement) {
+  return getEntityType(graphElement) === EntityTypeEnum.DataProperty
+}
+
+export function isObjectProperty(graphElement: GraphElement) {
+  return getEntityType(graphElement) === EntityTypeEnum.ObjectProperty
 }

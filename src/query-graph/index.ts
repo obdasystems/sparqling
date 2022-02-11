@@ -32,8 +32,7 @@ export function selectElement(nodeIDorIRI: string): GraphElement {
 export function render(graphElem: GraphElement, parent?: GraphElement, objectProperty?: GraphElement) {
   if (!graphElem) return
 
-  const type = GEUtility.getEntityType(graphElem)
-  if (type !== EntityTypeEnum.ObjectProperty) {
+  if (!GEUtility.isObjectProperty(graphElem)) {
     bgp.addNode(graphElem)
     if (parent) {
       bgp.addEdge(parent, graphElem, objectProperty)
@@ -42,7 +41,7 @@ export function render(graphElem: GraphElement, parent?: GraphElement, objectPro
 
   // if the actual elem was an object property, it will be added at next step as edge
   // between this elem and its children
-  if (type === EntityTypeEnum.ObjectProperty) {
+  if (GEUtility.isObjectProperty(graphElem)) {
     graphElem.children?.forEach((childGraphElem: GraphElement) => render(childGraphElem, parent, graphElem))
   } else {
     graphElem.children?.forEach((childGraphElem: GraphElement) => render(childGraphElem, graphElem))
@@ -92,8 +91,8 @@ export function onJoin(callback: (graphElem1: GraphElement, graphElem2: GraphEle
   })
 }
 
-export function onElementClick(callback: (graphElem: GraphElement, cyNode: CollectionReturnValue) => void) {
-  bgp.onNodeSelect(id => callback(GEUtility.getGraphElementByID(id), bgp.getElementById(id)))
+export function onElementClick(callback: (graphElem: GraphElement, iri: string) => void) {
+  bgp.onElemSelect((id, iri) => callback(GEUtility.getGraphElementByID(id), iri))
 }
 // ********************************************************************************************* //
 

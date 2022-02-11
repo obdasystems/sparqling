@@ -1,5 +1,5 @@
 import { UI } from 'grapholscape'
-import { QueryGraphApiFactory } from '../api/swagger'
+import { GraphElement, QueryGraphApiFactory } from '../api/swagger'
 import { EntityTypeEnum } from '../api/swagger'
 import * as ontologyGraph from '../ontology-graph'
 import getGscape from '../ontology-graph/get-gscape'
@@ -32,7 +32,7 @@ queryGraph.onDelete(async graphElement => {
             return true
         })
       })
-      
+
       queryBody.setSelectedGraphElement(newSelectedGE)
       ontologyGraph.resetHighlights()
       gscape.unselectEntity([])
@@ -63,35 +63,22 @@ queryGraph.onJoin(async (ge1, ge2) => {
   }
 })
 
-queryGraph.onElementClick((graphElement, cyNode) => {
+queryGraph.onElementClick((graphElement, iri) => {
   const gscape = getGscape()
-  // move ontology graph to show selected obj/data property
-  ontologyGraph.focusNodeByIRI(GEUtility.getIri(graphElement))
-  UI.entityDetails.setEntity(gscape.ontology.getEntityOccurrences(GEUtility.getIri(graphElement))[0])
 
-  if (GEUtility.getEntityType(graphElement) === EntityTypeEnum.Class) {
-    let previousGraphElem = queryBody.getSelectedGraphElement()
-    let iri: string
-    let newSelectedGE
-    // If it's a child, use its own iri to find it on the ontology graph
-    // if it's a parent, use the first iri he has in its entity list instead
-    if (cyNode.isChild()) {
-      newSelectedGE = GEUtility.getGraphElementByIRI(graphElement.id) // child nodes have IRI as id
-      iri = graphElement.id
-    } else {
-      newSelectedGE = graphElement
-      iri = GEUtility.getIri(newSelectedGE)
+  if (GEUtility.isClass(graphElement)) {
+    // if the new graphElement is different from the current selected one the select it
+    if (queryBody.getSelectedGraphElement() !== graphElement) {
+      queryBody.setSelectedGraphElement(graphElement)
     }
 
-    queryBody.setSelectedGraphElement(newSelectedGE)
-
-    if (previousGraphElem !== graphElement)
-      ontologyGraph.highlightSuggestions(iri)
-    // const elems = gscape.ontology.getEntityOccurrences(iri)
-    // const elem = elems.find((occ: any) => occ.data('diagram_id') === gscape.actualDiagramID)
-    // gscape.centerOnNode(elem.id())
+    // Highlight suggestions for the actual clicked iri (might be a child node)
+    ontologyGraph.highlightSuggestions(iri)
   }
 
+  // move ontology graph to show selected obj/data property
+  ontologyGraph.focusNodeByIRI(iri)
+  UI.entityDetails.setEntity(gscape.ontology.getEntityOccurrences(iri)[0])
   // keep focus on selected class
   queryGraph.selectElement(queryBody.getSelectedGraphElement().id)
 })

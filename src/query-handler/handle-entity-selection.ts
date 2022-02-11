@@ -5,7 +5,7 @@ import { EntityTypeEnum, QueryGraph } from "../api/swagger"
 import * as ontologyGraph from "../ontology-graph"
 import getGscape from "../ontology-graph/get-gscape"
 import * as queryGraph from "../query-graph"
-import { getEntityType, graphElementHasIri } from "../util/graph-element-utility"
+import { graphElementHasIri, isClass } from "../util/graph-element-utility"
 import * as queryBody from "./query-body"
 import onNewBody from "./on-new-body"
 import { getIri } from '../util/graph-element-utility'
@@ -48,15 +48,14 @@ export async function onEntitySelection(cyEntity: CollectionReturnValue) {
       break
     }
     case DATA_PROPERTY: {
-      let newBody: QueryGraph = null
       newBody = await handleDataPropertySelection(cyEntity)
-      // select the current selected class on the ontology, prevent from selecting the attribute
-      gscape.selectEntityOccurrences(getIri(selectedGraphElement))
       if (newBody)
         onNewBody(newBody)
       break
     }
   }
+
+  gscape.unselectEntity([])
 }
 
 async function handleObjectPropertySelection(cyEntity: CollectionReturnValue) {
@@ -125,7 +124,7 @@ async function handleDataPropertySelection(cyEntity: CollectionReturnValue): Pro
   let newQueryGraph: QueryGraph
   const actualBody = queryBody.getBody()
   const selectedGraphElement = queryBody.getSelectedGraphElement()
-  if (getEntityType(selectedGraphElement) === EntityTypeEnum.Class) {
+  if (isClass(selectedGraphElement)) {
     newQueryGraph = (await qgApi.putQueryGraphDataProperty(
       selectedGraphElement.id, '', clickedIRI, actualBody
     )).data

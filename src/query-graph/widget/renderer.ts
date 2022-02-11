@@ -59,7 +59,7 @@ export default class BGPRenderer {
       levelWidth: () => { return 1 },
     }
   }
-  private _onNodeSelectionCallback = (nodeId: string) => { }
+  private _onElemSelectionCallback = (nodeId: string, iri: string) => { }
   private _displayedNameType: DisplayedNameType = DisplayedNameType.full
   private _language = ''
   private menu: any
@@ -70,8 +70,12 @@ export default class BGPRenderer {
   constructor(container?: HTMLDivElement) {
 
     this.cy.on('tap', 'node, edge', e => {
-      //this.selectedGraphNode = this.getGraphElementByID(e.target.id())
-      this._onNodeSelectionCallback(e.target.id())
+      // if it's an entity (class, data property or obj property)
+      if (Object.values(EntityTypeEnum).includes(e.target.data().type)) {
+        // if it's a child, the ID of the selected elem is the id of the parent
+        let elemID = e.target.isChild() ? e.target.data().parent : e.target.id()
+        this._onElemSelectionCallback(elemID, e.target.data().iri)
+      }
     })
 
     let cy = this.cy as any
@@ -212,8 +216,8 @@ export default class BGPRenderer {
    * Perform an action on a node selection, 
    * the callback you pass will be passed the id of selected node
    */
-   public onNodeSelect(callback: (id: string) => void) {
-    this._onNodeSelectionCallback = callback
+   public onElemSelect(callback: (id: string, iri: string) => void) {
+    this._onElemSelectionCallback = callback
   }
 
   /**
