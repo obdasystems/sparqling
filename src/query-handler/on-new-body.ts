@@ -12,6 +12,7 @@ export default function onNewBody(newBody: QueryGraph) {
   queryGraph.setGraph(body.graph)
   queryGraph.render(body.graph)
   queryGraph.removeNodesNotInQuery()
+  queryGraph.renderOptionals(body.optionals)
 
   queryHead.setHead(body.head)
   queryHead.render(body.head?.map((headElem: HeadElement) => {

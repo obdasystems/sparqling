@@ -1,4 +1,4 @@
-import { Entity, EntityTypeEnum, GraphElement } from "../../api/swagger"
+import { Entity, EntityTypeEnum, GraphElement, Optional } from "../../api/swagger"
 import { DisplayedNameType } from "../displayed-name-type"
 import cy, { getDisplayedNameType, getLanguage } from './cy'
 import { getElementById, getElements } from "./getters"
@@ -107,6 +107,17 @@ export function arrange() {
   // apply floaty layout only to dataproperties
   //cy.$(dataPropertySelector).closedNeighborhood().layout(radialLayoutOpt).run()
   //dataPropSources.unlock()
+}
+
+export function renderOptionals(optionals: Optional[]) {
+  clearOptionals()
+  optionals?.forEach(opt => {
+    opt.graphIds.forEach((elemId: string) => getElementById(elemId).data('optional', true))
+  })
+}
+
+export function clearOptionals() {
+  getElements().filter('[?optional]').data('optional', false)
 }
 
 /**

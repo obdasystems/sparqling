@@ -5,8 +5,9 @@ import * as GEUtility from "../util/graph-element-utility"
 import QueryGraphWidget from "./qg-widget"
 import * as bgp from "./renderer"
 
-export { setLanguage } from './renderer'
+export { setLanguage, renderOptionals } from './renderer'
 export * from './renderer/setters'
+export * from './optionals'
 export const widget = new QueryGraphWidget(bgpContainer)
 
 // inject tests for allowing joins into renderer, keep renderer logic agnostic
@@ -95,9 +96,6 @@ export function onJoin(callback: (graphElem1: GraphElement, graphElem2: GraphEle
 export function onElementClick(callback: (graphElem: GraphElement, iri: string) => void) {
   bgp.onElementClick((id, iri) => callback(GEUtility.getGraphElementByID(id), iri))
 }
-// export function setTheme(newTheme: Theme) {
-//   bgp.theme = newTheme
-// }
 
 export function setGraph(newGraph: GraphElement) {
   graph = newGraph

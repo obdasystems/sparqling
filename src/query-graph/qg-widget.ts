@@ -6,10 +6,9 @@ const { GscapeWidget, GscapeHeader } = UI
 /**
  * Widget extending base grapholscape widget which uses Lit-element inside
  */
-export default class QueryGraphWidget extends GscapeWidget {
-  private collapsible : boolean
-  private draggable: boolean
-  private header : typeof GscapeHeader
+export default class QueryGraphWidget extends (GscapeWidget as any) {
+  public collapsible : boolean
+  public draggable: boolean
   private bgpContainer: HTMLElement
 
   static get styles() {
@@ -45,7 +44,7 @@ export default class QueryGraphWidget extends GscapeWidget {
     this.bgpContainer = bgpContainer
     this.collapsible = true
     this.draggable = true
-    this.header = new GscapeHeader('Query Graph', rdfLogo)
+    this.header = new GscapeHeader('Query Graph', rdfLogo as any)
 
     //super.makeDraggable()
   }

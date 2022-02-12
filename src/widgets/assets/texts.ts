@@ -80,3 +80,21 @@ export const commandAddFilterText = (l = lang) => {
 
   return text[l]
 }
+
+export const commandMakeOptionalText = (l = lang) => {
+  const text = {
+    en: 'Make Optional',
+    it: 'Rendi Opzionale'
+  }
+
+  return text[l]
+}
+
+export const commandRemoveOptionalText = (l = lang) => {
+  const text = {
+    en: 'Remove Optional',
+    it: 'Rendi non Opzionale'
+  }
+
+  return text[l]
+}

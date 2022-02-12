@@ -90,21 +90,24 @@ export default (theme: Theme) => {
     },
 
     {
-      selector: '.optional',
+      selector: '[?optional]',
       style: {
-        'opacity': 0.8,
+        'ghost': 'yes',
+        'ghost-offset-x': '5px',
+        'ghost-offset-y': '-5px',
+        'ghost-opacity': 0.3
       }
     },
 
     {
-      selector: 'node.optional',
+      selector: 'node[?optional]',
       style: {
         'border-style': 'dashed',
       }
     },
 
     {
-      selector: 'edge.optional',
+      selector: 'edge[?optional]',
       style: {
         "line-style": 'dashed',
       }

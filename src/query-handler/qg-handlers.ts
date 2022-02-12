@@ -7,6 +7,7 @@ import * as queryGraph from '../query-graph'
 import onNewBody from './on-new-body'
 import * as queryBody from './query-body'
 import * as GEUtility from '../util/graph-element-utility'
+import { newOptionalGraphElementId, removeOptionalGraphElementId } from '../api/api_stub'
 
 queryGraph.onAddHead(async graphElement => {
   const qgApi = QueryGraphApiFactory()
@@ -81,4 +82,22 @@ queryGraph.onElementClick((graphElement, iri) => {
   UI.entityDetails.setEntity(gscape.ontology.getEntityOccurrences(iri)[0])
   // keep focus on selected class
   queryGraph.selectElement(queryBody.getSelectedGraphElement().id)
+})
+
+queryGraph.onMakeOptional(graphElement => {
+  const qgApi = QueryGraphApiFactory()
+  const body = queryBody.getBody()
+  let newBody = newOptionalGraphElementId(graphElement.id, body)
+
+  if (newBody)
+    onNewBody(newBody)
+})
+
+queryGraph.onRemoveOptional(graphElement => {
+  const qgApi = QueryGraphApiFactory()
+  const body = queryBody.getBody()
+  let newBody = removeOptionalGraphElementId(graphElement.id, null, body)
+
+  if (newBody)
+    onNewBody(newBody)
 })
