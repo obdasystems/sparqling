@@ -720,55 +720,6 @@ export const QueryGraphApiAxiosParamCreator = function (configuration?: Configur
             };
         },
         /**
-         * Add the triple pattern(s) identified by the `graphElementId` to the optional `optionalId` - If it is a class the query parameter should be used and the triple pattern `?graphElementId rdf:type <classIRI>` will be moved from the bgp to the optional. - If it is a data property the tp `?graphElementIdVar1 <graphElementIdDataPropertyIRI> ?graphElementIdVar2` will be added to the optional. - If it is a object property the tps `?graphElementIdVar1 <graphElementIdDataPropertyIRI> ?graphElementIdVar2. ?graphElementIdVar2 rdf:type <classIRI>` will be moved to the optional.  For translating this in SPARQL remove all optionals and translate them again.
-         * @summary Add the graphElementId to the optionalId optional.
-         * @param {string} graphElementId The GraphElement that should be added to the optional
-         * @param {string} optionalId The optional where to perform the adding
-         * @param {QueryGraph} queryGraph 
-         * @param {string} [classIRI] The IRI of the class that will be inserted in the optional.
-         * @param {*} [options] Override http request option.
-         * @throws {RequiredError}
-         */
-        addOptionalGraphElementId: async (graphElementId: string, optionalId: string, queryGraph: QueryGraph, classIRI?: string, options: AxiosRequestConfig = {}): Promise<RequestArgs> => {
-            // verify required parameter 'graphElementId' is not null or undefined
-            assertParamExists('addOptionalGraphElementId', 'graphElementId', graphElementId)
-            // verify required parameter 'optionalId' is not null or undefined
-            assertParamExists('addOptionalGraphElementId', 'optionalId', optionalId)
-            // verify required parameter 'queryGraph' is not null or undefined
-            assertParamExists('addOptionalGraphElementId', 'queryGraph', queryGraph)
-            const localVarPath = `/queryGraph/node/optional/{optionalId}/add/{graphElementId}`
-                .replace(`{${"graphElementId"}}`, encodeURIComponent(String(graphElementId)))
-                .replace(`{${"optionalId"}}`, encodeURIComponent(String(optionalId)));
-            // use dummy base URL string because the URL constructor only accepts absolute URLs.
-            const localVarUrlObj = new URL(localVarPath, DUMMY_BASE_URL);
-            let baseOptions;
-            if (configuration) {
-                baseOptions = configuration.baseOptions;
-            }
-
-            const localVarRequestOptions = { method: 'PUT', ...baseOptions, ...options};
-            const localVarHeaderParameter = {} as any;
-            const localVarQueryParameter = {} as any;
-
-            if (classIRI !== undefined) {
-                localVarQueryParameter['classIRI'] = classIRI;
-            }
-
-
-    
-            localVarHeaderParameter['Content-Type'] = 'application/json';
-
-            setSearchParams(localVarUrlObj, localVarQueryParameter);
-            let headersFromBaseOptions = baseOptions && baseOptions.headers ? baseOptions.headers : {};
-            localVarRequestOptions.headers = {...localVarHeaderParameter, ...headersFromBaseOptions, ...options.headers};
-            localVarRequestOptions.data = serializeDataIfNeeded(queryGraph, localVarRequestOptions, configuration)
-
-            return {
-                url: toPathString(localVarUrlObj),
-                options: localVarRequestOptions,
-            };
-        },
-        /**
          * This path should be used to build the query graph using the path interaction. As a result there will be added to the query several triple pattern (depending on the length of the path) as a sequence of classes and object properties. Data properties never appear in paths, in order to add them use the simple PUT route.
          * @summary Get the query graph that will be rendered by Sparqling, the query head, the sparql code based on the chosen path.
          * @param {string} path Serialization of Path object.
@@ -1142,7 +1093,7 @@ export const QueryGraphApiAxiosParamCreator = function (configuration?: Configur
             };
         },
         /**
-         * Create a new optional in the query and add the triple pattern(s) identified by the GraphElementId. - If it is a class the query parameter should be used and the triple pattern `?graphElementId rdf:type <classIRI>` will be moved from the bgp to the new optional. - If it is a data property the tp `?graphElementIdVar1 <graphElementIdDataPropertyIRI> ?graphElementIdVar2` will be added to the new optional. - If it is a object property the tps `?graphElementIdVar1 <graphElementIdDataPropertyIRI> ?graphElementIdVar2. ?graphElementIdVar2 rdf:type <classIRI>` will be moved to the new optional.
+         * Create a new optional in the query and add the triple pattern(s) identified by the GraphElementId. - If it is a class the query parameter should be used and the triple pattern `?graphElementId rdf:type <classIRI>` will be moved from the bgp to the new optional. - If it is a data property the tp `?graphElementIdVar1 <graphElementIdDataPropertyIRI> ?graphElementIdVar2` will be added to the new optional. - If it is a object property the tps `?graphElementIdVar1 <graphElementIdDataPropertyIRI> ?graphElementIdVar2. ?graphElementIdVar2 rdf:type <classIRI>` till the leaves will be moved to the new optional.
          * @summary Add the `graphElementId` to a new optional.
          * @param {string} graphElementId The GraphElement that should be added to the optional
          * @param {QueryGraph} queryGraph 
@@ -1497,25 +1448,57 @@ export const QueryGraphApiAxiosParamCreator = function (configuration?: Configur
             };
         },
         /**
-         * Remove the triple pattern(s) identified by the `graphElementId` from the optional `optionalId` - If it is a class the query parameter should be used and the triple pattern `?graphElementId rdf:type <classIRI>` will be moved from the optional to the bgp. - If it is a data property the tp `?graphElementIdVar1 <graphElementIdDataPropertyIRI> ?graphElementIdVar2` will be moved from the optional to the bgp. - If it is a object property the tps `?graphElementIdVar1 <graphElementIdDataPropertyIRI> ?graphElementIdVar2. ?graphElementIdVar2 rdf:type <classIRI>` will be moved from the optional to the bgp.
-         * @summary Remove the graphElementId from the optionalId optional and move it back to the bgp.
+         * 
+         * @summary Remove the optionals and move them back to the bgp.
+         * @param {QueryGraph} queryGraph 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        removeAllOptional: async (queryGraph: QueryGraph, options: AxiosRequestConfig = {}): Promise<RequestArgs> => {
+            // verify required parameter 'queryGraph' is not null or undefined
+            assertParamExists('removeAllOptional', 'queryGraph', queryGraph)
+            const localVarPath = `/queryGraph/node/optional/remove/all`;
+            // use dummy base URL string because the URL constructor only accepts absolute URLs.
+            const localVarUrlObj = new URL(localVarPath, DUMMY_BASE_URL);
+            let baseOptions;
+            if (configuration) {
+                baseOptions = configuration.baseOptions;
+            }
+
+            const localVarRequestOptions = { method: 'PUT', ...baseOptions, ...options};
+            const localVarHeaderParameter = {} as any;
+            const localVarQueryParameter = {} as any;
+
+
+    
+            localVarHeaderParameter['Content-Type'] = 'application/json';
+
+            setSearchParams(localVarUrlObj, localVarQueryParameter);
+            let headersFromBaseOptions = baseOptions && baseOptions.headers ? baseOptions.headers : {};
+            localVarRequestOptions.headers = {...localVarHeaderParameter, ...headersFromBaseOptions, ...options.headers};
+            localVarRequestOptions.data = serializeDataIfNeeded(queryGraph, localVarRequestOptions, configuration)
+
+            return {
+                url: toPathString(localVarUrlObj),
+                options: localVarRequestOptions,
+            };
+        },
+        /**
+         * Remove the triple pattern(s) identified by the `graphElementId` from all the optional that contains the graphElementId. - If it is a class the query parameter should be used and the triple pattern `?graphElementId rdf:type <classIRI>` will be moved from the optional to the bgp. - If it is a data property the tp `?graphElementIdVar1 <graphElementIdDataPropertyIRI> ?graphElementIdVar2` will be moved from the optional to the bgp. - If it is a object property the tps `?graphElementIdVar1 <graphElementIdDataPropertyIRI> ?graphElementIdVar2. ?graphElementIdVar2 rdf:type <classIRI>` will be moved from the optional to the bgp.
+         * @summary Remove the graphElementId from the optional and move it back to the bgp.
          * @param {string} graphElementId The GraphElement that should be removed from the optional
-         * @param {string} optionalId The optional where to perform the removing
          * @param {QueryGraph} queryGraph 
          * @param {string} [classIRI] The IRI of the class that will be inserted in the optional.
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
-        removeOptionalGraphElementId: async (graphElementId: string, optionalId: string, queryGraph: QueryGraph, classIRI?: string, options: AxiosRequestConfig = {}): Promise<RequestArgs> => {
+        removeOptionalGraphElementId: async (graphElementId: string, queryGraph: QueryGraph, classIRI?: string, options: AxiosRequestConfig = {}): Promise<RequestArgs> => {
             // verify required parameter 'graphElementId' is not null or undefined
             assertParamExists('removeOptionalGraphElementId', 'graphElementId', graphElementId)
-            // verify required parameter 'optionalId' is not null or undefined
-            assertParamExists('removeOptionalGraphElementId', 'optionalId', optionalId)
             // verify required parameter 'queryGraph' is not null or undefined
             assertParamExists('removeOptionalGraphElementId', 'queryGraph', queryGraph)
-            const localVarPath = `/queryGraph/node/optional/{optionalId}/remove/{graphElementId}`
-                .replace(`{${"graphElementId"}}`, encodeURIComponent(String(graphElementId)))
-                .replace(`{${"optionalId"}}`, encodeURIComponent(String(optionalId)));
+            const localVarPath = `/queryGraph/node/optional/remove/{graphElementId}`
+                .replace(`{${"graphElementId"}}`, encodeURIComponent(String(graphElementId)));
             // use dummy base URL string because the URL constructor only accepts absolute URLs.
             const localVarUrlObj = new URL(localVarPath, DUMMY_BASE_URL);
             let baseOptions;
@@ -1605,20 +1588,6 @@ export const QueryGraphApiFp = function(configuration?: Configuration) {
          */
         async addHeadTerm(graphElementId: string, queryGraph: QueryGraph, options?: AxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<QueryGraph>> {
             const localVarAxiosArgs = await localVarAxiosParamCreator.addHeadTerm(graphElementId, queryGraph, options);
-            return createRequestFunction(localVarAxiosArgs, globalAxios, BASE_PATH, configuration);
-        },
-        /**
-         * Add the triple pattern(s) identified by the `graphElementId` to the optional `optionalId` - If it is a class the query parameter should be used and the triple pattern `?graphElementId rdf:type <classIRI>` will be moved from the bgp to the optional. - If it is a data property the tp `?graphElementIdVar1 <graphElementIdDataPropertyIRI> ?graphElementIdVar2` will be added to the optional. - If it is a object property the tps `?graphElementIdVar1 <graphElementIdDataPropertyIRI> ?graphElementIdVar2. ?graphElementIdVar2 rdf:type <classIRI>` will be moved to the optional.  For translating this in SPARQL remove all optionals and translate them again.
-         * @summary Add the graphElementId to the optionalId optional.
-         * @param {string} graphElementId The GraphElement that should be added to the optional
-         * @param {string} optionalId The optional where to perform the adding
-         * @param {QueryGraph} queryGraph 
-         * @param {string} [classIRI] The IRI of the class that will be inserted in the optional.
-         * @param {*} [options] Override http request option.
-         * @throws {RequiredError}
-         */
-        async addOptionalGraphElementId(graphElementId: string, optionalId: string, queryGraph: QueryGraph, classIRI?: string, options?: AxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<QueryGraph>> {
-            const localVarAxiosArgs = await localVarAxiosParamCreator.addOptionalGraphElementId(graphElementId, optionalId, queryGraph, classIRI, options);
             return createRequestFunction(localVarAxiosArgs, globalAxios, BASE_PATH, configuration);
         },
         /**
@@ -1730,7 +1699,7 @@ export const QueryGraphApiFp = function(configuration?: Configuration) {
             return createRequestFunction(localVarAxiosArgs, globalAxios, BASE_PATH, configuration);
         },
         /**
-         * Create a new optional in the query and add the triple pattern(s) identified by the GraphElementId. - If it is a class the query parameter should be used and the triple pattern `?graphElementId rdf:type <classIRI>` will be moved from the bgp to the new optional. - If it is a data property the tp `?graphElementIdVar1 <graphElementIdDataPropertyIRI> ?graphElementIdVar2` will be added to the new optional. - If it is a object property the tps `?graphElementIdVar1 <graphElementIdDataPropertyIRI> ?graphElementIdVar2. ?graphElementIdVar2 rdf:type <classIRI>` will be moved to the new optional.
+         * Create a new optional in the query and add the triple pattern(s) identified by the GraphElementId. - If it is a class the query parameter should be used and the triple pattern `?graphElementId rdf:type <classIRI>` will be moved from the bgp to the new optional. - If it is a data property the tp `?graphElementIdVar1 <graphElementIdDataPropertyIRI> ?graphElementIdVar2` will be added to the new optional. - If it is a object property the tps `?graphElementIdVar1 <graphElementIdDataPropertyIRI> ?graphElementIdVar2. ?graphElementIdVar2 rdf:type <classIRI>` till the leaves will be moved to the new optional.
          * @summary Add the `graphElementId` to a new optional.
          * @param {string} graphElementId The GraphElement that should be added to the optional
          * @param {QueryGraph} queryGraph 
@@ -1825,17 +1794,27 @@ export const QueryGraphApiFp = function(configuration?: Configuration) {
             return createRequestFunction(localVarAxiosArgs, globalAxios, BASE_PATH, configuration);
         },
         /**
-         * Remove the triple pattern(s) identified by the `graphElementId` from the optional `optionalId` - If it is a class the query parameter should be used and the triple pattern `?graphElementId rdf:type <classIRI>` will be moved from the optional to the bgp. - If it is a data property the tp `?graphElementIdVar1 <graphElementIdDataPropertyIRI> ?graphElementIdVar2` will be moved from the optional to the bgp. - If it is a object property the tps `?graphElementIdVar1 <graphElementIdDataPropertyIRI> ?graphElementIdVar2. ?graphElementIdVar2 rdf:type <classIRI>` will be moved from the optional to the bgp.
-         * @summary Remove the graphElementId from the optionalId optional and move it back to the bgp.
+         * 
+         * @summary Remove the optionals and move them back to the bgp.
+         * @param {QueryGraph} queryGraph 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        async removeAllOptional(queryGraph: QueryGraph, options?: AxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<QueryGraph>> {
+            const localVarAxiosArgs = await localVarAxiosParamCreator.removeAllOptional(queryGraph, options);
+            return createRequestFunction(localVarAxiosArgs, globalAxios, BASE_PATH, configuration);
+        },
+        /**
+         * Remove the triple pattern(s) identified by the `graphElementId` from all the optional that contains the graphElementId. - If it is a class the query parameter should be used and the triple pattern `?graphElementId rdf:type <classIRI>` will be moved from the optional to the bgp. - If it is a data property the tp `?graphElementIdVar1 <graphElementIdDataPropertyIRI> ?graphElementIdVar2` will be moved from the optional to the bgp. - If it is a object property the tps `?graphElementIdVar1 <graphElementIdDataPropertyIRI> ?graphElementIdVar2. ?graphElementIdVar2 rdf:type <classIRI>` will be moved from the optional to the bgp.
+         * @summary Remove the graphElementId from the optional and move it back to the bgp.
          * @param {string} graphElementId The GraphElement that should be removed from the optional
-         * @param {string} optionalId The optional where to perform the removing
          * @param {QueryGraph} queryGraph 
          * @param {string} [classIRI] The IRI of the class that will be inserted in the optional.
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
-        async removeOptionalGraphElementId(graphElementId: string, optionalId: string, queryGraph: QueryGraph, classIRI?: string, options?: AxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<QueryGraph>> {
-            const localVarAxiosArgs = await localVarAxiosParamCreator.removeOptionalGraphElementId(graphElementId, optionalId, queryGraph, classIRI, options);
+        async removeOptionalGraphElementId(graphElementId: string, queryGraph: QueryGraph, classIRI?: string, options?: AxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<QueryGraph>> {
+            const localVarAxiosArgs = await localVarAxiosParamCreator.removeOptionalGraphElementId(graphElementId, queryGraph, classIRI, options);
             return createRequestFunction(localVarAxiosArgs, globalAxios, BASE_PATH, configuration);
         },
         /**
@@ -1870,19 +1849,6 @@ export const QueryGraphApiFactory = function (configuration?: Configuration, bas
          */
         addHeadTerm(graphElementId: string, queryGraph: QueryGraph, options?: any): AxiosPromise<QueryGraph> {
             return localVarFp.addHeadTerm(graphElementId, queryGraph, options).then((request) => request(axios, basePath));
-        },
-        /**
-         * Add the triple pattern(s) identified by the `graphElementId` to the optional `optionalId` - If it is a class the query parameter should be used and the triple pattern `?graphElementId rdf:type <classIRI>` will be moved from the bgp to the optional. - If it is a data property the tp `?graphElementIdVar1 <graphElementIdDataPropertyIRI> ?graphElementIdVar2` will be added to the optional. - If it is a object property the tps `?graphElementIdVar1 <graphElementIdDataPropertyIRI> ?graphElementIdVar2. ?graphElementIdVar2 rdf:type <classIRI>` will be moved to the optional.  For translating this in SPARQL remove all optionals and translate them again.
-         * @summary Add the graphElementId to the optionalId optional.
-         * @param {string} graphElementId The GraphElement that should be added to the optional
-         * @param {string} optionalId The optional where to perform the adding
-         * @param {QueryGraph} queryGraph 
-         * @param {string} [classIRI] The IRI of the class that will be inserted in the optional.
-         * @param {*} [options] Override http request option.
-         * @throws {RequiredError}
-         */
-        addOptionalGraphElementId(graphElementId: string, optionalId: string, queryGraph: QueryGraph, classIRI?: string, options?: any): AxiosPromise<QueryGraph> {
-            return localVarFp.addOptionalGraphElementId(graphElementId, optionalId, queryGraph, classIRI, options).then((request) => request(axios, basePath));
         },
         /**
          * This path should be used to build the query graph using the path interaction. As a result there will be added to the query several triple pattern (depending on the length of the path) as a sequence of classes and object properties. Data properties never appear in paths, in order to add them use the simple PUT route.
@@ -1984,7 +1950,7 @@ export const QueryGraphApiFactory = function (configuration?: Configuration, bas
             return localVarFp.limitQueryGraph(limit, queryGraph, options).then((request) => request(axios, basePath));
         },
         /**
-         * Create a new optional in the query and add the triple pattern(s) identified by the GraphElementId. - If it is a class the query parameter should be used and the triple pattern `?graphElementId rdf:type <classIRI>` will be moved from the bgp to the new optional. - If it is a data property the tp `?graphElementIdVar1 <graphElementIdDataPropertyIRI> ?graphElementIdVar2` will be added to the new optional. - If it is a object property the tps `?graphElementIdVar1 <graphElementIdDataPropertyIRI> ?graphElementIdVar2. ?graphElementIdVar2 rdf:type <classIRI>` will be moved to the new optional.
+         * Create a new optional in the query and add the triple pattern(s) identified by the GraphElementId. - If it is a class the query parameter should be used and the triple pattern `?graphElementId rdf:type <classIRI>` will be moved from the bgp to the new optional. - If it is a data property the tp `?graphElementIdVar1 <graphElementIdDataPropertyIRI> ?graphElementIdVar2` will be added to the new optional. - If it is a object property the tps `?graphElementIdVar1 <graphElementIdDataPropertyIRI> ?graphElementIdVar2. ?graphElementIdVar2 rdf:type <classIRI>` till the leaves will be moved to the new optional.
          * @summary Add the `graphElementId` to a new optional.
          * @param {string} graphElementId The GraphElement that should be added to the optional
          * @param {QueryGraph} queryGraph 
@@ -2072,17 +2038,26 @@ export const QueryGraphApiFactory = function (configuration?: Configuration, bas
             return localVarFp.putQueryGraphObjectProperty(graphElementId, sourceClassIRI, predicateIRI, targetClassIRI, isPredicateDirect, queryGraph, options).then((request) => request(axios, basePath));
         },
         /**
-         * Remove the triple pattern(s) identified by the `graphElementId` from the optional `optionalId` - If it is a class the query parameter should be used and the triple pattern `?graphElementId rdf:type <classIRI>` will be moved from the optional to the bgp. - If it is a data property the tp `?graphElementIdVar1 <graphElementIdDataPropertyIRI> ?graphElementIdVar2` will be moved from the optional to the bgp. - If it is a object property the tps `?graphElementIdVar1 <graphElementIdDataPropertyIRI> ?graphElementIdVar2. ?graphElementIdVar2 rdf:type <classIRI>` will be moved from the optional to the bgp.
-         * @summary Remove the graphElementId from the optionalId optional and move it back to the bgp.
+         * 
+         * @summary Remove the optionals and move them back to the bgp.
+         * @param {QueryGraph} queryGraph 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        removeAllOptional(queryGraph: QueryGraph, options?: any): AxiosPromise<QueryGraph> {
+            return localVarFp.removeAllOptional(queryGraph, options).then((request) => request(axios, basePath));
+        },
+        /**
+         * Remove the triple pattern(s) identified by the `graphElementId` from all the optional that contains the graphElementId. - If it is a class the query parameter should be used and the triple pattern `?graphElementId rdf:type <classIRI>` will be moved from the optional to the bgp. - If it is a data property the tp `?graphElementIdVar1 <graphElementIdDataPropertyIRI> ?graphElementIdVar2` will be moved from the optional to the bgp. - If it is a object property the tps `?graphElementIdVar1 <graphElementIdDataPropertyIRI> ?graphElementIdVar2. ?graphElementIdVar2 rdf:type <classIRI>` will be moved from the optional to the bgp.
+         * @summary Remove the graphElementId from the optional and move it back to the bgp.
          * @param {string} graphElementId The GraphElement that should be removed from the optional
-         * @param {string} optionalId The optional where to perform the removing
          * @param {QueryGraph} queryGraph 
          * @param {string} [classIRI] The IRI of the class that will be inserted in the optional.
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
-        removeOptionalGraphElementId(graphElementId: string, optionalId: string, queryGraph: QueryGraph, classIRI?: string, options?: any): AxiosPromise<QueryGraph> {
-            return localVarFp.removeOptionalGraphElementId(graphElementId, optionalId, queryGraph, classIRI, options).then((request) => request(axios, basePath));
+        removeOptionalGraphElementId(graphElementId: string, queryGraph: QueryGraph, classIRI?: string, options?: any): AxiosPromise<QueryGraph> {
+            return localVarFp.removeOptionalGraphElementId(graphElementId, queryGraph, classIRI, options).then((request) => request(axios, basePath));
         },
         /**
          * Put the alias in the HeadElement passed via request body.
@@ -2116,21 +2091,6 @@ export class QueryGraphApi extends BaseAPI {
      */
     public addHeadTerm(graphElementId: string, queryGraph: QueryGraph, options?: AxiosRequestConfig) {
         return QueryGraphApiFp(this.configuration).addHeadTerm(graphElementId, queryGraph, options).then((request) => request(this.axios, this.basePath));
-    }
-
-    /**
-     * Add the triple pattern(s) identified by the `graphElementId` to the optional `optionalId` - If it is a class the query parameter should be used and the triple pattern `?graphElementId rdf:type <classIRI>` will be moved from the bgp to the optional. - If it is a data property the tp `?graphElementIdVar1 <graphElementIdDataPropertyIRI> ?graphElementIdVar2` will be added to the optional. - If it is a object property the tps `?graphElementIdVar1 <graphElementIdDataPropertyIRI> ?graphElementIdVar2. ?graphElementIdVar2 rdf:type <classIRI>` will be moved to the optional.  For translating this in SPARQL remove all optionals and translate them again.
-     * @summary Add the graphElementId to the optionalId optional.
-     * @param {string} graphElementId The GraphElement that should be added to the optional
-     * @param {string} optionalId The optional where to perform the adding
-     * @param {QueryGraph} queryGraph 
-     * @param {string} [classIRI] The IRI of the class that will be inserted in the optional.
-     * @param {*} [options] Override http request option.
-     * @throws {RequiredError}
-     * @memberof QueryGraphApi
-     */
-    public addOptionalGraphElementId(graphElementId: string, optionalId: string, queryGraph: QueryGraph, classIRI?: string, options?: AxiosRequestConfig) {
-        return QueryGraphApiFp(this.configuration).addOptionalGraphElementId(graphElementId, optionalId, queryGraph, classIRI, options).then((request) => request(this.axios, this.basePath));
     }
 
     /**
@@ -2251,7 +2211,7 @@ export class QueryGraphApi extends BaseAPI {
     }
 
     /**
-     * Create a new optional in the query and add the triple pattern(s) identified by the GraphElementId. - If it is a class the query parameter should be used and the triple pattern `?graphElementId rdf:type <classIRI>` will be moved from the bgp to the new optional. - If it is a data property the tp `?graphElementIdVar1 <graphElementIdDataPropertyIRI> ?graphElementIdVar2` will be added to the new optional. - If it is a object property the tps `?graphElementIdVar1 <graphElementIdDataPropertyIRI> ?graphElementIdVar2. ?graphElementIdVar2 rdf:type <classIRI>` will be moved to the new optional.
+     * Create a new optional in the query and add the triple pattern(s) identified by the GraphElementId. - If it is a class the query parameter should be used and the triple pattern `?graphElementId rdf:type <classIRI>` will be moved from the bgp to the new optional. - If it is a data property the tp `?graphElementIdVar1 <graphElementIdDataPropertyIRI> ?graphElementIdVar2` will be added to the new optional. - If it is a object property the tps `?graphElementIdVar1 <graphElementIdDataPropertyIRI> ?graphElementIdVar2. ?graphElementIdVar2 rdf:type <classIRI>` till the leaves will be moved to the new optional.
      * @summary Add the `graphElementId` to a new optional.
      * @param {string} graphElementId The GraphElement that should be added to the optional
      * @param {QueryGraph} queryGraph 
@@ -2353,18 +2313,29 @@ export class QueryGraphApi extends BaseAPI {
     }
 
     /**
-     * Remove the triple pattern(s) identified by the `graphElementId` from the optional `optionalId` - If it is a class the query parameter should be used and the triple pattern `?graphElementId rdf:type <classIRI>` will be moved from the optional to the bgp. - If it is a data property the tp `?graphElementIdVar1 <graphElementIdDataPropertyIRI> ?graphElementIdVar2` will be moved from the optional to the bgp. - If it is a object property the tps `?graphElementIdVar1 <graphElementIdDataPropertyIRI> ?graphElementIdVar2. ?graphElementIdVar2 rdf:type <classIRI>` will be moved from the optional to the bgp.
-     * @summary Remove the graphElementId from the optionalId optional and move it back to the bgp.
+     * 
+     * @summary Remove the optionals and move them back to the bgp.
+     * @param {QueryGraph} queryGraph 
+     * @param {*} [options] Override http request option.
+     * @throws {RequiredError}
+     * @memberof QueryGraphApi
+     */
+    public removeAllOptional(queryGraph: QueryGraph, options?: AxiosRequestConfig) {
+        return QueryGraphApiFp(this.configuration).removeAllOptional(queryGraph, options).then((request) => request(this.axios, this.basePath));
+    }
+
+    /**
+     * Remove the triple pattern(s) identified by the `graphElementId` from all the optional that contains the graphElementId. - If it is a class the query parameter should be used and the triple pattern `?graphElementId rdf:type <classIRI>` will be moved from the optional to the bgp. - If it is a data property the tp `?graphElementIdVar1 <graphElementIdDataPropertyIRI> ?graphElementIdVar2` will be moved from the optional to the bgp. - If it is a object property the tps `?graphElementIdVar1 <graphElementIdDataPropertyIRI> ?graphElementIdVar2. ?graphElementIdVar2 rdf:type <classIRI>` will be moved from the optional to the bgp.
+     * @summary Remove the graphElementId from the optional and move it back to the bgp.
      * @param {string} graphElementId The GraphElement that should be removed from the optional
-     * @param {string} optionalId The optional where to perform the removing
      * @param {QueryGraph} queryGraph 
      * @param {string} [classIRI] The IRI of the class that will be inserted in the optional.
      * @param {*} [options] Override http request option.
      * @throws {RequiredError}
      * @memberof QueryGraphApi
      */
-    public removeOptionalGraphElementId(graphElementId: string, optionalId: string, queryGraph: QueryGraph, classIRI?: string, options?: AxiosRequestConfig) {
-        return QueryGraphApiFp(this.configuration).removeOptionalGraphElementId(graphElementId, optionalId, queryGraph, classIRI, options).then((request) => request(this.axios, this.basePath));
+    public removeOptionalGraphElementId(graphElementId: string, queryGraph: QueryGraph, classIRI?: string, options?: AxiosRequestConfig) {
+        return QueryGraphApiFp(this.configuration).removeOptionalGraphElementId(graphElementId, queryGraph, classIRI, options).then((request) => request(this.axios, this.basePath));
     }
 
     /**
