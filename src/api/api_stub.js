@@ -815,3 +815,36 @@ export function putQueryGraphNodeDataProperty(ontologyName, ontologyVersion, gra
 
   }
 }
+
+export function newOptionalGraphElementId(graphElementId, queryGraph, classIri = '') {
+  if (graphElementId !== 'PizzaBase0' || !queryGraph) {
+    throw Error('Out of the stub!!!')
+  }
+  queryGraph.optionals = [
+    {
+      id: 0,
+      graphIds: [
+        'PizzaBase0', 'depth0', 'Food0'
+      ]
+    }
+  ]
+
+  return queryGraph
+}
+
+export function removeOptionalGraphElementId(graphElementId, optionalId, queryGraph, classIri = '') {
+  if (graphElementId === 'PizzaBase0' || graphElementId === 'depth0' || graphElementId === 'Food0') {
+    let optToDelete = queryGraph.optionals.filter(opt => opt.graphIds.includes(graphElementId))
+
+    optToDelete.forEach(opt => {
+      queryGraph.optionals.splice(queryGraph.optionals.indexOf(opt), 1)
+    })
+    
+
+    return queryGraph
+  } 
+
+  throw Error('Out of the stub!!!')
+
+  return queryGraph
+}
