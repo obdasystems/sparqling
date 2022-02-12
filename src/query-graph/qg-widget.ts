@@ -1,6 +1,6 @@
 import { UI } from 'grapholscape'
 import { html, css } from 'lit'
-import { rdfLogo } from '../../widgets/assets/icons'
+import { rdfLogo } from '../widgets/assets/icons'
 
 const { GscapeWidget, GscapeHeader } = UI
 /**

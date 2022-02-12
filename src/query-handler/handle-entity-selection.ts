@@ -137,5 +137,5 @@ function getInitialInfo(cyEntity: CollectionReturnValue) {
   clickedIRI = cyEntity.data('iri').fullIri
   //selectedGraphElement = queryGraph.getSelectedGraphElement()
   isIriHighlighted = ontologyGraph.isHighlighted(clickedIRI)
-  iriInQueryGraph = queryGraph.iriInQueryGraph(clickedIRI)
+  iriInQueryGraph = queryGraph.isIriInQueryGraph(clickedIRI)
 }

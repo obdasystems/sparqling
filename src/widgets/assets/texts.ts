@@ -53,3 +53,30 @@ export const classSelectDialogTitle = (l = lang) => {
 
   return text[l]
 }
+
+export const commandAddHeadText = (l = lang) => {
+  const text = {
+    en: 'Add to Query Head',
+    it: 'Aggiungi in Query Head'
+  }
+
+  return text[l]
+}
+
+export const commandDeleteText = (l = lang) => {
+  const text = {
+    en: 'Delete',
+    it: 'Elimina'
+  }
+
+  return text[l]
+}
+
+export const commandAddFilterText = (l = lang) => {
+  const text = {
+    en: 'Add Filter',
+    it: 'Aggiungi Filtro'
+  }
+
+  return text[l]
+}

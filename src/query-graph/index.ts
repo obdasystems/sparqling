@@ -1,20 +1,21 @@
-import { qgWidget, bgp } from "./widget"
-import { DisplayedNameType } from "./displayed-name-type"
-import * as GEUtility from "../util/graph-element-utility"
-import { GraphElement, EntityTypeEnum } from "../api/swagger"
-import { Theme } from "grapholscape"
-import { CollectionReturnValue } from "cytoscape"
+import { GraphElement } from "../api/swagger"
 import centerOnElement from "../util/center-on-element"
+import { bgpContainer } from "../util/get-container"
+import * as GEUtility from "../util/graph-element-utility"
+import QueryGraphWidget from "./qg-widget"
+import * as bgp from "./renderer"
 
-export { qgWidget as widget }
+export { setLanguage } from './renderer'
+export * from './renderer/setters'
+export const widget = new QueryGraphWidget(bgpContainer)
 
 // inject tests for allowing joins into renderer, keep renderer logic agnostic
-bgp.canStartJoin = nodeID => GEUtility.canStartJoin(GEUtility.getGraphElementByID(nodeID))
-bgp.isJoinAllowed = (node1ID, node2ID) => {
+bgp.setJoinStartCondition((nodeID: string) => GEUtility.canStartJoin(GEUtility.getGraphElementByID(nodeID)))
+bgp.setJoinAllowedCondition((node1ID, node2ID) => {
   let ge1 = GEUtility.getGraphElementByID(node1ID)
   let ge2 = GEUtility.getGraphElementByID(node2ID)
   return GEUtility.isJoinAllowed(ge1, ge2)
-}
+})
 
 let graph: GraphElement
 
@@ -51,7 +52,7 @@ export function render(graphElem: GraphElement, parent?: GraphElement, objectPro
 // remove elements not in query anymore, asynchronously
 export function removeNodesNotInQuery() {
   setTimeout(() => {
-    bgp.elements.forEach( elem => {
+    bgp.getElements().forEach( elem => {
       if ( elem.data('displayed_name') && !GEUtility.getGraphElementByID(elem.id())) {
         /**
          * remove it if elem is:
@@ -71,7 +72,7 @@ export function centerOnElem(graphElem: GraphElement) {
 }
 
 export function getSelectedGraphElement() {
-  return GEUtility.getGraphElementByID(bgp.elements.filter('.sparqling-selected')[0]?.id())
+  return GEUtility.getGraphElementByID(bgp.getElements().filter('.sparqling-selected')[0]?.id())
 }
 
 // ******************************* GRAPH INTERACTION CALLBACKS ******************************* //
@@ -92,21 +93,11 @@ export function onJoin(callback: (graphElem1: GraphElement, graphElem2: GraphEle
 }
 
 export function onElementClick(callback: (graphElem: GraphElement, iri: string) => void) {
-  bgp.onElemSelect((id, iri) => callback(GEUtility.getGraphElementByID(id), iri))
+  bgp.onElementClick((id, iri) => callback(GEUtility.getGraphElementByID(id), iri))
 }
-// ********************************************************************************************* //
-
-export function setDisplayedNameType(newDisplayedNameType: string, language: string) {
-  bgp.setDisplayedNameType(DisplayedNameType[newDisplayedNameType], language)
-}
-
-export function setLanguage(newLanguage: string) {
-  bgp.setDisplayedNameType(DisplayedNameType.label, newLanguage)
-}
-
-export function setTheme(newTheme: Theme) {
-  bgp.theme = newTheme
-}
+// export function setTheme(newTheme: Theme) {
+//   bgp.theme = newTheme
+// }
 
 export function setGraph(newGraph: GraphElement) {
   graph = newGraph
@@ -114,6 +105,6 @@ export function setGraph(newGraph: GraphElement) {
 
 export function getGraph() { return graph }
 
-export function iriInQueryGraph(iri: string): boolean {
+export function isIriInQueryGraph(iri: string): boolean {
   return GEUtility.getGraphElementByIRI(iri) ? true : false
 }

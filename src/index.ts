@@ -5,6 +5,7 @@ import * as ontologyGraph from './ontology-graph'
 import { refreshHighlights } from './ontology-graph'
 import sparqlingStyle from './ontology-graph/style'
 import * as queryGraph from './query-graph'
+import { DisplayedNameType } from './query-graph/displayed-name-type'
 import './query-handler'
 import { onEntitySelection } from './query-handler'
 import * as queryHead from './query-head'
@@ -23,7 +24,7 @@ export default function sparqling(gscape: Grapholscape, file?: string | File, is
   uiContainer.appendChild(sparqlDialog)
 
   gscape.onLanguageChange((newLanguage: string) => queryGraph.setLanguage(newLanguage))
-  gscape.onEntityNameTypeChange((newNameType: string) => {
+  gscape.onEntityNameTypeChange((newNameType: DisplayedNameType) => {
     queryGraph.setDisplayedNameType(newNameType, gscape.languages.selected)
   })
 
