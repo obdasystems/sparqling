@@ -36,11 +36,17 @@ export default class HeadElementComponent extends UI.GscapeWidget {
   private toggleBodyButton: UI.GscapeButton
   public localizeButton: UI.GscapeButton
 
-  static properties = {
-    alias: { attribute: false },
-    graphElementId: { attribute: false },
-    function: { attribute: false },
-    _entityType: { type: String },
+  static get properties() {
+    let props = super.properties
+
+    let new_props = {
+      alias: { attribute: false },
+      graphElementId: { attribute: false },
+      function: { attribute: false },
+      _entityType: { type: String },
+    }
+    
+    return Object.assign(new_props, props)
   }
 
   static get styles() {
