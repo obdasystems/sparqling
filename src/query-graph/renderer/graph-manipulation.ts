@@ -147,7 +147,7 @@ function getDataObj(graphElement: GraphElement, i = null) {
   let data = graphElement.entities[i || 0] as any
   if (i !== null) {
     data.parent = graphElement.id
-    data.id = data.iri
+    data.id = `${graphElement.id}-${data.iri}`
   } else {
     data.id = graphElement.id
   }
