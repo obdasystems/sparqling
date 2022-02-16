@@ -1,11 +1,11 @@
 import { CollectionReturnValue } from "cytoscape"
 import { Type } from "grapholscape"
-import { QueryGraphApiFactory } from "../api/swagger"
+import { GraphElement, QueryGraphApiFactory } from "../api/swagger"
 import { EntityTypeEnum, QueryGraph } from "../api/swagger"
 import * as ontologyGraph from "../ontology-graph"
 import getGscape from "../ontology-graph/get-gscape"
 import * as queryGraph from "../query-graph"
-import { graphElementHasIri, isClass } from "../util/graph-element-utility"
+import { getdiffNew, graphElementHasIri, isClass } from "../util/graph-element-utility"
 import * as queryBody from "./query-body"
 import onNewBody from "./on-new-body"
 import { getIri } from '../util/graph-element-utility'
@@ -24,7 +24,13 @@ export async function onEntitySelection(cyEntity: CollectionReturnValue) {
   let clickedIRI = cyEntity.data('iri').fullIri
   const selectedGraphElement = queryBody.getSelectedGraphElement()
 
-  if (getIri(selectedGraphElement) === clickedIRI) return
+  if (graphElementHasIri(selectedGraphElement, clickedIRI)) {
+    if (!ontologyGraph.isIriSelected(clickedIRI)) {
+      ontologyGraph.resetHighlights()
+      ontologyGraph.highlightSuggestions(clickedIRI)
+    }
+    return
+  }
 
   let gscape = getGscape()
   let newBody: QueryGraph = null
@@ -38,11 +44,17 @@ export async function onEntitySelection(cyEntity: CollectionReturnValue) {
     }
     case CONCEPT: {
       newBody = await handleConceptSelection(cyEntity)
+
+      let newGraphElements: GraphElement[] = []
       if (newBody) {
+        newGraphElements = getdiffNew(queryBody.getBody()?.graph, newBody.graph)
         onNewBody(newBody)
       }
 
-      queryBody.setSelectedGraphElement(queryGraph.selectElement(clickedIRI))
+      const newSelectedGraphElement = newGraphElements.find(ge => graphElementHasIri(ge, clickedIRI))
+      if (newSelectedGraphElement)
+        queryBody.setSelectedGraphElement(queryGraph.selectElement(newSelectedGraphElement.id))
+
       ontologyGraph.resetHighlights()
       ontologyGraph.highlightSuggestions(clickedIRI)
       break
@@ -87,27 +99,25 @@ async function handleConceptSelection(cyEntity: CollectionReturnValue): Promise<
   }
 
   let selectedGraphElement = queryBody.getSelectedGraphElement()
-  if (!graphElementHasIri(selectedGraphElement, clickedIRI)) {
-    try {
-      if (lastObjProperty) {
-        // this comes after a selection of a object property
-        newQueryGraph = (await qgApi.putQueryGraphObjectProperty(
-          selectedGraphElement.id, "", lastObjProperty.data('iri').fullIri, clickedIRI,
-          lastObjProperty['direct'],
-          actualBody
-        )).data
+  try {
+    if (lastObjProperty) {
+      // this comes after a selection of a object property
+      newQueryGraph = (await qgApi.putQueryGraphObjectProperty(
+        selectedGraphElement.id, "", lastObjProperty.data('iri').fullIri, clickedIRI,
+        lastObjProperty['direct'],
+        actualBody
+      )).data
 
-      } else if (actualBody?.graph && isIriHighlighted) {
-        newQueryGraph = (await qgApi.putQueryGraphClass(
-          selectedGraphElement.id, '',
-          clickedIRI,
-          actualBody)).data
-      } else if (!actualBody?.graph) {
-        // initial selection
-        newQueryGraph = (await qgApi.getQueryGraph(clickedIRI)).data
-      }
-    } catch (error) { console.error(error) }
-  }
+    } else if (actualBody?.graph && isIriHighlighted) {
+      newQueryGraph = (await qgApi.putQueryGraphClass(
+        selectedGraphElement.id, '',
+        clickedIRI,
+        actualBody)).data
+    } else if (!actualBody?.graph) {
+      // initial selection
+      newQueryGraph = (await qgApi.getQueryGraph(clickedIRI)).data
+    }
+  } catch (error) { console.error(error) }
   lastObjProperty = null
   return newQueryGraph
 }

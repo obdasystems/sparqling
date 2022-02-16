@@ -19,7 +19,7 @@ export function getGraphElementByIRI(iri: string) {
  */
 export function findGraphElement(graph: GraphElement, test: (elem: GraphElement) => boolean): GraphElement {
   if (!graph) return null
-  
+
   if (test(graph)) return graph
 
   if (graph.children) {
@@ -45,7 +45,7 @@ export function getEntityType(elem: GraphElement): EntityTypeEnum {
 }
 
 export function graphElementHasIri(elem: GraphElement, iri: string) {
-  return elem?.entities?.some( (entity: Entity) => {
+  return elem?.entities?.some((entity: Entity) => {
     return entity.iri === iri || entity.prefixedIri === iri
   })
 }
@@ -74,4 +74,23 @@ export function isDataProperty(graphElement: GraphElement) {
 
 export function isObjectProperty(graphElement: GraphElement) {
   return getEntityType(graphElement) === EntityTypeEnum.ObjectProperty
+}
+
+/**
+ * Return a set of GraphElements which are present in newGraph and not in oldGraph
+ */
+export function getdiffNew(oldGraph: GraphElement, newGraph: GraphElement, result = []): GraphElement[] {
+  if (!oldGraph) return [newGraph]
+
+  let res = findGraphElement(oldGraph, e => e.id === newGraph.id && e.entities === newGraph.entities)
+  if (!res) result.push(newGraph)
+
+  if (newGraph?.children) {
+    for (let graphElement of newGraph.children) {
+      let res2 = getdiffNew(oldGraph, graphElement, result)
+      if (res2) result
+    }
+  }
+
+  return result
 }

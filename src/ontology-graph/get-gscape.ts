@@ -1,6 +1,4 @@
-import { StylesheetStyle } from 'cytoscape'
 import { Grapholscape } from 'grapholscape'
-import sparqlingStyle from './style'
 
 let gscape: Grapholscape
 
@@ -14,4 +12,9 @@ export function clearSelected() {
   gscape.ontology.diagrams.forEach((diagram: any) => {
     diagram.unselectAll()
   })
+}
+
+export function isIriSelected(iri: string) {
+  let sparqlingSelectedIri = gscape.renderer.cy.$('.sparqling-selected').data().iri
+  return sparqlingSelectedIri.full === iri || sparqlingSelectedIri.prefixed === iri
 }
