@@ -30,7 +30,7 @@
     "@types/jest": "^27.0.3",
     "cpy-cli": "^3.1.1",
     "cross-env": "^7.0.3",
-    "grapholscape": "git+https://github.com/obdasystems/grapholscape.git#develop",
+    "grapholscape": "^2.0.0",
     "local-web-server": "^5.1.1",
     "npm-run-all": "^4.1.5",
     "rimraf": "^3.0.2",
@@ -51,6 +51,6 @@
     "cytoscape-klay": "^3.1.4"
   },
   "peerDependencies": {
-    "grapholscape": "git+https://github.com/obdasystems/grapholscape.git#develop"
+    "grapholscape": "^2.0.0"
   }
 }
