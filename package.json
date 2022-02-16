@@ -4,7 +4,7 @@
   "description": "",
   "main": "dist/sparlqing.js",
   "scripts": {
-    "build": "run-p serve watch:build",
+    "start": "run-p serve watch:build",
     "watch:build": "cross-env NODE_ENV=development FILE=main BABEL=false rollup -c -w",
     "serve": "ws -o",
     "apigen": "openapi-generator-cli generate -g typescript-axios -o ./src/api/swagger -i https://api.swaggerhub.com/apis/OBDASystems/swagger-sparqling_ws/1.0.0"
