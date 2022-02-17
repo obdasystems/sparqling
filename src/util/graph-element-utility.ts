@@ -40,6 +40,16 @@ export function getIri(elem: GraphElement, i = 0): string {
   return elem?.entities[i]?.iri
 }
 
+/**
+ * Get the prefixed iri of an entity contained in a GraphElement
+ * @param elem the GraphElement to extract IRI from
+ * @param i the entity index in the array, default first one
+ * @returns 
+ */
+ export function getPrefixedIri(elem: GraphElement, i = 0): string {
+  return elem?.entities[i]?.prefixedIri
+}
+
 export function getEntityType(elem: GraphElement): EntityTypeEnum {
   return elem?.entities[0]?.type
 }
