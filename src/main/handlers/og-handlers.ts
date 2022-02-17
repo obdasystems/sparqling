@@ -22,7 +22,7 @@ export async function handleEntitySelection(cyEntity: CollectionReturnValue) {
   let clickedIRI = cyEntity.data('iri').fullIri
   const selectedGraphElement = queryBody.getSelectedGraphElement()
 
-  if (graphElementHasIri(selectedGraphElement, clickedIRI)) {
+  if (graphElementHasIri(selectedGraphElement, clickedIRI) && !lastObjProperty) {
     if (!ontologyGraph.isIriSelected(clickedIRI)) {
       ontologyGraph.resetHighlights()
       ontologyGraph.highlightSuggestions(clickedIRI)
