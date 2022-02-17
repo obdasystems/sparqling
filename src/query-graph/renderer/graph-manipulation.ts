@@ -144,7 +144,7 @@ export function onElementClick(callback: (nodeId: string, iri: string) => void) 
  * @returns the data object for cytoscape's instanc of the graphElement
  */
 function getDataObj(graphElement: GraphElement, i = null) {
-  let data = graphElement.entities[i || 0] as any
+  let data = Object.assign({}, graphElement.entities[i || 0] as any)
   if (i !== null) {
     data.parent = graphElement.id
     data.id = `${graphElement.id}-${data.iri}`

@@ -92,7 +92,7 @@ export function isObjectProperty(graphElement: GraphElement) {
 export function getdiffNew(oldGraph: GraphElement, newGraph: GraphElement, result = []): GraphElement[] {
   if (!oldGraph) return [newGraph]
 
-  let res = findGraphElement(oldGraph, e => e.id === newGraph.id && e.entities === newGraph.entities)
+  let res = findGraphElement(oldGraph, e => e.id === newGraph.id)
   if (!res) result.push(newGraph)
 
   if (newGraph?.children) {
