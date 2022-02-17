@@ -1,12 +1,13 @@
 import { UI } from 'grapholscape'
 import { html, css } from 'lit'
+import EventPosition from '../util/event-position'
 import { defaultSelectDialogTitle } from './assets/texts'
 
 export default class ListSelectionDialog extends UI.GscapeWidget {
   list: any[]
   title: string
   buildItemString: (item: any) => string
-  selectionCallback: (item:any) => void
+  selectionCallback: (item: any) => void
   closeCallback: () => void
 
   static get properties() {
@@ -16,17 +17,17 @@ export default class ListSelectionDialog extends UI.GscapeWidget {
 
     return props
   }
-  
+
 
   static get styles() {
     let super_styles = super.styles
     let colors = super_styles[1]
-    
+
     return [
       super_styles[0],
       css`
         :host {
-          position:inherit;
+          position:absolute;
         }
 
         .list-item {
@@ -45,25 +46,25 @@ export default class ListSelectionDialog extends UI.GscapeWidget {
     ]
   }
 
-  constructor(buildItemString?: (item:any) => string) {
+  constructor(buildItemString?: (item: any) => string) {
     super()
-    
+
     this.list = []
     this.title = defaultSelectDialogTitle()
-    this.buildItemString = buildItemString || function (item:any) {return item}
+    this.buildItemString = buildItemString || function (item: any) { return item }
   }
 
   render() {
     return html`
     <gscape-dialog title="${this.title}">
       <div>
-      ${this.list.map( (item, i) => {
-        return html`
+      ${this.list.map((item, i) => {
+      return html`
           <div class="list-item highlight" index="${i}" @click=${this.handleSelection}>
             <span>${this.buildItemString(item)}</span>
           </div>
         `
-      })}
+    })}
       </div>
     </gscape-dialog>
   `
@@ -81,11 +82,18 @@ export default class ListSelectionDialog extends UI.GscapeWidget {
     e.preventDefault()
     this.selectionCallback(this.list[(e.currentTarget as HTMLElement).getAttribute('index')])
   }
-  
-  hide() {super.hide()}
-  show() {
+
+  hide() { super.hide() }
+
+  show(position: EventPosition) {
+    const self = this as any
+
+    self.style.top = position.y + "px"
+    self.style.left = position.x + "px"
+    self.style.display = 'init'
+    console.log(self)
     super.show();
-    (this as any).shadowRoot.querySelector('gscape-dialog').show()
+    self.shadowRoot.querySelector('gscape-dialog').show()
   }
 }
 

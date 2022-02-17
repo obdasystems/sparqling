@@ -4,6 +4,9 @@ import { Branch } from "../api/swagger"
 import getGscape from "./get-gscape"
 import { listSelectionDialog } from "../widgets"
 import { classSelectDialogTitle } from "../widgets/assets/texts"
+import EventPosition from "../util/event-position"
+
+let _onRelatedClassSelection = (objectProperty: Branch, relatedClass: CollectionReturnValue) => { }
 
 export function findNextClassFromObjProperty(objProperty: CollectionReturnValue):
   Promise<{ objPropertyFromApi: any, connectedClass: CollectionReturnValue }> {
@@ -14,7 +17,7 @@ export function findNextClassFromObjProperty(objProperty: CollectionReturnValue)
     objPropertyFromApi: undefined,
     connectedClass: undefined
   }
-  
+
   result.objPropertyFromApi = actualHighlights.objectProperties.find((o: Branch) =>
     gscape.ontology.checkEntityIri(objProperty, o.objectPropertyIRI)
   )
@@ -36,8 +39,8 @@ export function findNextClassFromObjProperty(objProperty: CollectionReturnValue)
           ? gscape.ontology.destructureIri(iri).prefixed
           : iri
       })
-      listSelectionDialog.show()
-      listSelectionDialog.onSelection( (iri: string) => {
+      //listSelectionDialog.show()
+      listSelectionDialog.onSelection((iri: string) => {
         result.connectedClass = (gscape.ontology.getEntityOccurrences(iri)[0] as CollectionReturnValue)
         result.connectedClass.selectify()
         resolve(result)
@@ -45,4 +48,44 @@ export function findNextClassFromObjProperty(objProperty: CollectionReturnValue)
       })
     }
   })
+}
+
+
+export function showRelatedClassesWidget(objProperty: CollectionReturnValue, position: EventPosition) {
+  const actualHighlights = getActualHighlights()
+  if (!actualHighlights) return
+  const gscape = getGscape()
+
+  let result: { objPropertyFromApi: Branch; connectedClass: CollectionReturnValue } = {
+    objPropertyFromApi: undefined,
+    connectedClass: undefined
+  }
+
+  result.objPropertyFromApi = actualHighlights.objectProperties.find((o: Branch) =>
+    gscape.ontology.checkEntityIri(objProperty, o.objectPropertyIRI)
+  )
+
+  listSelectionDialog.title = classSelectDialogTitle()
+  // Use prefixed iri if possible, full iri as fallback
+  listSelectionDialog.list = result.objPropertyFromApi.relatedClasses.map((iri: string) => {
+    return gscape.ontology.destructureIri(iri)
+      ? gscape.ontology.destructureIri(iri).prefixed
+      : iri
+  })
+  listSelectionDialog.show(position)
+  listSelectionDialog.onSelection((iri: string) => {
+    result.connectedClass = (gscape.ontology.getEntityOccurrences(iri)[0] as CollectionReturnValue)
+    result.connectedClass.selectify()
+    listSelectionDialog.hide()
+    _onRelatedClassSelection(result.objPropertyFromApi, result.connectedClass)
+  })
+}
+
+export function hideRelatedClassesWidget() {
+  listSelectionDialog.list = []
+  listSelectionDialog.hide()
+}
+
+export function onRelatedClassSelection(callback: (objectProperty: Branch, relatedClass: CollectionReturnValue) => void) {
+  _onRelatedClassSelection = callback
 }

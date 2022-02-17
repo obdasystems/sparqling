@@ -1,5 +1,5 @@
-import { CollectionReturnValue } from 'cytoscape'
-import { Grapholscape, Theme } from 'grapholscape'
+import { CollectionReturnValue, Core } from 'cytoscape'
+import { Grapholscape, Theme, Type } from 'grapholscape'
 import { StandaloneApi } from './api/swagger/api'
 import * as ontologyGraph from './ontology-graph'
 import { refreshHighlights } from './ontology-graph'
@@ -22,22 +22,29 @@ export default function sparqling(gscape: Grapholscape, file?: string | File, is
   uiContainer.appendChild(listSelectionDialog)
   uiContainer.appendChild(sparqlDialog)
 
+  queryGraph.setDisplayedNameType(gscape.actualEntityNameType, gscape.languages.selected)
+  queryGraph.setTheme(gscape.themesController.actualTheme)
+
+  ontologyGraph.addStylesheet(gscape.renderer.cy, sparqlingStyle)
+
+  setHandlers(gscape.renderer.cy)
+
   gscape.onLanguageChange((newLanguage: string) => queryGraph.setLanguage(newLanguage))
   gscape.onEntityNameTypeChange((newNameType: DisplayedNameType) => {
     queryGraph.setDisplayedNameType(newNameType, gscape.languages.selected)
   })
-
-  queryGraph.setDisplayedNameType(gscape.actualEntityNameType, gscape.languages.selected)
-  queryGraph.setTheme(gscape.themesController.actualTheme)
-  gscape.onThemeChange((newTheme: Theme) => queryGraph.setTheme(newTheme))
-
+  gscape.onThemeChange((newTheme: Theme) => {
+    queryGraph.setTheme(newTheme)
+    ontologyGraph.addStylesheet(gscape.renderer.cy, sparqlingStyle)
+  })
   gscape.onEntitySelection(async (cyEntity: CollectionReturnValue) =>
-    OntologyGraphHandlers.onEntitySelection(cyEntity)
+    OntologyGraphHandlers.handleEntitySelection(cyEntity)
   )
+  gscape.onDiagramChange(() => {
+    setHandlers(gscape.renderer.cy)
+    ontologyGraph.addStylesheet(gscape.renderer.cy, sparqlingStyle)
+  })
 
-  ontologyGraph.addStylesheet(gscape.renderer.cy, sparqlingStyle)
-  gscape.onDiagramChange(() => ontologyGraph.addStylesheet(gscape.renderer.cy, sparqlingStyle))
-  gscape.onThemeChange(() => ontologyGraph.addStylesheet(gscape.renderer.cy, sparqlingStyle))
   gscape.onRendererChange(async () => {
     ontologyGraph.addStylesheet(gscape.renderer.cy, sparqlingStyle)
     await gscape.SimplifiedOntologyPromise
@@ -49,5 +56,17 @@ export default function sparqling(gscape: Grapholscape, file?: string | File, is
       file = new File([file], `${gscape.ontology.name}-from-string.graphol`)
 
     new StandaloneApi().standaloneOntologyUploadPost(file as File)
+  }
+
+  function setHandlers(cy: Core) {
+    // [diplayed_name] select only nodes with a defined displayed name, 
+    // avoid fake nodes (for inverse/nonInverse functional obj properties)
+    const objPropertiesSelector = `[displayed_name][type = "${Type.OBJECT_PROPERTY}"]`
+    cy.on('mouseover', objPropertiesSelector, e => {
+      ontologyGraph.showRelatedClassesWidget(e.target, e.renderedPosition)
+    })
+    cy.on('mouseout', objPropertiesSelector, e => {
+      ontologyGraph.hideRelatedClassesWidget()
+    })
   }
 }

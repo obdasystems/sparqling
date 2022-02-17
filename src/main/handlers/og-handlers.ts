@@ -1,6 +1,6 @@
 import { CollectionReturnValue } from "cytoscape"
 import { Type } from "grapholscape"
-import { GraphElement, QueryGraphApiFactory, QueryGraph } from "../../api/swagger"
+import { GraphElement, QueryGraphApiFactory, QueryGraph, Branch } from "../../api/swagger"
 import * as ontologyGraph from "../../ontology-graph"
 import getGscape from "../../ontology-graph/get-gscape"
 import * as queryGraph from "../../query-graph"
@@ -10,7 +10,7 @@ import onNewBody from "../on-new-body"
 
 
 const { CONCEPT, OBJECT_PROPERTY, DATA_PROPERTY } = Type
-let lastObjProperty: CollectionReturnValue
+let lastObjProperty: Branch
 //let selectedGraphElement: GraphElement
 let isIriHighlighted: boolean
 let iriInQueryGraph: boolean
@@ -18,7 +18,7 @@ let clickedIRI: string
 const qgApi = QueryGraphApiFactory()
 // const iriInQueryGraph = actualBody ? queryManager.getGraphElementByIRI(clickedIRI) : null
 
-export async function onEntitySelection(cyEntity: CollectionReturnValue) {
+export async function handleEntitySelection(cyEntity: CollectionReturnValue) {
   let clickedIRI = cyEntity.data('iri').fullIri
   const selectedGraphElement = queryBody.getSelectedGraphElement()
 
@@ -30,14 +30,14 @@ export async function onEntitySelection(cyEntity: CollectionReturnValue) {
     return
   }
 
-  let gscape = getGscape()
+  const gscape = getGscape()
   let newBody: QueryGraph = null
   switch (cyEntity.data('type')) {
     case OBJECT_PROPERTY: {
-      let result = await handleObjectPropertySelection(cyEntity)
-      if (result && result.connectedClass) {
-        gscape.centerOnNode(result.connectedClass.id(), 1.8)
-      }
+      // let result = await handleObjectPropertySelection(cyEntity)
+      // if (result && result.connectedClass) {
+      //   gscape.centerOnNode(result.connectedClass.id(), 1.8)
+      // }
       break
     }
     case CONCEPT: {
@@ -65,19 +65,25 @@ export async function onEntitySelection(cyEntity: CollectionReturnValue) {
     }
   }
 
-  gscape.unselectEntity([])
+  gscape.unselectEntity()
 }
 
-async function handleObjectPropertySelection(cyEntity: CollectionReturnValue) {
-  getInitialInfo(cyEntity)
-  if (queryBody.getSelectedGraphElement()) {
-    lastObjProperty = cyEntity
-    const result = await ontologyGraph.findNextClassFromObjProperty(cyEntity).finally(() => cyEntity.unselect())
-    lastObjProperty['direct'] = result.objPropertyFromApi.direct
-    // gscape.centerOnNode(result.connectedClass.id(), 1.8)
-    return result
-  }
-}
+ontologyGraph.onRelatedClassSelection((branch:Branch, relatedClass) => {
+  const gscape = getGscape()
+  lastObjProperty = branch
+  gscape.centerOnNode(relatedClass.id(), 1.8)
+})
+
+// async function handleObjectPropertySelection(cyEntity: CollectionReturnValue) {
+//   getInitialInfo(cyEntity)
+//   if (queryBody.getSelectedGraphElement()) {
+//     lastObjProperty = cyEntity
+//     const result = await ontologyGraph.findNextClassFromObjProperty(cyEntity).finally(() => cyEntity.unselect())
+//     lastObjProperty['direct'] = result.objPropertyFromApi.direct
+//     // gscape.centerOnNode(result.connectedClass.id(), 1.8)
+//     return result
+//   }
+// }
 
 async function handleConceptSelection(cyEntity: CollectionReturnValue): Promise<QueryGraph> {
 
@@ -101,8 +107,8 @@ async function handleConceptSelection(cyEntity: CollectionReturnValue): Promise<
     if (lastObjProperty) {
       // this comes after a selection of a object property
       newQueryGraph = (await qgApi.putQueryGraphObjectProperty(
-        selectedGraphElement.id, "", lastObjProperty.data('iri').fullIri, clickedIRI,
-        lastObjProperty['direct'],
+        selectedGraphElement.id, "", lastObjProperty.objectPropertyIRI, clickedIRI,
+        lastObjProperty.direct,
         actualBody
       )).data
 
