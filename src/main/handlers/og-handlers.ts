@@ -1,6 +1,6 @@
 import { CollectionReturnValue } from "cytoscape"
 import { Type } from "grapholscape"
-import { GraphElement, QueryGraphApiFactory, QueryGraph, Branch } from "../../api/swagger"
+import { GraphElement, QueryGraphBGPApiFactory, QueryGraph, Branch } from "../../api/swagger"
 import * as ontologyGraph from "../../ontology-graph"
 import getGscape from "../../ontology-graph/get-gscape"
 import * as queryGraph from "../../query-graph"
@@ -15,7 +15,7 @@ let lastObjProperty: Branch
 let isIriHighlighted: boolean
 let iriInQueryGraph: boolean
 let clickedIRI: string
-const qgApi = QueryGraphApiFactory()
+const qgApi = QueryGraphBGPApiFactory()
 // const iriInQueryGraph = actualBody ? queryManager.getGraphElementByIRI(clickedIRI) : null
 
 export async function handleEntitySelection(cyEntity: CollectionReturnValue) {

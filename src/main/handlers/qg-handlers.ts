@@ -1,5 +1,5 @@
 import { UI } from 'grapholscape'
-import { GraphElement, QueryGraphApiFactory } from '../../api/swagger'
+import { GraphElement, QueryGraphBGPApiFactory, QueryGraphHeadApiFactory } from '../../api/swagger'
 import { EntityTypeEnum } from '../../api/swagger'
 import * as ontologyGraph from '../../ontology-graph'
 import getGscape from '../../ontology-graph/get-gscape'
@@ -10,7 +10,7 @@ import * as GEUtility from '../../util/graph-element-utility'
 import { newOptionalGraphElementId, removeOptionalGraphElementId } from '../../api/api_stub'
 
 queryGraph.onAddHead(async graphElement => {
-  const qgApi = QueryGraphApiFactory()
+  const qgApi = QueryGraphHeadApiFactory()
   const body = queryBody.getBody()
   let newBody = (await qgApi.addHeadTerm(graphElement.id, body)).data
   if (newBody)
@@ -18,7 +18,7 @@ queryGraph.onAddHead(async graphElement => {
 })
 
 queryGraph.onDelete(async graphElement => {
-  const qgApi = QueryGraphApiFactory()
+  const qgApi = QueryGraphBGPApiFactory()
   const body = queryBody.getBody()
   const selectedGraphElement = queryBody.getSelectedGraphElement()
   const gscape = getGscape()
@@ -54,7 +54,7 @@ queryGraph.onDelete(async graphElement => {
 })
 
 queryGraph.onJoin(async (ge1, ge2) => {
-  const qgApi = QueryGraphApiFactory()
+  const qgApi = QueryGraphBGPApiFactory()
   const body = queryBody.getBody()
 
   let newBody = (await qgApi.putQueryGraphJoin(ge1.id, ge2.id, body)).data
@@ -85,7 +85,7 @@ queryGraph.onElementClick((graphElement, iri) => {
 })
 
 queryGraph.onMakeOptional(graphElement => {
-  const qgApi = QueryGraphApiFactory()
+  const qgApi = QueryGraphBGPApiFactory()
   const body = queryBody.getBody()
   let newBody = newOptionalGraphElementId(graphElement.id, body)
 
@@ -94,7 +94,7 @@ queryGraph.onMakeOptional(graphElement => {
 })
 
 queryGraph.onRemoveOptional(graphElement => {
-  const qgApi = QueryGraphApiFactory()
+  const qgApi = QueryGraphBGPApiFactory()
   const body = queryBody.getBody()
   let newBody = removeOptionalGraphElementId(graphElement.id, null, body)
 

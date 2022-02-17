@@ -674,51 +674,11 @@ export class OntologyGraphApi extends BaseAPI {
 
 
 /**
- * QueryGraphApi - axios parameter creator
+ * QueryGraphBGPApi - axios parameter creator
  * @export
  */
-export const QueryGraphApiAxiosParamCreator = function (configuration?: Configuration) {
+export const QueryGraphBGPApiAxiosParamCreator = function (configuration?: Configuration) {
     return {
-        /**
-         * Explicitley add a term to the query head. All the data property variables are added automatically to the head during the query graph construction. This will add to the head only variables associated to classes (`rdf:type` triple pattern) or data properties.
-         * @summary Add the head term to the query graph.
-         * @param {string} graphElementId The id of the graph node that should be added to the head
-         * @param {QueryGraph} queryGraph 
-         * @param {*} [options] Override http request option.
-         * @throws {RequiredError}
-         */
-        addHeadTerm: async (graphElementId: string, queryGraph: QueryGraph, options: AxiosRequestConfig = {}): Promise<RequestArgs> => {
-            // verify required parameter 'graphElementId' is not null or undefined
-            assertParamExists('addHeadTerm', 'graphElementId', graphElementId)
-            // verify required parameter 'queryGraph' is not null or undefined
-            assertParamExists('addHeadTerm', 'queryGraph', queryGraph)
-            const localVarPath = `/queryGraph/head/add/{graphElementId}`
-                .replace(`{${"graphElementId"}}`, encodeURIComponent(String(graphElementId)));
-            // use dummy base URL string because the URL constructor only accepts absolute URLs.
-            const localVarUrlObj = new URL(localVarPath, DUMMY_BASE_URL);
-            let baseOptions;
-            if (configuration) {
-                baseOptions = configuration.baseOptions;
-            }
-
-            const localVarRequestOptions = { method: 'PUT', ...baseOptions, ...options};
-            const localVarHeaderParameter = {} as any;
-            const localVarQueryParameter = {} as any;
-
-
-    
-            localVarHeaderParameter['Content-Type'] = 'application/json';
-
-            setSearchParams(localVarUrlObj, localVarQueryParameter);
-            let headersFromBaseOptions = baseOptions && baseOptions.headers ? baseOptions.headers : {};
-            localVarRequestOptions.headers = {...localVarHeaderParameter, ...headersFromBaseOptions, ...options.headers};
-            localVarRequestOptions.data = serializeDataIfNeeded(queryGraph, localVarRequestOptions, configuration)
-
-            return {
-                url: toPathString(localVarUrlObj),
-                options: localVarRequestOptions,
-            };
-        },
         /**
          * This path should be used to build the query graph using the path interaction. As a result there will be added to the query several triple pattern (depending on the length of the path) as a sequence of classes and object properties. Data properties never appear in paths, in order to add them use the simple PUT route.
          * @summary Get the query graph that will be rendered by Sparqling, the query head, the sparql code based on the chosen path.
@@ -747,93 +707,6 @@ export const QueryGraphApiAxiosParamCreator = function (configuration?: Configur
             if (path !== undefined) {
                 localVarQueryParameter['path'] = path;
             }
-
-
-    
-            localVarHeaderParameter['Content-Type'] = 'application/json';
-
-            setSearchParams(localVarUrlObj, localVarQueryParameter);
-            let headersFromBaseOptions = baseOptions && baseOptions.headers ? baseOptions.headers : {};
-            localVarRequestOptions.headers = {...localVarHeaderParameter, ...headersFromBaseOptions, ...options.headers};
-            localVarRequestOptions.data = serializeDataIfNeeded(queryGraph, localVarRequestOptions, configuration)
-
-            return {
-                url: toPathString(localVarUrlObj),
-                options: localVarRequestOptions,
-            };
-        },
-        /**
-         * The having aggregation function is defined in the groupBy field of the query graph in the request body.
-         * @summary Set the having filter of the aggregation function to the head term.
-         * @param {string} headTerm The head term that should be involved in the having filter
-         * @param {string} direction 
-         * @param {QueryGraph} queryGraph 
-         * @param {*} [options] Override http request option.
-         * @throws {RequiredError}
-         */
-        aggregationHavingHeadTerm: async (headTerm: string, direction: string, queryGraph: QueryGraph, options: AxiosRequestConfig = {}): Promise<RequestArgs> => {
-            // verify required parameter 'headTerm' is not null or undefined
-            assertParamExists('aggregationHavingHeadTerm', 'headTerm', headTerm)
-            // verify required parameter 'direction' is not null or undefined
-            assertParamExists('aggregationHavingHeadTerm', 'direction', direction)
-            // verify required parameter 'queryGraph' is not null or undefined
-            assertParamExists('aggregationHavingHeadTerm', 'queryGraph', queryGraph)
-            const localVarPath = `/queryGraph/head/aggregation/having/{headTerm}`
-                .replace(`{${"headTerm"}}`, encodeURIComponent(String(headTerm)));
-            // use dummy base URL string because the URL constructor only accepts absolute URLs.
-            const localVarUrlObj = new URL(localVarPath, DUMMY_BASE_URL);
-            let baseOptions;
-            if (configuration) {
-                baseOptions = configuration.baseOptions;
-            }
-
-            const localVarRequestOptions = { method: 'PUT', ...baseOptions, ...options};
-            const localVarHeaderParameter = {} as any;
-            const localVarQueryParameter = {} as any;
-
-            if (direction !== undefined) {
-                localVarQueryParameter['direction'] = direction;
-            }
-
-
-    
-            localVarHeaderParameter['Content-Type'] = 'application/json';
-
-            setSearchParams(localVarUrlObj, localVarQueryParameter);
-            let headersFromBaseOptions = baseOptions && baseOptions.headers ? baseOptions.headers : {};
-            localVarRequestOptions.headers = {...localVarHeaderParameter, ...headersFromBaseOptions, ...options.headers};
-            localVarRequestOptions.data = serializeDataIfNeeded(queryGraph, localVarRequestOptions, configuration)
-
-            return {
-                url: toPathString(localVarUrlObj),
-                options: localVarRequestOptions,
-            };
-        },
-        /**
-         * The aggregation function is defined in the group by field of the query graph in the request body. Remember to set the alias of the head based on function name and variable.
-         * @summary Set the aggregation function to the head term.
-         * @param {string} headTerm The head term that should be involved in the aggregation function
-         * @param {QueryGraph} queryGraph 
-         * @param {*} [options] Override http request option.
-         * @throws {RequiredError}
-         */
-        aggregationHeadTerm: async (headTerm: string, queryGraph: QueryGraph, options: AxiosRequestConfig = {}): Promise<RequestArgs> => {
-            // verify required parameter 'headTerm' is not null or undefined
-            assertParamExists('aggregationHeadTerm', 'headTerm', headTerm)
-            // verify required parameter 'queryGraph' is not null or undefined
-            assertParamExists('aggregationHeadTerm', 'queryGraph', queryGraph)
-            const localVarPath = `/queryGraph/head/aggregation/{headTerm}`
-                .replace(`{${"headTerm"}}`, encodeURIComponent(String(headTerm)));
-            // use dummy base URL string because the URL constructor only accepts absolute URLs.
-            const localVarUrlObj = new URL(localVarPath, DUMMY_BASE_URL);
-            let baseOptions;
-            if (configuration) {
-                baseOptions = configuration.baseOptions;
-            }
-
-            const localVarRequestOptions = { method: 'PUT', ...baseOptions, ...options};
-            const localVarHeaderParameter = {} as any;
-            const localVarQueryParameter = {} as any;
 
 
     
@@ -890,129 +763,6 @@ export const QueryGraphApiAxiosParamCreator = function (configuration?: Configur
             };
         },
         /**
-         * The path param should be the id of the HeadElement.
-         * @summary Delete the head term from the query graph.
-         * @param {string} headTerm The head term that should be deleted
-         * @param {QueryGraph} queryGraph 
-         * @param {*} [options] Override http request option.
-         * @throws {RequiredError}
-         */
-        deleteHeadTerm: async (headTerm: string, queryGraph: QueryGraph, options: AxiosRequestConfig = {}): Promise<RequestArgs> => {
-            // verify required parameter 'headTerm' is not null or undefined
-            assertParamExists('deleteHeadTerm', 'headTerm', headTerm)
-            // verify required parameter 'queryGraph' is not null or undefined
-            assertParamExists('deleteHeadTerm', 'queryGraph', queryGraph)
-            const localVarPath = `/queryGraph/head/delete/{headTerm}`
-                .replace(`{${"headTerm"}}`, encodeURIComponent(String(headTerm)));
-            // use dummy base URL string because the URL constructor only accepts absolute URLs.
-            const localVarUrlObj = new URL(localVarPath, DUMMY_BASE_URL);
-            let baseOptions;
-            if (configuration) {
-                baseOptions = configuration.baseOptions;
-            }
-
-            const localVarRequestOptions = { method: 'PUT', ...baseOptions, ...options};
-            const localVarHeaderParameter = {} as any;
-            const localVarQueryParameter = {} as any;
-
-
-    
-            localVarHeaderParameter['Content-Type'] = 'application/json';
-
-            setSearchParams(localVarUrlObj, localVarQueryParameter);
-            let headersFromBaseOptions = baseOptions && baseOptions.headers ? baseOptions.headers : {};
-            localVarRequestOptions.headers = {...localVarHeaderParameter, ...headersFromBaseOptions, ...options.headers};
-            localVarRequestOptions.data = serializeDataIfNeeded(queryGraph, localVarRequestOptions, configuration)
-
-            return {
-                url: toPathString(localVarUrlObj),
-                options: localVarRequestOptions,
-            };
-        },
-        /**
-         * The distinct value is defined in the query graph in the request body.
-         * @summary Set the distinct value.
-         * @param {boolean} distinct 
-         * @param {QueryGraph} queryGraph 
-         * @param {*} [options] Override http request option.
-         * @throws {RequiredError}
-         */
-        distinctQueryGraph: async (distinct: boolean, queryGraph: QueryGraph, options: AxiosRequestConfig = {}): Promise<RequestArgs> => {
-            // verify required parameter 'distinct' is not null or undefined
-            assertParamExists('distinctQueryGraph', 'distinct', distinct)
-            // verify required parameter 'queryGraph' is not null or undefined
-            assertParamExists('distinctQueryGraph', 'queryGraph', queryGraph)
-            const localVarPath = `/queryGraph/distinct`;
-            // use dummy base URL string because the URL constructor only accepts absolute URLs.
-            const localVarUrlObj = new URL(localVarPath, DUMMY_BASE_URL);
-            let baseOptions;
-            if (configuration) {
-                baseOptions = configuration.baseOptions;
-            }
-
-            const localVarRequestOptions = { method: 'PUT', ...baseOptions, ...options};
-            const localVarHeaderParameter = {} as any;
-            const localVarQueryParameter = {} as any;
-
-            if (distinct !== undefined) {
-                localVarQueryParameter['distinct'] = distinct;
-            }
-
-
-    
-            localVarHeaderParameter['Content-Type'] = 'application/json';
-
-            setSearchParams(localVarUrlObj, localVarQueryParameter);
-            let headersFromBaseOptions = baseOptions && baseOptions.headers ? baseOptions.headers : {};
-            localVarRequestOptions.headers = {...localVarHeaderParameter, ...headersFromBaseOptions, ...options.headers};
-            localVarRequestOptions.data = serializeDataIfNeeded(queryGraph, localVarRequestOptions, configuration)
-
-            return {
-                url: toPathString(localVarUrlObj),
-                options: localVarRequestOptions,
-            };
-        },
-        /**
-         * The function is defined in the head term of the query graph in the request body. Remember to set the alias of the head based on function name and variable.
-         * @summary Set a function to the head term from the query graph.
-         * @param {string} headTerm The head term that should be involved inthe function
-         * @param {QueryGraph} queryGraph 
-         * @param {*} [options] Override http request option.
-         * @throws {RequiredError}
-         */
-        functionHeadTerm: async (headTerm: string, queryGraph: QueryGraph, options: AxiosRequestConfig = {}): Promise<RequestArgs> => {
-            // verify required parameter 'headTerm' is not null or undefined
-            assertParamExists('functionHeadTerm', 'headTerm', headTerm)
-            // verify required parameter 'queryGraph' is not null or undefined
-            assertParamExists('functionHeadTerm', 'queryGraph', queryGraph)
-            const localVarPath = `/queryGraph/head/function/{headTerm}`
-                .replace(`{${"headTerm"}}`, encodeURIComponent(String(headTerm)));
-            // use dummy base URL string because the URL constructor only accepts absolute URLs.
-            const localVarUrlObj = new URL(localVarPath, DUMMY_BASE_URL);
-            let baseOptions;
-            if (configuration) {
-                baseOptions = configuration.baseOptions;
-            }
-
-            const localVarRequestOptions = { method: 'PUT', ...baseOptions, ...options};
-            const localVarHeaderParameter = {} as any;
-            const localVarQueryParameter = {} as any;
-
-
-    
-            localVarHeaderParameter['Content-Type'] = 'application/json';
-
-            setSearchParams(localVarUrlObj, localVarQueryParameter);
-            let headersFromBaseOptions = baseOptions && baseOptions.headers ? baseOptions.headers : {};
-            localVarRequestOptions.headers = {...localVarHeaderParameter, ...headersFromBaseOptions, ...options.headers};
-            localVarRequestOptions.data = serializeDataIfNeeded(queryGraph, localVarRequestOptions, configuration)
-
-            return {
-                url: toPathString(localVarUrlObj),
-                options: localVarRequestOptions,
-            };
-        },
-        /**
          * Starting from only the clicked class get the query graph that will be rendered by Sparqling, the query head, the sparql code. The sparql query returned will be somthing like `select ?x { ?x a <clickedClassIRI>` }. The variable `?x` should be called according to the entity remainder or label. The variable will be added to the head of the query in order to create a valid SPARQL query.
          * @summary This is the first route to call in order to build the query graph.
          * @param {string} clickedClassIRI The IRI of the entity clicked on the GRAPHOLscape ontology graph
@@ -1043,184 +793,6 @@ export const QueryGraphApiAxiosParamCreator = function (configuration?: Configur
             setSearchParams(localVarUrlObj, localVarQueryParameter);
             let headersFromBaseOptions = baseOptions && baseOptions.headers ? baseOptions.headers : {};
             localVarRequestOptions.headers = {...localVarHeaderParameter, ...headersFromBaseOptions, ...options.headers};
-
-            return {
-                url: toPathString(localVarUrlObj),
-                options: localVarRequestOptions,
-            };
-        },
-        /**
-         * The limit value is defined in the query graph in the request body.
-         * @summary Set the limit value.
-         * @param {number} limit 
-         * @param {QueryGraph} queryGraph 
-         * @param {*} [options] Override http request option.
-         * @throws {RequiredError}
-         */
-        limitQueryGraph: async (limit: number, queryGraph: QueryGraph, options: AxiosRequestConfig = {}): Promise<RequestArgs> => {
-            // verify required parameter 'limit' is not null or undefined
-            assertParamExists('limitQueryGraph', 'limit', limit)
-            // verify required parameter 'queryGraph' is not null or undefined
-            assertParamExists('limitQueryGraph', 'queryGraph', queryGraph)
-            const localVarPath = `/queryGraph/limit`;
-            // use dummy base URL string because the URL constructor only accepts absolute URLs.
-            const localVarUrlObj = new URL(localVarPath, DUMMY_BASE_URL);
-            let baseOptions;
-            if (configuration) {
-                baseOptions = configuration.baseOptions;
-            }
-
-            const localVarRequestOptions = { method: 'PUT', ...baseOptions, ...options};
-            const localVarHeaderParameter = {} as any;
-            const localVarQueryParameter = {} as any;
-
-            if (limit !== undefined) {
-                localVarQueryParameter['limit'] = limit;
-            }
-
-
-    
-            localVarHeaderParameter['Content-Type'] = 'application/json';
-
-            setSearchParams(localVarUrlObj, localVarQueryParameter);
-            let headersFromBaseOptions = baseOptions && baseOptions.headers ? baseOptions.headers : {};
-            localVarRequestOptions.headers = {...localVarHeaderParameter, ...headersFromBaseOptions, ...options.headers};
-            localVarRequestOptions.data = serializeDataIfNeeded(queryGraph, localVarRequestOptions, configuration)
-
-            return {
-                url: toPathString(localVarUrlObj),
-                options: localVarRequestOptions,
-            };
-        },
-        /**
-         * Create a new optional in the query and add the triple pattern(s) identified by the GraphElementId. - If it is a class the query parameter should be used and the triple pattern `?graphElementId rdf:type <classIRI>` will be moved from the bgp to the new optional. - If it is a data property the tp `?graphElementIdVar1 <graphElementIdDataPropertyIRI> ?graphElementIdVar2` will be added to the new optional. - If it is a object property the tps `?graphElementIdVar1 <graphElementIdDataPropertyIRI> ?graphElementIdVar2. ?graphElementIdVar2 rdf:type <classIRI>` till the leaves will be moved to the new optional.
-         * @summary Add the `graphElementId` to a new optional.
-         * @param {string} graphElementId The GraphElement that should be added to the optional
-         * @param {QueryGraph} queryGraph 
-         * @param {string} [classIRI] The IRI of the class that will be inserted in the optional.
-         * @param {*} [options] Override http request option.
-         * @throws {RequiredError}
-         */
-        newOptionalGraphElementId: async (graphElementId: string, queryGraph: QueryGraph, classIRI?: string, options: AxiosRequestConfig = {}): Promise<RequestArgs> => {
-            // verify required parameter 'graphElementId' is not null or undefined
-            assertParamExists('newOptionalGraphElementId', 'graphElementId', graphElementId)
-            // verify required parameter 'queryGraph' is not null or undefined
-            assertParamExists('newOptionalGraphElementId', 'queryGraph', queryGraph)
-            const localVarPath = `/queryGraph/node/optional/{graphElementId}`
-                .replace(`{${"graphElementId"}}`, encodeURIComponent(String(graphElementId)));
-            // use dummy base URL string because the URL constructor only accepts absolute URLs.
-            const localVarUrlObj = new URL(localVarPath, DUMMY_BASE_URL);
-            let baseOptions;
-            if (configuration) {
-                baseOptions = configuration.baseOptions;
-            }
-
-            const localVarRequestOptions = { method: 'PUT', ...baseOptions, ...options};
-            const localVarHeaderParameter = {} as any;
-            const localVarQueryParameter = {} as any;
-
-            if (classIRI !== undefined) {
-                localVarQueryParameter['classIRI'] = classIRI;
-            }
-
-
-    
-            localVarHeaderParameter['Content-Type'] = 'application/json';
-
-            setSearchParams(localVarUrlObj, localVarQueryParameter);
-            let headersFromBaseOptions = baseOptions && baseOptions.headers ? baseOptions.headers : {};
-            localVarRequestOptions.headers = {...localVarHeaderParameter, ...headersFromBaseOptions, ...options.headers};
-            localVarRequestOptions.data = serializeDataIfNeeded(queryGraph, localVarRequestOptions, configuration)
-
-            return {
-                url: toPathString(localVarUrlObj),
-                options: localVarRequestOptions,
-            };
-        },
-        /**
-         * The offset value is defined in the query graph in the request body.
-         * @summary Set the offset value.
-         * @param {boolean} offset 
-         * @param {QueryGraph} queryGraph 
-         * @param {*} [options] Override http request option.
-         * @throws {RequiredError}
-         */
-        offsetQueryGraph: async (offset: boolean, queryGraph: QueryGraph, options: AxiosRequestConfig = {}): Promise<RequestArgs> => {
-            // verify required parameter 'offset' is not null or undefined
-            assertParamExists('offsetQueryGraph', 'offset', offset)
-            // verify required parameter 'queryGraph' is not null or undefined
-            assertParamExists('offsetQueryGraph', 'queryGraph', queryGraph)
-            const localVarPath = `/queryGraph/offset`;
-            // use dummy base URL string because the URL constructor only accepts absolute URLs.
-            const localVarUrlObj = new URL(localVarPath, DUMMY_BASE_URL);
-            let baseOptions;
-            if (configuration) {
-                baseOptions = configuration.baseOptions;
-            }
-
-            const localVarRequestOptions = { method: 'PUT', ...baseOptions, ...options};
-            const localVarHeaderParameter = {} as any;
-            const localVarQueryParameter = {} as any;
-
-            if (offset !== undefined) {
-                localVarQueryParameter['offset'] = offset;
-            }
-
-
-    
-            localVarHeaderParameter['Content-Type'] = 'application/json';
-
-            setSearchParams(localVarUrlObj, localVarQueryParameter);
-            let headersFromBaseOptions = baseOptions && baseOptions.headers ? baseOptions.headers : {};
-            localVarRequestOptions.headers = {...localVarHeaderParameter, ...headersFromBaseOptions, ...options.headers};
-            localVarRequestOptions.data = serializeDataIfNeeded(queryGraph, localVarRequestOptions, configuration)
-
-            return {
-                url: toPathString(localVarUrlObj),
-                options: localVarRequestOptions,
-            };
-        },
-        /**
-         * The OrderBy object is passed in the request body in the Query Graph.
-         * @summary Order by the head from the query graph.
-         * @param {string} headTerm The head term that should be ordered
-         * @param {'desc' | 'asc'} direction 
-         * @param {QueryGraph} queryGraph 
-         * @param {*} [options] Override http request option.
-         * @throws {RequiredError}
-         */
-        orderByHeadTerm: async (headTerm: string, direction: 'desc' | 'asc', queryGraph: QueryGraph, options: AxiosRequestConfig = {}): Promise<RequestArgs> => {
-            // verify required parameter 'headTerm' is not null or undefined
-            assertParamExists('orderByHeadTerm', 'headTerm', headTerm)
-            // verify required parameter 'direction' is not null or undefined
-            assertParamExists('orderByHeadTerm', 'direction', direction)
-            // verify required parameter 'queryGraph' is not null or undefined
-            assertParamExists('orderByHeadTerm', 'queryGraph', queryGraph)
-            const localVarPath = `/queryGraph/head/orderBy/{headTerm}`
-                .replace(`{${"headTerm"}}`, encodeURIComponent(String(headTerm)));
-            // use dummy base URL string because the URL constructor only accepts absolute URLs.
-            const localVarUrlObj = new URL(localVarPath, DUMMY_BASE_URL);
-            let baseOptions;
-            if (configuration) {
-                baseOptions = configuration.baseOptions;
-            }
-
-            const localVarRequestOptions = { method: 'PUT', ...baseOptions, ...options};
-            const localVarHeaderParameter = {} as any;
-            const localVarQueryParameter = {} as any;
-
-            if (direction !== undefined) {
-                localVarQueryParameter['direction'] = direction;
-            }
-
-
-    
-            localVarHeaderParameter['Content-Type'] = 'application/json';
-
-            setSearchParams(localVarUrlObj, localVarQueryParameter);
-            let headersFromBaseOptions = baseOptions && baseOptions.headers ? baseOptions.headers : {};
-            localVarRequestOptions.headers = {...localVarHeaderParameter, ...headersFromBaseOptions, ...options.headers};
-            localVarRequestOptions.data = serializeDataIfNeeded(queryGraph, localVarRequestOptions, configuration)
 
             return {
                 url: toPathString(localVarUrlObj),
@@ -1447,6 +1019,1565 @@ export const QueryGraphApiAxiosParamCreator = function (configuration?: Configur
                 options: localVarRequestOptions,
             };
         },
+    }
+};
+
+/**
+ * QueryGraphBGPApi - functional programming interface
+ * @export
+ */
+export const QueryGraphBGPApiFp = function(configuration?: Configuration) {
+    const localVarAxiosParamCreator = QueryGraphBGPApiAxiosParamCreator(configuration)
+    return {
+        /**
+         * This path should be used to build the query graph using the path interaction. As a result there will be added to the query several triple pattern (depending on the length of the path) as a sequence of classes and object properties. Data properties never appear in paths, in order to add them use the simple PUT route.
+         * @summary Get the query graph that will be rendered by Sparqling, the query head, the sparql code based on the chosen path.
+         * @param {string} path Serialization of Path object.
+         * @param {QueryGraph} queryGraph 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        async addPathToQueryGraph(path: string, queryGraph: QueryGraph, options?: AxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<QueryGraph>> {
+            const localVarAxiosArgs = await localVarAxiosParamCreator.addPathToQueryGraph(path, queryGraph, options);
+            return createRequestFunction(localVarAxiosArgs, globalAxios, BASE_PATH, configuration);
+        },
+        /**
+         * This route is used when the user wants to delete a node from the query graph. All the children of this node will be deleted as well as we do not want to create query with completly separated branches. All the variables that are going to be deleted should also be deleted from the head of the query. **WARNING**, if the node has multiple occurrences (due to join operations) every node should be deleted.
+         * @summary Delete the GraphElement (and all its children) from the query graph and head.
+         * @param {string} graphElementId The GraphElement that should be deleted
+         * @param {QueryGraph} queryGraph 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        async deleteGraphElementId(graphElementId: string, queryGraph: QueryGraph, options?: AxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<QueryGraph>> {
+            const localVarAxiosArgs = await localVarAxiosParamCreator.deleteGraphElementId(graphElementId, queryGraph, options);
+            return createRequestFunction(localVarAxiosArgs, globalAxios, BASE_PATH, configuration);
+        },
+        /**
+         * Starting from only the clicked class get the query graph that will be rendered by Sparqling, the query head, the sparql code. The sparql query returned will be somthing like `select ?x { ?x a <clickedClassIRI>` }. The variable `?x` should be called according to the entity remainder or label. The variable will be added to the head of the query in order to create a valid SPARQL query.
+         * @summary This is the first route to call in order to build the query graph.
+         * @param {string} clickedClassIRI The IRI of the entity clicked on the GRAPHOLscape ontology graph
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        async getQueryGraph(clickedClassIRI: string, options?: AxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<QueryGraph>> {
+            const localVarAxiosArgs = await localVarAxiosParamCreator.getQueryGraph(clickedClassIRI, options);
+            return createRequestFunction(localVarAxiosArgs, globalAxios, BASE_PATH, configuration);
+        },
+        /**
+         * This call is used when the user click on a highlighted class and should add a triple pattern of the form like `?x rdf:type <targetClassIRI>`. The server should find `?x` in the SPARQL code as the variable associated to the `sourceClassIRI`.
+         * @summary Starting from the current query graph continue to build the query graph through a class.
+         * @param {string} graphElementId The id of the node of the selected class in the query graph.
+         * @param {string} sourceClassIRI The IRI of the last selected class. It could be selected from the ontology graph or from the query graph.
+         * @param {string} targetClassIRI The IRI of the entity clicked on the GRAPHOLscape ontology graph.
+         * @param {QueryGraph} queryGraph 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        async putQueryGraphClass(graphElementId: string, sourceClassIRI: string, targetClassIRI: string, queryGraph: QueryGraph, options?: AxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<QueryGraph>> {
+            const localVarAxiosArgs = await localVarAxiosParamCreator.putQueryGraphClass(graphElementId, sourceClassIRI, targetClassIRI, queryGraph, options);
+            return createRequestFunction(localVarAxiosArgs, globalAxios, BASE_PATH, configuration);
+        },
+        /**
+         * This route is used when the user click a highlighted data property. The triple pattern to add is something like `?x <predicateIRI> ?y` where `?x` should be derived from `selectedClassIRI`. Note that `?y` is fresh new variable that should be added also to the head of the query (we assume data property values are interesting). The variable `?y` should be called according to the entity remainder or label and should add a counter if there is an already defined variable for that data property.
+         * @summary Starting from the current query graph continue to build the query graph through a data property.
+         * @param {string} graphElementId The id of the node of the selected class in the query graph.
+         * @param {string} sourceClassIRI The IRI of the last selected class. It could be selected from the ontology graph or from the query graph.
+         * @param {string} predicateIRI The IRI of the clicked data property.
+         * @param {QueryGraph} queryGraph 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        async putQueryGraphDataProperty(graphElementId: string, sourceClassIRI: string, predicateIRI: string, queryGraph: QueryGraph, options?: AxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<QueryGraph>> {
+            const localVarAxiosArgs = await localVarAxiosParamCreator.putQueryGraphDataProperty(graphElementId, sourceClassIRI, predicateIRI, queryGraph, options);
+            return createRequestFunction(localVarAxiosArgs, globalAxios, BASE_PATH, configuration);
+        },
+        /**
+         * Starting from a query graph which has two nodes representing the same class(es), it returns the query graph in which the two nodes have been joined into a single one. The children of the selected nodes will be grouped in `graphElementId1` and each time we add a children through the previous routes they will be added to this node.
+         * @summary Join two GraphNodeElement in one.
+         * @param {string} graphElementId1 The id of the node of the selected class in the query graph.
+         * @param {string} graphElementId2 The id of the node of the selected class in the query graph.
+         * @param {QueryGraph} queryGraph 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        async putQueryGraphJoin(graphElementId1: string, graphElementId2: string, queryGraph: QueryGraph, options?: AxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<QueryGraph>> {
+            const localVarAxiosArgs = await localVarAxiosParamCreator.putQueryGraphJoin(graphElementId1, graphElementId2, queryGraph, options);
+            return createRequestFunction(localVarAxiosArgs, globalAxios, BASE_PATH, configuration);
+        },
+        /**
+         * This route is used when the user click a highlighted object property with ornly one `relatedClasses` or, in the case of more than one `relatedClasses` immediatly after choosing one of them. In this case the triple pattern to add is something like `?x <predicateIRI> ?y` where `?x` and `?y` should be derived from the direction indicated by `isPredicateDirect` of the object property with respect to `sourceClassIRI` and `targetClassIRI`. If there is a cyclic object property the user also should specify the direction if order to correctly assign `?x` and `?y`. Either `?x` or `?y` should be a fresh new variable which should be linked to a new triple pattern `?y rdf:type <targetClassIRI>`. The variable `?y` should be called according to the entity remainder or label and should add a counter if there is an already defined variable for that class.
+         * @summary Starting from the current query graph continue to build the query graph through a object property.
+         * @param {string} graphElementId The id of the node of the selected class in the query graph.
+         * @param {string} sourceClassIRI The IRI of the last selected class. It could be selected from the ontology graph or from the query graph.
+         * @param {string} predicateIRI The IRI of the predicate which links source class and target class
+         * @param {string} targetClassIRI The IRI of the entity clicked on the GRAPHOLscape ontology graph.
+         * @param {boolean} isPredicateDirect If true sourceClassIRI is the domain of predicateIRI, if false sourceClassIRI is the range of predicateIRI.
+         * @param {QueryGraph} queryGraph 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        async putQueryGraphObjectProperty(graphElementId: string, sourceClassIRI: string, predicateIRI: string, targetClassIRI: string, isPredicateDirect: boolean, queryGraph: QueryGraph, options?: AxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<QueryGraph>> {
+            const localVarAxiosArgs = await localVarAxiosParamCreator.putQueryGraphObjectProperty(graphElementId, sourceClassIRI, predicateIRI, targetClassIRI, isPredicateDirect, queryGraph, options);
+            return createRequestFunction(localVarAxiosArgs, globalAxios, BASE_PATH, configuration);
+        },
+    }
+};
+
+/**
+ * QueryGraphBGPApi - factory interface
+ * @export
+ */
+export const QueryGraphBGPApiFactory = function (configuration?: Configuration, basePath?: string, axios?: AxiosInstance) {
+    const localVarFp = QueryGraphBGPApiFp(configuration)
+    return {
+        /**
+         * This path should be used to build the query graph using the path interaction. As a result there will be added to the query several triple pattern (depending on the length of the path) as a sequence of classes and object properties. Data properties never appear in paths, in order to add them use the simple PUT route.
+         * @summary Get the query graph that will be rendered by Sparqling, the query head, the sparql code based on the chosen path.
+         * @param {string} path Serialization of Path object.
+         * @param {QueryGraph} queryGraph 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        addPathToQueryGraph(path: string, queryGraph: QueryGraph, options?: any): AxiosPromise<QueryGraph> {
+            return localVarFp.addPathToQueryGraph(path, queryGraph, options).then((request) => request(axios, basePath));
+        },
+        /**
+         * This route is used when the user wants to delete a node from the query graph. All the children of this node will be deleted as well as we do not want to create query with completly separated branches. All the variables that are going to be deleted should also be deleted from the head of the query. **WARNING**, if the node has multiple occurrences (due to join operations) every node should be deleted.
+         * @summary Delete the GraphElement (and all its children) from the query graph and head.
+         * @param {string} graphElementId The GraphElement that should be deleted
+         * @param {QueryGraph} queryGraph 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        deleteGraphElementId(graphElementId: string, queryGraph: QueryGraph, options?: any): AxiosPromise<QueryGraph> {
+            return localVarFp.deleteGraphElementId(graphElementId, queryGraph, options).then((request) => request(axios, basePath));
+        },
+        /**
+         * Starting from only the clicked class get the query graph that will be rendered by Sparqling, the query head, the sparql code. The sparql query returned will be somthing like `select ?x { ?x a <clickedClassIRI>` }. The variable `?x` should be called according to the entity remainder or label. The variable will be added to the head of the query in order to create a valid SPARQL query.
+         * @summary This is the first route to call in order to build the query graph.
+         * @param {string} clickedClassIRI The IRI of the entity clicked on the GRAPHOLscape ontology graph
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        getQueryGraph(clickedClassIRI: string, options?: any): AxiosPromise<QueryGraph> {
+            return localVarFp.getQueryGraph(clickedClassIRI, options).then((request) => request(axios, basePath));
+        },
+        /**
+         * This call is used when the user click on a highlighted class and should add a triple pattern of the form like `?x rdf:type <targetClassIRI>`. The server should find `?x` in the SPARQL code as the variable associated to the `sourceClassIRI`.
+         * @summary Starting from the current query graph continue to build the query graph through a class.
+         * @param {string} graphElementId The id of the node of the selected class in the query graph.
+         * @param {string} sourceClassIRI The IRI of the last selected class. It could be selected from the ontology graph or from the query graph.
+         * @param {string} targetClassIRI The IRI of the entity clicked on the GRAPHOLscape ontology graph.
+         * @param {QueryGraph} queryGraph 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        putQueryGraphClass(graphElementId: string, sourceClassIRI: string, targetClassIRI: string, queryGraph: QueryGraph, options?: any): AxiosPromise<QueryGraph> {
+            return localVarFp.putQueryGraphClass(graphElementId, sourceClassIRI, targetClassIRI, queryGraph, options).then((request) => request(axios, basePath));
+        },
+        /**
+         * This route is used when the user click a highlighted data property. The triple pattern to add is something like `?x <predicateIRI> ?y` where `?x` should be derived from `selectedClassIRI`. Note that `?y` is fresh new variable that should be added also to the head of the query (we assume data property values are interesting). The variable `?y` should be called according to the entity remainder or label and should add a counter if there is an already defined variable for that data property.
+         * @summary Starting from the current query graph continue to build the query graph through a data property.
+         * @param {string} graphElementId The id of the node of the selected class in the query graph.
+         * @param {string} sourceClassIRI The IRI of the last selected class. It could be selected from the ontology graph or from the query graph.
+         * @param {string} predicateIRI The IRI of the clicked data property.
+         * @param {QueryGraph} queryGraph 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        putQueryGraphDataProperty(graphElementId: string, sourceClassIRI: string, predicateIRI: string, queryGraph: QueryGraph, options?: any): AxiosPromise<QueryGraph> {
+            return localVarFp.putQueryGraphDataProperty(graphElementId, sourceClassIRI, predicateIRI, queryGraph, options).then((request) => request(axios, basePath));
+        },
+        /**
+         * Starting from a query graph which has two nodes representing the same class(es), it returns the query graph in which the two nodes have been joined into a single one. The children of the selected nodes will be grouped in `graphElementId1` and each time we add a children through the previous routes they will be added to this node.
+         * @summary Join two GraphNodeElement in one.
+         * @param {string} graphElementId1 The id of the node of the selected class in the query graph.
+         * @param {string} graphElementId2 The id of the node of the selected class in the query graph.
+         * @param {QueryGraph} queryGraph 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        putQueryGraphJoin(graphElementId1: string, graphElementId2: string, queryGraph: QueryGraph, options?: any): AxiosPromise<QueryGraph> {
+            return localVarFp.putQueryGraphJoin(graphElementId1, graphElementId2, queryGraph, options).then((request) => request(axios, basePath));
+        },
+        /**
+         * This route is used when the user click a highlighted object property with ornly one `relatedClasses` or, in the case of more than one `relatedClasses` immediatly after choosing one of them. In this case the triple pattern to add is something like `?x <predicateIRI> ?y` where `?x` and `?y` should be derived from the direction indicated by `isPredicateDirect` of the object property with respect to `sourceClassIRI` and `targetClassIRI`. If there is a cyclic object property the user also should specify the direction if order to correctly assign `?x` and `?y`. Either `?x` or `?y` should be a fresh new variable which should be linked to a new triple pattern `?y rdf:type <targetClassIRI>`. The variable `?y` should be called according to the entity remainder or label and should add a counter if there is an already defined variable for that class.
+         * @summary Starting from the current query graph continue to build the query graph through a object property.
+         * @param {string} graphElementId The id of the node of the selected class in the query graph.
+         * @param {string} sourceClassIRI The IRI of the last selected class. It could be selected from the ontology graph or from the query graph.
+         * @param {string} predicateIRI The IRI of the predicate which links source class and target class
+         * @param {string} targetClassIRI The IRI of the entity clicked on the GRAPHOLscape ontology graph.
+         * @param {boolean} isPredicateDirect If true sourceClassIRI is the domain of predicateIRI, if false sourceClassIRI is the range of predicateIRI.
+         * @param {QueryGraph} queryGraph 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        putQueryGraphObjectProperty(graphElementId: string, sourceClassIRI: string, predicateIRI: string, targetClassIRI: string, isPredicateDirect: boolean, queryGraph: QueryGraph, options?: any): AxiosPromise<QueryGraph> {
+            return localVarFp.putQueryGraphObjectProperty(graphElementId, sourceClassIRI, predicateIRI, targetClassIRI, isPredicateDirect, queryGraph, options).then((request) => request(axios, basePath));
+        },
+    };
+};
+
+/**
+ * QueryGraphBGPApi - object-oriented interface
+ * @export
+ * @class QueryGraphBGPApi
+ * @extends {BaseAPI}
+ */
+export class QueryGraphBGPApi extends BaseAPI {
+    /**
+     * This path should be used to build the query graph using the path interaction. As a result there will be added to the query several triple pattern (depending on the length of the path) as a sequence of classes and object properties. Data properties never appear in paths, in order to add them use the simple PUT route.
+     * @summary Get the query graph that will be rendered by Sparqling, the query head, the sparql code based on the chosen path.
+     * @param {string} path Serialization of Path object.
+     * @param {QueryGraph} queryGraph 
+     * @param {*} [options] Override http request option.
+     * @throws {RequiredError}
+     * @memberof QueryGraphBGPApi
+     */
+    public addPathToQueryGraph(path: string, queryGraph: QueryGraph, options?: AxiosRequestConfig) {
+        return QueryGraphBGPApiFp(this.configuration).addPathToQueryGraph(path, queryGraph, options).then((request) => request(this.axios, this.basePath));
+    }
+
+    /**
+     * This route is used when the user wants to delete a node from the query graph. All the children of this node will be deleted as well as we do not want to create query with completly separated branches. All the variables that are going to be deleted should also be deleted from the head of the query. **WARNING**, if the node has multiple occurrences (due to join operations) every node should be deleted.
+     * @summary Delete the GraphElement (and all its children) from the query graph and head.
+     * @param {string} graphElementId The GraphElement that should be deleted
+     * @param {QueryGraph} queryGraph 
+     * @param {*} [options] Override http request option.
+     * @throws {RequiredError}
+     * @memberof QueryGraphBGPApi
+     */
+    public deleteGraphElementId(graphElementId: string, queryGraph: QueryGraph, options?: AxiosRequestConfig) {
+        return QueryGraphBGPApiFp(this.configuration).deleteGraphElementId(graphElementId, queryGraph, options).then((request) => request(this.axios, this.basePath));
+    }
+
+    /**
+     * Starting from only the clicked class get the query graph that will be rendered by Sparqling, the query head, the sparql code. The sparql query returned will be somthing like `select ?x { ?x a <clickedClassIRI>` }. The variable `?x` should be called according to the entity remainder or label. The variable will be added to the head of the query in order to create a valid SPARQL query.
+     * @summary This is the first route to call in order to build the query graph.
+     * @param {string} clickedClassIRI The IRI of the entity clicked on the GRAPHOLscape ontology graph
+     * @param {*} [options] Override http request option.
+     * @throws {RequiredError}
+     * @memberof QueryGraphBGPApi
+     */
+    public getQueryGraph(clickedClassIRI: string, options?: AxiosRequestConfig) {
+        return QueryGraphBGPApiFp(this.configuration).getQueryGraph(clickedClassIRI, options).then((request) => request(this.axios, this.basePath));
+    }
+
+    /**
+     * This call is used when the user click on a highlighted class and should add a triple pattern of the form like `?x rdf:type <targetClassIRI>`. The server should find `?x` in the SPARQL code as the variable associated to the `sourceClassIRI`.
+     * @summary Starting from the current query graph continue to build the query graph through a class.
+     * @param {string} graphElementId The id of the node of the selected class in the query graph.
+     * @param {string} sourceClassIRI The IRI of the last selected class. It could be selected from the ontology graph or from the query graph.
+     * @param {string} targetClassIRI The IRI of the entity clicked on the GRAPHOLscape ontology graph.
+     * @param {QueryGraph} queryGraph 
+     * @param {*} [options] Override http request option.
+     * @throws {RequiredError}
+     * @memberof QueryGraphBGPApi
+     */
+    public putQueryGraphClass(graphElementId: string, sourceClassIRI: string, targetClassIRI: string, queryGraph: QueryGraph, options?: AxiosRequestConfig) {
+        return QueryGraphBGPApiFp(this.configuration).putQueryGraphClass(graphElementId, sourceClassIRI, targetClassIRI, queryGraph, options).then((request) => request(this.axios, this.basePath));
+    }
+
+    /**
+     * This route is used when the user click a highlighted data property. The triple pattern to add is something like `?x <predicateIRI> ?y` where `?x` should be derived from `selectedClassIRI`. Note that `?y` is fresh new variable that should be added also to the head of the query (we assume data property values are interesting). The variable `?y` should be called according to the entity remainder or label and should add a counter if there is an already defined variable for that data property.
+     * @summary Starting from the current query graph continue to build the query graph through a data property.
+     * @param {string} graphElementId The id of the node of the selected class in the query graph.
+     * @param {string} sourceClassIRI The IRI of the last selected class. It could be selected from the ontology graph or from the query graph.
+     * @param {string} predicateIRI The IRI of the clicked data property.
+     * @param {QueryGraph} queryGraph 
+     * @param {*} [options] Override http request option.
+     * @throws {RequiredError}
+     * @memberof QueryGraphBGPApi
+     */
+    public putQueryGraphDataProperty(graphElementId: string, sourceClassIRI: string, predicateIRI: string, queryGraph: QueryGraph, options?: AxiosRequestConfig) {
+        return QueryGraphBGPApiFp(this.configuration).putQueryGraphDataProperty(graphElementId, sourceClassIRI, predicateIRI, queryGraph, options).then((request) => request(this.axios, this.basePath));
+    }
+
+    /**
+     * Starting from a query graph which has two nodes representing the same class(es), it returns the query graph in which the two nodes have been joined into a single one. The children of the selected nodes will be grouped in `graphElementId1` and each time we add a children through the previous routes they will be added to this node.
+     * @summary Join two GraphNodeElement in one.
+     * @param {string} graphElementId1 The id of the node of the selected class in the query graph.
+     * @param {string} graphElementId2 The id of the node of the selected class in the query graph.
+     * @param {QueryGraph} queryGraph 
+     * @param {*} [options] Override http request option.
+     * @throws {RequiredError}
+     * @memberof QueryGraphBGPApi
+     */
+    public putQueryGraphJoin(graphElementId1: string, graphElementId2: string, queryGraph: QueryGraph, options?: AxiosRequestConfig) {
+        return QueryGraphBGPApiFp(this.configuration).putQueryGraphJoin(graphElementId1, graphElementId2, queryGraph, options).then((request) => request(this.axios, this.basePath));
+    }
+
+    /**
+     * This route is used when the user click a highlighted object property with ornly one `relatedClasses` or, in the case of more than one `relatedClasses` immediatly after choosing one of them. In this case the triple pattern to add is something like `?x <predicateIRI> ?y` where `?x` and `?y` should be derived from the direction indicated by `isPredicateDirect` of the object property with respect to `sourceClassIRI` and `targetClassIRI`. If there is a cyclic object property the user also should specify the direction if order to correctly assign `?x` and `?y`. Either `?x` or `?y` should be a fresh new variable which should be linked to a new triple pattern `?y rdf:type <targetClassIRI>`. The variable `?y` should be called according to the entity remainder or label and should add a counter if there is an already defined variable for that class.
+     * @summary Starting from the current query graph continue to build the query graph through a object property.
+     * @param {string} graphElementId The id of the node of the selected class in the query graph.
+     * @param {string} sourceClassIRI The IRI of the last selected class. It could be selected from the ontology graph or from the query graph.
+     * @param {string} predicateIRI The IRI of the predicate which links source class and target class
+     * @param {string} targetClassIRI The IRI of the entity clicked on the GRAPHOLscape ontology graph.
+     * @param {boolean} isPredicateDirect If true sourceClassIRI is the domain of predicateIRI, if false sourceClassIRI is the range of predicateIRI.
+     * @param {QueryGraph} queryGraph 
+     * @param {*} [options] Override http request option.
+     * @throws {RequiredError}
+     * @memberof QueryGraphBGPApi
+     */
+    public putQueryGraphObjectProperty(graphElementId: string, sourceClassIRI: string, predicateIRI: string, targetClassIRI: string, isPredicateDirect: boolean, queryGraph: QueryGraph, options?: AxiosRequestConfig) {
+        return QueryGraphBGPApiFp(this.configuration).putQueryGraphObjectProperty(graphElementId, sourceClassIRI, predicateIRI, targetClassIRI, isPredicateDirect, queryGraph, options).then((request) => request(this.axios, this.basePath));
+    }
+}
+
+
+/**
+ * QueryGraphExtraApi - axios parameter creator
+ * @export
+ */
+export const QueryGraphExtraApiAxiosParamCreator = function (configuration?: Configuration) {
+    return {
+        /**
+         * The distinct value is defined in the query graph in the request body.
+         * @summary Set the distinct value.
+         * @param {boolean} distinct 
+         * @param {QueryGraph} queryGraph 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        distinctQueryGraph: async (distinct: boolean, queryGraph: QueryGraph, options: AxiosRequestConfig = {}): Promise<RequestArgs> => {
+            // verify required parameter 'distinct' is not null or undefined
+            assertParamExists('distinctQueryGraph', 'distinct', distinct)
+            // verify required parameter 'queryGraph' is not null or undefined
+            assertParamExists('distinctQueryGraph', 'queryGraph', queryGraph)
+            const localVarPath = `/queryGraph/distinct`;
+            // use dummy base URL string because the URL constructor only accepts absolute URLs.
+            const localVarUrlObj = new URL(localVarPath, DUMMY_BASE_URL);
+            let baseOptions;
+            if (configuration) {
+                baseOptions = configuration.baseOptions;
+            }
+
+            const localVarRequestOptions = { method: 'PUT', ...baseOptions, ...options};
+            const localVarHeaderParameter = {} as any;
+            const localVarQueryParameter = {} as any;
+
+            if (distinct !== undefined) {
+                localVarQueryParameter['distinct'] = distinct;
+            }
+
+
+    
+            localVarHeaderParameter['Content-Type'] = 'application/json';
+
+            setSearchParams(localVarUrlObj, localVarQueryParameter);
+            let headersFromBaseOptions = baseOptions && baseOptions.headers ? baseOptions.headers : {};
+            localVarRequestOptions.headers = {...localVarHeaderParameter, ...headersFromBaseOptions, ...options.headers};
+            localVarRequestOptions.data = serializeDataIfNeeded(queryGraph, localVarRequestOptions, configuration)
+
+            return {
+                url: toPathString(localVarUrlObj),
+                options: localVarRequestOptions,
+            };
+        },
+        /**
+         * The limit value is defined in the query graph in the request body.
+         * @summary Set the limit value.
+         * @param {number} limit 
+         * @param {QueryGraph} queryGraph 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        limitQueryGraph: async (limit: number, queryGraph: QueryGraph, options: AxiosRequestConfig = {}): Promise<RequestArgs> => {
+            // verify required parameter 'limit' is not null or undefined
+            assertParamExists('limitQueryGraph', 'limit', limit)
+            // verify required parameter 'queryGraph' is not null or undefined
+            assertParamExists('limitQueryGraph', 'queryGraph', queryGraph)
+            const localVarPath = `/queryGraph/limit`;
+            // use dummy base URL string because the URL constructor only accepts absolute URLs.
+            const localVarUrlObj = new URL(localVarPath, DUMMY_BASE_URL);
+            let baseOptions;
+            if (configuration) {
+                baseOptions = configuration.baseOptions;
+            }
+
+            const localVarRequestOptions = { method: 'PUT', ...baseOptions, ...options};
+            const localVarHeaderParameter = {} as any;
+            const localVarQueryParameter = {} as any;
+
+            if (limit !== undefined) {
+                localVarQueryParameter['limit'] = limit;
+            }
+
+
+    
+            localVarHeaderParameter['Content-Type'] = 'application/json';
+
+            setSearchParams(localVarUrlObj, localVarQueryParameter);
+            let headersFromBaseOptions = baseOptions && baseOptions.headers ? baseOptions.headers : {};
+            localVarRequestOptions.headers = {...localVarHeaderParameter, ...headersFromBaseOptions, ...options.headers};
+            localVarRequestOptions.data = serializeDataIfNeeded(queryGraph, localVarRequestOptions, configuration)
+
+            return {
+                url: toPathString(localVarUrlObj),
+                options: localVarRequestOptions,
+            };
+        },
+        /**
+         * The offset value is defined in the query graph in the request body.
+         * @summary Set the offset value.
+         * @param {boolean} offset 
+         * @param {QueryGraph} queryGraph 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        offsetQueryGraph: async (offset: boolean, queryGraph: QueryGraph, options: AxiosRequestConfig = {}): Promise<RequestArgs> => {
+            // verify required parameter 'offset' is not null or undefined
+            assertParamExists('offsetQueryGraph', 'offset', offset)
+            // verify required parameter 'queryGraph' is not null or undefined
+            assertParamExists('offsetQueryGraph', 'queryGraph', queryGraph)
+            const localVarPath = `/queryGraph/offset`;
+            // use dummy base URL string because the URL constructor only accepts absolute URLs.
+            const localVarUrlObj = new URL(localVarPath, DUMMY_BASE_URL);
+            let baseOptions;
+            if (configuration) {
+                baseOptions = configuration.baseOptions;
+            }
+
+            const localVarRequestOptions = { method: 'PUT', ...baseOptions, ...options};
+            const localVarHeaderParameter = {} as any;
+            const localVarQueryParameter = {} as any;
+
+            if (offset !== undefined) {
+                localVarQueryParameter['offset'] = offset;
+            }
+
+
+    
+            localVarHeaderParameter['Content-Type'] = 'application/json';
+
+            setSearchParams(localVarUrlObj, localVarQueryParameter);
+            let headersFromBaseOptions = baseOptions && baseOptions.headers ? baseOptions.headers : {};
+            localVarRequestOptions.headers = {...localVarHeaderParameter, ...headersFromBaseOptions, ...options.headers};
+            localVarRequestOptions.data = serializeDataIfNeeded(queryGraph, localVarRequestOptions, configuration)
+
+            return {
+                url: toPathString(localVarUrlObj),
+                options: localVarRequestOptions,
+            };
+        },
+    }
+};
+
+/**
+ * QueryGraphExtraApi - functional programming interface
+ * @export
+ */
+export const QueryGraphExtraApiFp = function(configuration?: Configuration) {
+    const localVarAxiosParamCreator = QueryGraphExtraApiAxiosParamCreator(configuration)
+    return {
+        /**
+         * The distinct value is defined in the query graph in the request body.
+         * @summary Set the distinct value.
+         * @param {boolean} distinct 
+         * @param {QueryGraph} queryGraph 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        async distinctQueryGraph(distinct: boolean, queryGraph: QueryGraph, options?: AxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<QueryGraph>> {
+            const localVarAxiosArgs = await localVarAxiosParamCreator.distinctQueryGraph(distinct, queryGraph, options);
+            return createRequestFunction(localVarAxiosArgs, globalAxios, BASE_PATH, configuration);
+        },
+        /**
+         * The limit value is defined in the query graph in the request body.
+         * @summary Set the limit value.
+         * @param {number} limit 
+         * @param {QueryGraph} queryGraph 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        async limitQueryGraph(limit: number, queryGraph: QueryGraph, options?: AxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<QueryGraph>> {
+            const localVarAxiosArgs = await localVarAxiosParamCreator.limitQueryGraph(limit, queryGraph, options);
+            return createRequestFunction(localVarAxiosArgs, globalAxios, BASE_PATH, configuration);
+        },
+        /**
+         * The offset value is defined in the query graph in the request body.
+         * @summary Set the offset value.
+         * @param {boolean} offset 
+         * @param {QueryGraph} queryGraph 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        async offsetQueryGraph(offset: boolean, queryGraph: QueryGraph, options?: AxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<QueryGraph>> {
+            const localVarAxiosArgs = await localVarAxiosParamCreator.offsetQueryGraph(offset, queryGraph, options);
+            return createRequestFunction(localVarAxiosArgs, globalAxios, BASE_PATH, configuration);
+        },
+    }
+};
+
+/**
+ * QueryGraphExtraApi - factory interface
+ * @export
+ */
+export const QueryGraphExtraApiFactory = function (configuration?: Configuration, basePath?: string, axios?: AxiosInstance) {
+    const localVarFp = QueryGraphExtraApiFp(configuration)
+    return {
+        /**
+         * The distinct value is defined in the query graph in the request body.
+         * @summary Set the distinct value.
+         * @param {boolean} distinct 
+         * @param {QueryGraph} queryGraph 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        distinctQueryGraph(distinct: boolean, queryGraph: QueryGraph, options?: any): AxiosPromise<QueryGraph> {
+            return localVarFp.distinctQueryGraph(distinct, queryGraph, options).then((request) => request(axios, basePath));
+        },
+        /**
+         * The limit value is defined in the query graph in the request body.
+         * @summary Set the limit value.
+         * @param {number} limit 
+         * @param {QueryGraph} queryGraph 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        limitQueryGraph(limit: number, queryGraph: QueryGraph, options?: any): AxiosPromise<QueryGraph> {
+            return localVarFp.limitQueryGraph(limit, queryGraph, options).then((request) => request(axios, basePath));
+        },
+        /**
+         * The offset value is defined in the query graph in the request body.
+         * @summary Set the offset value.
+         * @param {boolean} offset 
+         * @param {QueryGraph} queryGraph 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        offsetQueryGraph(offset: boolean, queryGraph: QueryGraph, options?: any): AxiosPromise<QueryGraph> {
+            return localVarFp.offsetQueryGraph(offset, queryGraph, options).then((request) => request(axios, basePath));
+        },
+    };
+};
+
+/**
+ * QueryGraphExtraApi - object-oriented interface
+ * @export
+ * @class QueryGraphExtraApi
+ * @extends {BaseAPI}
+ */
+export class QueryGraphExtraApi extends BaseAPI {
+    /**
+     * The distinct value is defined in the query graph in the request body.
+     * @summary Set the distinct value.
+     * @param {boolean} distinct 
+     * @param {QueryGraph} queryGraph 
+     * @param {*} [options] Override http request option.
+     * @throws {RequiredError}
+     * @memberof QueryGraphExtraApi
+     */
+    public distinctQueryGraph(distinct: boolean, queryGraph: QueryGraph, options?: AxiosRequestConfig) {
+        return QueryGraphExtraApiFp(this.configuration).distinctQueryGraph(distinct, queryGraph, options).then((request) => request(this.axios, this.basePath));
+    }
+
+    /**
+     * The limit value is defined in the query graph in the request body.
+     * @summary Set the limit value.
+     * @param {number} limit 
+     * @param {QueryGraph} queryGraph 
+     * @param {*} [options] Override http request option.
+     * @throws {RequiredError}
+     * @memberof QueryGraphExtraApi
+     */
+    public limitQueryGraph(limit: number, queryGraph: QueryGraph, options?: AxiosRequestConfig) {
+        return QueryGraphExtraApiFp(this.configuration).limitQueryGraph(limit, queryGraph, options).then((request) => request(this.axios, this.basePath));
+    }
+
+    /**
+     * The offset value is defined in the query graph in the request body.
+     * @summary Set the offset value.
+     * @param {boolean} offset 
+     * @param {QueryGraph} queryGraph 
+     * @param {*} [options] Override http request option.
+     * @throws {RequiredError}
+     * @memberof QueryGraphExtraApi
+     */
+    public offsetQueryGraph(offset: boolean, queryGraph: QueryGraph, options?: AxiosRequestConfig) {
+        return QueryGraphExtraApiFp(this.configuration).offsetQueryGraph(offset, queryGraph, options).then((request) => request(this.axios, this.basePath));
+    }
+}
+
+
+/**
+ * QueryGraphFilterApi - axios parameter creator
+ * @export
+ */
+export const QueryGraphFilterApiAxiosParamCreator = function (configuration?: Configuration) {
+    return {
+        /**
+         * Translate the filter at index `filterId` to a filter in SPARQL.
+         * @summary Modify a filter in the query.
+         * @param {number} filterId 
+         * @param {QueryGraph} queryGraph 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        editFilter: async (filterId: number, queryGraph: QueryGraph, options: AxiosRequestConfig = {}): Promise<RequestArgs> => {
+            // verify required parameter 'filterId' is not null or undefined
+            assertParamExists('editFilter', 'filterId', filterId)
+            // verify required parameter 'queryGraph' is not null or undefined
+            assertParamExists('editFilter', 'queryGraph', queryGraph)
+            const localVarPath = `/queryGraph/node/filter/edit/{filterId}`
+                .replace(`{${"filterId"}}`, encodeURIComponent(String(filterId)));
+            // use dummy base URL string because the URL constructor only accepts absolute URLs.
+            const localVarUrlObj = new URL(localVarPath, DUMMY_BASE_URL);
+            let baseOptions;
+            if (configuration) {
+                baseOptions = configuration.baseOptions;
+            }
+
+            const localVarRequestOptions = { method: 'PUT', ...baseOptions, ...options};
+            const localVarHeaderParameter = {} as any;
+            const localVarQueryParameter = {} as any;
+
+
+    
+            localVarHeaderParameter['Content-Type'] = 'application/json';
+
+            setSearchParams(localVarUrlObj, localVarQueryParameter);
+            let headersFromBaseOptions = baseOptions && baseOptions.headers ? baseOptions.headers : {};
+            localVarRequestOptions.headers = {...localVarHeaderParameter, ...headersFromBaseOptions, ...options.headers};
+            localVarRequestOptions.data = serializeDataIfNeeded(queryGraph, localVarRequestOptions, configuration)
+
+            return {
+                url: toPathString(localVarUrlObj),
+                options: localVarRequestOptions,
+            };
+        },
+        /**
+         * Translate the filter at index `filterId` to a new filter in SPARQL.
+         * @summary Create a new filter in the query.
+         * @param {number} filterId 
+         * @param {QueryGraph} queryGraph 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        newFilter: async (filterId: number, queryGraph: QueryGraph, options: AxiosRequestConfig = {}): Promise<RequestArgs> => {
+            // verify required parameter 'filterId' is not null or undefined
+            assertParamExists('newFilter', 'filterId', filterId)
+            // verify required parameter 'queryGraph' is not null or undefined
+            assertParamExists('newFilter', 'queryGraph', queryGraph)
+            const localVarPath = `/queryGraph/node/filter/{filterId}`
+                .replace(`{${"filterId"}}`, encodeURIComponent(String(filterId)));
+            // use dummy base URL string because the URL constructor only accepts absolute URLs.
+            const localVarUrlObj = new URL(localVarPath, DUMMY_BASE_URL);
+            let baseOptions;
+            if (configuration) {
+                baseOptions = configuration.baseOptions;
+            }
+
+            const localVarRequestOptions = { method: 'PUT', ...baseOptions, ...options};
+            const localVarHeaderParameter = {} as any;
+            const localVarQueryParameter = {} as any;
+
+
+    
+            localVarHeaderParameter['Content-Type'] = 'application/json';
+
+            setSearchParams(localVarUrlObj, localVarQueryParameter);
+            let headersFromBaseOptions = baseOptions && baseOptions.headers ? baseOptions.headers : {};
+            localVarRequestOptions.headers = {...localVarHeaderParameter, ...headersFromBaseOptions, ...options.headers};
+            localVarRequestOptions.data = serializeDataIfNeeded(queryGraph, localVarRequestOptions, configuration)
+
+            return {
+                url: toPathString(localVarUrlObj),
+                options: localVarRequestOptions,
+            };
+        },
+        /**
+         * 
+         * @summary Remove the filters.
+         * @param {QueryGraph} queryGraph 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        removeAllFilters: async (queryGraph: QueryGraph, options: AxiosRequestConfig = {}): Promise<RequestArgs> => {
+            // verify required parameter 'queryGraph' is not null or undefined
+            assertParamExists('removeAllFilters', 'queryGraph', queryGraph)
+            const localVarPath = `/queryGraph/node/filter/remove/all`;
+            // use dummy base URL string because the URL constructor only accepts absolute URLs.
+            const localVarUrlObj = new URL(localVarPath, DUMMY_BASE_URL);
+            let baseOptions;
+            if (configuration) {
+                baseOptions = configuration.baseOptions;
+            }
+
+            const localVarRequestOptions = { method: 'PUT', ...baseOptions, ...options};
+            const localVarHeaderParameter = {} as any;
+            const localVarQueryParameter = {} as any;
+
+
+    
+            localVarHeaderParameter['Content-Type'] = 'application/json';
+
+            setSearchParams(localVarUrlObj, localVarQueryParameter);
+            let headersFromBaseOptions = baseOptions && baseOptions.headers ? baseOptions.headers : {};
+            localVarRequestOptions.headers = {...localVarHeaderParameter, ...headersFromBaseOptions, ...options.headers};
+            localVarRequestOptions.data = serializeDataIfNeeded(queryGraph, localVarRequestOptions, configuration)
+
+            return {
+                url: toPathString(localVarUrlObj),
+                options: localVarRequestOptions,
+            };
+        },
+        /**
+         * 
+         * @summary Remove the filter at index `filterId` from the query.
+         * @param {number} filterId 
+         * @param {QueryGraph} queryGraph 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        removeFilter: async (filterId: number, queryGraph: QueryGraph, options: AxiosRequestConfig = {}): Promise<RequestArgs> => {
+            // verify required parameter 'filterId' is not null or undefined
+            assertParamExists('removeFilter', 'filterId', filterId)
+            // verify required parameter 'queryGraph' is not null or undefined
+            assertParamExists('removeFilter', 'queryGraph', queryGraph)
+            const localVarPath = `/queryGraph/node/filter/remove/{filterId}`
+                .replace(`{${"filterId"}}`, encodeURIComponent(String(filterId)));
+            // use dummy base URL string because the URL constructor only accepts absolute URLs.
+            const localVarUrlObj = new URL(localVarPath, DUMMY_BASE_URL);
+            let baseOptions;
+            if (configuration) {
+                baseOptions = configuration.baseOptions;
+            }
+
+            const localVarRequestOptions = { method: 'PUT', ...baseOptions, ...options};
+            const localVarHeaderParameter = {} as any;
+            const localVarQueryParameter = {} as any;
+
+
+    
+            localVarHeaderParameter['Content-Type'] = 'application/json';
+
+            setSearchParams(localVarUrlObj, localVarQueryParameter);
+            let headersFromBaseOptions = baseOptions && baseOptions.headers ? baseOptions.headers : {};
+            localVarRequestOptions.headers = {...localVarHeaderParameter, ...headersFromBaseOptions, ...options.headers};
+            localVarRequestOptions.data = serializeDataIfNeeded(queryGraph, localVarRequestOptions, configuration)
+
+            return {
+                url: toPathString(localVarUrlObj),
+                options: localVarRequestOptions,
+            };
+        },
+    }
+};
+
+/**
+ * QueryGraphFilterApi - functional programming interface
+ * @export
+ */
+export const QueryGraphFilterApiFp = function(configuration?: Configuration) {
+    const localVarAxiosParamCreator = QueryGraphFilterApiAxiosParamCreator(configuration)
+    return {
+        /**
+         * Translate the filter at index `filterId` to a filter in SPARQL.
+         * @summary Modify a filter in the query.
+         * @param {number} filterId 
+         * @param {QueryGraph} queryGraph 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        async editFilter(filterId: number, queryGraph: QueryGraph, options?: AxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<QueryGraph>> {
+            const localVarAxiosArgs = await localVarAxiosParamCreator.editFilter(filterId, queryGraph, options);
+            return createRequestFunction(localVarAxiosArgs, globalAxios, BASE_PATH, configuration);
+        },
+        /**
+         * Translate the filter at index `filterId` to a new filter in SPARQL.
+         * @summary Create a new filter in the query.
+         * @param {number} filterId 
+         * @param {QueryGraph} queryGraph 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        async newFilter(filterId: number, queryGraph: QueryGraph, options?: AxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<QueryGraph>> {
+            const localVarAxiosArgs = await localVarAxiosParamCreator.newFilter(filterId, queryGraph, options);
+            return createRequestFunction(localVarAxiosArgs, globalAxios, BASE_PATH, configuration);
+        },
+        /**
+         * 
+         * @summary Remove the filters.
+         * @param {QueryGraph} queryGraph 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        async removeAllFilters(queryGraph: QueryGraph, options?: AxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<QueryGraph>> {
+            const localVarAxiosArgs = await localVarAxiosParamCreator.removeAllFilters(queryGraph, options);
+            return createRequestFunction(localVarAxiosArgs, globalAxios, BASE_PATH, configuration);
+        },
+        /**
+         * 
+         * @summary Remove the filter at index `filterId` from the query.
+         * @param {number} filterId 
+         * @param {QueryGraph} queryGraph 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        async removeFilter(filterId: number, queryGraph: QueryGraph, options?: AxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<QueryGraph>> {
+            const localVarAxiosArgs = await localVarAxiosParamCreator.removeFilter(filterId, queryGraph, options);
+            return createRequestFunction(localVarAxiosArgs, globalAxios, BASE_PATH, configuration);
+        },
+    }
+};
+
+/**
+ * QueryGraphFilterApi - factory interface
+ * @export
+ */
+export const QueryGraphFilterApiFactory = function (configuration?: Configuration, basePath?: string, axios?: AxiosInstance) {
+    const localVarFp = QueryGraphFilterApiFp(configuration)
+    return {
+        /**
+         * Translate the filter at index `filterId` to a filter in SPARQL.
+         * @summary Modify a filter in the query.
+         * @param {number} filterId 
+         * @param {QueryGraph} queryGraph 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        editFilter(filterId: number, queryGraph: QueryGraph, options?: any): AxiosPromise<QueryGraph> {
+            return localVarFp.editFilter(filterId, queryGraph, options).then((request) => request(axios, basePath));
+        },
+        /**
+         * Translate the filter at index `filterId` to a new filter in SPARQL.
+         * @summary Create a new filter in the query.
+         * @param {number} filterId 
+         * @param {QueryGraph} queryGraph 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        newFilter(filterId: number, queryGraph: QueryGraph, options?: any): AxiosPromise<QueryGraph> {
+            return localVarFp.newFilter(filterId, queryGraph, options).then((request) => request(axios, basePath));
+        },
+        /**
+         * 
+         * @summary Remove the filters.
+         * @param {QueryGraph} queryGraph 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        removeAllFilters(queryGraph: QueryGraph, options?: any): AxiosPromise<QueryGraph> {
+            return localVarFp.removeAllFilters(queryGraph, options).then((request) => request(axios, basePath));
+        },
+        /**
+         * 
+         * @summary Remove the filter at index `filterId` from the query.
+         * @param {number} filterId 
+         * @param {QueryGraph} queryGraph 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        removeFilter(filterId: number, queryGraph: QueryGraph, options?: any): AxiosPromise<QueryGraph> {
+            return localVarFp.removeFilter(filterId, queryGraph, options).then((request) => request(axios, basePath));
+        },
+    };
+};
+
+/**
+ * QueryGraphFilterApi - object-oriented interface
+ * @export
+ * @class QueryGraphFilterApi
+ * @extends {BaseAPI}
+ */
+export class QueryGraphFilterApi extends BaseAPI {
+    /**
+     * Translate the filter at index `filterId` to a filter in SPARQL.
+     * @summary Modify a filter in the query.
+     * @param {number} filterId 
+     * @param {QueryGraph} queryGraph 
+     * @param {*} [options] Override http request option.
+     * @throws {RequiredError}
+     * @memberof QueryGraphFilterApi
+     */
+    public editFilter(filterId: number, queryGraph: QueryGraph, options?: AxiosRequestConfig) {
+        return QueryGraphFilterApiFp(this.configuration).editFilter(filterId, queryGraph, options).then((request) => request(this.axios, this.basePath));
+    }
+
+    /**
+     * Translate the filter at index `filterId` to a new filter in SPARQL.
+     * @summary Create a new filter in the query.
+     * @param {number} filterId 
+     * @param {QueryGraph} queryGraph 
+     * @param {*} [options] Override http request option.
+     * @throws {RequiredError}
+     * @memberof QueryGraphFilterApi
+     */
+    public newFilter(filterId: number, queryGraph: QueryGraph, options?: AxiosRequestConfig) {
+        return QueryGraphFilterApiFp(this.configuration).newFilter(filterId, queryGraph, options).then((request) => request(this.axios, this.basePath));
+    }
+
+    /**
+     * 
+     * @summary Remove the filters.
+     * @param {QueryGraph} queryGraph 
+     * @param {*} [options] Override http request option.
+     * @throws {RequiredError}
+     * @memberof QueryGraphFilterApi
+     */
+    public removeAllFilters(queryGraph: QueryGraph, options?: AxiosRequestConfig) {
+        return QueryGraphFilterApiFp(this.configuration).removeAllFilters(queryGraph, options).then((request) => request(this.axios, this.basePath));
+    }
+
+    /**
+     * 
+     * @summary Remove the filter at index `filterId` from the query.
+     * @param {number} filterId 
+     * @param {QueryGraph} queryGraph 
+     * @param {*} [options] Override http request option.
+     * @throws {RequiredError}
+     * @memberof QueryGraphFilterApi
+     */
+    public removeFilter(filterId: number, queryGraph: QueryGraph, options?: AxiosRequestConfig) {
+        return QueryGraphFilterApiFp(this.configuration).removeFilter(filterId, queryGraph, options).then((request) => request(this.axios, this.basePath));
+    }
+}
+
+
+/**
+ * QueryGraphHeadApi - axios parameter creator
+ * @export
+ */
+export const QueryGraphHeadApiAxiosParamCreator = function (configuration?: Configuration) {
+    return {
+        /**
+         * Explicitley add a term to the query head. All the data property variables are added automatically to the head during the query graph construction. This will add to the head only variables associated to classes (`rdf:type` triple pattern) or data properties.
+         * @summary Add the head term to the query graph.
+         * @param {string} graphElementId The id of the graph node that should be added to the head
+         * @param {QueryGraph} queryGraph 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        addHeadTerm: async (graphElementId: string, queryGraph: QueryGraph, options: AxiosRequestConfig = {}): Promise<RequestArgs> => {
+            // verify required parameter 'graphElementId' is not null or undefined
+            assertParamExists('addHeadTerm', 'graphElementId', graphElementId)
+            // verify required parameter 'queryGraph' is not null or undefined
+            assertParamExists('addHeadTerm', 'queryGraph', queryGraph)
+            const localVarPath = `/queryGraph/head/add/{graphElementId}`
+                .replace(`{${"graphElementId"}}`, encodeURIComponent(String(graphElementId)));
+            // use dummy base URL string because the URL constructor only accepts absolute URLs.
+            const localVarUrlObj = new URL(localVarPath, DUMMY_BASE_URL);
+            let baseOptions;
+            if (configuration) {
+                baseOptions = configuration.baseOptions;
+            }
+
+            const localVarRequestOptions = { method: 'PUT', ...baseOptions, ...options};
+            const localVarHeaderParameter = {} as any;
+            const localVarQueryParameter = {} as any;
+
+
+    
+            localVarHeaderParameter['Content-Type'] = 'application/json';
+
+            setSearchParams(localVarUrlObj, localVarQueryParameter);
+            let headersFromBaseOptions = baseOptions && baseOptions.headers ? baseOptions.headers : {};
+            localVarRequestOptions.headers = {...localVarHeaderParameter, ...headersFromBaseOptions, ...options.headers};
+            localVarRequestOptions.data = serializeDataIfNeeded(queryGraph, localVarRequestOptions, configuration)
+
+            return {
+                url: toPathString(localVarUrlObj),
+                options: localVarRequestOptions,
+            };
+        },
+        /**
+         * The having aggregation function is defined in the groupBy field of the query graph in the request body.
+         * @summary Set the having filter of the aggregation function to the head term.
+         * @param {string} headTerm The head term that should be involved in the having filter
+         * @param {string} direction 
+         * @param {QueryGraph} queryGraph 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        aggregationHavingHeadTerm: async (headTerm: string, direction: string, queryGraph: QueryGraph, options: AxiosRequestConfig = {}): Promise<RequestArgs> => {
+            // verify required parameter 'headTerm' is not null or undefined
+            assertParamExists('aggregationHavingHeadTerm', 'headTerm', headTerm)
+            // verify required parameter 'direction' is not null or undefined
+            assertParamExists('aggregationHavingHeadTerm', 'direction', direction)
+            // verify required parameter 'queryGraph' is not null or undefined
+            assertParamExists('aggregationHavingHeadTerm', 'queryGraph', queryGraph)
+            const localVarPath = `/queryGraph/head/aggregation/having/{headTerm}`
+                .replace(`{${"headTerm"}}`, encodeURIComponent(String(headTerm)));
+            // use dummy base URL string because the URL constructor only accepts absolute URLs.
+            const localVarUrlObj = new URL(localVarPath, DUMMY_BASE_URL);
+            let baseOptions;
+            if (configuration) {
+                baseOptions = configuration.baseOptions;
+            }
+
+            const localVarRequestOptions = { method: 'PUT', ...baseOptions, ...options};
+            const localVarHeaderParameter = {} as any;
+            const localVarQueryParameter = {} as any;
+
+            if (direction !== undefined) {
+                localVarQueryParameter['direction'] = direction;
+            }
+
+
+    
+            localVarHeaderParameter['Content-Type'] = 'application/json';
+
+            setSearchParams(localVarUrlObj, localVarQueryParameter);
+            let headersFromBaseOptions = baseOptions && baseOptions.headers ? baseOptions.headers : {};
+            localVarRequestOptions.headers = {...localVarHeaderParameter, ...headersFromBaseOptions, ...options.headers};
+            localVarRequestOptions.data = serializeDataIfNeeded(queryGraph, localVarRequestOptions, configuration)
+
+            return {
+                url: toPathString(localVarUrlObj),
+                options: localVarRequestOptions,
+            };
+        },
+        /**
+         * The aggregation function is defined in the group by field of the query graph in the request body. Remember to set the alias of the head based on function name and variable.
+         * @summary Set the aggregation function to the head term.
+         * @param {string} headTerm The head term that should be involved in the aggregation function
+         * @param {QueryGraph} queryGraph 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        aggregationHeadTerm: async (headTerm: string, queryGraph: QueryGraph, options: AxiosRequestConfig = {}): Promise<RequestArgs> => {
+            // verify required parameter 'headTerm' is not null or undefined
+            assertParamExists('aggregationHeadTerm', 'headTerm', headTerm)
+            // verify required parameter 'queryGraph' is not null or undefined
+            assertParamExists('aggregationHeadTerm', 'queryGraph', queryGraph)
+            const localVarPath = `/queryGraph/head/aggregation/{headTerm}`
+                .replace(`{${"headTerm"}}`, encodeURIComponent(String(headTerm)));
+            // use dummy base URL string because the URL constructor only accepts absolute URLs.
+            const localVarUrlObj = new URL(localVarPath, DUMMY_BASE_URL);
+            let baseOptions;
+            if (configuration) {
+                baseOptions = configuration.baseOptions;
+            }
+
+            const localVarRequestOptions = { method: 'PUT', ...baseOptions, ...options};
+            const localVarHeaderParameter = {} as any;
+            const localVarQueryParameter = {} as any;
+
+
+    
+            localVarHeaderParameter['Content-Type'] = 'application/json';
+
+            setSearchParams(localVarUrlObj, localVarQueryParameter);
+            let headersFromBaseOptions = baseOptions && baseOptions.headers ? baseOptions.headers : {};
+            localVarRequestOptions.headers = {...localVarHeaderParameter, ...headersFromBaseOptions, ...options.headers};
+            localVarRequestOptions.data = serializeDataIfNeeded(queryGraph, localVarRequestOptions, configuration)
+
+            return {
+                url: toPathString(localVarUrlObj),
+                options: localVarRequestOptions,
+            };
+        },
+        /**
+         * The path param should be the id of the HeadElement.
+         * @summary Delete the head term from the query graph.
+         * @param {string} headTerm The head term that should be deleted
+         * @param {QueryGraph} queryGraph 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        deleteHeadTerm: async (headTerm: string, queryGraph: QueryGraph, options: AxiosRequestConfig = {}): Promise<RequestArgs> => {
+            // verify required parameter 'headTerm' is not null or undefined
+            assertParamExists('deleteHeadTerm', 'headTerm', headTerm)
+            // verify required parameter 'queryGraph' is not null or undefined
+            assertParamExists('deleteHeadTerm', 'queryGraph', queryGraph)
+            const localVarPath = `/queryGraph/head/delete/{headTerm}`
+                .replace(`{${"headTerm"}}`, encodeURIComponent(String(headTerm)));
+            // use dummy base URL string because the URL constructor only accepts absolute URLs.
+            const localVarUrlObj = new URL(localVarPath, DUMMY_BASE_URL);
+            let baseOptions;
+            if (configuration) {
+                baseOptions = configuration.baseOptions;
+            }
+
+            const localVarRequestOptions = { method: 'PUT', ...baseOptions, ...options};
+            const localVarHeaderParameter = {} as any;
+            const localVarQueryParameter = {} as any;
+
+
+    
+            localVarHeaderParameter['Content-Type'] = 'application/json';
+
+            setSearchParams(localVarUrlObj, localVarQueryParameter);
+            let headersFromBaseOptions = baseOptions && baseOptions.headers ? baseOptions.headers : {};
+            localVarRequestOptions.headers = {...localVarHeaderParameter, ...headersFromBaseOptions, ...options.headers};
+            localVarRequestOptions.data = serializeDataIfNeeded(queryGraph, localVarRequestOptions, configuration)
+
+            return {
+                url: toPathString(localVarUrlObj),
+                options: localVarRequestOptions,
+            };
+        },
+        /**
+         * The function is defined in the head term of the query graph in the request body. Remember to set the alias of the head based on function name and variable.
+         * @summary Set a function to the head term from the query graph.
+         * @param {string} headTerm The head term that should be involved inthe function
+         * @param {QueryGraph} queryGraph 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        functionHeadTerm: async (headTerm: string, queryGraph: QueryGraph, options: AxiosRequestConfig = {}): Promise<RequestArgs> => {
+            // verify required parameter 'headTerm' is not null or undefined
+            assertParamExists('functionHeadTerm', 'headTerm', headTerm)
+            // verify required parameter 'queryGraph' is not null or undefined
+            assertParamExists('functionHeadTerm', 'queryGraph', queryGraph)
+            const localVarPath = `/queryGraph/head/function/{headTerm}`
+                .replace(`{${"headTerm"}}`, encodeURIComponent(String(headTerm)));
+            // use dummy base URL string because the URL constructor only accepts absolute URLs.
+            const localVarUrlObj = new URL(localVarPath, DUMMY_BASE_URL);
+            let baseOptions;
+            if (configuration) {
+                baseOptions = configuration.baseOptions;
+            }
+
+            const localVarRequestOptions = { method: 'PUT', ...baseOptions, ...options};
+            const localVarHeaderParameter = {} as any;
+            const localVarQueryParameter = {} as any;
+
+
+    
+            localVarHeaderParameter['Content-Type'] = 'application/json';
+
+            setSearchParams(localVarUrlObj, localVarQueryParameter);
+            let headersFromBaseOptions = baseOptions && baseOptions.headers ? baseOptions.headers : {};
+            localVarRequestOptions.headers = {...localVarHeaderParameter, ...headersFromBaseOptions, ...options.headers};
+            localVarRequestOptions.data = serializeDataIfNeeded(queryGraph, localVarRequestOptions, configuration)
+
+            return {
+                url: toPathString(localVarUrlObj),
+                options: localVarRequestOptions,
+            };
+        },
+        /**
+         * The OrderBy object is passed in the request body in the Query Graph.
+         * @summary Order by the head from the query graph.
+         * @param {string} headTerm The head term that should be ordered
+         * @param {'desc' | 'asc'} direction 
+         * @param {QueryGraph} queryGraph 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        orderByHeadTerm: async (headTerm: string, direction: 'desc' | 'asc', queryGraph: QueryGraph, options: AxiosRequestConfig = {}): Promise<RequestArgs> => {
+            // verify required parameter 'headTerm' is not null or undefined
+            assertParamExists('orderByHeadTerm', 'headTerm', headTerm)
+            // verify required parameter 'direction' is not null or undefined
+            assertParamExists('orderByHeadTerm', 'direction', direction)
+            // verify required parameter 'queryGraph' is not null or undefined
+            assertParamExists('orderByHeadTerm', 'queryGraph', queryGraph)
+            const localVarPath = `/queryGraph/head/orderBy/{headTerm}`
+                .replace(`{${"headTerm"}}`, encodeURIComponent(String(headTerm)));
+            // use dummy base URL string because the URL constructor only accepts absolute URLs.
+            const localVarUrlObj = new URL(localVarPath, DUMMY_BASE_URL);
+            let baseOptions;
+            if (configuration) {
+                baseOptions = configuration.baseOptions;
+            }
+
+            const localVarRequestOptions = { method: 'PUT', ...baseOptions, ...options};
+            const localVarHeaderParameter = {} as any;
+            const localVarQueryParameter = {} as any;
+
+            if (direction !== undefined) {
+                localVarQueryParameter['direction'] = direction;
+            }
+
+
+    
+            localVarHeaderParameter['Content-Type'] = 'application/json';
+
+            setSearchParams(localVarUrlObj, localVarQueryParameter);
+            let headersFromBaseOptions = baseOptions && baseOptions.headers ? baseOptions.headers : {};
+            localVarRequestOptions.headers = {...localVarHeaderParameter, ...headersFromBaseOptions, ...options.headers};
+            localVarRequestOptions.data = serializeDataIfNeeded(queryGraph, localVarRequestOptions, configuration)
+
+            return {
+                url: toPathString(localVarUrlObj),
+                options: localVarRequestOptions,
+            };
+        },
+        /**
+         * Put the alias in the HeadElement passed via request body.
+         * @summary Rename the head term from the query graph using alias.
+         * @param {string} headTerm The head term that should be renamed
+         * @param {QueryGraph} queryGraph 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        renameHeadTerm: async (headTerm: string, queryGraph: QueryGraph, options: AxiosRequestConfig = {}): Promise<RequestArgs> => {
+            // verify required parameter 'headTerm' is not null or undefined
+            assertParamExists('renameHeadTerm', 'headTerm', headTerm)
+            // verify required parameter 'queryGraph' is not null or undefined
+            assertParamExists('renameHeadTerm', 'queryGraph', queryGraph)
+            const localVarPath = `/queryGraph/head/rename/{headTerm}`
+                .replace(`{${"headTerm"}}`, encodeURIComponent(String(headTerm)));
+            // use dummy base URL string because the URL constructor only accepts absolute URLs.
+            const localVarUrlObj = new URL(localVarPath, DUMMY_BASE_URL);
+            let baseOptions;
+            if (configuration) {
+                baseOptions = configuration.baseOptions;
+            }
+
+            const localVarRequestOptions = { method: 'PUT', ...baseOptions, ...options};
+            const localVarHeaderParameter = {} as any;
+            const localVarQueryParameter = {} as any;
+
+
+    
+            localVarHeaderParameter['Content-Type'] = 'application/json';
+
+            setSearchParams(localVarUrlObj, localVarQueryParameter);
+            let headersFromBaseOptions = baseOptions && baseOptions.headers ? baseOptions.headers : {};
+            localVarRequestOptions.headers = {...localVarHeaderParameter, ...headersFromBaseOptions, ...options.headers};
+            localVarRequestOptions.data = serializeDataIfNeeded(queryGraph, localVarRequestOptions, configuration)
+
+            return {
+                url: toPathString(localVarUrlObj),
+                options: localVarRequestOptions,
+            };
+        },
+    }
+};
+
+/**
+ * QueryGraphHeadApi - functional programming interface
+ * @export
+ */
+export const QueryGraphHeadApiFp = function(configuration?: Configuration) {
+    const localVarAxiosParamCreator = QueryGraphHeadApiAxiosParamCreator(configuration)
+    return {
+        /**
+         * Explicitley add a term to the query head. All the data property variables are added automatically to the head during the query graph construction. This will add to the head only variables associated to classes (`rdf:type` triple pattern) or data properties.
+         * @summary Add the head term to the query graph.
+         * @param {string} graphElementId The id of the graph node that should be added to the head
+         * @param {QueryGraph} queryGraph 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        async addHeadTerm(graphElementId: string, queryGraph: QueryGraph, options?: AxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<QueryGraph>> {
+            const localVarAxiosArgs = await localVarAxiosParamCreator.addHeadTerm(graphElementId, queryGraph, options);
+            return createRequestFunction(localVarAxiosArgs, globalAxios, BASE_PATH, configuration);
+        },
+        /**
+         * The having aggregation function is defined in the groupBy field of the query graph in the request body.
+         * @summary Set the having filter of the aggregation function to the head term.
+         * @param {string} headTerm The head term that should be involved in the having filter
+         * @param {string} direction 
+         * @param {QueryGraph} queryGraph 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        async aggregationHavingHeadTerm(headTerm: string, direction: string, queryGraph: QueryGraph, options?: AxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<QueryGraph>> {
+            const localVarAxiosArgs = await localVarAxiosParamCreator.aggregationHavingHeadTerm(headTerm, direction, queryGraph, options);
+            return createRequestFunction(localVarAxiosArgs, globalAxios, BASE_PATH, configuration);
+        },
+        /**
+         * The aggregation function is defined in the group by field of the query graph in the request body. Remember to set the alias of the head based on function name and variable.
+         * @summary Set the aggregation function to the head term.
+         * @param {string} headTerm The head term that should be involved in the aggregation function
+         * @param {QueryGraph} queryGraph 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        async aggregationHeadTerm(headTerm: string, queryGraph: QueryGraph, options?: AxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<QueryGraph>> {
+            const localVarAxiosArgs = await localVarAxiosParamCreator.aggregationHeadTerm(headTerm, queryGraph, options);
+            return createRequestFunction(localVarAxiosArgs, globalAxios, BASE_PATH, configuration);
+        },
+        /**
+         * The path param should be the id of the HeadElement.
+         * @summary Delete the head term from the query graph.
+         * @param {string} headTerm The head term that should be deleted
+         * @param {QueryGraph} queryGraph 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        async deleteHeadTerm(headTerm: string, queryGraph: QueryGraph, options?: AxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<QueryGraph>> {
+            const localVarAxiosArgs = await localVarAxiosParamCreator.deleteHeadTerm(headTerm, queryGraph, options);
+            return createRequestFunction(localVarAxiosArgs, globalAxios, BASE_PATH, configuration);
+        },
+        /**
+         * The function is defined in the head term of the query graph in the request body. Remember to set the alias of the head based on function name and variable.
+         * @summary Set a function to the head term from the query graph.
+         * @param {string} headTerm The head term that should be involved inthe function
+         * @param {QueryGraph} queryGraph 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        async functionHeadTerm(headTerm: string, queryGraph: QueryGraph, options?: AxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<QueryGraph>> {
+            const localVarAxiosArgs = await localVarAxiosParamCreator.functionHeadTerm(headTerm, queryGraph, options);
+            return createRequestFunction(localVarAxiosArgs, globalAxios, BASE_PATH, configuration);
+        },
+        /**
+         * The OrderBy object is passed in the request body in the Query Graph.
+         * @summary Order by the head from the query graph.
+         * @param {string} headTerm The head term that should be ordered
+         * @param {'desc' | 'asc'} direction 
+         * @param {QueryGraph} queryGraph 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        async orderByHeadTerm(headTerm: string, direction: 'desc' | 'asc', queryGraph: QueryGraph, options?: AxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<QueryGraph>> {
+            const localVarAxiosArgs = await localVarAxiosParamCreator.orderByHeadTerm(headTerm, direction, queryGraph, options);
+            return createRequestFunction(localVarAxiosArgs, globalAxios, BASE_PATH, configuration);
+        },
+        /**
+         * Put the alias in the HeadElement passed via request body.
+         * @summary Rename the head term from the query graph using alias.
+         * @param {string} headTerm The head term that should be renamed
+         * @param {QueryGraph} queryGraph 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        async renameHeadTerm(headTerm: string, queryGraph: QueryGraph, options?: AxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<QueryGraph>> {
+            const localVarAxiosArgs = await localVarAxiosParamCreator.renameHeadTerm(headTerm, queryGraph, options);
+            return createRequestFunction(localVarAxiosArgs, globalAxios, BASE_PATH, configuration);
+        },
+    }
+};
+
+/**
+ * QueryGraphHeadApi - factory interface
+ * @export
+ */
+export const QueryGraphHeadApiFactory = function (configuration?: Configuration, basePath?: string, axios?: AxiosInstance) {
+    const localVarFp = QueryGraphHeadApiFp(configuration)
+    return {
+        /**
+         * Explicitley add a term to the query head. All the data property variables are added automatically to the head during the query graph construction. This will add to the head only variables associated to classes (`rdf:type` triple pattern) or data properties.
+         * @summary Add the head term to the query graph.
+         * @param {string} graphElementId The id of the graph node that should be added to the head
+         * @param {QueryGraph} queryGraph 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        addHeadTerm(graphElementId: string, queryGraph: QueryGraph, options?: any): AxiosPromise<QueryGraph> {
+            return localVarFp.addHeadTerm(graphElementId, queryGraph, options).then((request) => request(axios, basePath));
+        },
+        /**
+         * The having aggregation function is defined in the groupBy field of the query graph in the request body.
+         * @summary Set the having filter of the aggregation function to the head term.
+         * @param {string} headTerm The head term that should be involved in the having filter
+         * @param {string} direction 
+         * @param {QueryGraph} queryGraph 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        aggregationHavingHeadTerm(headTerm: string, direction: string, queryGraph: QueryGraph, options?: any): AxiosPromise<QueryGraph> {
+            return localVarFp.aggregationHavingHeadTerm(headTerm, direction, queryGraph, options).then((request) => request(axios, basePath));
+        },
+        /**
+         * The aggregation function is defined in the group by field of the query graph in the request body. Remember to set the alias of the head based on function name and variable.
+         * @summary Set the aggregation function to the head term.
+         * @param {string} headTerm The head term that should be involved in the aggregation function
+         * @param {QueryGraph} queryGraph 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        aggregationHeadTerm(headTerm: string, queryGraph: QueryGraph, options?: any): AxiosPromise<QueryGraph> {
+            return localVarFp.aggregationHeadTerm(headTerm, queryGraph, options).then((request) => request(axios, basePath));
+        },
+        /**
+         * The path param should be the id of the HeadElement.
+         * @summary Delete the head term from the query graph.
+         * @param {string} headTerm The head term that should be deleted
+         * @param {QueryGraph} queryGraph 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        deleteHeadTerm(headTerm: string, queryGraph: QueryGraph, options?: any): AxiosPromise<QueryGraph> {
+            return localVarFp.deleteHeadTerm(headTerm, queryGraph, options).then((request) => request(axios, basePath));
+        },
+        /**
+         * The function is defined in the head term of the query graph in the request body. Remember to set the alias of the head based on function name and variable.
+         * @summary Set a function to the head term from the query graph.
+         * @param {string} headTerm The head term that should be involved inthe function
+         * @param {QueryGraph} queryGraph 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        functionHeadTerm(headTerm: string, queryGraph: QueryGraph, options?: any): AxiosPromise<QueryGraph> {
+            return localVarFp.functionHeadTerm(headTerm, queryGraph, options).then((request) => request(axios, basePath));
+        },
+        /**
+         * The OrderBy object is passed in the request body in the Query Graph.
+         * @summary Order by the head from the query graph.
+         * @param {string} headTerm The head term that should be ordered
+         * @param {'desc' | 'asc'} direction 
+         * @param {QueryGraph} queryGraph 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        orderByHeadTerm(headTerm: string, direction: 'desc' | 'asc', queryGraph: QueryGraph, options?: any): AxiosPromise<QueryGraph> {
+            return localVarFp.orderByHeadTerm(headTerm, direction, queryGraph, options).then((request) => request(axios, basePath));
+        },
+        /**
+         * Put the alias in the HeadElement passed via request body.
+         * @summary Rename the head term from the query graph using alias.
+         * @param {string} headTerm The head term that should be renamed
+         * @param {QueryGraph} queryGraph 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        renameHeadTerm(headTerm: string, queryGraph: QueryGraph, options?: any): AxiosPromise<QueryGraph> {
+            return localVarFp.renameHeadTerm(headTerm, queryGraph, options).then((request) => request(axios, basePath));
+        },
+    };
+};
+
+/**
+ * QueryGraphHeadApi - object-oriented interface
+ * @export
+ * @class QueryGraphHeadApi
+ * @extends {BaseAPI}
+ */
+export class QueryGraphHeadApi extends BaseAPI {
+    /**
+     * Explicitley add a term to the query head. All the data property variables are added automatically to the head during the query graph construction. This will add to the head only variables associated to classes (`rdf:type` triple pattern) or data properties.
+     * @summary Add the head term to the query graph.
+     * @param {string} graphElementId The id of the graph node that should be added to the head
+     * @param {QueryGraph} queryGraph 
+     * @param {*} [options] Override http request option.
+     * @throws {RequiredError}
+     * @memberof QueryGraphHeadApi
+     */
+    public addHeadTerm(graphElementId: string, queryGraph: QueryGraph, options?: AxiosRequestConfig) {
+        return QueryGraphHeadApiFp(this.configuration).addHeadTerm(graphElementId, queryGraph, options).then((request) => request(this.axios, this.basePath));
+    }
+
+    /**
+     * The having aggregation function is defined in the groupBy field of the query graph in the request body.
+     * @summary Set the having filter of the aggregation function to the head term.
+     * @param {string} headTerm The head term that should be involved in the having filter
+     * @param {string} direction 
+     * @param {QueryGraph} queryGraph 
+     * @param {*} [options] Override http request option.
+     * @throws {RequiredError}
+     * @memberof QueryGraphHeadApi
+     */
+    public aggregationHavingHeadTerm(headTerm: string, direction: string, queryGraph: QueryGraph, options?: AxiosRequestConfig) {
+        return QueryGraphHeadApiFp(this.configuration).aggregationHavingHeadTerm(headTerm, direction, queryGraph, options).then((request) => request(this.axios, this.basePath));
+    }
+
+    /**
+     * The aggregation function is defined in the group by field of the query graph in the request body. Remember to set the alias of the head based on function name and variable.
+     * @summary Set the aggregation function to the head term.
+     * @param {string} headTerm The head term that should be involved in the aggregation function
+     * @param {QueryGraph} queryGraph 
+     * @param {*} [options] Override http request option.
+     * @throws {RequiredError}
+     * @memberof QueryGraphHeadApi
+     */
+    public aggregationHeadTerm(headTerm: string, queryGraph: QueryGraph, options?: AxiosRequestConfig) {
+        return QueryGraphHeadApiFp(this.configuration).aggregationHeadTerm(headTerm, queryGraph, options).then((request) => request(this.axios, this.basePath));
+    }
+
+    /**
+     * The path param should be the id of the HeadElement.
+     * @summary Delete the head term from the query graph.
+     * @param {string} headTerm The head term that should be deleted
+     * @param {QueryGraph} queryGraph 
+     * @param {*} [options] Override http request option.
+     * @throws {RequiredError}
+     * @memberof QueryGraphHeadApi
+     */
+    public deleteHeadTerm(headTerm: string, queryGraph: QueryGraph, options?: AxiosRequestConfig) {
+        return QueryGraphHeadApiFp(this.configuration).deleteHeadTerm(headTerm, queryGraph, options).then((request) => request(this.axios, this.basePath));
+    }
+
+    /**
+     * The function is defined in the head term of the query graph in the request body. Remember to set the alias of the head based on function name and variable.
+     * @summary Set a function to the head term from the query graph.
+     * @param {string} headTerm The head term that should be involved inthe function
+     * @param {QueryGraph} queryGraph 
+     * @param {*} [options] Override http request option.
+     * @throws {RequiredError}
+     * @memberof QueryGraphHeadApi
+     */
+    public functionHeadTerm(headTerm: string, queryGraph: QueryGraph, options?: AxiosRequestConfig) {
+        return QueryGraphHeadApiFp(this.configuration).functionHeadTerm(headTerm, queryGraph, options).then((request) => request(this.axios, this.basePath));
+    }
+
+    /**
+     * The OrderBy object is passed in the request body in the Query Graph.
+     * @summary Order by the head from the query graph.
+     * @param {string} headTerm The head term that should be ordered
+     * @param {'desc' | 'asc'} direction 
+     * @param {QueryGraph} queryGraph 
+     * @param {*} [options] Override http request option.
+     * @throws {RequiredError}
+     * @memberof QueryGraphHeadApi
+     */
+    public orderByHeadTerm(headTerm: string, direction: 'desc' | 'asc', queryGraph: QueryGraph, options?: AxiosRequestConfig) {
+        return QueryGraphHeadApiFp(this.configuration).orderByHeadTerm(headTerm, direction, queryGraph, options).then((request) => request(this.axios, this.basePath));
+    }
+
+    /**
+     * Put the alias in the HeadElement passed via request body.
+     * @summary Rename the head term from the query graph using alias.
+     * @param {string} headTerm The head term that should be renamed
+     * @param {QueryGraph} queryGraph 
+     * @param {*} [options] Override http request option.
+     * @throws {RequiredError}
+     * @memberof QueryGraphHeadApi
+     */
+    public renameHeadTerm(headTerm: string, queryGraph: QueryGraph, options?: AxiosRequestConfig) {
+        return QueryGraphHeadApiFp(this.configuration).renameHeadTerm(headTerm, queryGraph, options).then((request) => request(this.axios, this.basePath));
+    }
+}
+
+
+/**
+ * QueryGraphOptionalApi - axios parameter creator
+ * @export
+ */
+export const QueryGraphOptionalApiAxiosParamCreator = function (configuration?: Configuration) {
+    return {
+        /**
+         * Create a new optional in the query and add the triple pattern(s) identified by the GraphElementId. - If it is a class the query parameter should be used and the triple pattern `?graphElementId rdf:type <classIRI>` will be moved from the bgp to the new optional. - If it is a data property the tp `?graphElementIdVar1 <graphElementIdDataPropertyIRI> ?graphElementIdVar2` will be added to the new optional. - If it is a object property the tps `?graphElementIdVar1 <graphElementIdDataPropertyIRI> ?graphElementIdVar2. ?graphElementIdVar2 rdf:type <classIRI>` till the leaves will be moved to the new optional.
+         * @summary Add the `graphElementId` to a new optional.
+         * @param {string} graphElementId The GraphElement that should be added to the optional
+         * @param {QueryGraph} queryGraph 
+         * @param {string} [classIRI] The IRI of the class that will be inserted in the optional.
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        newOptionalGraphElementId: async (graphElementId: string, queryGraph: QueryGraph, classIRI?: string, options: AxiosRequestConfig = {}): Promise<RequestArgs> => {
+            // verify required parameter 'graphElementId' is not null or undefined
+            assertParamExists('newOptionalGraphElementId', 'graphElementId', graphElementId)
+            // verify required parameter 'queryGraph' is not null or undefined
+            assertParamExists('newOptionalGraphElementId', 'queryGraph', queryGraph)
+            const localVarPath = `/queryGraph/node/optional/{graphElementId}`
+                .replace(`{${"graphElementId"}}`, encodeURIComponent(String(graphElementId)));
+            // use dummy base URL string because the URL constructor only accepts absolute URLs.
+            const localVarUrlObj = new URL(localVarPath, DUMMY_BASE_URL);
+            let baseOptions;
+            if (configuration) {
+                baseOptions = configuration.baseOptions;
+            }
+
+            const localVarRequestOptions = { method: 'PUT', ...baseOptions, ...options};
+            const localVarHeaderParameter = {} as any;
+            const localVarQueryParameter = {} as any;
+
+            if (classIRI !== undefined) {
+                localVarQueryParameter['classIRI'] = classIRI;
+            }
+
+
+    
+            localVarHeaderParameter['Content-Type'] = 'application/json';
+
+            setSearchParams(localVarUrlObj, localVarQueryParameter);
+            let headersFromBaseOptions = baseOptions && baseOptions.headers ? baseOptions.headers : {};
+            localVarRequestOptions.headers = {...localVarHeaderParameter, ...headersFromBaseOptions, ...options.headers};
+            localVarRequestOptions.data = serializeDataIfNeeded(queryGraph, localVarRequestOptions, configuration)
+
+            return {
+                url: toPathString(localVarUrlObj),
+                options: localVarRequestOptions,
+            };
+        },
         /**
          * 
          * @summary Remove the optionals and move them back to the bgp.
@@ -1528,176 +2659,16 @@ export const QueryGraphApiAxiosParamCreator = function (configuration?: Configur
                 options: localVarRequestOptions,
             };
         },
-        /**
-         * Put the alias in the HeadElement passed via request body.
-         * @summary Rename the head term from the query graph using alias.
-         * @param {string} headTerm The head term that should be renamed
-         * @param {QueryGraph} queryGraph 
-         * @param {*} [options] Override http request option.
-         * @throws {RequiredError}
-         */
-        renameHeadTerm: async (headTerm: string, queryGraph: QueryGraph, options: AxiosRequestConfig = {}): Promise<RequestArgs> => {
-            // verify required parameter 'headTerm' is not null or undefined
-            assertParamExists('renameHeadTerm', 'headTerm', headTerm)
-            // verify required parameter 'queryGraph' is not null or undefined
-            assertParamExists('renameHeadTerm', 'queryGraph', queryGraph)
-            const localVarPath = `/queryGraph/head/rename/{headTerm}`
-                .replace(`{${"headTerm"}}`, encodeURIComponent(String(headTerm)));
-            // use dummy base URL string because the URL constructor only accepts absolute URLs.
-            const localVarUrlObj = new URL(localVarPath, DUMMY_BASE_URL);
-            let baseOptions;
-            if (configuration) {
-                baseOptions = configuration.baseOptions;
-            }
-
-            const localVarRequestOptions = { method: 'PUT', ...baseOptions, ...options};
-            const localVarHeaderParameter = {} as any;
-            const localVarQueryParameter = {} as any;
-
-
-    
-            localVarHeaderParameter['Content-Type'] = 'application/json';
-
-            setSearchParams(localVarUrlObj, localVarQueryParameter);
-            let headersFromBaseOptions = baseOptions && baseOptions.headers ? baseOptions.headers : {};
-            localVarRequestOptions.headers = {...localVarHeaderParameter, ...headersFromBaseOptions, ...options.headers};
-            localVarRequestOptions.data = serializeDataIfNeeded(queryGraph, localVarRequestOptions, configuration)
-
-            return {
-                url: toPathString(localVarUrlObj),
-                options: localVarRequestOptions,
-            };
-        },
     }
 };
 
 /**
- * QueryGraphApi - functional programming interface
+ * QueryGraphOptionalApi - functional programming interface
  * @export
  */
-export const QueryGraphApiFp = function(configuration?: Configuration) {
-    const localVarAxiosParamCreator = QueryGraphApiAxiosParamCreator(configuration)
+export const QueryGraphOptionalApiFp = function(configuration?: Configuration) {
+    const localVarAxiosParamCreator = QueryGraphOptionalApiAxiosParamCreator(configuration)
     return {
-        /**
-         * Explicitley add a term to the query head. All the data property variables are added automatically to the head during the query graph construction. This will add to the head only variables associated to classes (`rdf:type` triple pattern) or data properties.
-         * @summary Add the head term to the query graph.
-         * @param {string} graphElementId The id of the graph node that should be added to the head
-         * @param {QueryGraph} queryGraph 
-         * @param {*} [options] Override http request option.
-         * @throws {RequiredError}
-         */
-        async addHeadTerm(graphElementId: string, queryGraph: QueryGraph, options?: AxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<QueryGraph>> {
-            const localVarAxiosArgs = await localVarAxiosParamCreator.addHeadTerm(graphElementId, queryGraph, options);
-            return createRequestFunction(localVarAxiosArgs, globalAxios, BASE_PATH, configuration);
-        },
-        /**
-         * This path should be used to build the query graph using the path interaction. As a result there will be added to the query several triple pattern (depending on the length of the path) as a sequence of classes and object properties. Data properties never appear in paths, in order to add them use the simple PUT route.
-         * @summary Get the query graph that will be rendered by Sparqling, the query head, the sparql code based on the chosen path.
-         * @param {string} path Serialization of Path object.
-         * @param {QueryGraph} queryGraph 
-         * @param {*} [options] Override http request option.
-         * @throws {RequiredError}
-         */
-        async addPathToQueryGraph(path: string, queryGraph: QueryGraph, options?: AxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<QueryGraph>> {
-            const localVarAxiosArgs = await localVarAxiosParamCreator.addPathToQueryGraph(path, queryGraph, options);
-            return createRequestFunction(localVarAxiosArgs, globalAxios, BASE_PATH, configuration);
-        },
-        /**
-         * The having aggregation function is defined in the groupBy field of the query graph in the request body.
-         * @summary Set the having filter of the aggregation function to the head term.
-         * @param {string} headTerm The head term that should be involved in the having filter
-         * @param {string} direction 
-         * @param {QueryGraph} queryGraph 
-         * @param {*} [options] Override http request option.
-         * @throws {RequiredError}
-         */
-        async aggregationHavingHeadTerm(headTerm: string, direction: string, queryGraph: QueryGraph, options?: AxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<QueryGraph>> {
-            const localVarAxiosArgs = await localVarAxiosParamCreator.aggregationHavingHeadTerm(headTerm, direction, queryGraph, options);
-            return createRequestFunction(localVarAxiosArgs, globalAxios, BASE_PATH, configuration);
-        },
-        /**
-         * The aggregation function is defined in the group by field of the query graph in the request body. Remember to set the alias of the head based on function name and variable.
-         * @summary Set the aggregation function to the head term.
-         * @param {string} headTerm The head term that should be involved in the aggregation function
-         * @param {QueryGraph} queryGraph 
-         * @param {*} [options] Override http request option.
-         * @throws {RequiredError}
-         */
-        async aggregationHeadTerm(headTerm: string, queryGraph: QueryGraph, options?: AxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<QueryGraph>> {
-            const localVarAxiosArgs = await localVarAxiosParamCreator.aggregationHeadTerm(headTerm, queryGraph, options);
-            return createRequestFunction(localVarAxiosArgs, globalAxios, BASE_PATH, configuration);
-        },
-        /**
-         * This route is used when the user wants to delete a node from the query graph. All the children of this node will be deleted as well as we do not want to create query with completly separated branches. All the variables that are going to be deleted should also be deleted from the head of the query. **WARNING**, if the node has multiple occurrences (due to join operations) every node should be deleted.
-         * @summary Delete the GraphElement (and all its children) from the query graph and head.
-         * @param {string} graphElementId The GraphElement that should be deleted
-         * @param {QueryGraph} queryGraph 
-         * @param {*} [options] Override http request option.
-         * @throws {RequiredError}
-         */
-        async deleteGraphElementId(graphElementId: string, queryGraph: QueryGraph, options?: AxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<QueryGraph>> {
-            const localVarAxiosArgs = await localVarAxiosParamCreator.deleteGraphElementId(graphElementId, queryGraph, options);
-            return createRequestFunction(localVarAxiosArgs, globalAxios, BASE_PATH, configuration);
-        },
-        /**
-         * The path param should be the id of the HeadElement.
-         * @summary Delete the head term from the query graph.
-         * @param {string} headTerm The head term that should be deleted
-         * @param {QueryGraph} queryGraph 
-         * @param {*} [options] Override http request option.
-         * @throws {RequiredError}
-         */
-        async deleteHeadTerm(headTerm: string, queryGraph: QueryGraph, options?: AxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<QueryGraph>> {
-            const localVarAxiosArgs = await localVarAxiosParamCreator.deleteHeadTerm(headTerm, queryGraph, options);
-            return createRequestFunction(localVarAxiosArgs, globalAxios, BASE_PATH, configuration);
-        },
-        /**
-         * The distinct value is defined in the query graph in the request body.
-         * @summary Set the distinct value.
-         * @param {boolean} distinct 
-         * @param {QueryGraph} queryGraph 
-         * @param {*} [options] Override http request option.
-         * @throws {RequiredError}
-         */
-        async distinctQueryGraph(distinct: boolean, queryGraph: QueryGraph, options?: AxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<QueryGraph>> {
-            const localVarAxiosArgs = await localVarAxiosParamCreator.distinctQueryGraph(distinct, queryGraph, options);
-            return createRequestFunction(localVarAxiosArgs, globalAxios, BASE_PATH, configuration);
-        },
-        /**
-         * The function is defined in the head term of the query graph in the request body. Remember to set the alias of the head based on function name and variable.
-         * @summary Set a function to the head term from the query graph.
-         * @param {string} headTerm The head term that should be involved inthe function
-         * @param {QueryGraph} queryGraph 
-         * @param {*} [options] Override http request option.
-         * @throws {RequiredError}
-         */
-        async functionHeadTerm(headTerm: string, queryGraph: QueryGraph, options?: AxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<QueryGraph>> {
-            const localVarAxiosArgs = await localVarAxiosParamCreator.functionHeadTerm(headTerm, queryGraph, options);
-            return createRequestFunction(localVarAxiosArgs, globalAxios, BASE_PATH, configuration);
-        },
-        /**
-         * Starting from only the clicked class get the query graph that will be rendered by Sparqling, the query head, the sparql code. The sparql query returned will be somthing like `select ?x { ?x a <clickedClassIRI>` }. The variable `?x` should be called according to the entity remainder or label. The variable will be added to the head of the query in order to create a valid SPARQL query.
-         * @summary This is the first route to call in order to build the query graph.
-         * @param {string} clickedClassIRI The IRI of the entity clicked on the GRAPHOLscape ontology graph
-         * @param {*} [options] Override http request option.
-         * @throws {RequiredError}
-         */
-        async getQueryGraph(clickedClassIRI: string, options?: AxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<QueryGraph>> {
-            const localVarAxiosArgs = await localVarAxiosParamCreator.getQueryGraph(clickedClassIRI, options);
-            return createRequestFunction(localVarAxiosArgs, globalAxios, BASE_PATH, configuration);
-        },
-        /**
-         * The limit value is defined in the query graph in the request body.
-         * @summary Set the limit value.
-         * @param {number} limit 
-         * @param {QueryGraph} queryGraph 
-         * @param {*} [options] Override http request option.
-         * @throws {RequiredError}
-         */
-        async limitQueryGraph(limit: number, queryGraph: QueryGraph, options?: AxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<QueryGraph>> {
-            const localVarAxiosArgs = await localVarAxiosParamCreator.limitQueryGraph(limit, queryGraph, options);
-            return createRequestFunction(localVarAxiosArgs, globalAxios, BASE_PATH, configuration);
-        },
         /**
          * Create a new optional in the query and add the triple pattern(s) identified by the GraphElementId. - If it is a class the query parameter should be used and the triple pattern `?graphElementId rdf:type <classIRI>` will be moved from the bgp to the new optional. - If it is a data property the tp `?graphElementIdVar1 <graphElementIdDataPropertyIRI> ?graphElementIdVar2` will be added to the new optional. - If it is a object property the tps `?graphElementIdVar1 <graphElementIdDataPropertyIRI> ?graphElementIdVar2. ?graphElementIdVar2 rdf:type <classIRI>` till the leaves will be moved to the new optional.
          * @summary Add the `graphElementId` to a new optional.
@@ -1709,88 +2680,6 @@ export const QueryGraphApiFp = function(configuration?: Configuration) {
          */
         async newOptionalGraphElementId(graphElementId: string, queryGraph: QueryGraph, classIRI?: string, options?: AxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<QueryGraph>> {
             const localVarAxiosArgs = await localVarAxiosParamCreator.newOptionalGraphElementId(graphElementId, queryGraph, classIRI, options);
-            return createRequestFunction(localVarAxiosArgs, globalAxios, BASE_PATH, configuration);
-        },
-        /**
-         * The offset value is defined in the query graph in the request body.
-         * @summary Set the offset value.
-         * @param {boolean} offset 
-         * @param {QueryGraph} queryGraph 
-         * @param {*} [options] Override http request option.
-         * @throws {RequiredError}
-         */
-        async offsetQueryGraph(offset: boolean, queryGraph: QueryGraph, options?: AxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<QueryGraph>> {
-            const localVarAxiosArgs = await localVarAxiosParamCreator.offsetQueryGraph(offset, queryGraph, options);
-            return createRequestFunction(localVarAxiosArgs, globalAxios, BASE_PATH, configuration);
-        },
-        /**
-         * The OrderBy object is passed in the request body in the Query Graph.
-         * @summary Order by the head from the query graph.
-         * @param {string} headTerm The head term that should be ordered
-         * @param {'desc' | 'asc'} direction 
-         * @param {QueryGraph} queryGraph 
-         * @param {*} [options] Override http request option.
-         * @throws {RequiredError}
-         */
-        async orderByHeadTerm(headTerm: string, direction: 'desc' | 'asc', queryGraph: QueryGraph, options?: AxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<QueryGraph>> {
-            const localVarAxiosArgs = await localVarAxiosParamCreator.orderByHeadTerm(headTerm, direction, queryGraph, options);
-            return createRequestFunction(localVarAxiosArgs, globalAxios, BASE_PATH, configuration);
-        },
-        /**
-         * This call is used when the user click on a highlighted class and should add a triple pattern of the form like `?x rdf:type <targetClassIRI>`. The server should find `?x` in the SPARQL code as the variable associated to the `sourceClassIRI`.
-         * @summary Starting from the current query graph continue to build the query graph through a class.
-         * @param {string} graphElementId The id of the node of the selected class in the query graph.
-         * @param {string} sourceClassIRI The IRI of the last selected class. It could be selected from the ontology graph or from the query graph.
-         * @param {string} targetClassIRI The IRI of the entity clicked on the GRAPHOLscape ontology graph.
-         * @param {QueryGraph} queryGraph 
-         * @param {*} [options] Override http request option.
-         * @throws {RequiredError}
-         */
-        async putQueryGraphClass(graphElementId: string, sourceClassIRI: string, targetClassIRI: string, queryGraph: QueryGraph, options?: AxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<QueryGraph>> {
-            const localVarAxiosArgs = await localVarAxiosParamCreator.putQueryGraphClass(graphElementId, sourceClassIRI, targetClassIRI, queryGraph, options);
-            return createRequestFunction(localVarAxiosArgs, globalAxios, BASE_PATH, configuration);
-        },
-        /**
-         * This route is used when the user click a highlighted data property. The triple pattern to add is something like `?x <predicateIRI> ?y` where `?x` should be derived from `selectedClassIRI`. Note that `?y` is fresh new variable that should be added also to the head of the query (we assume data property values are interesting). The variable `?y` should be called according to the entity remainder or label and should add a counter if there is an already defined variable for that data property.
-         * @summary Starting from the current query graph continue to build the query graph through a data property.
-         * @param {string} graphElementId The id of the node of the selected class in the query graph.
-         * @param {string} sourceClassIRI The IRI of the last selected class. It could be selected from the ontology graph or from the query graph.
-         * @param {string} predicateIRI The IRI of the clicked data property.
-         * @param {QueryGraph} queryGraph 
-         * @param {*} [options] Override http request option.
-         * @throws {RequiredError}
-         */
-        async putQueryGraphDataProperty(graphElementId: string, sourceClassIRI: string, predicateIRI: string, queryGraph: QueryGraph, options?: AxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<QueryGraph>> {
-            const localVarAxiosArgs = await localVarAxiosParamCreator.putQueryGraphDataProperty(graphElementId, sourceClassIRI, predicateIRI, queryGraph, options);
-            return createRequestFunction(localVarAxiosArgs, globalAxios, BASE_PATH, configuration);
-        },
-        /**
-         * Starting from a query graph which has two nodes representing the same class(es), it returns the query graph in which the two nodes have been joined into a single one. The children of the selected nodes will be grouped in `graphElementId1` and each time we add a children through the previous routes they will be added to this node.
-         * @summary Join two GraphNodeElement in one.
-         * @param {string} graphElementId1 The id of the node of the selected class in the query graph.
-         * @param {string} graphElementId2 The id of the node of the selected class in the query graph.
-         * @param {QueryGraph} queryGraph 
-         * @param {*} [options] Override http request option.
-         * @throws {RequiredError}
-         */
-        async putQueryGraphJoin(graphElementId1: string, graphElementId2: string, queryGraph: QueryGraph, options?: AxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<QueryGraph>> {
-            const localVarAxiosArgs = await localVarAxiosParamCreator.putQueryGraphJoin(graphElementId1, graphElementId2, queryGraph, options);
-            return createRequestFunction(localVarAxiosArgs, globalAxios, BASE_PATH, configuration);
-        },
-        /**
-         * This route is used when the user click a highlighted object property with ornly one `relatedClasses` or, in the case of more than one `relatedClasses` immediatly after choosing one of them. In this case the triple pattern to add is something like `?x <predicateIRI> ?y` where `?x` and `?y` should be derived from the direction indicated by `isPredicateDirect` of the object property with respect to `sourceClassIRI` and `targetClassIRI`. If there is a cyclic object property the user also should specify the direction if order to correctly assign `?x` and `?y`. Either `?x` or `?y` should be a fresh new variable which should be linked to a new triple pattern `?y rdf:type <targetClassIRI>`. The variable `?y` should be called according to the entity remainder or label and should add a counter if there is an already defined variable for that class.
-         * @summary Starting from the current query graph continue to build the query graph through a object property.
-         * @param {string} graphElementId The id of the node of the selected class in the query graph.
-         * @param {string} sourceClassIRI The IRI of the last selected class. It could be selected from the ontology graph or from the query graph.
-         * @param {string} predicateIRI The IRI of the predicate which links source class and target class
-         * @param {string} targetClassIRI The IRI of the entity clicked on the GRAPHOLscape ontology graph.
-         * @param {boolean} isPredicateDirect If true sourceClassIRI is the domain of predicateIRI, if false sourceClassIRI is the range of predicateIRI.
-         * @param {QueryGraph} queryGraph 
-         * @param {*} [options] Override http request option.
-         * @throws {RequiredError}
-         */
-        async putQueryGraphObjectProperty(graphElementId: string, sourceClassIRI: string, predicateIRI: string, targetClassIRI: string, isPredicateDirect: boolean, queryGraph: QueryGraph, options?: AxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<QueryGraph>> {
-            const localVarAxiosArgs = await localVarAxiosParamCreator.putQueryGraphObjectProperty(graphElementId, sourceClassIRI, predicateIRI, targetClassIRI, isPredicateDirect, queryGraph, options);
             return createRequestFunction(localVarAxiosArgs, globalAxios, BASE_PATH, configuration);
         },
         /**
@@ -1817,138 +2706,16 @@ export const QueryGraphApiFp = function(configuration?: Configuration) {
             const localVarAxiosArgs = await localVarAxiosParamCreator.removeOptionalGraphElementId(graphElementId, queryGraph, classIRI, options);
             return createRequestFunction(localVarAxiosArgs, globalAxios, BASE_PATH, configuration);
         },
-        /**
-         * Put the alias in the HeadElement passed via request body.
-         * @summary Rename the head term from the query graph using alias.
-         * @param {string} headTerm The head term that should be renamed
-         * @param {QueryGraph} queryGraph 
-         * @param {*} [options] Override http request option.
-         * @throws {RequiredError}
-         */
-        async renameHeadTerm(headTerm: string, queryGraph: QueryGraph, options?: AxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<QueryGraph>> {
-            const localVarAxiosArgs = await localVarAxiosParamCreator.renameHeadTerm(headTerm, queryGraph, options);
-            return createRequestFunction(localVarAxiosArgs, globalAxios, BASE_PATH, configuration);
-        },
     }
 };
 
 /**
- * QueryGraphApi - factory interface
+ * QueryGraphOptionalApi - factory interface
  * @export
  */
-export const QueryGraphApiFactory = function (configuration?: Configuration, basePath?: string, axios?: AxiosInstance) {
-    const localVarFp = QueryGraphApiFp(configuration)
+export const QueryGraphOptionalApiFactory = function (configuration?: Configuration, basePath?: string, axios?: AxiosInstance) {
+    const localVarFp = QueryGraphOptionalApiFp(configuration)
     return {
-        /**
-         * Explicitley add a term to the query head. All the data property variables are added automatically to the head during the query graph construction. This will add to the head only variables associated to classes (`rdf:type` triple pattern) or data properties.
-         * @summary Add the head term to the query graph.
-         * @param {string} graphElementId The id of the graph node that should be added to the head
-         * @param {QueryGraph} queryGraph 
-         * @param {*} [options] Override http request option.
-         * @throws {RequiredError}
-         */
-        addHeadTerm(graphElementId: string, queryGraph: QueryGraph, options?: any): AxiosPromise<QueryGraph> {
-            return localVarFp.addHeadTerm(graphElementId, queryGraph, options).then((request) => request(axios, basePath));
-        },
-        /**
-         * This path should be used to build the query graph using the path interaction. As a result there will be added to the query several triple pattern (depending on the length of the path) as a sequence of classes and object properties. Data properties never appear in paths, in order to add them use the simple PUT route.
-         * @summary Get the query graph that will be rendered by Sparqling, the query head, the sparql code based on the chosen path.
-         * @param {string} path Serialization of Path object.
-         * @param {QueryGraph} queryGraph 
-         * @param {*} [options] Override http request option.
-         * @throws {RequiredError}
-         */
-        addPathToQueryGraph(path: string, queryGraph: QueryGraph, options?: any): AxiosPromise<QueryGraph> {
-            return localVarFp.addPathToQueryGraph(path, queryGraph, options).then((request) => request(axios, basePath));
-        },
-        /**
-         * The having aggregation function is defined in the groupBy field of the query graph in the request body.
-         * @summary Set the having filter of the aggregation function to the head term.
-         * @param {string} headTerm The head term that should be involved in the having filter
-         * @param {string} direction 
-         * @param {QueryGraph} queryGraph 
-         * @param {*} [options] Override http request option.
-         * @throws {RequiredError}
-         */
-        aggregationHavingHeadTerm(headTerm: string, direction: string, queryGraph: QueryGraph, options?: any): AxiosPromise<QueryGraph> {
-            return localVarFp.aggregationHavingHeadTerm(headTerm, direction, queryGraph, options).then((request) => request(axios, basePath));
-        },
-        /**
-         * The aggregation function is defined in the group by field of the query graph in the request body. Remember to set the alias of the head based on function name and variable.
-         * @summary Set the aggregation function to the head term.
-         * @param {string} headTerm The head term that should be involved in the aggregation function
-         * @param {QueryGraph} queryGraph 
-         * @param {*} [options] Override http request option.
-         * @throws {RequiredError}
-         */
-        aggregationHeadTerm(headTerm: string, queryGraph: QueryGraph, options?: any): AxiosPromise<QueryGraph> {
-            return localVarFp.aggregationHeadTerm(headTerm, queryGraph, options).then((request) => request(axios, basePath));
-        },
-        /**
-         * This route is used when the user wants to delete a node from the query graph. All the children of this node will be deleted as well as we do not want to create query with completly separated branches. All the variables that are going to be deleted should also be deleted from the head of the query. **WARNING**, if the node has multiple occurrences (due to join operations) every node should be deleted.
-         * @summary Delete the GraphElement (and all its children) from the query graph and head.
-         * @param {string} graphElementId The GraphElement that should be deleted
-         * @param {QueryGraph} queryGraph 
-         * @param {*} [options] Override http request option.
-         * @throws {RequiredError}
-         */
-        deleteGraphElementId(graphElementId: string, queryGraph: QueryGraph, options?: any): AxiosPromise<QueryGraph> {
-            return localVarFp.deleteGraphElementId(graphElementId, queryGraph, options).then((request) => request(axios, basePath));
-        },
-        /**
-         * The path param should be the id of the HeadElement.
-         * @summary Delete the head term from the query graph.
-         * @param {string} headTerm The head term that should be deleted
-         * @param {QueryGraph} queryGraph 
-         * @param {*} [options] Override http request option.
-         * @throws {RequiredError}
-         */
-        deleteHeadTerm(headTerm: string, queryGraph: QueryGraph, options?: any): AxiosPromise<QueryGraph> {
-            return localVarFp.deleteHeadTerm(headTerm, queryGraph, options).then((request) => request(axios, basePath));
-        },
-        /**
-         * The distinct value is defined in the query graph in the request body.
-         * @summary Set the distinct value.
-         * @param {boolean} distinct 
-         * @param {QueryGraph} queryGraph 
-         * @param {*} [options] Override http request option.
-         * @throws {RequiredError}
-         */
-        distinctQueryGraph(distinct: boolean, queryGraph: QueryGraph, options?: any): AxiosPromise<QueryGraph> {
-            return localVarFp.distinctQueryGraph(distinct, queryGraph, options).then((request) => request(axios, basePath));
-        },
-        /**
-         * The function is defined in the head term of the query graph in the request body. Remember to set the alias of the head based on function name and variable.
-         * @summary Set a function to the head term from the query graph.
-         * @param {string} headTerm The head term that should be involved inthe function
-         * @param {QueryGraph} queryGraph 
-         * @param {*} [options] Override http request option.
-         * @throws {RequiredError}
-         */
-        functionHeadTerm(headTerm: string, queryGraph: QueryGraph, options?: any): AxiosPromise<QueryGraph> {
-            return localVarFp.functionHeadTerm(headTerm, queryGraph, options).then((request) => request(axios, basePath));
-        },
-        /**
-         * Starting from only the clicked class get the query graph that will be rendered by Sparqling, the query head, the sparql code. The sparql query returned will be somthing like `select ?x { ?x a <clickedClassIRI>` }. The variable `?x` should be called according to the entity remainder or label. The variable will be added to the head of the query in order to create a valid SPARQL query.
-         * @summary This is the first route to call in order to build the query graph.
-         * @param {string} clickedClassIRI The IRI of the entity clicked on the GRAPHOLscape ontology graph
-         * @param {*} [options] Override http request option.
-         * @throws {RequiredError}
-         */
-        getQueryGraph(clickedClassIRI: string, options?: any): AxiosPromise<QueryGraph> {
-            return localVarFp.getQueryGraph(clickedClassIRI, options).then((request) => request(axios, basePath));
-        },
-        /**
-         * The limit value is defined in the query graph in the request body.
-         * @summary Set the limit value.
-         * @param {number} limit 
-         * @param {QueryGraph} queryGraph 
-         * @param {*} [options] Override http request option.
-         * @throws {RequiredError}
-         */
-        limitQueryGraph(limit: number, queryGraph: QueryGraph, options?: any): AxiosPromise<QueryGraph> {
-            return localVarFp.limitQueryGraph(limit, queryGraph, options).then((request) => request(axios, basePath));
-        },
         /**
          * Create a new optional in the query and add the triple pattern(s) identified by the GraphElementId. - If it is a class the query parameter should be used and the triple pattern `?graphElementId rdf:type <classIRI>` will be moved from the bgp to the new optional. - If it is a data property the tp `?graphElementIdVar1 <graphElementIdDataPropertyIRI> ?graphElementIdVar2` will be added to the new optional. - If it is a object property the tps `?graphElementIdVar1 <graphElementIdDataPropertyIRI> ?graphElementIdVar2. ?graphElementIdVar2 rdf:type <classIRI>` till the leaves will be moved to the new optional.
          * @summary Add the `graphElementId` to a new optional.
@@ -1960,82 +2727,6 @@ export const QueryGraphApiFactory = function (configuration?: Configuration, bas
          */
         newOptionalGraphElementId(graphElementId: string, queryGraph: QueryGraph, classIRI?: string, options?: any): AxiosPromise<QueryGraph> {
             return localVarFp.newOptionalGraphElementId(graphElementId, queryGraph, classIRI, options).then((request) => request(axios, basePath));
-        },
-        /**
-         * The offset value is defined in the query graph in the request body.
-         * @summary Set the offset value.
-         * @param {boolean} offset 
-         * @param {QueryGraph} queryGraph 
-         * @param {*} [options] Override http request option.
-         * @throws {RequiredError}
-         */
-        offsetQueryGraph(offset: boolean, queryGraph: QueryGraph, options?: any): AxiosPromise<QueryGraph> {
-            return localVarFp.offsetQueryGraph(offset, queryGraph, options).then((request) => request(axios, basePath));
-        },
-        /**
-         * The OrderBy object is passed in the request body in the Query Graph.
-         * @summary Order by the head from the query graph.
-         * @param {string} headTerm The head term that should be ordered
-         * @param {'desc' | 'asc'} direction 
-         * @param {QueryGraph} queryGraph 
-         * @param {*} [options] Override http request option.
-         * @throws {RequiredError}
-         */
-        orderByHeadTerm(headTerm: string, direction: 'desc' | 'asc', queryGraph: QueryGraph, options?: any): AxiosPromise<QueryGraph> {
-            return localVarFp.orderByHeadTerm(headTerm, direction, queryGraph, options).then((request) => request(axios, basePath));
-        },
-        /**
-         * This call is used when the user click on a highlighted class and should add a triple pattern of the form like `?x rdf:type <targetClassIRI>`. The server should find `?x` in the SPARQL code as the variable associated to the `sourceClassIRI`.
-         * @summary Starting from the current query graph continue to build the query graph through a class.
-         * @param {string} graphElementId The id of the node of the selected class in the query graph.
-         * @param {string} sourceClassIRI The IRI of the last selected class. It could be selected from the ontology graph or from the query graph.
-         * @param {string} targetClassIRI The IRI of the entity clicked on the GRAPHOLscape ontology graph.
-         * @param {QueryGraph} queryGraph 
-         * @param {*} [options] Override http request option.
-         * @throws {RequiredError}
-         */
-        putQueryGraphClass(graphElementId: string, sourceClassIRI: string, targetClassIRI: string, queryGraph: QueryGraph, options?: any): AxiosPromise<QueryGraph> {
-            return localVarFp.putQueryGraphClass(graphElementId, sourceClassIRI, targetClassIRI, queryGraph, options).then((request) => request(axios, basePath));
-        },
-        /**
-         * This route is used when the user click a highlighted data property. The triple pattern to add is something like `?x <predicateIRI> ?y` where `?x` should be derived from `selectedClassIRI`. Note that `?y` is fresh new variable that should be added also to the head of the query (we assume data property values are interesting). The variable `?y` should be called according to the entity remainder or label and should add a counter if there is an already defined variable for that data property.
-         * @summary Starting from the current query graph continue to build the query graph through a data property.
-         * @param {string} graphElementId The id of the node of the selected class in the query graph.
-         * @param {string} sourceClassIRI The IRI of the last selected class. It could be selected from the ontology graph or from the query graph.
-         * @param {string} predicateIRI The IRI of the clicked data property.
-         * @param {QueryGraph} queryGraph 
-         * @param {*} [options] Override http request option.
-         * @throws {RequiredError}
-         */
-        putQueryGraphDataProperty(graphElementId: string, sourceClassIRI: string, predicateIRI: string, queryGraph: QueryGraph, options?: any): AxiosPromise<QueryGraph> {
-            return localVarFp.putQueryGraphDataProperty(graphElementId, sourceClassIRI, predicateIRI, queryGraph, options).then((request) => request(axios, basePath));
-        },
-        /**
-         * Starting from a query graph which has two nodes representing the same class(es), it returns the query graph in which the two nodes have been joined into a single one. The children of the selected nodes will be grouped in `graphElementId1` and each time we add a children through the previous routes they will be added to this node.
-         * @summary Join two GraphNodeElement in one.
-         * @param {string} graphElementId1 The id of the node of the selected class in the query graph.
-         * @param {string} graphElementId2 The id of the node of the selected class in the query graph.
-         * @param {QueryGraph} queryGraph 
-         * @param {*} [options] Override http request option.
-         * @throws {RequiredError}
-         */
-        putQueryGraphJoin(graphElementId1: string, graphElementId2: string, queryGraph: QueryGraph, options?: any): AxiosPromise<QueryGraph> {
-            return localVarFp.putQueryGraphJoin(graphElementId1, graphElementId2, queryGraph, options).then((request) => request(axios, basePath));
-        },
-        /**
-         * This route is used when the user click a highlighted object property with ornly one `relatedClasses` or, in the case of more than one `relatedClasses` immediatly after choosing one of them. In this case the triple pattern to add is something like `?x <predicateIRI> ?y` where `?x` and `?y` should be derived from the direction indicated by `isPredicateDirect` of the object property with respect to `sourceClassIRI` and `targetClassIRI`. If there is a cyclic object property the user also should specify the direction if order to correctly assign `?x` and `?y`. Either `?x` or `?y` should be a fresh new variable which should be linked to a new triple pattern `?y rdf:type <targetClassIRI>`. The variable `?y` should be called according to the entity remainder or label and should add a counter if there is an already defined variable for that class.
-         * @summary Starting from the current query graph continue to build the query graph through a object property.
-         * @param {string} graphElementId The id of the node of the selected class in the query graph.
-         * @param {string} sourceClassIRI The IRI of the last selected class. It could be selected from the ontology graph or from the query graph.
-         * @param {string} predicateIRI The IRI of the predicate which links source class and target class
-         * @param {string} targetClassIRI The IRI of the entity clicked on the GRAPHOLscape ontology graph.
-         * @param {boolean} isPredicateDirect If true sourceClassIRI is the domain of predicateIRI, if false sourceClassIRI is the range of predicateIRI.
-         * @param {QueryGraph} queryGraph 
-         * @param {*} [options] Override http request option.
-         * @throws {RequiredError}
-         */
-        putQueryGraphObjectProperty(graphElementId: string, sourceClassIRI: string, predicateIRI: string, targetClassIRI: string, isPredicateDirect: boolean, queryGraph: QueryGraph, options?: any): AxiosPromise<QueryGraph> {
-            return localVarFp.putQueryGraphObjectProperty(graphElementId, sourceClassIRI, predicateIRI, targetClassIRI, isPredicateDirect, queryGraph, options).then((request) => request(axios, basePath));
         },
         /**
          * 
@@ -2059,157 +2750,16 @@ export const QueryGraphApiFactory = function (configuration?: Configuration, bas
         removeOptionalGraphElementId(graphElementId: string, queryGraph: QueryGraph, classIRI?: string, options?: any): AxiosPromise<QueryGraph> {
             return localVarFp.removeOptionalGraphElementId(graphElementId, queryGraph, classIRI, options).then((request) => request(axios, basePath));
         },
-        /**
-         * Put the alias in the HeadElement passed via request body.
-         * @summary Rename the head term from the query graph using alias.
-         * @param {string} headTerm The head term that should be renamed
-         * @param {QueryGraph} queryGraph 
-         * @param {*} [options] Override http request option.
-         * @throws {RequiredError}
-         */
-        renameHeadTerm(headTerm: string, queryGraph: QueryGraph, options?: any): AxiosPromise<QueryGraph> {
-            return localVarFp.renameHeadTerm(headTerm, queryGraph, options).then((request) => request(axios, basePath));
-        },
     };
 };
 
 /**
- * QueryGraphApi - object-oriented interface
+ * QueryGraphOptionalApi - object-oriented interface
  * @export
- * @class QueryGraphApi
+ * @class QueryGraphOptionalApi
  * @extends {BaseAPI}
  */
-export class QueryGraphApi extends BaseAPI {
-    /**
-     * Explicitley add a term to the query head. All the data property variables are added automatically to the head during the query graph construction. This will add to the head only variables associated to classes (`rdf:type` triple pattern) or data properties.
-     * @summary Add the head term to the query graph.
-     * @param {string} graphElementId The id of the graph node that should be added to the head
-     * @param {QueryGraph} queryGraph 
-     * @param {*} [options] Override http request option.
-     * @throws {RequiredError}
-     * @memberof QueryGraphApi
-     */
-    public addHeadTerm(graphElementId: string, queryGraph: QueryGraph, options?: AxiosRequestConfig) {
-        return QueryGraphApiFp(this.configuration).addHeadTerm(graphElementId, queryGraph, options).then((request) => request(this.axios, this.basePath));
-    }
-
-    /**
-     * This path should be used to build the query graph using the path interaction. As a result there will be added to the query several triple pattern (depending on the length of the path) as a sequence of classes and object properties. Data properties never appear in paths, in order to add them use the simple PUT route.
-     * @summary Get the query graph that will be rendered by Sparqling, the query head, the sparql code based on the chosen path.
-     * @param {string} path Serialization of Path object.
-     * @param {QueryGraph} queryGraph 
-     * @param {*} [options] Override http request option.
-     * @throws {RequiredError}
-     * @memberof QueryGraphApi
-     */
-    public addPathToQueryGraph(path: string, queryGraph: QueryGraph, options?: AxiosRequestConfig) {
-        return QueryGraphApiFp(this.configuration).addPathToQueryGraph(path, queryGraph, options).then((request) => request(this.axios, this.basePath));
-    }
-
-    /**
-     * The having aggregation function is defined in the groupBy field of the query graph in the request body.
-     * @summary Set the having filter of the aggregation function to the head term.
-     * @param {string} headTerm The head term that should be involved in the having filter
-     * @param {string} direction 
-     * @param {QueryGraph} queryGraph 
-     * @param {*} [options] Override http request option.
-     * @throws {RequiredError}
-     * @memberof QueryGraphApi
-     */
-    public aggregationHavingHeadTerm(headTerm: string, direction: string, queryGraph: QueryGraph, options?: AxiosRequestConfig) {
-        return QueryGraphApiFp(this.configuration).aggregationHavingHeadTerm(headTerm, direction, queryGraph, options).then((request) => request(this.axios, this.basePath));
-    }
-
-    /**
-     * The aggregation function is defined in the group by field of the query graph in the request body. Remember to set the alias of the head based on function name and variable.
-     * @summary Set the aggregation function to the head term.
-     * @param {string} headTerm The head term that should be involved in the aggregation function
-     * @param {QueryGraph} queryGraph 
-     * @param {*} [options] Override http request option.
-     * @throws {RequiredError}
-     * @memberof QueryGraphApi
-     */
-    public aggregationHeadTerm(headTerm: string, queryGraph: QueryGraph, options?: AxiosRequestConfig) {
-        return QueryGraphApiFp(this.configuration).aggregationHeadTerm(headTerm, queryGraph, options).then((request) => request(this.axios, this.basePath));
-    }
-
-    /**
-     * This route is used when the user wants to delete a node from the query graph. All the children of this node will be deleted as well as we do not want to create query with completly separated branches. All the variables that are going to be deleted should also be deleted from the head of the query. **WARNING**, if the node has multiple occurrences (due to join operations) every node should be deleted.
-     * @summary Delete the GraphElement (and all its children) from the query graph and head.
-     * @param {string} graphElementId The GraphElement that should be deleted
-     * @param {QueryGraph} queryGraph 
-     * @param {*} [options] Override http request option.
-     * @throws {RequiredError}
-     * @memberof QueryGraphApi
-     */
-    public deleteGraphElementId(graphElementId: string, queryGraph: QueryGraph, options?: AxiosRequestConfig) {
-        return QueryGraphApiFp(this.configuration).deleteGraphElementId(graphElementId, queryGraph, options).then((request) => request(this.axios, this.basePath));
-    }
-
-    /**
-     * The path param should be the id of the HeadElement.
-     * @summary Delete the head term from the query graph.
-     * @param {string} headTerm The head term that should be deleted
-     * @param {QueryGraph} queryGraph 
-     * @param {*} [options] Override http request option.
-     * @throws {RequiredError}
-     * @memberof QueryGraphApi
-     */
-    public deleteHeadTerm(headTerm: string, queryGraph: QueryGraph, options?: AxiosRequestConfig) {
-        return QueryGraphApiFp(this.configuration).deleteHeadTerm(headTerm, queryGraph, options).then((request) => request(this.axios, this.basePath));
-    }
-
-    /**
-     * The distinct value is defined in the query graph in the request body.
-     * @summary Set the distinct value.
-     * @param {boolean} distinct 
-     * @param {QueryGraph} queryGraph 
-     * @param {*} [options] Override http request option.
-     * @throws {RequiredError}
-     * @memberof QueryGraphApi
-     */
-    public distinctQueryGraph(distinct: boolean, queryGraph: QueryGraph, options?: AxiosRequestConfig) {
-        return QueryGraphApiFp(this.configuration).distinctQueryGraph(distinct, queryGraph, options).then((request) => request(this.axios, this.basePath));
-    }
-
-    /**
-     * The function is defined in the head term of the query graph in the request body. Remember to set the alias of the head based on function name and variable.
-     * @summary Set a function to the head term from the query graph.
-     * @param {string} headTerm The head term that should be involved inthe function
-     * @param {QueryGraph} queryGraph 
-     * @param {*} [options] Override http request option.
-     * @throws {RequiredError}
-     * @memberof QueryGraphApi
-     */
-    public functionHeadTerm(headTerm: string, queryGraph: QueryGraph, options?: AxiosRequestConfig) {
-        return QueryGraphApiFp(this.configuration).functionHeadTerm(headTerm, queryGraph, options).then((request) => request(this.axios, this.basePath));
-    }
-
-    /**
-     * Starting from only the clicked class get the query graph that will be rendered by Sparqling, the query head, the sparql code. The sparql query returned will be somthing like `select ?x { ?x a <clickedClassIRI>` }. The variable `?x` should be called according to the entity remainder or label. The variable will be added to the head of the query in order to create a valid SPARQL query.
-     * @summary This is the first route to call in order to build the query graph.
-     * @param {string} clickedClassIRI The IRI of the entity clicked on the GRAPHOLscape ontology graph
-     * @param {*} [options] Override http request option.
-     * @throws {RequiredError}
-     * @memberof QueryGraphApi
-     */
-    public getQueryGraph(clickedClassIRI: string, options?: AxiosRequestConfig) {
-        return QueryGraphApiFp(this.configuration).getQueryGraph(clickedClassIRI, options).then((request) => request(this.axios, this.basePath));
-    }
-
-    /**
-     * The limit value is defined in the query graph in the request body.
-     * @summary Set the limit value.
-     * @param {number} limit 
-     * @param {QueryGraph} queryGraph 
-     * @param {*} [options] Override http request option.
-     * @throws {RequiredError}
-     * @memberof QueryGraphApi
-     */
-    public limitQueryGraph(limit: number, queryGraph: QueryGraph, options?: AxiosRequestConfig) {
-        return QueryGraphApiFp(this.configuration).limitQueryGraph(limit, queryGraph, options).then((request) => request(this.axios, this.basePath));
-    }
-
+export class QueryGraphOptionalApi extends BaseAPI {
     /**
      * Create a new optional in the query and add the triple pattern(s) identified by the GraphElementId. - If it is a class the query parameter should be used and the triple pattern `?graphElementId rdf:type <classIRI>` will be moved from the bgp to the new optional. - If it is a data property the tp `?graphElementIdVar1 <graphElementIdDataPropertyIRI> ?graphElementIdVar2` will be added to the new optional. - If it is a object property the tps `?graphElementIdVar1 <graphElementIdDataPropertyIRI> ?graphElementIdVar2. ?graphElementIdVar2 rdf:type <classIRI>` till the leaves will be moved to the new optional.
      * @summary Add the `graphElementId` to a new optional.
@@ -2218,98 +2768,10 @@ export class QueryGraphApi extends BaseAPI {
      * @param {string} [classIRI] The IRI of the class that will be inserted in the optional.
      * @param {*} [options] Override http request option.
      * @throws {RequiredError}
-     * @memberof QueryGraphApi
+     * @memberof QueryGraphOptionalApi
      */
     public newOptionalGraphElementId(graphElementId: string, queryGraph: QueryGraph, classIRI?: string, options?: AxiosRequestConfig) {
-        return QueryGraphApiFp(this.configuration).newOptionalGraphElementId(graphElementId, queryGraph, classIRI, options).then((request) => request(this.axios, this.basePath));
-    }
-
-    /**
-     * The offset value is defined in the query graph in the request body.
-     * @summary Set the offset value.
-     * @param {boolean} offset 
-     * @param {QueryGraph} queryGraph 
-     * @param {*} [options] Override http request option.
-     * @throws {RequiredError}
-     * @memberof QueryGraphApi
-     */
-    public offsetQueryGraph(offset: boolean, queryGraph: QueryGraph, options?: AxiosRequestConfig) {
-        return QueryGraphApiFp(this.configuration).offsetQueryGraph(offset, queryGraph, options).then((request) => request(this.axios, this.basePath));
-    }
-
-    /**
-     * The OrderBy object is passed in the request body in the Query Graph.
-     * @summary Order by the head from the query graph.
-     * @param {string} headTerm The head term that should be ordered
-     * @param {'desc' | 'asc'} direction 
-     * @param {QueryGraph} queryGraph 
-     * @param {*} [options] Override http request option.
-     * @throws {RequiredError}
-     * @memberof QueryGraphApi
-     */
-    public orderByHeadTerm(headTerm: string, direction: 'desc' | 'asc', queryGraph: QueryGraph, options?: AxiosRequestConfig) {
-        return QueryGraphApiFp(this.configuration).orderByHeadTerm(headTerm, direction, queryGraph, options).then((request) => request(this.axios, this.basePath));
-    }
-
-    /**
-     * This call is used when the user click on a highlighted class and should add a triple pattern of the form like `?x rdf:type <targetClassIRI>`. The server should find `?x` in the SPARQL code as the variable associated to the `sourceClassIRI`.
-     * @summary Starting from the current query graph continue to build the query graph through a class.
-     * @param {string} graphElementId The id of the node of the selected class in the query graph.
-     * @param {string} sourceClassIRI The IRI of the last selected class. It could be selected from the ontology graph or from the query graph.
-     * @param {string} targetClassIRI The IRI of the entity clicked on the GRAPHOLscape ontology graph.
-     * @param {QueryGraph} queryGraph 
-     * @param {*} [options] Override http request option.
-     * @throws {RequiredError}
-     * @memberof QueryGraphApi
-     */
-    public putQueryGraphClass(graphElementId: string, sourceClassIRI: string, targetClassIRI: string, queryGraph: QueryGraph, options?: AxiosRequestConfig) {
-        return QueryGraphApiFp(this.configuration).putQueryGraphClass(graphElementId, sourceClassIRI, targetClassIRI, queryGraph, options).then((request) => request(this.axios, this.basePath));
-    }
-
-    /**
-     * This route is used when the user click a highlighted data property. The triple pattern to add is something like `?x <predicateIRI> ?y` where `?x` should be derived from `selectedClassIRI`. Note that `?y` is fresh new variable that should be added also to the head of the query (we assume data property values are interesting). The variable `?y` should be called according to the entity remainder or label and should add a counter if there is an already defined variable for that data property.
-     * @summary Starting from the current query graph continue to build the query graph through a data property.
-     * @param {string} graphElementId The id of the node of the selected class in the query graph.
-     * @param {string} sourceClassIRI The IRI of the last selected class. It could be selected from the ontology graph or from the query graph.
-     * @param {string} predicateIRI The IRI of the clicked data property.
-     * @param {QueryGraph} queryGraph 
-     * @param {*} [options] Override http request option.
-     * @throws {RequiredError}
-     * @memberof QueryGraphApi
-     */
-    public putQueryGraphDataProperty(graphElementId: string, sourceClassIRI: string, predicateIRI: string, queryGraph: QueryGraph, options?: AxiosRequestConfig) {
-        return QueryGraphApiFp(this.configuration).putQueryGraphDataProperty(graphElementId, sourceClassIRI, predicateIRI, queryGraph, options).then((request) => request(this.axios, this.basePath));
-    }
-
-    /**
-     * Starting from a query graph which has two nodes representing the same class(es), it returns the query graph in which the two nodes have been joined into a single one. The children of the selected nodes will be grouped in `graphElementId1` and each time we add a children through the previous routes they will be added to this node.
-     * @summary Join two GraphNodeElement in one.
-     * @param {string} graphElementId1 The id of the node of the selected class in the query graph.
-     * @param {string} graphElementId2 The id of the node of the selected class in the query graph.
-     * @param {QueryGraph} queryGraph 
-     * @param {*} [options] Override http request option.
-     * @throws {RequiredError}
-     * @memberof QueryGraphApi
-     */
-    public putQueryGraphJoin(graphElementId1: string, graphElementId2: string, queryGraph: QueryGraph, options?: AxiosRequestConfig) {
-        return QueryGraphApiFp(this.configuration).putQueryGraphJoin(graphElementId1, graphElementId2, queryGraph, options).then((request) => request(this.axios, this.basePath));
-    }
-
-    /**
-     * This route is used when the user click a highlighted object property with ornly one `relatedClasses` or, in the case of more than one `relatedClasses` immediatly after choosing one of them. In this case the triple pattern to add is something like `?x <predicateIRI> ?y` where `?x` and `?y` should be derived from the direction indicated by `isPredicateDirect` of the object property with respect to `sourceClassIRI` and `targetClassIRI`. If there is a cyclic object property the user also should specify the direction if order to correctly assign `?x` and `?y`. Either `?x` or `?y` should be a fresh new variable which should be linked to a new triple pattern `?y rdf:type <targetClassIRI>`. The variable `?y` should be called according to the entity remainder or label and should add a counter if there is an already defined variable for that class.
-     * @summary Starting from the current query graph continue to build the query graph through a object property.
-     * @param {string} graphElementId The id of the node of the selected class in the query graph.
-     * @param {string} sourceClassIRI The IRI of the last selected class. It could be selected from the ontology graph or from the query graph.
-     * @param {string} predicateIRI The IRI of the predicate which links source class and target class
-     * @param {string} targetClassIRI The IRI of the entity clicked on the GRAPHOLscape ontology graph.
-     * @param {boolean} isPredicateDirect If true sourceClassIRI is the domain of predicateIRI, if false sourceClassIRI is the range of predicateIRI.
-     * @param {QueryGraph} queryGraph 
-     * @param {*} [options] Override http request option.
-     * @throws {RequiredError}
-     * @memberof QueryGraphApi
-     */
-    public putQueryGraphObjectProperty(graphElementId: string, sourceClassIRI: string, predicateIRI: string, targetClassIRI: string, isPredicateDirect: boolean, queryGraph: QueryGraph, options?: AxiosRequestConfig) {
-        return QueryGraphApiFp(this.configuration).putQueryGraphObjectProperty(graphElementId, sourceClassIRI, predicateIRI, targetClassIRI, isPredicateDirect, queryGraph, options).then((request) => request(this.axios, this.basePath));
+        return QueryGraphOptionalApiFp(this.configuration).newOptionalGraphElementId(graphElementId, queryGraph, classIRI, options).then((request) => request(this.axios, this.basePath));
     }
 
     /**
@@ -2318,10 +2780,10 @@ export class QueryGraphApi extends BaseAPI {
      * @param {QueryGraph} queryGraph 
      * @param {*} [options] Override http request option.
      * @throws {RequiredError}
-     * @memberof QueryGraphApi
+     * @memberof QueryGraphOptionalApi
      */
     public removeAllOptional(queryGraph: QueryGraph, options?: AxiosRequestConfig) {
-        return QueryGraphApiFp(this.configuration).removeAllOptional(queryGraph, options).then((request) => request(this.axios, this.basePath));
+        return QueryGraphOptionalApiFp(this.configuration).removeAllOptional(queryGraph, options).then((request) => request(this.axios, this.basePath));
     }
 
     /**
@@ -2332,23 +2794,10 @@ export class QueryGraphApi extends BaseAPI {
      * @param {string} [classIRI] The IRI of the class that will be inserted in the optional.
      * @param {*} [options] Override http request option.
      * @throws {RequiredError}
-     * @memberof QueryGraphApi
+     * @memberof QueryGraphOptionalApi
      */
     public removeOptionalGraphElementId(graphElementId: string, queryGraph: QueryGraph, classIRI?: string, options?: AxiosRequestConfig) {
-        return QueryGraphApiFp(this.configuration).removeOptionalGraphElementId(graphElementId, queryGraph, classIRI, options).then((request) => request(this.axios, this.basePath));
-    }
-
-    /**
-     * Put the alias in the HeadElement passed via request body.
-     * @summary Rename the head term from the query graph using alias.
-     * @param {string} headTerm The head term that should be renamed
-     * @param {QueryGraph} queryGraph 
-     * @param {*} [options] Override http request option.
-     * @throws {RequiredError}
-     * @memberof QueryGraphApi
-     */
-    public renameHeadTerm(headTerm: string, queryGraph: QueryGraph, options?: AxiosRequestConfig) {
-        return QueryGraphApiFp(this.configuration).renameHeadTerm(headTerm, queryGraph, options).then((request) => request(this.axios, this.basePath));
+        return QueryGraphOptionalApiFp(this.configuration).removeOptionalGraphElementId(graphElementId, queryGraph, classIRI, options).then((request) => request(this.axios, this.basePath));
     }
 }
 
