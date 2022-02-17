@@ -1,5 +1,5 @@
 import { EntityTypeEnum, HeadElement, QueryGraph } from "../api/swagger"
-import * as queryBody from "./query-body"
+import * as queryBody from "../query-body"
 import * as queryGraph from "../query-graph"
 import * as queryHead from "../query-head"
 import * as GEUtility from "../util/graph-element-utility"

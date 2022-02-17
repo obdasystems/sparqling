@@ -1,13 +1,13 @@
 import { UI } from 'grapholscape'
-import { GraphElement, QueryGraphApiFactory } from '../api/swagger'
-import { EntityTypeEnum } from '../api/swagger'
-import * as ontologyGraph from '../ontology-graph'
-import getGscape from '../ontology-graph/get-gscape'
-import * as queryGraph from '../query-graph'
-import onNewBody from './on-new-body'
-import * as queryBody from './query-body'
-import * as GEUtility from '../util/graph-element-utility'
-import { newOptionalGraphElementId, removeOptionalGraphElementId } from '../api/api_stub'
+import { GraphElement, QueryGraphApiFactory } from '../../api/swagger'
+import { EntityTypeEnum } from '../../api/swagger'
+import * as ontologyGraph from '../../ontology-graph'
+import getGscape from '../../ontology-graph/get-gscape'
+import * as queryGraph from '../../query-graph'
+import onNewBody from '../on-new-body'
+import * as queryBody from '../../query-body'
+import * as GEUtility from '../../util/graph-element-utility'
+import { newOptionalGraphElementId, removeOptionalGraphElementId } from '../../api/api_stub'
 
 queryGraph.onAddHead(async graphElement => {
   const qgApi = QueryGraphApiFactory()

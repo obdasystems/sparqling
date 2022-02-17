@@ -1,7 +1,7 @@
 import { CollectionReturnValue, Core } from "cytoscape"
 import { OntologyGraphApi } from "../api/swagger"
 import { Highlights } from "../api/swagger"
-import { getSelectedGraphElement } from "../query-handler/query-body"
+import * as queryBody from "../query-body"
 import { getIri } from "../util/graph-element-utility"
 import getGscape from "./get-gscape"
 
@@ -46,7 +46,7 @@ export function isHighlighted(iri: string): boolean {
 }
 
 export function refreshHighlights() {
-  let selectedGraphElem = getSelectedGraphElement()
+  let selectedGraphElem = queryBody.getSelectedGraphElement()
   if (selectedGraphElem) {
     performHighlights(getIri(selectedGraphElem))
   }

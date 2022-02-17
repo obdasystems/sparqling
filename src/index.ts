@@ -6,8 +6,7 @@ import { refreshHighlights } from './ontology-graph'
 import sparqlingStyle from './ontology-graph/style'
 import * as queryGraph from './query-graph'
 import { DisplayedNameType } from './query-graph/displayed-name-type'
-import './query-handler'
-import { onEntitySelection } from './query-handler'
+import { OntologyGraphHandlers } from './main'
 import * as queryHead from './query-head'
 import { listSelectionDialog, sparqlDialog } from './widgets'
 
@@ -32,7 +31,9 @@ export default function sparqling(gscape: Grapholscape, file?: string | File, is
   queryGraph.setTheme(gscape.themesController.actualTheme)
   gscape.onThemeChange((newTheme: Theme) => queryGraph.setTheme(newTheme))
 
-  gscape.onEntitySelection(async (cyEntity: CollectionReturnValue) => onEntitySelection(cyEntity))
+  gscape.onEntitySelection(async (cyEntity: CollectionReturnValue) =>
+    OntologyGraphHandlers.onEntitySelection(cyEntity)
+  )
 
   ontologyGraph.addStylesheet(gscape.renderer.cy, sparqlingStyle)
   gscape.onDiagramChange(() => ontologyGraph.addStylesheet(gscape.renderer.cy, sparqlingStyle))

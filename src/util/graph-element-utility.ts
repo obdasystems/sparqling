@@ -1,5 +1,5 @@
 import { Entity, EntityTypeEnum, GraphElement } from "../api/swagger"
-import * as queryBody from '../query-handler/query-body'
+import * as queryBody from '../query-body'
 
 export function getGraphElementByID(id: string | number) {
   const graph = queryBody.getBody()?.graph

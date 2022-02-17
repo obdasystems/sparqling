@@ -1,14 +1,12 @@
 import { CollectionReturnValue } from "cytoscape"
 import { Type } from "grapholscape"
-import { GraphElement, QueryGraphApiFactory } from "../api/swagger"
-import { EntityTypeEnum, QueryGraph } from "../api/swagger"
-import * as ontologyGraph from "../ontology-graph"
-import getGscape from "../ontology-graph/get-gscape"
-import * as queryGraph from "../query-graph"
-import { getdiffNew, graphElementHasIri, isClass } from "../util/graph-element-utility"
-import * as queryBody from "./query-body"
-import onNewBody from "./on-new-body"
-import { getIri } from '../util/graph-element-utility'
+import { GraphElement, QueryGraphApiFactory, QueryGraph } from "../../api/swagger"
+import * as ontologyGraph from "../../ontology-graph"
+import getGscape from "../../ontology-graph/get-gscape"
+import * as queryGraph from "../../query-graph"
+import { getdiffNew, graphElementHasIri, isClass } from "../../util/graph-element-utility"
+import * as queryBody from "../../query-body"
+import onNewBody from "../on-new-body"
 
 
 const { CONCEPT, OBJECT_PROPERTY, DATA_PROPERTY } = Type

@@ -1,11 +1,11 @@
-import { QueryGraphApiFactory } from '../api/swagger'
-import * as queryHead from '../query-head'
-import * as queryGraph from '../query-graph'
-import * as ontologyGraph from '../ontology-graph'
-import onNewBody from './on-new-body'
-import * as queryBody from './query-body'
-import { sparqlDialog } from '../widgets'
-import { getGraphElementByID, getIri } from '../util/graph-element-utility'
+import { QueryGraphApiFactory } from '../../api/swagger'
+import * as queryHead from '../../query-head'
+import * as queryGraph from '../../query-graph'
+import * as ontologyGraph from '../../ontology-graph'
+import onNewBody from '../on-new-body'
+import * as queryBody from '../../query-body'
+import { sparqlDialog } from '../../widgets'
+import { getGraphElementByID, getIri } from '../../util/graph-element-utility'
 
 queryHead.onDelete(async headElement => {
   const qgApi = QueryGraphApiFactory()
