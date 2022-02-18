@@ -1,11 +1,15 @@
 import { CollectionReturnValue, Core } from "cytoscape"
+import { focusNodeByIRI } from "./focus-node-by-iri"
 import { OntologyGraphApi } from "../api/swagger"
 import { Highlights } from "../api/swagger"
 import * as queryBody from "../query-body"
 import { getIri } from "../util/graph-element-utility"
+import { highlightsList } from "../widgets"
 import getGscape from "./get-gscape"
 
 let actualHighlights: Highlights = null
+
+highlightsList.onSuggestionSelection(iri => focusNodeByIRI(iri))
 
 export const getActualHighlights = () => actualHighlights
 
@@ -23,6 +27,7 @@ export async function highlightSuggestions(clickedIRI: string) {
   resetHighlights()
   await retrieveHighlights(clickedIRI)
   performHighlights(clickedIRI)
+  highlightsList.highlights = actualHighlights
 }
 
 export function resetHighlights() {
@@ -36,6 +41,7 @@ export function resetHighlights() {
       .selectify()
   })
   actualHighlights = null
+  highlightsList.highlights = null
 }
 
 export function isHighlighted(iri: string): boolean {

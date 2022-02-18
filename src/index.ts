@@ -8,17 +8,21 @@ import * as queryGraph from './query-graph'
 import { DisplayedNameType } from './query-graph/displayed-name-type'
 import { OntologyGraphHandlers } from './main'
 import * as queryHead from './query-head'
-import { listSelectionDialog, relatedClassDialog, sparqlDialog } from './widgets'
+import { highlightsList, listSelectionDialog, relatedClassDialog, sparqlDialog } from './widgets'
+import { leftColumnContainer } from './util/get-container'
 
 export default function sparqling(gscape: Grapholscape, file?: string | File, isStandalone?: boolean) {
   //sparqlingContainer.appendChild(gscapeContainer)
   //const gscape = await fullGrapholscape(file, gscapeContainer, { owl_translator: false })
   ontologyGraph.setGrapholscapeInstance(gscape)
 
+  leftColumnContainer.appendChild(highlightsList as any)
+  leftColumnContainer.appendChild(queryHead.widget as any)
+
   // Add query graph and query head widgets to grapholscape instance
   const uiContainer = gscape.container.querySelector('#gscape-ui')
   uiContainer.insertBefore(queryGraph.widget, uiContainer.firstChild)
-  uiContainer.insertBefore(queryHead.widget, uiContainer.firstChild)
+  uiContainer.insertBefore(leftColumnContainer, uiContainer.firstChild)
   uiContainer.appendChild(relatedClassDialog)
   uiContainer.appendChild(sparqlDialog)
 

@@ -11,7 +11,6 @@ const { GscapeWidget } = UI
  */
 export default class QueryHeadWidget extends GscapeWidget {
   public collapsible: boolean
-  public draggable: boolean
   private headSlottedWidget: Element
   public headElements: HeadElement[] = []
   private deleteElementCallback: (headElementId: string) => void
@@ -35,14 +34,11 @@ export default class QueryHeadWidget extends GscapeWidget {
       super_styles[0],
       css`
         :host {
-          width: fit-content;
-          max-width: calc(50% - 59px);
-          position: absolute;
-          left: 10px;
-          top: 100%;
-          transform: translate(0, calc(-100% - 10px));
+          position:initial;
+          width: 300px;
           background: transparent;
           box-shadow: none;
+          pointer-events:initial;
         }
 
         :host(:hover){
@@ -51,12 +47,12 @@ export default class QueryHeadWidget extends GscapeWidget {
 
         gscape-head {
           --title-text-align: 'left';
+          border-radius: 8px;
         }
 
         gscape-head, #empty-head {
           background-color: var(--theme-gscape-primary, ${colors.primary});
           box-shadow: 0 2px 4px 0 var(--theme-gscape-shadows, ${colors.shadows});
-          border-radius: 8px;
         }
 
         .widget-body {
@@ -65,6 +61,7 @@ export default class QueryHeadWidget extends GscapeWidget {
           border-radius: inherit;
           border-bottom-left-radius:0;
           border-bottom-right-radius:0;
+          max-height:350px;
         }
 
         #elems-wrapper {
@@ -95,7 +92,6 @@ export default class QueryHeadWidget extends GscapeWidget {
           flex-direction: column;
           align-items: center;
           gap: 20px;
-          width: 228.5px;
           text-align: center;
         }
 
@@ -124,7 +120,6 @@ export default class QueryHeadWidget extends GscapeWidget {
   constructor(headSlottedWidget?: Element) {
     super()
     this.collapsible = true
-    this.draggable = true
     this.headSlottedWidget = headSlottedWidget
   }
 
@@ -170,7 +165,6 @@ export default class QueryHeadWidget extends GscapeWidget {
 
     let self = this as any
     self.header.left_icon = tableEye
-    super.makeDraggableHeadTitle()
   }
 
   /**

@@ -58,12 +58,10 @@ export default class HeadElementComponent extends UI.GscapeWidget {
       css`
         :host {
           display:block;
-          width: 250px;
           height: fit-content;
           margin:5px 2.5px 5px 0;
           padding: 5px;
           position: relative;
-          align-self: end;
         }
 
         .widget-body {

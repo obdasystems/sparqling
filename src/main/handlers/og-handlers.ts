@@ -71,7 +71,7 @@ export async function handleEntitySelection(cyEntity: CollectionReturnValue) {
 ontologyGraph.onRelatedClassSelection((branch:Branch, relatedClass) => {
   const gscape = getGscape()
   lastObjProperty = branch
-  gscape.centerOnNode(relatedClass.id(), 1.8)
+  gscape.centerOnNode(relatedClass.id())
 })
 
 // async function handleObjectPropertySelection(cyEntity: CollectionReturnValue) {
