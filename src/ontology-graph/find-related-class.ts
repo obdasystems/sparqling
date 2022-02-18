@@ -73,7 +73,7 @@ export function showRelatedClassesWidget(objProperty: CollectionReturnValue, pos
 
   //listSelectionDialog.title = classSelectDialogTitle()
   // Use prefixed iri if possible, full iri as fallback
-  relatedClassDialog.relatedClassesList = objPropertyFromApi.relatedClasses.map((iri: string) => {
+  relatedClassDialog.list = objPropertyFromApi.relatedClasses.map((iri: string) => {
     return gscape.ontology.destructureIri(iri)
       ? gscape.ontology.destructureIri(iri).prefixed
       : iri
@@ -93,7 +93,7 @@ export function showRelatedClassesWidget(objProperty: CollectionReturnValue, pos
 }
 
 export function hideRelatedClassesWidget() {
-  relatedClassDialog.relatedClassesList = []
+  relatedClassDialog.list = []
   relatedClassDialog.hide()
 }
 

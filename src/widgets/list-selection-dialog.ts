@@ -25,6 +25,7 @@ export default class ListSelectionDialog extends UI.GscapeWidget {
 
     return [
       super_styles[0],
+      colors,
       css`
         :host {
           position:absolute;
@@ -52,6 +53,7 @@ export default class ListSelectionDialog extends UI.GscapeWidget {
     this.list = []
     this.title = defaultSelectDialogTitle()
     this.buildItemString = buildItemString || function (item: any) { return item }
+    this.hide()
   }
 
   render() {
@@ -85,15 +87,16 @@ export default class ListSelectionDialog extends UI.GscapeWidget {
 
   hide() { super.hide() }
 
-  show(position: EventPosition) {
+  show(position?: EventPosition) {
     const self = this as any
+    
+    if(position) {
+      self.style.top = position.y + "px"
+      self.style.left = position.x + "px"
+    }
 
-    self.style.top = position.y + "px"
-    self.style.left = position.x + "px"
-    self.style.display = 'init'
-    console.log(self)
     super.show();
-    self.shadowRoot.querySelector('gscape-dialog').show()
+    self.shadowRoot.querySelector('gscape-dialog')?.show()
   }
 }
 

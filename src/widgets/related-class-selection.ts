@@ -1,19 +1,12 @@
-import { UI } from 'grapholscape'
 import { html, css } from 'lit'
-import EventPosition from '../util/event-position'
-import { defaultSelectDialogTitle } from './assets/texts'
+import ListSelectionDialog from './list-selection-dialog'
 
-export default class RelatedClassSelection extends UI.GscapeWidget {
-  relatedClassesList: any[]
-  buildItemString: (item: any) => string
-  selectionCallback: (item: any) => void
-  closeCallback: () => void
+export default class RelatedClassSelection extends ListSelectionDialog {
   objProperty: string
   class: string
 
   static get properties() {
     let props = super.properties
-    props.relatedClassesList = { attribute: false }
     props.class = { attribute: false }
     props.objProperty = { attribute: false }
 
@@ -24,12 +17,10 @@ export default class RelatedClassSelection extends UI.GscapeWidget {
   static get styles() {
     let super_styles = super.styles
     let colors = super_styles[1]
-
     return [
       super_styles[0],
       css`
         :host {
-          position:absolute;
           min-width:100px;
           transform: translate(-100%, -50%);
         }
@@ -116,12 +107,10 @@ export default class RelatedClassSelection extends UI.GscapeWidget {
   }
 
   constructor(buildItemString?: (item: any) => string) {
-    super()
+    super(buildItemString)
 
-    this.relatedClassesList = []
     this.class = ''
     this.objProperty = ''
-    this.buildItemString = buildItemString || function (item: any) { return item }
   }
 
   render() {
@@ -138,36 +127,12 @@ export default class RelatedClassSelection extends UI.GscapeWidget {
         </span>
       </div>
       <div id="right-panel" class="list">
-        ${this.relatedClassesList.map((classItem, i) => {
+        ${this.list.map((classItem, i) => {
           return html`<span index="${i}" @click=${this.handleSelection} class="list-item highlight">${this.buildItemString(classItem)}</span>`
         })}
       </div>
     </div>
     `
-  }
-
-  onSelection(callback: (item: any) => void) {
-    this.selectionCallback = callback
-  }
-
-  onClose(callback: () => void) {
-    this.closeCallback = callback
-  }
-
-  handleSelection(e: MouseEvent) {
-    e.preventDefault()
-    this.selectionCallback(this.relatedClassesList[(e.currentTarget as HTMLElement).getAttribute('index')])
-  }
-
-  hide() { super.hide() }
-
-  show(position: EventPosition) {
-    const self = this as any
-
-    self.style.top = position.y + "px"
-    self.style.left = position.x + "px"
-    self.style.display = 'init'
-    super.show();
   }
 }
 
