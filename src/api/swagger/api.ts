@@ -763,6 +763,53 @@ export const QueryGraphBGPApiAxiosParamCreator = function (configuration?: Confi
             };
         },
         /**
+         * 
+         * @summary Delete from GraphElement only the class
+         * @param {string} graphElementId 
+         * @param {string} classIRI The class that should be deleted
+         * @param {QueryGraph} queryGraph 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        deleteGraphElementIdClass: async (graphElementId: string, classIRI: string, queryGraph: QueryGraph, options: AxiosRequestConfig = {}): Promise<RequestArgs> => {
+            // verify required parameter 'graphElementId' is not null or undefined
+            assertParamExists('deleteGraphElementIdClass', 'graphElementId', graphElementId)
+            // verify required parameter 'classIRI' is not null or undefined
+            assertParamExists('deleteGraphElementIdClass', 'classIRI', classIRI)
+            // verify required parameter 'queryGraph' is not null or undefined
+            assertParamExists('deleteGraphElementIdClass', 'queryGraph', queryGraph)
+            const localVarPath = `/queryGraph/node/delete/{graphElementId}/class`
+                .replace(`{${"graphElementId"}}`, encodeURIComponent(String(graphElementId)));
+            // use dummy base URL string because the URL constructor only accepts absolute URLs.
+            const localVarUrlObj = new URL(localVarPath, DUMMY_BASE_URL);
+            let baseOptions;
+            if (configuration) {
+                baseOptions = configuration.baseOptions;
+            }
+
+            const localVarRequestOptions = { method: 'PUT', ...baseOptions, ...options};
+            const localVarHeaderParameter = {} as any;
+            const localVarQueryParameter = {} as any;
+
+            if (classIRI !== undefined) {
+                localVarQueryParameter['classIRI'] = classIRI;
+            }
+
+
+    
+            localVarHeaderParameter['Content-Type'] = 'application/json';
+
+            setSearchParams(localVarUrlObj, localVarQueryParameter);
+            let headersFromBaseOptions = baseOptions && baseOptions.headers ? baseOptions.headers : {};
+            localVarRequestOptions.headers = {...localVarHeaderParameter, ...headersFromBaseOptions, ...options.headers};
+            localVarRequestOptions.data = serializeDataIfNeeded(queryGraph, localVarRequestOptions, configuration)
+
+            return {
+                url: toPathString(localVarUrlObj),
+                options: localVarRequestOptions,
+            };
+        },
+        /**
          * Starting from only the clicked class get the query graph that will be rendered by Sparqling, the query head, the sparql code. The sparql query returned will be somthing like `select ?x { ?x a <clickedClassIRI>` }. The variable `?x` should be called according to the entity remainder or label. The variable will be added to the head of the query in order to create a valid SPARQL query.
          * @summary This is the first route to call in order to build the query graph.
          * @param {string} clickedClassIRI The IRI of the entity clicked on the GRAPHOLscape ontology graph
@@ -1054,6 +1101,19 @@ export const QueryGraphBGPApiFp = function(configuration?: Configuration) {
             return createRequestFunction(localVarAxiosArgs, globalAxios, BASE_PATH, configuration);
         },
         /**
+         * 
+         * @summary Delete from GraphElement only the class
+         * @param {string} graphElementId 
+         * @param {string} classIRI The class that should be deleted
+         * @param {QueryGraph} queryGraph 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        async deleteGraphElementIdClass(graphElementId: string, classIRI: string, queryGraph: QueryGraph, options?: AxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<QueryGraph>> {
+            const localVarAxiosArgs = await localVarAxiosParamCreator.deleteGraphElementIdClass(graphElementId, classIRI, queryGraph, options);
+            return createRequestFunction(localVarAxiosArgs, globalAxios, BASE_PATH, configuration);
+        },
+        /**
          * Starting from only the clicked class get the query graph that will be rendered by Sparqling, the query head, the sparql code. The sparql query returned will be somthing like `select ?x { ?x a <clickedClassIRI>` }. The variable `?x` should be called according to the entity remainder or label. The variable will be added to the head of the query in order to create a valid SPARQL query.
          * @summary This is the first route to call in order to build the query graph.
          * @param {string} clickedClassIRI The IRI of the entity clicked on the GRAPHOLscape ontology graph
@@ -1154,6 +1214,18 @@ export const QueryGraphBGPApiFactory = function (configuration?: Configuration, 
             return localVarFp.deleteGraphElementId(graphElementId, queryGraph, options).then((request) => request(axios, basePath));
         },
         /**
+         * 
+         * @summary Delete from GraphElement only the class
+         * @param {string} graphElementId 
+         * @param {string} classIRI The class that should be deleted
+         * @param {QueryGraph} queryGraph 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        deleteGraphElementIdClass(graphElementId: string, classIRI: string, queryGraph: QueryGraph, options?: any): AxiosPromise<QueryGraph> {
+            return localVarFp.deleteGraphElementIdClass(graphElementId, classIRI, queryGraph, options).then((request) => request(axios, basePath));
+        },
+        /**
          * Starting from only the clicked class get the query graph that will be rendered by Sparqling, the query head, the sparql code. The sparql query returned will be somthing like `select ?x { ?x a <clickedClassIRI>` }. The variable `?x` should be called according to the entity remainder or label. The variable will be added to the head of the query in order to create a valid SPARQL query.
          * @summary This is the first route to call in order to build the query graph.
          * @param {string} clickedClassIRI The IRI of the entity clicked on the GRAPHOLscape ontology graph
@@ -1250,6 +1322,20 @@ export class QueryGraphBGPApi extends BaseAPI {
      */
     public deleteGraphElementId(graphElementId: string, queryGraph: QueryGraph, options?: AxiosRequestConfig) {
         return QueryGraphBGPApiFp(this.configuration).deleteGraphElementId(graphElementId, queryGraph, options).then((request) => request(this.axios, this.basePath));
+    }
+
+    /**
+     * 
+     * @summary Delete from GraphElement only the class
+     * @param {string} graphElementId 
+     * @param {string} classIRI The class that should be deleted
+     * @param {QueryGraph} queryGraph 
+     * @param {*} [options] Override http request option.
+     * @throws {RequiredError}
+     * @memberof QueryGraphBGPApi
+     */
+    public deleteGraphElementIdClass(graphElementId: string, classIRI: string, queryGraph: QueryGraph, options?: AxiosRequestConfig) {
+        return QueryGraphBGPApiFp(this.configuration).deleteGraphElementIdClass(graphElementId, classIRI, queryGraph, options).then((request) => request(this.axios, this.basePath));
     }
 
     /**
