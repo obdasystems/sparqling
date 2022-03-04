@@ -17,6 +17,6 @@ import getGscape from "./get-gscape"
   }
 
   if (node) {
-    centerOnElement(node)
+    centerOnElement(node, 1.5)
   }
 }
