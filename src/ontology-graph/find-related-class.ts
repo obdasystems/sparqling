@@ -7,6 +7,7 @@ import { classSelectDialogTitle } from "../widgets/assets/texts"
 import EventPosition from "../util/event-position"
 import { getSelectedGraphElement } from "../query-body"
 import * as GEUtility from "../util/graph-element-utility"
+import { isHighlighted } from "./highlights"
 
 let _onRelatedClassSelection = (objectProperty: Branch, relatedClass: CollectionReturnValue) => { }
 
@@ -55,7 +56,7 @@ export function findNextClassFromObjProperty(objProperty: CollectionReturnValue)
 
 export function showRelatedClassesWidget(objProperty: CollectionReturnValue, position: EventPosition) {
   const actualHighlights = getActualHighlights()
-  if (!actualHighlights) return
+  if (!actualHighlights || !isHighlighted(objProperty.data('iri').fullIri)) return
   const gscape = getGscape()
 
   // let result: { objPropertyFromApi: Branch; connectedClass: CollectionReturnValue } = {
