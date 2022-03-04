@@ -1,5 +1,5 @@
 import { Grapholscape, Type } from 'grapholscape'
-import { Core } from 'cytoscape'
+import { CollectionReturnValue, Core } from 'cytoscape'
 
 let gscape: Grapholscape
 
@@ -24,6 +24,11 @@ export function clearSelected() {
 }
 
 export function isIriSelected(iri: string) {
-  let sparqlingSelectedIri = gscape.renderer.cy.$('.sparqling-selected').data().iri
-  return sparqlingSelectedIri.full === iri || sparqlingSelectedIri.prefixed === iri
+  let sparqlingSelectedNode: CollectionReturnValue = gscape.renderer.cy.$('.sparqling-selected')
+  if(sparqlingSelectedNode.empty()) 
+    return false
+  else {
+    const sparqlingSelectedIri = sparqlingSelectedNode.data().iri
+    return sparqlingSelectedIri.full === iri || sparqlingSelectedIri.prefixed === iri
+  }
 }

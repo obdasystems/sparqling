@@ -32,13 +32,15 @@ export async function highlightSuggestions(clickedIRI: string) {
 
 export function resetHighlights() {
   const gscape = getGscape()
-  Object.values(gscape.renderersManager.renderers).forEach((renderer: any) => {
-    let cy: Core = renderer.cy
-    cy.$('.sparqling-selected').removeClass('sparqling-selected')
-    cy.$('.highlighted').removeClass('highlighted')
-    cy.$('.faded')
-      .removeClass('faded')
-      .selectify()
+  Object.values(gscape.ontologies).forEach((ontology: any) => {
+    ontology?.diagrams?.forEach((diagram: any) => {
+      let cy: Core = diagram?.cy
+      cy.$('.sparqling-selected').removeClass('sparqling-selected')
+      cy.$('.highlighted').removeClass('highlighted')
+      cy.$('.faded')
+        .removeClass('faded')
+        .selectify()
+    })
   })
   actualHighlights = null
   highlightsList.highlights = null
