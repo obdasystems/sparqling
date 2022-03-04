@@ -87,11 +87,21 @@ function performHighlights(clickedIRI: string) {
 function transformHighlightsToPrefixedIRIs(): Highlights {
   let transformedHighlights: Highlights = JSON.parse(JSON.stringify(actualHighlights))
   const ontology = getGscape().ontology
-  transformedHighlights.classes = transformedHighlights.classes.map(iri => ontology.destructureIri(iri).prefixed)
-  transformedHighlights.dataProperties = transformedHighlights.dataProperties.map(iri => ontology.destructureIri(iri).prefixed)
+  transformedHighlights.classes = transformedHighlights.classes.map(iri => getPrefixedIri(iri))
+  transformedHighlights.dataProperties = transformedHighlights.dataProperties.map(iri => getPrefixedIri(iri))
   transformedHighlights.objectProperties = transformedHighlights.objectProperties.map(branch => {
-    branch.objectPropertyIRI = ontology.destructureIri(branch.objectPropertyIRI).prefixed
+    branch.objectPropertyIRI = getPrefixedIri(branch.objectPropertyIRI)
     return branch
   })
   return transformedHighlights
+
+
+  function getPrefixedIri(iri: string) {
+    const destructuredIRI = ontology.destructureIri(iri)
+    if(destructuredIRI) {
+      return destructuredIRI.prefixed
+    } else {
+      return iri
+    }
+  }
 }
