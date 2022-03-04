@@ -27,7 +27,7 @@ export async function highlightSuggestions(clickedIRI: string) {
   resetHighlights()
   await retrieveHighlights(clickedIRI)
   performHighlights(clickedIRI)
-  highlightsList.highlights = actualHighlights
+  highlightsList.highlights = transformHighlightsToPrefixedIRIs()
 }
 
 export function resetHighlights() {
@@ -80,4 +80,16 @@ function performHighlights(clickedIRI: string) {
   const fadedElems = gscape.renderer.cy.elements().difference(highlightedElems)
   fadedElems.addClass('faded')
   fadedElems.unselectify()
+}
+
+function transformHighlightsToPrefixedIRIs(): Highlights {
+  let transformedHighlights: Highlights = JSON.parse(JSON.stringify(actualHighlights))
+  const ontology = getGscape().ontology
+  transformedHighlights.classes = transformedHighlights.classes.map(iri => ontology.destructureIri(iri).prefixed)
+  transformedHighlights.dataProperties = transformedHighlights.dataProperties.map(iri => ontology.destructureIri(iri).prefixed)
+  transformedHighlights.objectProperties = transformedHighlights.objectProperties.map(branch => {
+    branch.objectPropertyIRI = ontology.destructureIri(branch.objectPropertyIRI).prefixed
+    return branch
+  })
+  return transformedHighlights
 }
