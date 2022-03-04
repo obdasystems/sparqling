@@ -1,6 +1,6 @@
 import { UI } from 'grapholscape'
 import { html, css } from 'lit'
-import { HeadElement } from '../api/swagger'
+import { Filter, FilterExpressionOperatorEnum, HeadElement, VarOrConstantConstantTypeEnum } from '../api/swagger'
 import { asterisk, tableEye } from '../widgets/assets/icons'
 import { emptyHeadMsg, emptyHeadTipMsg, tipWhy } from '../widgets/assets/texts'
 import HeadElementComponent from './qh-element-component'
@@ -16,6 +16,11 @@ export default class QueryHeadWidget extends GscapeWidget {
   private deleteElementCallback: (headElementId: string) => void
   private renameElementCallback: (headElemntId: string, alias: string) => void
   private localizeElementCallback: (headElementId: string) => void
+  private setFilterCallback: (
+    headElementId: string,
+    operator: FilterExpressionOperatorEnum,
+    value: string,
+    type: VarOrConstantConstantTypeEnum) => void
 
   static get properties() {
 
@@ -157,6 +162,7 @@ export default class QueryHeadWidget extends GscapeWidget {
       element.deleteButton.onClick = () => this.deleteElementCallback(element._id)
       element.onRename(this.renameElementCallback)
       element.onLocalize(this.localizeElementCallback)
+      element.onFilterSet(this.setFilterCallback)
     });
   }
 
@@ -168,19 +174,31 @@ export default class QueryHeadWidget extends GscapeWidget {
   }
 
   /**
-   * Delete a HeadElement
-   * @param callback callback receiving the ID of the headElement to delete
+   * Register callback to execute on delete of a HeadElement
+   * @param callback callback receiving the ID of the HeadElement to delete
    */
   onDelete(callback: (headElemId: string) => void) {
     this.deleteElementCallback = callback
   }
 
+  /**
+   * Register callback to execute on rename of a HeadElement (Set alias)
+   * @param callback callback receiving the ID of the headElement to rename
+   */
   onRename(callback: (headElemId: string, alias: string) => void) {
     this.renameElementCallback = callback
   }
 
+  /**
+   * Register callback to execute on localization of a HeadElement
+   * @param callback callback receiving the ID of the HeadElement to localize
+   */
   onLocalize(callback: (headElemId: string) => void) {
     this.localizeElementCallback = callback
+  }
+
+  onSetFilter(callback: (headElementId: string, operator: FilterExpressionOperatorEnum, value: string, type: VarOrConstantConstantTypeEnum) => void) {
+    this.setFilterCallback = callback
   }
 
   //createRenderRoot() { return this as any }

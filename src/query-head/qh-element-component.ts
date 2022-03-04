@@ -1,6 +1,7 @@
 import { UI } from 'grapholscape'
 import { html, css } from 'lit'
 import { HeadElement, FunctionNameEnum, Function, VarOrConstantConstantTypeEnum, FilterExpressionOperatorEnum, Filter } from '../api/swagger';
+import { getFiltersOnHeadElement } from '../query-body';
 import { crosshair, del } from '../widgets/assets/icons'
 
 const SECTIONS = {
@@ -35,6 +36,7 @@ export default class HeadElementComponent extends UI.GscapeWidget {
   public deleteButton: UI.GscapeWidget
   private toggleBodyButton: UI.GscapeButton
   public localizeButton: UI.GscapeButton
+  private filters: Filter[]
 
   static get properties() {
     let props = super.properties
@@ -45,7 +47,7 @@ export default class HeadElementComponent extends UI.GscapeWidget {
       function: { attribute: false },
       _entityType: { type: String },
     }
-    
+
     return Object.assign(new_props, props)
   }
 
@@ -165,7 +167,7 @@ export default class HeadElementComponent extends UI.GscapeWidget {
     this.toggleBodyButton.style.boxShadow = 'none'
 
     this.localizeButton = new UI.GscapeButton(crosshair, 'Find in Query Graph')
-    this.localizeButton.onClick = () => { this.localizeCallback(this._id)}
+    this.localizeButton.onClick = () => { this.localizeCallback(this._id) }
   }
 
   render() {
@@ -180,24 +182,16 @@ export default class HeadElementComponent extends UI.GscapeWidget {
           ${this.toggleBodyButton}
         </div>
         <div id="field-body" class="widget-body hide">
-          ${Object.keys(SECTIONS).map(k => {
-            let section = SECTIONS[k]
-            return html`
-              <div class="section">
-                <details>
-                  <summary><span class="section-title">${section.name}</span></summary>
-                  <div class="section-head">
-                    ${this.getSelect(k, 'Operator', section.options)}
-                    ${this.getSelect(section.type, this.dataType, VarOrConstantConstantTypeEnum)}
-                  </div>
-                  <div class="input-wrapper">
-                    ${this.getInput(section.value)}
-                  </div>
-                </details>
-              </div>
-            `
-          })}
-          
+          ${this.getSection(SECTIONS.function)}
+          ${this.filters?.length > 0
+            ? html`${this.filters.map(filter => this.getSection(
+                SECTIONS.filter,
+                filter.expression.operator,
+                filter.expression.parameters[1].value,
+                filter.expression.parameters[1].constantType,
+              ))}`
+            : html`${this.getSection(SECTIONS.filter)}`
+          }
           <!-- ******************  SORT  ****************** -->
           <div class="section" style="text-align: center; margin-bottom:0">
             ${this.getSelect('sort', 'sort', { asc: 'Ascending', desc: 'Descending' })}
@@ -221,8 +215,25 @@ export default class HeadElementComponent extends UI.GscapeWidget {
     }
     let self = this as any
     self.style.backgroundColor = `var(--theme-gscape-${types[this.entityType]})`
+    this.filters = getFiltersOnHeadElement(newElement)
   }
 
+  private getSection(section, operator = "Operator", value?: string, datatype = this.dataType) {
+    return html`
+      <div class="section">
+        <details>
+          <summary><span class="section-title">${section.name}</span></summary>
+          <div class="section-head">
+            ${this.getSelect(section.op, operator, section.options)}
+            ${this.getSelect(section.type, datatype, VarOrConstantConstantTypeEnum)}
+          </div>
+          <div class="input-wrapper">
+            ${this.getInput(section.value, value, `Set ${section.name}`)}
+          </div>
+        </details>
+      </div>
+    `
+  }
 
   private getInput(id: string, value?: string, titleText = '') {
     let placeholder = value || 'value'
@@ -233,7 +244,7 @@ export default class HeadElementComponent extends UI.GscapeWidget {
         placeholder="${placeholder}" 
         value="${value}"
         title="${titleText}"
-        />`
+      />`
   }
 
   private getSelect(name: string, defaultOpt: string, options: object) {
@@ -269,7 +280,18 @@ export default class HeadElementComponent extends UI.GscapeWidget {
       }
 
       case SECTIONS.filter.value: {
-        // TODO: connect filter value update callback
+        const filterOp: HTMLSelectElement = (this as any).shadowRoot.querySelector(`#${SECTIONS.filter.op}-select`)
+        const filterDatatype: HTMLSelectElement = (this as any).shadowRoot.querySelector(`#${SECTIONS.filter.type}-select`)
+
+        if (filterOp.value === "Operator" || filterDatatype.value === "Type") {
+          console.log(`can't apply filter`)
+        } else {
+          this.filterSetCallback(
+            this._id,
+            FilterExpressionOperatorEnum[filterOp.value],
+            target.value,
+            VarOrConstantConstantTypeEnum[filterDatatype.value])
+        }
         break
       }
     }
@@ -282,7 +304,22 @@ export default class HeadElementComponent extends UI.GscapeWidget {
   public onLocalize(callback: (headElementId: string) => void) { this.localizeCallback = callback }
 
   public onFunctionSet(callback: (fun: Function) => void) { }
-  public onFilterSet(callback: (filter: Filter) => void) { }
+
+  private filterSetCallback = (
+    headElementId: string,
+    operator: FilterExpressionOperatorEnum,
+    value: string,
+    type: VarOrConstantConstantTypeEnum
+    ) => { }
+  public onFilterSet(
+    callback: (
+      headElementId: string, 
+      operator: FilterExpressionOperatorEnum, 
+      value: string, 
+      type: VarOrConstantConstantTypeEnum
+    ) => void) { 
+    this.filterSetCallback = callback 
+  }
 }
 
 customElements.define('head-element', HeadElementComponent as any)

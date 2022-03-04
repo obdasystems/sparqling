@@ -1,4 +1,4 @@
-import { HeadElement } from "../api/swagger";
+import { Filter, FilterExpression, HeadElement, VarOrConstant, VarOrConstantConstantTypeEnum } from "../api/swagger";
 import { code } from "../widgets/assets/icons";
 import QueryHeadWidget from "./qh-widget";
 import { UI } from "grapholscape"
@@ -33,4 +33,30 @@ export function render(newHead = head) {
 
 export function setHead(newHhead: HeadElement[]) {
   head = newHhead
+}
+
+export function onSetFilter(callback: (newFilter: Filter, headElement: HeadElement) => void) {
+  qhWidget.onSetFilter((headElementId, operator, value, datatype) => {
+    let headElement = getHeadElementByID(headElementId)
+    let filter: Filter = {}
+    let expression: FilterExpression = {}
+    expression.operator = operator
+    expression.parameters = []
+    // First parameter is the GraphElement IRI
+    expression.parameters.push({
+      type: 'var',
+      value: headElement.var
+    })
+
+    // Second parameter is the value to evaluate
+    expression.parameters.push({
+      type: 'constant',
+      value: value,
+      constantType: datatype
+    })
+
+    filter.expression = expression
+
+    callback(filter, headElement)
+  })
 }

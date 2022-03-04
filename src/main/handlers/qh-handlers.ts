@@ -1,4 +1,4 @@
-import { QueryGraphHeadApiFactory } from '../../api/swagger'
+import { QueryGraphFilterApiFactory, QueryGraphHeadApiFactory } from '../../api/swagger'
 import * as queryHead from '../../query-head'
 import * as queryGraph from '../../query-graph'
 import * as ontologyGraph from '../../ontology-graph'
@@ -31,3 +31,16 @@ queryHead.onLocalize(headElement => {
 queryHead.sparqlButton.onClick = () => {
   sparqlDialog.isVisible ? sparqlDialog.hide() : sparqlDialog.show()
 }
+
+queryHead.onSetFilter(async (filter, headElement) => {
+  let existingFilter = queryBody.getFiltersOnHeadElement(headElement)?.find(f => f.expression.operator === filter.expression.operator)
+  if (existingFilter) {
+    // TODO Edit existing filter
+  } else {
+    let newFilterId = queryBody.getBody().filters?.length || 0
+    queryBody.addFilter(filter)
+    const filterApi = QueryGraphFilterApiFactory()
+    const newBody = (await filterApi.newFilter(newFilterId, queryBody.getBody())).data
+    onNewBody(newBody)
+  }
+})
