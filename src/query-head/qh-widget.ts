@@ -20,7 +20,8 @@ export default class QueryHeadWidget extends GscapeWidget {
     headElementId: string,
     operator: FilterExpressionOperatorEnum,
     value: string,
-    type: VarOrConstantConstantTypeEnum) => void
+    type: VarOrConstantConstantTypeEnum,
+    filterId?: number) => void
 
   static get properties() {
 
@@ -197,7 +198,7 @@ export default class QueryHeadWidget extends GscapeWidget {
     this.localizeElementCallback = callback
   }
 
-  onSetFilter(callback: (headElementId: string, operator: FilterExpressionOperatorEnum, value: string, type: VarOrConstantConstantTypeEnum) => void) {
+  onSetFilter(callback: (headElementId: string, operator: FilterExpressionOperatorEnum, value: string, type: VarOrConstantConstantTypeEnum, filterId?: number) => void) {
     this.setFilterCallback = callback
   }
 

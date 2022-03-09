@@ -32,15 +32,15 @@ queryHead.sparqlButton.onClick = () => {
   sparqlDialog.isVisible ? sparqlDialog.hide() : sparqlDialog.show()
 }
 
-queryHead.onSetFilter(async (filter, headElement) => {
-  let existingFilter = queryBody.getFiltersOnHeadElement(headElement)?.find(f => f.expression.operator === filter.expression.operator)
-  if (existingFilter) {
-    // TODO Edit existing filter
+queryHead.onSetFilter(async (filter, filterId) => {
+
+  if(filterId) {
+    queryBody.updateFilter(filterId, filter)
   } else {
-    let newFilterId = queryBody.getBody().filters?.length || 0
-    queryBody.addFilter(filter)
-    const filterApi = QueryGraphFilterApiFactory()
-    const newBody = (await filterApi.newFilter(newFilterId, queryBody.getBody())).data
-    onNewBody(newBody)
+    filterId = queryBody.addFilter(filter)
   }
+
+  const filterApi = QueryGraphFilterApiFactory()
+  const newBody = (await filterApi.newFilter(filterId, queryBody.getBody())).data
+  onNewBody(newBody)
 })

@@ -1,7 +1,7 @@
 import { html, css } from 'lit'
-import { Branch, Highlights } from '../api/swagger'
+import { Highlights } from '../api/swagger'
 import { UI } from 'grapholscape'
-import { lightbulbQuestion, tableEye } from './assets/icons'
+import { lightbulbQuestion } from './assets/icons'
 
 export default class HighlightsList extends UI.GscapeWidget {
   class: string
