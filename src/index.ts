@@ -8,8 +8,9 @@ import * as queryGraph from './query-graph'
 import { DisplayedNameType } from './query-graph/displayed-name-type'
 import { OntologyGraphHandlers } from './main'
 import * as queryHead from './query-head'
-import { highlightsList, listSelectionDialog, relatedClassDialog, sparqlDialog } from './widgets'
+import { highlightsList, relatedClassDialog, sparqlDialog } from './widgets'
 import { leftColumnContainer } from './util/get-container'
+import { filterDialog } from './filters'
 
 export default function sparqling(gscape: Grapholscape, file?: string | File, isStandalone?: boolean) {
   //sparqlingContainer.appendChild(gscapeContainer)
@@ -25,6 +26,7 @@ export default function sparqling(gscape: Grapholscape, file?: string | File, is
   uiContainer.insertBefore(leftColumnContainer, uiContainer.firstChild)
   uiContainer.appendChild(relatedClassDialog)
   uiContainer.appendChild(sparqlDialog)
+  uiContainer.appendChild(filterDialog)
 
   queryGraph.setDisplayedNameType(gscape.actualEntityNameType, gscape.languages.selected)
   queryGraph.setTheme(gscape.themesController.actualTheme)
