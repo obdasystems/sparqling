@@ -1,4 +1,4 @@
-import { QueryGraphFilterApiFactory, QueryGraphHeadApiFactory } from '../../api/swagger'
+import { EntityTypeEnum, QueryGraphHeadApiFactory, VarOrConstantTypeEnum } from '../../api/swagger'
 import * as queryHead from '../../query-head'
 import * as queryGraph from '../../query-graph'
 import * as ontologyGraph from '../../ontology-graph'
@@ -6,6 +6,8 @@ import onNewBody from '../on-new-body'
 import * as queryBody from '../../query-body'
 import { sparqlDialog } from '../../widgets'
 import { getGraphElementByID, getIri } from '../../util/graph-element-utility'
+import { filterDialog } from '../../filters'
+import { getHeadElementWithDatatype } from '../../util/head-element-utility'
 
 queryHead.onDelete(async headElement => {
   const qgApi = QueryGraphHeadApiFactory()
@@ -32,15 +34,28 @@ queryHead.sparqlButton.onClick = () => {
   sparqlDialog.isVisible ? sparqlDialog.hide() : sparqlDialog.show()
 }
 
-queryHead.onSetFilter(async (filter, filterId) => {
-
-  if(filterId) {
-    queryBody.updateFilter(filterId, filter)
+queryHead.onAddFilter(headElement => {
+  const headElemWithDatatype = getHeadElementWithDatatype(headElement)
+  if(headElemWithDatatype['entityType'] === EntityTypeEnum.Class) {
+    filterDialog.parametersType = VarOrConstantTypeEnum.Iri
   } else {
-    filterId = queryBody.addFilter(filter)
+    filterDialog.parametersType = VarOrConstantTypeEnum.Constant
   }
 
-  const filterApi = QueryGraphFilterApiFactory()
-  const newBody = (await filterApi.newFilter(filterId, queryBody.getBody())).data
-  onNewBody(newBody)
+  filterDialog._id = null
+  filterDialog.operator = null
+  filterDialog.parameters = [{
+    type: VarOrConstantTypeEnum.Var,
+    constantType: headElemWithDatatype['dataType'],
+    value: headElement.id
+  }]
+  filterDialog.show()
 })
+
+// queryHead.onEditFilter((filterId) => {
+//   const filter = queryBody.getFilterById(filterId)
+//   filterDialog._id = filterId
+//   filterDialog.operator = filter.expression?.operator
+//   filterDialog.parameters = filter.expression?.parameters
+//   filterDialog.parametersType = filter.expression?.parameters[1]?.type
+// })

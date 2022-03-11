@@ -9,13 +9,9 @@ const CLASS_FIELD_ERROR = css`field-error`
 export default class FilterFunctionDialog extends UI.GscapeWidget implements FilterOrFunctionWidget {
   protected saveButton = new UI.GscapeButton(checkmark, "Save")
   public operator: FilterExpressionOperatorEnum | FunctionNameEnum
-  public parameters: VarOrConstant[] = [{
-    type: VarOrConstantTypeEnum.Var,
-    value: "?ciao",
-    constantType: this.datatype
-  }]
-  private _datatype: VarOrConstantConstantTypeEnum
-  public id: number
+  public parameters: VarOrConstant[]
+  public parametersType: VarOrConstantTypeEnum
+  public _id: number
   public onSubmitCallback = (
     id: number,
     op: FilterExpressionOperatorEnum | FunctionNameEnum,
@@ -101,6 +97,10 @@ export default class FilterFunctionDialog extends UI.GscapeWidget implements Fil
     this.saveButton.onClick = () => this.handleSubmit()
   }
 
+  onSubmit(callback: (id: number, operator: FilterExpressionOperatorEnum | FunctionNameEnum, parameters: VarOrConstant[]) => void) {
+    this.onSubmitCallback = callback
+  }
+
   handleSubmit() {
     this.resetMessages()
     let errorsFound = false
@@ -126,8 +126,7 @@ export default class FilterFunctionDialog extends UI.GscapeWidget implements Fil
       this.innerDialog.querySelectorAll(`.${CLASS_FIELD_ERROR}`).forEach((field: any) => {
         field.classList.remove(CLASS_FIELD_ERROR)
       })
-      this.onSubmitCallback(this.id, this.operator, this.parameters)
-      this.setAsCorrect()
+      this.onSubmitCallback(this._id, this.operator, this.parameters)
     }
   }
 
@@ -136,8 +135,6 @@ export default class FilterFunctionDialog extends UI.GscapeWidget implements Fil
     //let self = this as any
     // self.header.left_icon = 'lightbulbQuestion'
     //self.header.invertIcons()
-    if (this.parametersIriOrConstants.length <= 0)
-      this.addInputValue()
 
     this.selectOperatorElem.onchange = (e) => this.onOperatorChange(e.currentTarget.value)
     this.selectDatatypeElem.onchange = (e) => this.onDatatypeChange(e.currentTarget.value)
@@ -177,7 +174,7 @@ export default class FilterFunctionDialog extends UI.GscapeWidget implements Fil
 
   addInputValue() {
     this.parameters.push({
-      type: VarOrConstantTypeEnum.Constant,
+      type: this.parametersType,
       value: "",
       constantType: this.datatype
     });
@@ -195,6 +192,9 @@ export default class FilterFunctionDialog extends UI.GscapeWidget implements Fil
     const addInputButton: any = this.innerDialog.querySelector('#add-input-btn')
     if (addInputButton)
       addInputButton.onClick = () => this.addInputValue()
+
+    if (this.parametersIriOrConstants?.length <= 0)
+      this.addInputValue()
   }
 
   addMessage(msg: string, msgType: string) {
@@ -238,7 +238,7 @@ export default class FilterFunctionDialog extends UI.GscapeWidget implements Fil
   protected get datatype() { return this.variable?.constantType }
 
   protected get parametersIriOrConstants() {
-    return this.parameters.filter(p => p.type !== VarOrConstantTypeEnum.Var)
+    return this.parameters?.filter(p => p.type !== VarOrConstantTypeEnum.Var)
   }
 
   protected get isOperatorValid() {
@@ -261,7 +261,6 @@ export default class FilterFunctionDialog extends UI.GscapeWidget implements Fil
 
   protected get isAnyValueDefined() {
     return this.parameters.some(p => {
-      console.log(p.value && p.type !== VarOrConstantTypeEnum.Var)
       return p.value && p.type !== VarOrConstantTypeEnum.Var
     })
   }

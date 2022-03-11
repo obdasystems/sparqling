@@ -1,9 +1,8 @@
-import { EntityTypeEnum, HeadElement, QueryGraph } from "../api/swagger"
+import { HeadElement, QueryGraph } from "../api/swagger"
 import * as queryBody from "../query-body"
 import * as queryGraph from "../query-graph"
 import * as queryHead from "../query-head"
-import * as GEUtility from "../util/graph-element-utility"
-import { guessDataType } from "../ontology-graph"
+import { getHeadElementWithDatatype } from "../util/head-element-utility"
 import { sparqlDialog } from "../widgets"
 import { emptyQueryMsg } from "../widgets/assets/texts"
 
@@ -15,14 +14,9 @@ export default function onNewBody(newBody: QueryGraph) {
   queryGraph.renderOptionals(body.optionals)
 
   queryHead.setHead(body.head)
-  queryHead.render(body.head?.map((headElem: HeadElement) => {
-    let relatedGraphElem = GEUtility.getGraphElementByID(headElem.graphElementId)
-    headElem['entityType'] = GEUtility.getEntityType(relatedGraphElem)
-    headElem['dataType'] = headElem['entityType'] === EntityTypeEnum.DataProperty
-      ? guessDataType(GEUtility.getIri(relatedGraphElem))
-      : null
-    return headElem
-  }))
+  queryHead.render(body.head?.map((headElem: HeadElement) => 
+    getHeadElementWithDatatype(headElem)
+  ))
 
   sparqlDialog.text = body?.sparql ? body.sparql : emptyQueryMsg()
 }

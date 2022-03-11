@@ -1,4 +1,4 @@
-import { Filter, FilterExpressionOperatorEnum, GraphElement, HeadElement, QueryGraph, VarOrConstant, VarOrConstantTypeEnum } from "./api/swagger"
+import { Filter, GraphElement, HeadElement, QueryGraph, VarOrConstantTypeEnum } from "./api/swagger"
 
 let body: QueryGraph
 let selectedGraphElement: GraphElement

@@ -16,12 +16,7 @@ export default class QueryHeadWidget extends GscapeWidget {
   private deleteElementCallback: (headElementId: string) => void
   private renameElementCallback: (headElemntId: string, alias: string) => void
   private localizeElementCallback: (headElementId: string) => void
-  private setFilterCallback: (
-    headElementId: string,
-    operator: FilterExpressionOperatorEnum,
-    value: string,
-    type: VarOrConstantConstantTypeEnum,
-    filterId?: number) => void
+  private addFilterCallback: (headElementId: string) => void
 
   static get properties() {
 
@@ -163,7 +158,7 @@ export default class QueryHeadWidget extends GscapeWidget {
       element.deleteButton.onClick = () => this.deleteElementCallback(element._id)
       element.onRename(this.renameElementCallback)
       element.onLocalize(this.localizeElementCallback)
-      element.onFilterSet(this.setFilterCallback)
+      element.onAddFilter(this.addFilterCallback)
     });
   }
 
@@ -198,8 +193,8 @@ export default class QueryHeadWidget extends GscapeWidget {
     this.localizeElementCallback = callback
   }
 
-  onSetFilter(callback: (headElementId: string, operator: FilterExpressionOperatorEnum, value: string, type: VarOrConstantConstantTypeEnum, filterId?: number) => void) {
-    this.setFilterCallback = callback
+  onAddFilter(callback: (headElementId: string) => void) {
+    this.addFilterCallback = callback
   }
 
   //createRenderRoot() { return this as any }
