@@ -1,25 +1,8 @@
 import { UI } from 'grapholscape'
 import { html, css } from 'lit'
-import { HeadElement, FunctionNameEnum, Function, VarOrConstantConstantTypeEnum, FilterExpressionOperatorEnum, Filter } from '../api/swagger';
+import { HeadElement, Function, VarOrConstantConstantTypeEnum, Filter } from '../api/swagger';
 import { getFiltersOnHeadElement } from '../query-body';
 import { addFilter, crosshair, del } from '../widgets/assets/icons'
-
-const SECTIONS = {
-  function: {
-    name: 'Function',
-    op: 'function-operator',
-    type: 'function-type',
-    value: 'function-value',
-    options: FunctionNameEnum,
-  },
-  filter: {
-    name: 'Filter',
-    op: 'filter-operator',
-    type: 'filter-type',
-    value: 'filter-value',
-    options: FilterExpressionOperatorEnum,
-  }
-}
 
 const ALIAS_INPUT_ID = 'alias'
 
@@ -226,41 +209,6 @@ export default class HeadElementComponent extends UI.GscapeWidget {
     this.filters = getFiltersOnHeadElement(newElement)
   }
 
-  // private getSection(section, id: number | string, operator = "Operator", value?: string, datatype = this.dataType) {
-  //   return html`
-  //     <div class="section" id="${id}">
-  //       <details>
-  //         <summary><span class="section-title">${section.name}</span></summary>
-  //         <div class="section-head">
-  //           ${this.getSelect(section.name, section.op, operator, section.options)}
-  //           ${this.getSelect(section.name, section.type, datatype, VarOrConstantConstantTypeEnum)}
-  //         </div>
-  //         <div class="input-wrapper">
-  //           ${this.getInput(section.name, section.input, value, `Set ${section.name}`)}
-  //           ${operator === FilterExpressionOperatorEnum.In || operator === FilterExpressionOperatorEnum.NotIn
-  //             ? html`${this.localizeButton}`
-  //             : null
-  //           }
-  //         </div>
-  //       </details>
-  //     </div>
-  //   `
-  // }
-
-  // private getInput(sectionName: string, name:string, value?: string, titleText = '', id: string | number = '') {
-  //   let placeholder = value || 'value'
-  //   return html`
-  //     <input
-  //       id="${id}"
-  //       sectionName="${sectionName}"
-  //       name="${name}"
-  //       @focusout="${this.handleInputChange}"
-  //       placeholder="${placeholder}" 
-  //       value="${value}"
-  //       title="${titleText}"
-  //     />`
-  // }
-
   private getSelect(sectionName:string, name: string, defaultOpt: string, options: object) {
     const isDefaultAlreadySet = Object.values(options).includes(defaultOpt)
     return html`
@@ -284,35 +232,6 @@ export default class HeadElementComponent extends UI.GscapeWidget {
       target.value = this.alias || this.graphElementId
     }
   }
-
-  // private handleSelectChange(evt: InputEvent) {
-    
-  // }
-
-  // private handleFilterChange(target: HTMLElement) {
-  //   const filterSection = target.parentElement.parentElement.parentElement
-    
-  //   const filterOp: HTMLSelectElement = filterSection.shadowRoot.querySelector(`[name = "${SECTIONS.filter.op}-select"]`)
-  //   const filterDatatype: HTMLSelectElement = filterSection.shadowRoot.querySelector(`[name = "${SECTIONS.filter.type}-select"]`)
-  //   const filterValue: HTMLInputElement = filterSection.shadowRoot.querySelector(`[name = "${SECTIONS.filter.value}"]`)
-
-  //   const filterEntry = this.filters.find(f => f.id === parseInt(filterSection.id))
-  //   // if filter already exists, check that at least one field has changed
-  //   if (filterEntry && (
-  //     filterEntry.value.expression.operator === filterOp.value ||
-  //     filterEntry.value.expression.parameters[1].constantType === filterDatatype.value ||
-  //     filterEntry.value.expression.parameters[1].value === filterValue.value
-  //   )) {
-  //     return
-  //   } else if (filterOp.value !== "Operator" && filterDatatype.value !== "Type") {
-  //     this.filterSetCallback(
-  //       this._id,
-  //       FilterExpressionOperatorEnum[filterOp.value],
-  //       filterValue.value,
-  //       VarOrConstantConstantTypeEnum[filterDatatype.value]),
-  //       filterEntry?.id
-  //   }
-  // }
 
   private renameCallback = (headElemntID: string, alias: string) => { }
   public onRename(callback: (headElemntID: string, alias: string) => void) { this.renameCallback = callback }
