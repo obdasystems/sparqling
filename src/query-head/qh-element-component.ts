@@ -1,8 +1,8 @@
 import { UI } from 'grapholscape'
 import { html, css } from 'lit'
-import { HeadElement, Function, VarOrConstantConstantTypeEnum, Filter } from '../api/swagger';
+import { HeadElement, Function, VarOrConstantConstantTypeEnum, Filter, FilterExpressionOperatorEnum } from '../api/swagger';
 import { getFiltersOnHeadElement } from '../query-body';
-import { addFilter, crosshair, del } from '../widgets/assets/icons'
+import { addFilter, crosshair, del, editFilter } from '../widgets/assets/icons'
 
 const ALIAS_INPUT_ID = 'alias'
 
@@ -48,26 +48,6 @@ export default class HeadElementComponent extends UI.GscapeWidget {
           margin:5px 2.5px 5px 0;
           padding: 5px;
           position: relative;
-        }
-
-        .widget-body {
-          margin-top: 5px;
-        }
-
-        .section {
-          padding: 0;
-          margin: 10px 0;
-        }
-
-        .section-head {
-          display:flex;
-          gap:5px;
-          justify-content: space-between;
-          align-items: center;
-        }
-
-        .section-title {
-          font-weight: bold;
         }
 
         input {
@@ -120,7 +100,7 @@ export default class HeadElementComponent extends UI.GscapeWidget {
           display: none;
         }
 
-        #field-head gscape-button {
+        gscape-button {
           position:initial;
           width: fit-content;
           --gscape-icon-size: 20px;
@@ -137,8 +117,47 @@ export default class HeadElementComponent extends UI.GscapeWidget {
           color: var(--theme-gscape-error, ${colors.error});
         }
 
-        summary:hover {
-          cursor: pointer;
+        #filters-list {
+          display:flex;
+          flex-direction: column;
+          gap: 20px;
+          padding: 10px 5px;
+          border: solid 1px var(--theme-gscape-borders);
+          border-radius: 6px;
+        }
+
+        #filters-title {
+          font-weight: bold;
+        }
+
+        .filter {
+          display: flex;
+          gap: 10px;
+          align-items:center;
+        }
+
+        .parameters {
+          display: flex;
+          flex-direction: column;
+          gap: 2px;
+          flex-grow:2;
+          min-width: 0;
+          text-overflow: ellipsis;
+          overflow: hidden;
+        }
+
+        .operator {
+          font-weight:bold;
+          font-size:110%;
+        }
+
+        .operator, .parameter {
+          padding: 4px 6px;
+          padding-bottom: 2px;
+          border-radius: 6px;
+          background-color: var(--theme-gscape-primary);
+          color: var(--theme-gscape-on-primary);
+          line-height: 1;
         }
       `
     ]
@@ -180,9 +199,36 @@ export default class HeadElementComponent extends UI.GscapeWidget {
               ${this.addFilterButton}
             </div>
           </div>
-          ${this.toggleBodyButton}
+          ${this.filters?.length > 0 ? this.toggleBodyButton : null}
         </div>
         <div id="field-body" class="widget-body hide">
+          <span id="filters-title">Filters</span>
+          <div id="filters-list">
+            ${this.filters?.map(filter => {
+              const editFilterButton = new UI.GscapeButton(editFilter, 'Edit Filter')
+              editFilterButton.onClick = () => this.editFilterCallback(filter.id)
+              return html`
+                <div class="filter">
+                  <div
+                    class="operator"
+                    title="${Object.keys(FilterExpressionOperatorEnum).find(k => FilterExpressionOperatorEnum[k] === filter.value.expression.operator)}"
+                  >
+                    ${filter.value.expression.operator}</div>
+                  <div class="parameters">
+                    ${filter.value?.expression?.parameters?.map((param, index) => {
+                      if (index === 0) return null
+                      return html`
+                        <div class="parameter">
+                          ${param.value}
+                        </div>
+                      `
+                    })}
+                  </div>
+                  ${editFilterButton}
+                </div>
+              `
+            })}
+          </div>
           <!-- ******************  SORT  ****************** -->
           <div class="section" style="text-align: center; margin-bottom:0">
             ${this.getSelect('sort', 'sort-select', 'sort', { asc: 'Ascending', desc: 'Descending' })}
@@ -244,6 +290,11 @@ export default class HeadElementComponent extends UI.GscapeWidget {
   private addFilterCallback = (headElementId: string) => { }
   public onAddFilter(callback: (headElementId: string) => void) {
     this.addFilterCallback = callback 
+  }
+
+  private editFilterCallback = (filterId: number) => { }
+  public onEditFilter(callback: (filterId:number) => void) {
+    this.editFilterCallback = callback
   }
 }
 
