@@ -2,21 +2,28 @@ import { css } from 'lit'
 import { UI } from 'grapholscape'
 import { FilterExpressionOperatorEnum, FunctionNameEnum, VarOrConstant, VarOrConstantConstantTypeEnum, VarOrConstantTypeEnum } from '../api/swagger'
 import { FilterOrFunctionWidget } from '../util/filter-function-interface'
-import { checkmark } from '../widgets/assets/icons'
+import { checkmark, del } from '../widgets/assets/icons'
 
 const CLASS_FIELD_ERROR = css`field-error`
+export enum Modality {
+  DEFINE = 'Define',
+  EDIT = 'Edit'
+}
 
 export default class FilterFunctionDialog extends UI.GscapeWidget implements FilterOrFunctionWidget {
   protected saveButton = new UI.GscapeButton(checkmark, "Save")
+  protected deleteButton = new UI.GscapeButton(del, "Delete")
   public operator: FilterExpressionOperatorEnum | FunctionNameEnum
   public parameters: VarOrConstant[]
   public parametersType: VarOrConstantTypeEnum
   public _id: number
-  public onSubmitCallback = (
+  public modality: Modality = Modality.DEFINE
+  public submitCallback = (
     id: number,
     op: FilterExpressionOperatorEnum | FunctionNameEnum,
     parameters: VarOrConstant[]
   ) => { }
+  public deleteCallback = (filterId: number) => { }
 
   static get properties() {
     let props = super.properties
@@ -24,6 +31,7 @@ export default class FilterFunctionDialog extends UI.GscapeWidget implements Fil
     // props.highlights = { attribute: false }
     props.operator = { attribute: false }
     props.parameters = { attribute: false }
+    props.modality = { attribute: false }
     return props
   }
 
@@ -88,6 +96,17 @@ export default class FilterFunctionDialog extends UI.GscapeWidget implements Fil
         #message-tray > .error-message {
           color: var(--theme-gscape-error);
         }
+
+        .danger:hover {
+          color: var(--theme-gscape-error, ${colors.error});
+        }
+
+        .bottom-buttons {
+          display:flex;
+          flex-direction:row-reverse;
+          width: 100%;
+          justify-content: space-between;
+        }
       `
     ]
   }
@@ -95,10 +114,16 @@ export default class FilterFunctionDialog extends UI.GscapeWidget implements Fil
   constructor() {
     super()
     this.saveButton.onClick = () => this.handleSubmit()
+    this.deleteButton.onClick = () => this.deleteCallback(this._id)
+    this.deleteButton.classList.add('danger')
   }
 
   onSubmit(callback: (id: number, operator: FilterExpressionOperatorEnum | FunctionNameEnum, parameters: VarOrConstant[]) => void) {
-    this.onSubmitCallback = callback
+    this.submitCallback = callback
+  }
+
+  onDelete(callback: (filterId: number) => void) {
+    this.deleteCallback = callback
   }
 
   handleSubmit() {
@@ -123,10 +148,8 @@ export default class FilterFunctionDialog extends UI.GscapeWidget implements Fil
     }
 
     if (!errorsFound) {
-      this.innerDialog.querySelectorAll(`.${CLASS_FIELD_ERROR}`).forEach((field: any) => {
-        field.classList.remove(CLASS_FIELD_ERROR)
-      })
-      this.onSubmitCallback(this._id, this.operator, this.parameters)
+      this.resetErrors()
+      this.submitCallback(this._id, this.operator, this.parameters)
     }
   }
 
@@ -157,13 +180,14 @@ export default class FilterFunctionDialog extends UI.GscapeWidget implements Fil
   private onInputChange(index: number, value: string) {
     this.parameters[index].value = value
 
-    if(value.length > 0) {
+    if (value.length > 0) {
       this.innerDialog.querySelector(`[index = "${index}"]`).classList.remove(CLASS_FIELD_ERROR)
     }
   }
 
   show() {
     super.show()
+    this.resetErrors()
     this.innerDialog.show()
   }
 
@@ -208,8 +232,16 @@ export default class FilterFunctionDialog extends UI.GscapeWidget implements Fil
     this.messagesElem.textContent = ''
   }
 
-  setAsCorrect() {
-    this.addMessage('Correctly Saved', 'correct-message')
+  resetErrors() {
+    this.resetMessages()
+    this.innerDialog.querySelectorAll(`.${CLASS_FIELD_ERROR}`).forEach((field: any) => {
+      field.classList.remove(CLASS_FIELD_ERROR)
+    })
+  }
+
+  setAsCorrect(customText?: string) {
+    const text = customText || 'Correctly Saved'
+    this.addMessage(text, 'correct-message')
     setTimeout(() => this.resetMessages(), 2000)
   }
 

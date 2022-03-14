@@ -41,3 +41,7 @@ export function onAddFilter(callback: (headElement: HeadElement) => void) {
     callback(headElement)
   })
 }
+
+export function onEditFilter(callback: (filterId: number) => void) {
+  qhWidget.onEditFilter(filterId => callback(filterId))
+}

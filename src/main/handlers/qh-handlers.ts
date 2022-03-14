@@ -1,4 +1,4 @@
-import { EntityTypeEnum, QueryGraphHeadApiFactory, VarOrConstantTypeEnum } from '../../api/swagger'
+import { EntityTypeEnum, FilterExpressionOperatorEnum, QueryGraph, QueryGraphFilterApiFactory, QueryGraphHeadApiFactory, VarOrConstantTypeEnum } from '../../api/swagger'
 import * as queryHead from '../../query-head'
 import * as queryGraph from '../../query-graph'
 import * as ontologyGraph from '../../ontology-graph'
@@ -8,6 +8,7 @@ import { sparqlDialog } from '../../widgets'
 import { getGraphElementByID, getIri } from '../../util/graph-element-utility'
 import { filterDialog } from '../../filters'
 import { getHeadElementWithDatatype } from '../../util/head-element-utility'
+import { Modality } from '../../filters/filter-function-dialog'
 
 queryHead.onDelete(async headElement => {
   const qgApi = QueryGraphHeadApiFactory()
@@ -42,6 +43,7 @@ queryHead.onAddFilter(headElement => {
     filterDialog.parametersType = VarOrConstantTypeEnum.Constant
   }
 
+  filterDialog.modality = Modality.DEFINE
   filterDialog._id = null
   filterDialog.operator = null
   filterDialog.parameters = [{
@@ -52,10 +54,12 @@ queryHead.onAddFilter(headElement => {
   filterDialog.show()
 })
 
-// queryHead.onEditFilter((filterId) => {
-//   const filter = queryBody.getFilterById(filterId)
-//   filterDialog._id = filterId
-//   filterDialog.operator = filter.expression?.operator
-//   filterDialog.parameters = filter.expression?.parameters
-//   filterDialog.parametersType = filter.expression?.parameters[1]?.type
-// })
+queryHead.onEditFilter((filterId) => {
+  const filter = queryBody.getFilterById(filterId)
+  filterDialog.modality = Modality.EDIT
+  filterDialog._id = filterId
+  filterDialog.operator = filter.expression?.operator
+  filterDialog.parameters = filter.expression?.parameters
+  filterDialog.parametersType = filter.expression?.parameters[1]?.type
+  filterDialog.show()
+})

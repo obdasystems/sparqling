@@ -57,6 +57,7 @@ export function getFilterById(filterId: number) {
 
 export function updateFilter(filterId: number, filter: Filter) {
   filtersMap.set(filterId, filter)
+  writeFilterMapInQueryBody()
 }
 
 function getNewFilterId() {
@@ -66,4 +67,9 @@ function getNewFilterId() {
     counterFiltersId = 0
   }
   return counterFiltersId
+}
+
+function writeFilterMapInQueryBody() {
+  body.filters = []
+  filtersMap.forEach(filter => body.filters.push(filter))
 }
