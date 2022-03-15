@@ -2,7 +2,6 @@ import { Filter, GraphElement, HeadElement, QueryGraph, VarOrConstantTypeEnum } 
 
 let body: QueryGraph
 let selectedGraphElement: GraphElement
-let filtersMap: Map<number, Filter> = new Map()
 let counterFiltersId: number
 
 export function setBody(newBody: QueryGraph) {
@@ -18,50 +17,41 @@ export function getBody() { return body }
 export function getSelectedGraphElement() { return selectedGraphElement }
 
 export function getFiltersOnHeadElement(headElement: HeadElement) {
-  let filtersIterator = filtersMap.entries()
-  let res: { id: number, value: Filter }[] = []
-  let filterEntry = filtersIterator.next()
-  while (filterEntry.value) {
-    let filterId: number = filterEntry.value[0]
-    let filter: Filter = filterEntry.value[1]
-    if (filter.expression.parameters[0].type === VarOrConstantTypeEnum.Var &&
-      filter.expression.parameters[0].value === headElement.var) {
-      res.push({
-        id: filterId,
-        value: filter,
-      })
-    }
-    filterEntry = filtersIterator.next()
-  }
-  return res
+  let filters = body?.filters?.map((filter, index) => {
+    return { id: index, value: filter } 
+  })
+
+  return filters?.filter(f => {
+    return f.value.expression.parameters[0].type === VarOrConstantTypeEnum.Var &&
+      f.value.expression.parameters[0].value === headElement.var
+  })
 }
 
+/**
+ * Add a filter to the model and return its ID
+ * @param filter filter to add
+ * @returns the ID of the new filter
+ */
 export function addFilter(filter: Filter) {
   if (!body.filters) body.filters = []
-  body.filters.push(filter)
-  const filterId = getNewFilterId()
-  filtersMap.set(filterId, filter)
-  return filterId
+  return body.filters.push(filter) - 1
 }
 
 export function removeFilter(filterId: number) {
-  const filter = filtersMap.get(filterId)
-  const filterIndexInArray = body?.filters?.findIndex(f => f === filter)
-  body?.filters?.splice(filterIndexInArray, 1)
-  filtersMap.delete(filterId)
+  body?.filters?.splice(filterId, 1)
 }
 
 export function getFilterById(filterId: number) {
-  return filtersMap.get(filterId)
+  return body.filters[filterId]
 }
 
 export function updateFilter(filterId: number, filter: Filter) {
-  filtersMap.set(filterId, filter)
-  writeFilterMapInQueryBody()
+  body.filters[filterId] = filter
+  //writeFilterMapInQueryBody()
 }
 
 function getNewFilterId() {
-  if (counterFiltersId) {
+  if (counterFiltersId !== null && counterFiltersId !== undefined) {
     counterFiltersId += 1
   } else {
     counterFiltersId = 0
@@ -71,5 +61,5 @@ function getNewFilterId() {
 
 function writeFilterMapInQueryBody() {
   body.filters = []
-  filtersMap.forEach(filter => body.filters.push(filter))
+  //filtersMap.forEach(filter => body.filters.push(filter))
 }
