@@ -33,42 +33,47 @@ const removeOptional = {
   select: (e: SingularData) => removeOptionalCallback(e.id())
 }
 
-const menuOptions = {
-  classesOrDataProps: {
-    selector: `[!optional][type = "${EntityTypeEnum.Class}"],[!optional][type = "${EntityTypeEnum.DataProperty}"]`,
-    commands: [addHead, del, addFilter, makeOptional],
-    // openMenuEvents: 'tap',
-    // fillColor: '',
-    // activeFillColor: '',
-    // itemColor: '',
-  },
-  objProps: {
-    selector: `[!optional][type = "${EntityTypeEnum.ObjectProperty}"]`,
-    commands: [del, addFilter, makeOptional],
-    // openMenuEvents: 'tap',
-    // fillColor: '',
-    // activeFillColor: '',
-    // itemColor: '',
-  },
-  optionalClassesOrDataProps: {
-    selector: `[?optional][type = "${EntityTypeEnum.Class}"],[?optional][type = "${EntityTypeEnum.DataProperty}"]`,
-    commands: [addHead, del, addFilter, removeOptional],
-    // openMenuEvents: 'tap',
-    // fillColor: '',
-    // activeFillColor: '',
-    // itemColor: '',
-  },
-  optionalObjProps: {
-    selector: `[?optional][type = "${EntityTypeEnum.ObjectProperty}"]`,
-    commands: [del, addFilter, removeOptional],
-    // openMenuEvents: 'tap',
-    // fillColor: '',
-    // activeFillColor: '',
-    // itemColor: '',
-  }
+const seeFilters = {
+  content: 'See Filters',
+  select: (e) => { console.log('see filters') }
 }
 
-Object.values(menuOptions).forEach(opt => cy.cxtmenu(opt as any))
+const menuOptions = {
+  classesOrDataProps: {
+    selector: `node[!optional][!hasFilters][type = "${EntityTypeEnum.Class}"],node[!optional][!hasFilters][type = "${EntityTypeEnum.DataProperty}"]`,
+    commands: [addHead, del, addFilter, makeOptional],
+  },
+  optionalClassesOrDataProps: {
+    selector: `node[?optional][!hasFilters][type = "${EntityTypeEnum.Class}"],node[?optional][!hasFilters][type = "${EntityTypeEnum.DataProperty}"]`,
+    commands: [addHead, del, addFilter, removeOptional],
+  },
+  classesOrDataPropsWithFilters: {
+    selector: `node[!optional][?hasFilters][type = "${EntityTypeEnum.Class}"],node[!optional][?hasFilters][type = "${EntityTypeEnum.DataProperty}"]`,
+    commands: [addHead, del, addFilter, seeFilters, makeOptional],
+  },
+  optionalClassesOrDataPropsWithFilters: {
+    selector: `node[?optional][?hasFilters][type = "${EntityTypeEnum.Class}"],node[?optional][?hasFilters][type = "${EntityTypeEnum.DataProperty}"]`,
+    commands: [addHead, del, addFilter, seeFilters, removeOptional],
+  },
+  objProps: {
+    selector: `edgeedge[!optional][!hasFilters][type = "${EntityTypeEnum.ObjectProperty}"]`,
+    commands: [del, addFilter, makeOptional],
+  },
+  optionalObjProps: {
+    selector: `edge[?optional][!hasFilters][type = "${EntityTypeEnum.ObjectProperty}"]`,
+    commands: [del, addFilter, removeOptional],
+  },
+  objPropsWithFilters: {
+    selector: `edge[!optional][?hasFilters][type = "${EntityTypeEnum.ObjectProperty}"]`,
+    commands: [del, addFilter, makeOptional, seeFilters],
+  },
+  optionalObjPropsWithFilters: {
+    selector: `edge[?optional][?hasFilters][type = "${EntityTypeEnum.ObjectProperty}"]`,
+    commands: [del, addFilter, removeOptional, seeFilters],
+  },
+}
+
+Object.values(menuOptions).forEach(opt => (cy as any).cxtmenu(opt as any))
 
 export function onAddHead(callback: (elemId: string) => void) {
   addHeadCallback = callback
@@ -82,10 +87,10 @@ export function onAddFilter(callback: (elemId: string) => void) {
   addFilterCallback = callback
 }
 
-export function onMakeOptional(callback: (elemId: string) => void){
+export function onMakeOptional(callback: (elemId: string) => void) {
   makeOptionalCallback = callback
 }
 
-export function onRemoveOptional(callback: (elemId: string) => void){
+export function onRemoveOptional(callback: (elemId: string) => void) {
   removeOptionalCallback = callback
 }

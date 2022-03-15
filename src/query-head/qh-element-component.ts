@@ -1,7 +1,7 @@
 import { UI } from 'grapholscape'
 import { html, css } from 'lit'
 import { HeadElement, Function, VarOrConstantConstantTypeEnum, Filter, FilterExpressionOperatorEnum } from '../api/swagger';
-import { getFiltersOnHeadElement } from '../query-body';
+import { getFiltersOnVariable } from '../query-body';
 import { addFilter, crosshair, del, editFilter } from '../widgets/assets/icons'
 
 const ALIAS_INPUT_ID = 'alias'
@@ -252,7 +252,7 @@ export default class HeadElementComponent extends UI.GscapeWidget {
     }
     let self = this as any
     self.style.backgroundColor = `var(--theme-gscape-${types[this.entityType]})`
-    this.filters = getFiltersOnHeadElement(newElement)
+    this.filters = getFiltersOnVariable(newElement.var)
   }
 
   private getSelect(sectionName:string, name: string, defaultOpt: string, options: object) {

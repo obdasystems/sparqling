@@ -1,4 +1,5 @@
 import { Entity, EntityTypeEnum, GraphElement, Optional } from "../../api/swagger"
+import { getFiltersOnVariable } from "../../query-body"
 import { DisplayedNameType } from "../displayed-name-type"
 import cy, { getDisplayedNameType, getLanguage } from './cy'
 import { getElementById, getElements } from "./getters"
@@ -23,6 +24,7 @@ cy.on('tap', 'node, edge', e => {
  */
 export function addNode(node: GraphElement) {
   if (!node) return
+  const newNodeData = getDataObj(node)
   const existingNode = getElementById(node.id)
 
   if (node.entities?.length > 1 && existingNode?.children().length !== node.entities?.length) {
@@ -32,10 +34,18 @@ export function addNode(node: GraphElement) {
         arrange()
       }
     })
-  } else if (!existingNode) {
+    return
+  }
+  
+  if (!existingNode) {
     cy.add({ data: getDataObj(node) })
     arrange()
+  } else {
+    existingNode.removeData()
+    existingNode.data(newNodeData)
   }
+
+
 }
 
 export function addEdge(sourceNode: GraphElement, targetNode: GraphElement, edgeData?: GraphElement) {
@@ -151,7 +161,7 @@ function getDataObj(graphElement: GraphElement, i = null) {
   } else {
     data.id = graphElement.id
   }
-
+  data.hasFilters = getFiltersOnVariable(`?${graphElement.id}`)?.length > 0 ? true : false
   data.displayed_name = getDisplayedName(data)
 
   return data

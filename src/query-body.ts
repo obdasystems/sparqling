@@ -1,4 +1,4 @@
-import { Filter, GraphElement, HeadElement, QueryGraph, VarOrConstantTypeEnum } from "./api/swagger"
+import { Filter, GraphElement, QueryGraph, VarOrConstantTypeEnum } from "./api/swagger"
 
 let body: QueryGraph
 let selectedGraphElement: GraphElement
@@ -16,14 +16,14 @@ export function setSelectedGraphElement(newGraphElement: GraphElement) {
 export function getBody() { return body }
 export function getSelectedGraphElement() { return selectedGraphElement }
 
-export function getFiltersOnHeadElement(headElement: HeadElement) {
+export function getFiltersOnVariable(variable: string) {
   let filters = body?.filters?.map((filter, index) => {
     return { id: index, value: filter } 
   })
 
   return filters?.filter(f => {
     return f.value.expression.parameters[0].type === VarOrConstantTypeEnum.Var &&
-      f.value.expression.parameters[0].value === headElement.var
+      f.value.expression.parameters[0].value === variable
   })
 }
 

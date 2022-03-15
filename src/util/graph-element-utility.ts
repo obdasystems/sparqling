@@ -89,18 +89,28 @@ export function isObjectProperty(graphElement: GraphElement) {
 /**
  * Return a set of GraphElements which are present in newGraph and not in oldGraph
  */
-export function getdiffNew(oldGraph: GraphElement, newGraph: GraphElement, result = []): GraphElement[] {
+export function getdiffNew(oldGraph: GraphElement, newGraph: GraphElement): GraphElement[] {
   if (!oldGraph) return [newGraph]
+  let result = []
 
-  let res = findGraphElement(oldGraph, e => e.id === newGraph.id)
+  let res = findGraphElement(oldGraph, e => areGraphElementsEqual(e, newGraph))
   if (!res) result.push(newGraph)
 
   if (newGraph?.children) {
     for (let graphElement of newGraph.children) {
-      let res2 = getdiffNew(oldGraph, graphElement, result)
-      if (res2) result
+      let res2 = getdiffNew(oldGraph, graphElement)
+      if (res2) result.push(res2)
     }
   }
 
   return result
+}
+
+
+export function areGraphElementsEqual(ge1: GraphElement, ge2: GraphElement) {
+  const hasSameId = ge1.id === ge2.id
+  const hasSameFilters = queryBody.getFiltersOnVariable(ge1.id) === queryBody.getFiltersOnVariable(ge2.id)
+  const hasSameEntities = JSON.stringify(ge1.entities) === JSON.stringify(ge2.entities)
+  
+  return hasSameId && hasSameFilters && hasSameEntities
 }
