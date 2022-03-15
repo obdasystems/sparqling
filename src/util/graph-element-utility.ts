@@ -99,7 +99,7 @@ export function getdiffNew(oldGraph: GraphElement, newGraph: GraphElement): Grap
   if (newGraph?.children) {
     for (let graphElement of newGraph.children) {
       let res2 = getdiffNew(oldGraph, graphElement)
-      if (res2) result.push(res2)
+      if (res2) result.push(...res2)
     }
   }
 
