@@ -1,5 +1,5 @@
 import { UI } from 'grapholscape'
-import { GraphElement, QueryGraphBGPApiFactory, QueryGraphHeadApiFactory } from '../../api/swagger'
+import { QueryGraphBGPApiFactory, QueryGraphHeadApiFactory, VarOrConstantTypeEnum } from '../../api/swagger'
 import { EntityTypeEnum } from '../../api/swagger'
 import * as ontologyGraph from '../../ontology-graph'
 import getGscape from '../../ontology-graph/get-gscape'
@@ -8,6 +8,9 @@ import onNewBody from '../on-new-body'
 import * as queryBody from '../../query-body'
 import * as GEUtility from '../../util/graph-element-utility'
 import { newOptionalGraphElementId, removeOptionalGraphElementId } from '../../api/api_stub'
+import { filterDialog } from '../../filters'
+import { Modality } from '../../filters/filter-function-dialog'
+import { guessDataType } from '../../ontology-graph'
 
 queryGraph.onAddHead(async graphElement => {
   const qgApi = QueryGraphHeadApiFactory()
@@ -100,4 +103,24 @@ queryGraph.onRemoveOptional(graphElement => {
 
   if (newBody)
     onNewBody(newBody)
+})
+
+queryGraph.onAddFilter(graphElement => {
+  const type = GEUtility.getEntityType(graphElement)
+
+  if (type === EntityTypeEnum.Class) {
+    filterDialog.parametersType = VarOrConstantTypeEnum.Iri
+  } else {
+    filterDialog.parametersType = VarOrConstantTypeEnum.Constant
+  }
+
+  filterDialog.modality = Modality.DEFINE
+  filterDialog._id = null
+  filterDialog.operator = null
+  filterDialog.parameters = [{
+    type: VarOrConstantTypeEnum.Var,
+    constantType: guessDataType(GEUtility.getIri(graphElement)),
+    value: graphElement.id
+  }]
+  filterDialog.show()
 })
