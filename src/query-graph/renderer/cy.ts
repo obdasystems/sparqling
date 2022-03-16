@@ -18,6 +18,21 @@ const cy = cytoscape({
 })
 cy.mount(bgpContainer)
 
+/**
+ * --- HACKY --- 
+ * Allow events not involving buttons to work on cytoscape when it's in a shadow dom.
+ * They don't work due to shadow dom event's retargeting
+ * Cytoscape listen to events on window object. When the event reach window due to bubbling,
+ * cytoscape handler for mouse movement handles it but event target appear to be the 
+ * custom component and not the canvas due to retargeting, therefore listeners are not triggered.
+ * workaround found here: https://github.com/cytoscape/cytoscape.js/issues/2081
+ */
+cy.on('render', () => {
+  try {
+    (cy as any).renderer().hoverData.capture = true
+  } catch {}
+})
+
 let menu: any
 let displayedNameType: DisplayedNameType
 let language: string
