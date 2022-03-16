@@ -2,7 +2,7 @@ import { UI } from 'grapholscape'
 import { html, css } from 'lit'
 import { HeadElement, Function, VarOrConstantConstantTypeEnum, Filter, FilterExpressionOperatorEnum } from '../api/swagger';
 import { getFiltersOnVariable } from '../query-body';
-import { addFilter, crosshair, del, editFilter } from '../widgets/assets/icons'
+import { addFilter, crosshair, rubbishBin, edit } from '../widgets/assets/icons'
 
 const ALIAS_INPUT_ID = 'alias'
 
@@ -167,7 +167,7 @@ export default class HeadElementComponent extends UI.GscapeWidget {
     super()
 
     this.headElement = headElement
-    this.deleteButton = new UI.GscapeButton(del, 'Delete Field')
+    this.deleteButton = new UI.GscapeButton(rubbishBin, 'Delete Field')
     this.deleteButton.onClick = () => { }
     this.deleteButton.classList.add('danger')
     this.toggleBodyButton = new UI.GscapeButton(UI.icons.triangle_down, 'Show More', UI.icons.triangle_up)
@@ -205,7 +205,7 @@ export default class HeadElementComponent extends UI.GscapeWidget {
           <span id="filters-title">Filters</span>
           <div id="filters-list">
             ${this.filters?.map(filter => {
-              const editFilterButton = new UI.GscapeButton(editFilter, 'Edit Filter')
+              const editFilterButton = new UI.GscapeButton(edit, 'Edit Filter')
               editFilterButton.onClick = () => this.editFilterCallback(filter.id)
               return html`
                 <div class="filter">

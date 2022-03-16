@@ -1,15 +1,13 @@
 import cytoscape, { Stylesheet } from "cytoscape"
 import { DisplayedNameType } from "../displayed-name-type"
 import klay from 'cytoscape-klay'
-import cola from 'cytoscape-cola'
-import cxtmenu from 'cytoscape-cxtmenu'
 import compoundDragAndDrop from 'cytoscape-compound-drag-and-drop'
+import popper from 'cytoscape-popper'
 import { bgpContainer } from "../../util/get-container"
 
 cytoscape.use(klay)
-cytoscape.use(cola)
-cytoscape.use(cxtmenu)
 cytoscape.use(compoundDragAndDrop)
+cytoscape.use(popper)
 
 const cy = cytoscape({
   style: [] as Stylesheet[],

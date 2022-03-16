@@ -4,6 +4,7 @@ import { bgpContainer } from "../util/get-container"
 import * as GEUtility from "../util/graph-element-utility"
 import QueryGraphWidget from "./qg-widget"
 import * as bgp from "./renderer"
+import { cxtMenu } from "./renderer"
 
 export { setLanguage, renderOptionals } from './renderer'
 export * from './renderer/setters'
@@ -82,7 +83,16 @@ export function onAddHead(callback: (graphElem: GraphElement) => void) {
 }
 
 export function onDelete(callback: (graphElem: GraphElement) => void) {
-  bgp.onDelete(id => callback(GEUtility.getGraphElementByID(id)))
+  bgp.onDelete(id => {
+    callback(GEUtility.getGraphElementByID(id))
+    cxtMenu.hide()
+  })
+}
+
+export function onAddFilter(callback: (graphElem: GraphElement) => void) {
+  bgp.onAddFilter(id => {
+    callback(GEUtility.getGraphElementByID(id))
+  })
 }
 
 export function onJoin(callback: (graphElem1: GraphElement, graphElem2: GraphElement) => void) {

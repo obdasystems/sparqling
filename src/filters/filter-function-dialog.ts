@@ -2,7 +2,7 @@ import { css } from 'lit'
 import { UI } from 'grapholscape'
 import { FilterExpressionOperatorEnum, FunctionNameEnum, VarOrConstant, VarOrConstantConstantTypeEnum, VarOrConstantTypeEnum } from '../api/swagger'
 import { FilterOrFunctionWidget } from '../util/filter-function-interface'
-import { checkmark, del } from '../widgets/assets/icons'
+import { checkmark, rubbishBin } from '../widgets/assets/icons'
 
 const CLASS_FIELD_ERROR = css`field-error`
 export enum Modality {
@@ -12,7 +12,7 @@ export enum Modality {
 
 export default class FilterFunctionDialog extends UI.GscapeWidget implements FilterOrFunctionWidget {
   protected saveButton = new UI.GscapeButton(checkmark, "Save")
-  protected deleteButton = new UI.GscapeButton(del, "Delete")
+  protected deleteButton = new UI.GscapeButton(rubbishBin, "Delete")
   public operator: FilterExpressionOperatorEnum | FunctionNameEnum
   public parameters: VarOrConstant[]
   public parametersType: VarOrConstantTypeEnum
