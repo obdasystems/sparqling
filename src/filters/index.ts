@@ -1,8 +1,10 @@
 import FilterDialog from "./filter-dialog"
 import * as queryBody from "../query-body"
-import { FilterExpressionOperatorEnum, QueryGraph, QueryGraphFilterApiFactory } from "../api/swagger";
-import onNewBody from "../main/on-new-body";
-import { Modality } from "./filter-function-dialog";
+import { EntityTypeEnum, FilterExpressionOperatorEnum, GraphElement, QueryGraph, QueryGraphFilterApiFactory, VarOrConstantTypeEnum } from "../api/swagger"
+import onNewBody from "../main/on-new-body"
+import { Modality } from "./filter-function-dialog"
+import * as GEUtility from "../util/graph-element-utility"
+import { guessDataType } from "../ontology-graph"
 
 export const filterDialog = new FilterDialog()
 
@@ -51,3 +53,33 @@ filterDialog.onDelete(async (id) => {
     filterDialog.setAsCorrect('Deleted correctly')
   }
 })
+
+export function showFilterDialogForVariable(graphElement: GraphElement) {
+  const type = GEUtility.getEntityType(graphElement)
+
+  if (type === EntityTypeEnum.Class) {
+    filterDialog.parametersType = VarOrConstantTypeEnum.Iri
+  } else {
+    filterDialog.parametersType = VarOrConstantTypeEnum.Constant
+  }
+
+  filterDialog.modality = Modality.DEFINE
+  filterDialog._id = null
+  filterDialog.operator = null
+  filterDialog.parameters = [{
+    type: VarOrConstantTypeEnum.Var,
+    constantType: guessDataType(GEUtility.getIri(graphElement)),
+    value: '?'+graphElement.id
+  }]
+  filterDialog.show()
+}
+
+export function showFilterDialogEditingMode(filterId: number) {
+  const filter = queryBody.getFilterById(filterId)
+  filterDialog.modality = Modality.EDIT
+  filterDialog._id = filterId
+  filterDialog.operator = filter.expression?.operator
+  filterDialog.parameters = filter.expression?.parameters
+  filterDialog.parametersType = filter.expression?.parameters[1]?.type
+  filterDialog.show()
+}
