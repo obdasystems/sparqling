@@ -1,6 +1,7 @@
 import { UI } from 'grapholscape'
 import { html, css } from 'lit'
 import { rdfLogo } from '../widgets/assets/icons'
+import cy from './renderer/cy'
 
 const { GscapeWidget, GscapeHeader } = UI
 /**
@@ -60,6 +61,25 @@ export default class QueryGraphWidget extends (GscapeWidget as any) {
     super.firstUpdated()
     this.header.invertIcons()
     super.makeDraggableHeadTitle()
+  }
+
+  createRenderRoot() {
+    const root = super.createRenderRoot()
+    root.addEventListener('mouseover', e => {
+      /**
+       * --- HACKY --- 
+       * Allow events not involving buttons to work on cytoscape when it's in a shadow dom.
+       * They don't work due to shadow dom event's retargeting
+       * Cytoscape listen to events on window object. When the event reach window due to bubbling,
+       * cytoscape handler for mouse movement handles it but event target appear to be the 
+       * custom component and not the canvas due to retargeting, therefore listeners are not triggered.
+       * workaround found here: https://github.com/cytoscape/cytoscape.js/issues/2081
+       */
+      try {
+        (cy as any).renderer().hoverData.capture = true
+      } catch {}
+    })
+    return root
   }
 
   //createRenderRoot() { return this as any }
