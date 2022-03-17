@@ -7,6 +7,7 @@ import { filter } from "../../widgets/assets/icons"
 import { DisplayedNameType } from "../displayed-name-type"
 import cy, { getDisplayedNameType, getLanguage } from './cy'
 import { getElementById, getElements } from "./getters"
+import { addOrRemoveFilterIcon, removeHasFilterIcon } from "./has-filter-icon"
 import { klayLayoutOpt, radialLayoutOpt } from "./layout-options"
 
 export const DISPLAYED_NAME = 'displayed_name'
@@ -51,10 +52,7 @@ export function addNode(node: GraphElement) {
   }
 
   newNode = newNode || existingNode
-
-  if (newNode?.data().hasFilters && !newNode['tippy']) {
-    addHasFilterIcon(newNode)
-  }
+  addOrRemoveFilterIcon(newNode)
 }
 
 export function addEdge(sourceNode: GraphElement, targetNode: GraphElement, edgeData?: GraphElement) {
@@ -95,7 +93,7 @@ export function removeNode(nodeID: any) {
   const node = getElementById(nodeID)
   if (!node || node.empty()) return
 
-  node['tippy']?.destroy()
+  removeHasFilterIcon(node)
   node.remove()
 }
 
@@ -189,24 +187,4 @@ function getDisplayedName(data: object) {
     return labels[getLanguage] || labels[Object.keys(labels)[0]]
   else
     return data[displayedNameType] || data[DisplayedNameType.prefixed] || data[DisplayedNameType.full]
-}
-
-function addHasFilterIcon(node: SingularData) {
-  const dummyDomElement = document.createElement('div')
-  const icon = new UI.GscapeButton(filter, 'Has Filters Defined')
-  icon.style.position = 'relative'
-  node['tippy'] = tippy(dummyDomElement, {
-    content: icon,
-    trigger: 'manuaul',
-    hideOnClick: false,
-    allowHTML: true,
-    getReferenceClientRect: (node as any).popperRef().getBoundingClientRect,
-    sticky: "reference",
-    appendTo: cy.container(),
-    placement: "right",
-    plugins: [ sticky ]
-  })
-
-  
-  node['tippy'].show()
 }
