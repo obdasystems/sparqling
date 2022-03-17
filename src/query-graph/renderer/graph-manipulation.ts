@@ -1,5 +1,9 @@
+import { CollectionReturnValue, SingularData } from "cytoscape"
+import { UI } from 'grapholscape'
+import tippy, { sticky } from "tippy.js"
 import { Entity, EntityTypeEnum, GraphElement, Optional } from "../../api/swagger"
 import { getFiltersOnVariable } from "../../query-body"
+import { filter } from "../../widgets/assets/icons"
 import { DisplayedNameType } from "../displayed-name-type"
 import cy, { getDisplayedNameType, getLanguage } from './cy'
 import { getElementById, getElements } from "./getters"
@@ -26,11 +30,12 @@ export function addNode(node: GraphElement) {
   if (!node) return
   const newNodeData = getDataObj(node)
   const existingNode = getElementById(node.id)
+  let newNode: CollectionReturnValue
 
   if (node.entities?.length > 1 && existingNode?.children().length !== node.entities?.length) {
     node.entities.forEach((child: Entity, i: number) => {
       if (!existingNode.children().some(c => c[0].data('iri') === child.iri)) {
-        cy.add({ data: getDataObj(node, i) })
+        newNode = cy.add({ data: getDataObj(node, i) })
         arrange()
       }
     })
@@ -38,14 +43,18 @@ export function addNode(node: GraphElement) {
   }
   
   if (!existingNode) {
-    cy.add({ data: getDataObj(node) })
+    newNode = cy.add({ data: newNodeData })
     arrange()
   } else {
     existingNode.removeData()
     existingNode.data(newNodeData)
   }
 
+  newNode = newNode || existingNode
 
+  if (newNode?.data().hasFilters && !newNode['tippy']) {
+    addHasFilterIcon(newNode)
+  }
 }
 
 export function addEdge(sourceNode: GraphElement, targetNode: GraphElement, edgeData?: GraphElement) {
@@ -83,7 +92,11 @@ export function addEdge(sourceNode: GraphElement, targetNode: GraphElement, edge
  * Remove a node from query graph, it will remove also all subsequent nodes
  */
 export function removeNode(nodeID: any) {
-  cy.$id(nodeID).remove()
+  const node = getElementById(nodeID)
+  if (!node || node.empty()) return
+
+  node['tippy']?.destroy()
+  node.remove()
 }
 
 /**
@@ -176,4 +189,24 @@ function getDisplayedName(data: object) {
     return labels[getLanguage] || labels[Object.keys(labels)[0]]
   else
     return data[displayedNameType] || data[DisplayedNameType.prefixed] || data[DisplayedNameType.full]
+}
+
+function addHasFilterIcon(node: SingularData) {
+  const dummyDomElement = document.createElement('div')
+  const icon = new UI.GscapeButton(filter, 'Has Filters Defined')
+  icon.style.position = 'relative'
+  node['tippy'] = tippy(dummyDomElement, {
+    content: icon,
+    trigger: 'manuaul',
+    hideOnClick: false,
+    allowHTML: true,
+    getReferenceClientRect: (node as any).popperRef().getBoundingClientRect,
+    sticky: "reference",
+    appendTo: cy.container(),
+    placement: "right",
+    plugins: [ sticky ]
+  })
+
+  
+  node['tippy'].show()
 }
