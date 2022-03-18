@@ -83,9 +83,13 @@ export function isDataProperty(graphElement: GraphElement) {
 }
 
 export function isObjectProperty(graphElement: GraphElement) {
-  return getEntityType(graphElement) === EntityTypeEnum.ObjectProperty
+  return getEntityType(graphElement) === EntityTypeEnum.ObjectProperty || isInverseObjectProperty(graphElement)
+    
 }
 
+export function isInverseObjectProperty(graphElement: GraphElement) {
+  return getEntityType(graphElement) === EntityTypeEnum.InverseObjectProperty
+}
 /**
  * Return a set of GraphElements which are present in newGraph and not in oldGraph
  */

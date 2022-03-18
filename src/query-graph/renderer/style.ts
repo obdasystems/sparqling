@@ -2,7 +2,7 @@ import { Stylesheet } from "cytoscape"
 import { Theme } from "grapholscape"
 import { EntityTypeEnum } from "../../api/swagger"
 
-const { DataProperty, Class, ObjectProperty } = EntityTypeEnum
+const { DataProperty, Class, ObjectProperty, InverseObjectProperty } = EntityTypeEnum
 
 export default (theme: Theme) => {
   return [
@@ -69,7 +69,7 @@ export default (theme: Theme) => {
     },
 
     {
-      selector: `edge[type = "${ObjectProperty}"]`,
+      selector: `edge[type = "${ObjectProperty}"], edge[type = "${InverseObjectProperty}"]`,
       style: {
         'line-color': theme.role_dark,
         'target-arrow-color': theme.role_dark,
