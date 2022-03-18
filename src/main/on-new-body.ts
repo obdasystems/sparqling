@@ -10,7 +10,8 @@ export default function onNewBody(newBody: QueryGraph) {
   let body = queryBody.setBody(newBody)
   queryGraph.setGraph(body.graph)
   queryGraph.render(body.graph)
-  queryGraph.removeNodesNotInQuery()
+  const deletedNodeIds = queryGraph.removeNodesNotInQuery()
+  deletedNodeIds.forEach(id => queryBody.getOriginGrapholNodes().delete(id))
   queryGraph.renderOptionals(body.optionals)
 
   queryHead.setHead(body.head)

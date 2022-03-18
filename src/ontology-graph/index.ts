@@ -1,5 +1,5 @@
 export * from './get-gscape'
 export * from './highlights'
-export * from './focus-node-by-iri'
+export * from './focus-node'
 export * from './find-related-class'
 export * from './util'

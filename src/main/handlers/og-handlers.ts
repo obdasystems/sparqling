@@ -42,25 +42,29 @@ export async function handleEntitySelection(cyEntity: CollectionReturnValue) {
     }
     case CONCEPT: {
       newBody = await handleConceptSelection(cyEntity)
-
-      let newGraphElements: GraphElement[] = []
       if (newBody) {
-        newGraphElements = getdiffNew(queryBody.getBody()?.graph, newBody.graph)
+        // Get nodes not present in the old graph
+        const newGraphElements = getdiffNew(queryBody.getBody()?.graph, newBody.graph)
+        const newSelectedGraphElement = setOriginNode(cyEntity, newGraphElements)
+        ontologyGraph.resetHighlights()
+        ontologyGraph.highlightSuggestions(clickedIRI)
         onNewBody(newBody)
+
+        // after onNewBody because we need to select the element after rendering phase
+        if (newSelectedGraphElement) {
+          // The node to select is the one having the clickedIri among the new nodes
+          queryBody.setSelectedGraphElement(queryGraph.selectElement(newSelectedGraphElement.id))
+        }
       }
-
-      const newSelectedGraphElement = newGraphElements.find(ge => graphElementHasIri(ge, clickedIRI))
-      if (newSelectedGraphElement)
-        queryBody.setSelectedGraphElement(queryGraph.selectElement(newSelectedGraphElement.id))
-
-      ontologyGraph.resetHighlights()
-      ontologyGraph.highlightSuggestions(clickedIRI)
       break
     }
     case DATA_PROPERTY: {
       newBody = await handleDataPropertySelection(cyEntity)
-      if (newBody)
+      if (newBody) {
+        const newGraphElements = getdiffNew(queryBody.getBody()?.graph, newBody.graph)
+        setOriginNode(cyEntity, newGraphElements)
         onNewBody(newBody)
+      }
       break
     }
   }
@@ -152,4 +156,19 @@ function getInitialInfo(cyEntity: CollectionReturnValue) {
   //selectedGraphElement = queryGraph.getSelectedGraphElement()
   isIriHighlighted = ontologyGraph.isHighlighted(clickedIRI)
   iriInQueryGraph = queryGraph.isIriInQueryGraph(clickedIRI)
+}
+
+/**
+ * Find the GraphElement corresponding to the clicked entity and set entity as its origin Graphol node
+ * @param cyEntity The clicked entity
+ * @param graphElements Array of newly added graphElements
+ * @returns The GraphElement corresponding to the clicked entity
+ */
+function setOriginNode(cyEntity: CollectionReturnValue, graphElements: GraphElement[]) {
+  let graphElement = graphElements?.find(ge => graphElementHasIri(ge, clickedIRI))
+  if (graphElement) {
+    queryBody.getOriginGrapholNodes().set(graphElement.id + clickedIRI, cyEntity.id())
+  }
+
+  return graphElement
 }

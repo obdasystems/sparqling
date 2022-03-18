@@ -53,19 +53,22 @@ export function render(graphElem: GraphElement, parent?: GraphElement, objectPro
 
 // remove elements not in query anymore, asynchronously
 export function removeNodesNotInQuery() {
-  setTimeout(() => {
-    bgp.getElements().forEach( elem => {
-      if ( elem.data('displayed_name') && !GEUtility.getGraphElementByID(elem.id())) {
-        /**
-         * remove it if elem is:
-         *  - not a child
-         *  - a child and its iri is not in the query anymore
-         */
-        if (!elem.isChild() || !GEUtility.getGraphElementByIRI(elem.data('iri')))
-          bgp.removeNode(elem.id())
+  let deletedNodeIds: string[] = []
+  bgp.getElements().forEach( elem => {
+    if ( elem.data('displayed_name') && !GEUtility.getGraphElementByID(elem.id())) {
+      /**
+       * remove it if elem is:
+       *  - not a child
+       *  - a child and its iri is not in the query anymore
+       */
+      if (!elem.isChild() || !GEUtility.getGraphElementByIRI(elem.data('iri'))) {
+        deletedNodeIds.push(elem.id())
+        bgp.removeNode(elem.id())
       }
-    })
-  },0)
+    }
+  })
+
+  return deletedNodeIds
 }
 
 export function centerOnElem(graphElem: GraphElement) {

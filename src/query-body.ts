@@ -4,6 +4,10 @@ let body: QueryGraph
 let selectedGraphElement: GraphElement
 let counterFiltersId: number
 
+// map GraphElementId+IRI -> OriginGrapholNodeID
+// Use iri to distinguish children of a GraphElement
+const originGrapholNodes: Map<string, string> = new Map()
+
 export function setBody(newBody: QueryGraph) {
   body = newBody
   return body
@@ -62,4 +66,8 @@ function getNewFilterId() {
 function writeFilterMapInQueryBody() {
   body.filters = []
   //filtersMap.forEach(filter => body.filters.push(filter))
+}
+
+export function getOriginGrapholNodes() {
+  return originGrapholNodes
 }

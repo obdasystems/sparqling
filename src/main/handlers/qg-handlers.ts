@@ -36,7 +36,7 @@ queryGraph.onDelete(async graphElement => {
 
       queryBody.setSelectedGraphElement(newSelectedGE)
       ontologyGraph.resetHighlights()
-      gscape.unselectEntity([])
+      gscape.unselectEntity()
       ontologyGraph.focusNodeByIRI(GEUtility.getIri(newSelectedGE))
       ontologyGraph.highlightSuggestions(GEUtility.getIri(newSelectedGE))
       queryGraph.selectElement(newSelectedGE.id) // force selecting a new class
@@ -46,9 +46,10 @@ queryGraph.onDelete(async graphElement => {
     if (!newBody.graph) {
       queryBody.setSelectedGraphElement(null)
       ontologyGraph.resetHighlights()
-      gscape.unselectEntity([])
+      gscape.unselectEntity()
     }
 
+    queryBody.getOriginGrapholNodes().delete(graphElement.id)
     onNewBody(newBody)
   }
 })
@@ -77,8 +78,14 @@ queryGraph.onElementClick((graphElement, iri) => {
     ontologyGraph.highlightSuggestions(iri)
   }
 
-  // move ontology graph to show selected obj/data property
-  ontologyGraph.focusNodeByIRI(iri)
+  // move ontology graph to show origin graphol node or any other iri occurrence
+  const originGrapholNodeId = queryBody.getOriginGrapholNodes().get(graphElement.id+iri)
+  if (originGrapholNodeId) {
+    ontologyGraph.focusNodeByIdAndDiagram(originGrapholNodeId)
+  } else {
+    ontologyGraph.focusNodeByIRI(iri)
+  }
+  
   UI.entityDetails.setEntity(gscape.ontology.getEntityOccurrences(iri)[0])
   // keep focus on selected class
   queryGraph.selectElement(queryBody.getSelectedGraphElement().id)

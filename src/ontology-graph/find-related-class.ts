@@ -85,7 +85,10 @@ export function showRelatedClassesWidget(objProperty: CollectionReturnValue, pos
   relatedClassDialog.show(position)
   relatedClassDialog.onSelection((iri: string) => {
     try {
-      let connectedClass = (gscape.ontology.getEntityOccurrences(iri)[0] as CollectionReturnValue)
+      // Prefer instance in actual diagram, first one as fallback
+      let connectedClass = gscape.ontology
+        .getEntityOccurrences(iri).find(entity => entity.data().diagram_id === gscape.actualDiagramID)
+        || gscape.ontology.getEntityOccurrences(iri)[0]
       connectedClass.selectify()
       relatedClassDialog.hide()
       _onRelatedClassSelection(objPropertyFromApi, connectedClass)

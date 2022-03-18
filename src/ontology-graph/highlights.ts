@@ -1,5 +1,5 @@
 import { CollectionReturnValue, Core } from "cytoscape"
-import { focusNodeByIRI } from "./focus-node-by-iri"
+import { focusNodeByIRI } from "./focus-node"
 import { OntologyGraphApi } from "../api/swagger"
 import { Highlights } from "../api/swagger"
 import * as queryBody from "../query-body"
