@@ -4,6 +4,7 @@ import ListSelectionDialog from './list-selection-dialog'
 export default class RelatedClassSelection extends ListSelectionDialog {
   objProperty: string
   class: string
+  reverseArrow = false
 
   static get properties() {
     let props = super.properties
@@ -49,6 +50,13 @@ export default class RelatedClassSelection extends ListSelectionDialog {
           align-items: center;
         }
 
+        .arrow-reverse {
+          margin: 10px;
+          display: flex;
+          align-items: center;
+          flex-direction: row-reverse;
+        }
+
         .arrow-tail, .arrow-body {
           height:8px;
           background-color: var(--theme-gscape-role-dark, ${colors.role_dark});
@@ -62,6 +70,13 @@ export default class RelatedClassSelection extends ListSelectionDialog {
           border-bottom-right-radius:0px;
         }
 
+        .arrow-reverse > .arrow-tail {
+          border-top-right-radius: 3px;
+          border-bottom-right-radius: 3px;
+          border-top-left-radius: 0px;
+          border-bottom-left-radius:0px;
+        }
+
         .arrow-body {
           width: 15px;
         }
@@ -71,9 +86,17 @@ export default class RelatedClassSelection extends ListSelectionDialog {
           height: 0; 
           border-top: 15px solid transparent;
           border-bottom: 15px solid transparent;
+          background-color: initial;
+        }
+
+        .arrow > .arrow-head {
           border-left: 15px solid var(--theme-gscape-role-dark, ${colors.role_dark});
           border-right: 0;
-          background-color: initial;
+        }
+
+        .arrow-reverse > .arrow-head {
+          border-right: 15px solid var(--theme-gscape-role-dark, ${colors.role_dark});
+          border-left: 0;
         }
 
         .obj-property {
@@ -119,7 +142,7 @@ export default class RelatedClassSelection extends ListSelectionDialog {
     <div class="widget-body">
       <div id="left-panel">
         <span class="text class">${this.class}</span>
-        <span class="arrow">
+        <span class="arrow${this.reverse}">
           <span class="arrow-tail"></span>
           <span class="text obj-property">${this.objProperty}</span>
           <span class="arrow-body"></span>
@@ -133,6 +156,10 @@ export default class RelatedClassSelection extends ListSelectionDialog {
       </div>
     </div>
     `
+  }
+
+  private get reverse() {
+    return this.reverseArrow ? '-reverse' : null
   }
 }
 

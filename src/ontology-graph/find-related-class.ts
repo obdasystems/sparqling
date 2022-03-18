@@ -82,6 +82,7 @@ export function showRelatedClassesWidget(objProperty: CollectionReturnValue, pos
 
   relatedClassDialog.class = GEUtility.getPrefixedIri(getSelectedGraphElement()) || GEUtility.getIri(getSelectedGraphElement())
   relatedClassDialog.objProperty = objProperty.data('iri').prefixed
+  relatedClassDialog.reverseArrow = !objPropertyFromApi.direct
   relatedClassDialog.show(position)
   relatedClassDialog.onSelection((iri: string) => {
     try {
