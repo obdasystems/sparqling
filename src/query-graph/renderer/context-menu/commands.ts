@@ -1,6 +1,6 @@
 import { SingularData } from "cytoscape"
 import { EntityTypeEnum } from "../../../api/swagger"
-import { addFilter as addFilterIcon, editList, rubbishBin, tableEye } from "../../../widgets/assets/icons"
+import { addFilter as addFilterIcon, editList, questionMarkDashed, rubbishBin, tableColumnPlus } from "../../../widgets/assets/icons"
 import { commandAddFilterText, commandAddHeadText, commandDeleteText, commandMakeOptionalText, commandRemoveOptionalText } from "../../../widgets/assets/texts"
 
 
@@ -43,7 +43,7 @@ export function getCommandsForElement(ele: SingularData) {
 
 const addHead: Command = {
   content: commandAddHeadText(),
-  icon: tableEye,
+  icon: tableColumnPlus,
   select: () => addHeadCallback(_ele.id())
 }
 const del: Command = {
@@ -60,6 +60,7 @@ const addFilter: Command = {
 }
 const makeOptional: Command = {
   content: commandMakeOptionalText(),
+  icon: questionMarkDashed,
   select: () => makeOptionalCallback(_ele.id())
 }
 const removeOptional: Command = {
