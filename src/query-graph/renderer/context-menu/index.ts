@@ -14,34 +14,19 @@ export const cxtMenu = tippy(dummyDomElement, {
   interactive: true,
   arrow: true,
   appendTo: () => getGscape().container,
-  // your own custom props
+  placement: "bottom",
   // content prop can be used when the target is a single element https://atomiks.github.io/tippyjs/v6/constructor/#prop
   content: () => cxtMenuWidget as any,
 })
-let shouldCxtMenuHide = true
 
 function attachCxtMenuToElement(ref: HTMLElement) {
   cxtMenu.setProps({ getReferenceClientRect: ref.getBoundingClientRect })
 }
 
-cy.on('mouseover', 'node', e => {
+cy.on('cxttap', 'node', e => {
   attachCxtMenuToElement(e.target.popperRef())
   cxtMenuWidget.commands = commands.getCommandsForElement(e.target)
   cxtMenu.show()
 });
-
-(cxtMenuWidget as any).onmouseout = () => {
-  shouldCxtMenuHide = true
-  cxtMenu.hide()
-};
-(cxtMenuWidget as any).onmouseover = () => shouldCxtMenuHide = false
-
-cy.on('mouseout', 'node', e => {
-  setTimeout( () => {
-    if (shouldCxtMenuHide) {
-      cxtMenu.hide()
-    }
-  }, 50)
-})
 
 export * from './commands'
