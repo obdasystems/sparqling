@@ -87,6 +87,7 @@ export interface Entity {
 export const EntityTypeEnum = {
     Class: 'class',
     ObjectProperty: 'objectProperty',
+    InverseObjectProperty: 'inverseObjectProperty',
     DataProperty: 'dataProperty'
 } as const;
 
