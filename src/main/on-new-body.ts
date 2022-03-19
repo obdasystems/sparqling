@@ -1,4 +1,5 @@
 import { HeadElement, QueryGraph } from "../api/swagger"
+import { filterListDialog } from "../filters"
 import * as queryBody from "../query-body"
 import * as queryGraph from "../query-graph"
 import * as queryHead from "../query-head"
@@ -18,6 +19,8 @@ export default function onNewBody(newBody: QueryGraph) {
   queryHead.render(body.head?.map((headElem: HeadElement) => 
     getHeadElementWithDatatype(headElem)
   ))
+
+  filterListDialog.filterList = queryBody.getFiltersOnVariable('?'+filterListDialog.variable)
 
   sparqlDialog.text = body?.sparql ? body.sparql : emptyQueryMsg()
 }

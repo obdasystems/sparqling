@@ -1,11 +1,12 @@
 import { UI } from 'grapholscape'
 import { newOptionalGraphElementId, removeOptionalGraphElementId } from '../../api/api_stub'
 import { QueryGraphBGPApiFactory, QueryGraphHeadApiFactory } from '../../api/swagger'
-import { showFilterDialogForVariable } from '../../filters'
+import { filterListDialog, showFilterDialogForVariable } from '../../filters'
 import * as ontologyGraph from '../../ontology-graph'
 import getGscape from '../../ontology-graph/get-gscape'
 import * as queryBody from '../../query-body'
 import * as queryGraph from '../../query-graph'
+import * as queryHead from '../../query-head'
 import * as GEUtility from '../../util/graph-element-utility'
 import onNewBody from '../on-new-body'
 
@@ -111,4 +112,22 @@ queryGraph.onRemoveOptional(graphElement => {
 
 queryGraph.onAddFilter(graphElement => {
   showFilterDialogForVariable(graphElement)
+})
+
+queryGraph.onSeeFilters(graphElement => {
+  const body = queryBody.getBody()
+
+  for(const headElementComponent of queryHead.widget.shadowRoot.querySelectorAll('head-element')) {
+    if (headElementComponent.graphElementId === graphElement.id) {
+      headElementComponent.focus()
+      headElementComponent.showBody()
+      headElementComponent.scrollIntoView({ behavior: 'smooth'})
+      return
+    }
+  }
+
+  // if not in query head, show dialog
+  filterListDialog.filterList = queryBody.getFiltersOnVariable('?'+graphElement.id)
+  filterListDialog.variable = graphElement.id
+  filterListDialog.show()
 })

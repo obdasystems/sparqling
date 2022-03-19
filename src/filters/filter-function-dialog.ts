@@ -23,7 +23,7 @@ export default class FilterFunctionDialog extends UI.GscapeWidget implements Fil
     op: FilterExpressionOperatorEnum | FunctionNameEnum,
     parameters: VarOrConstant[]
   ) => { }
-  public deleteCallback = (filterId: number) => { }
+  private deleteCallback = (filterId: number) => { }
 
   static get properties() {
     let props = super.properties

@@ -103,6 +103,12 @@ export function onAddFilter(callback: (graphElem: GraphElement) => void) {
   })
 }
 
+export function onSeeFilters(callback: (graphElem: GraphElement) => void) {
+  bgp.onSeeFilters(id => {
+    callback(GEUtility.getGraphElementByID(id))
+  })
+}
+
 export function onJoin(callback: (graphElem1: GraphElement, graphElem2: GraphElement) => void) {
   bgp.onJoin((node1ID, node2ID) => {
     let graphElem1 = GEUtility.getGraphElementByID(node1ID)

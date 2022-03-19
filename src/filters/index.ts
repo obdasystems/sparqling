@@ -5,8 +5,13 @@ import onNewBody from "../main/on-new-body"
 import { Modality } from "./filter-function-dialog"
 import * as GEUtility from "../util/graph-element-utility"
 import { guessDataType } from "../ontology-graph"
+import FilterListDialog from "./filter-list-dialog"
 
 export const filterDialog = new FilterDialog()
+export const filterListDialog = new FilterListDialog()
+
+filterListDialog.onEdit((filterId: number) => showFilterDialogEditingMode(filterId))
+filterListDialog.onDelete((filterId: number) => { deleteFilter(filterId) })
 
 filterDialog.onSubmit(async (id, op, params) => {
   const filterApi = QueryGraphFilterApiFactory()
@@ -36,13 +41,15 @@ filterDialog.onSubmit(async (id, op, params) => {
   }
 })
 
-filterDialog.onDelete(async (id) => {
-  if (id === null || id === undefined) return
+filterDialog.onDelete((filterId:number) => deleteFilter(filterId))
 
-  queryBody.removeFilter(id)
+export async function deleteFilter(filterId: number) {
+  if (filterId === null || filterId === undefined) return
+
+  queryBody.removeFilter(filterId)
   const filterApi = QueryGraphFilterApiFactory()
 
-  const newBody = (await filterApi.removeFilter(id, queryBody.getBody())).data
+  const newBody = (await filterApi.removeFilter(filterId, queryBody.getBody())).data
 
   if (newBody) {
     onNewBody(newBody)
@@ -52,7 +59,7 @@ filterDialog.onDelete(async (id) => {
     filterDialog.modality = Modality.DEFINE
     filterDialog.setAsCorrect('Deleted correctly')
   }
-})
+}
 
 export function showFilterDialogForVariable(graphElement: GraphElement) {
   const type = GEUtility.getEntityType(graphElement)
@@ -72,6 +79,7 @@ export function showFilterDialogForVariable(graphElement: GraphElement) {
     value: '?'+graphElement.id
   }]
   filterDialog.show()
+  filterListDialog.hide()
 }
 
 export function showFilterDialogEditingMode(filterId: number) {
@@ -82,4 +90,5 @@ export function showFilterDialogEditingMode(filterId: number) {
   filterDialog.parameters = filter.expression?.parameters
   filterDialog.parametersType = filter.expression?.parameters[1]?.type
   filterDialog.show()
+  filterListDialog.hide()
 }

@@ -13,6 +13,7 @@ export interface Command {
 let addHeadCallback: (elemId: string) => void
 let deleteCallback: (elemId: string) => void
 let addFilterCallback: (elemId: string) => void
+let seeFiltersCallback: (elemId: string) => void
 let makeOptionalCallback: (elemId: string) => void
 let removeOptionalCallback: (elemId: string) => void
 
@@ -70,7 +71,7 @@ const removeOptional: Command = {
 const seeFilters: Command = {
   content: 'See Filters',
   icon: editList,
-  select: () => { console.log('see filters') }
+  select: () => seeFiltersCallback(_ele.id())
 }
 
 export function onAddHead(callback: (elemId: string) => void) {
@@ -83,6 +84,10 @@ export function onDelete(callback: (elemId: string) => void) {
 
 export function onAddFilter(callback: (elemId: string) => void) {
   addFilterCallback = callback
+}
+
+export function onSeeFilters(callback: (elemId: string) => void) {
+  seeFiltersCallback = callback
 }
 
 export function onMakeOptional(callback: (elemId: string) => void) {
