@@ -1,5 +1,5 @@
 import { HeadElement } from "../api/swagger";
-import { code } from "../widgets/assets/icons";
+import { code, filter } from "../widgets/assets/icons";
 import QueryHeadWidget from "./qh-widget";
 import { UI } from "grapholscape"
 
@@ -44,4 +44,8 @@ export function onAddFilter(callback: (headElement: HeadElement) => void) {
 
 export function onEditFilter(callback: (filterId: number) => void) {
   qhWidget.onEditFilter(filterId => callback(filterId))
+}
+
+export function onDeleteFilter(callback: (filterId: number) => void) {
+  qhWidget.onDeleteFilter(filterId => callback(filterId))
 }

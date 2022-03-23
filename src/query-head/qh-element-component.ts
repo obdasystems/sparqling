@@ -21,7 +21,7 @@ export default class HeadElementComponent extends UI.GscapeWidget {
   private toggleBodyButton: UI.GscapeButton
   public localizeButton: UI.GscapeButton
   private addFilterButton: UI.GscapeButton
-  private filters: {id: number, value: Filter}[]
+  private filters: { id: number, value: Filter }[]
 
   static get properties() {
     let props = super.properties
@@ -176,7 +176,7 @@ export default class HeadElementComponent extends UI.GscapeWidget {
         <div id="field-body" class="widget-body hide">
           <span id="filters-title">Filters</span>
           <div id="filters-list">
-            ${getFilterListTemplate(this.filters, this.editFilterCallback, () => {})}
+            ${getFilterListTemplate(this.filters, this.editFilterCallback, this.deleteFilterCallback)}
           </div>
           <!-- ******************  SORT  ****************** -->
           <div class="section" style="text-align: center; margin-bottom:0">
@@ -204,17 +204,17 @@ export default class HeadElementComponent extends UI.GscapeWidget {
     this.filters = getFiltersOnVariable(newElement.var)
   }
 
-  private getSelect(sectionName:string, name: string, defaultOpt: string, options: object) {
+  private getSelect(sectionName: string, name: string, defaultOpt: string, options: object) {
     const isDefaultAlreadySet = Object.values(options).includes(defaultOpt)
     return html`
       <select name="${name}" sectionName="${sectionName}">
         ${isDefaultAlreadySet ? null : html`<option selected>${defaultOpt}</option>`}
         ${Object.keys(options).map(key => {
-          if (options[key] === defaultOpt)
-            return html`<option value="${key}" selected>${options[key]}</option>`
-          else
-            return html`<option value="${key}">${options[key]}</option>`
-        })}
+      if (options[key] === defaultOpt)
+        return html`<option value="${key}" selected>${options[key]}</option>`
+      else
+        return html`<option value="${key}">${options[key]}</option>`
+    })}
           </select>
     `
   }
@@ -238,12 +238,17 @@ export default class HeadElementComponent extends UI.GscapeWidget {
 
   private addFilterCallback = (headElementId: string) => { }
   public onAddFilter(callback: (headElementId: string) => void) {
-    this.addFilterCallback = callback 
+    this.addFilterCallback = callback
   }
 
   private editFilterCallback = (filterId: number) => { }
-  public onEditFilter(callback: (filterId:number) => void) {
+  public onEditFilter(callback: (filterId: number) => void) {
     this.editFilterCallback = callback
+  }
+
+  private deleteFilterCallback = (filterId: number) => { }
+  public onDeleteFilter(callback: (filterId: number) => void) {
+    this.deleteFilterCallback = callback
   }
 }
 

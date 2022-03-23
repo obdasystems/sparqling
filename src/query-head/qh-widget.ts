@@ -18,6 +18,7 @@ export default class QueryHeadWidget extends GscapeWidget {
   private localizeElementCallback: (headElementId: string) => void
   private addFilterCallback: (headElementId: string) => void
   private editFilterCallback: (filterId: number) => void
+  private deleteFilterCallback: (filterId: number) => void
 
   static get properties() {
 
@@ -161,6 +162,7 @@ export default class QueryHeadWidget extends GscapeWidget {
       element.onLocalize(this.localizeElementCallback)
       element.onAddFilter(this.addFilterCallback)
       element.onEditFilter(this.editFilterCallback)
+      element.onDeleteFilter(this.deleteFilterCallback)
     });
   }
 
@@ -201,6 +203,10 @@ export default class QueryHeadWidget extends GscapeWidget {
 
   onEditFilter(callback: (filterId: number) => void) {
     this.editFilterCallback = callback
+  }
+
+  onDeleteFilter(callback: (filterId: number) => void) {
+    this.deleteFilterCallback = callback
   }
 
   //createRenderRoot() { return this as any }
