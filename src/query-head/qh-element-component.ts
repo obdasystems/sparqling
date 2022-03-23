@@ -97,10 +97,6 @@ export default class HeadElementComponent extends UI.GscapeWidget {
           background-color: var(--theme-gscape-primary, ${colors.primary});
         }
 
-        #field-head-input-action-wrapper > input:focus + #actions {
-          display: none;
-        }
-
         gscape-button {
           position:initial;
           width: fit-content;
