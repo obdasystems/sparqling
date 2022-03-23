@@ -1,7 +1,7 @@
 import { EntityTypeEnum, FilterExpressionOperatorEnum, GraphElement, QueryGraph, QueryGraphFilterApiFactory, VarOrConstantTypeEnum } from "../../api/swagger"
 import { filterDialog, filterListDialog } from "../../widgets"
 import { Modality } from "../../widgets/filters/filter-function-dialog"
-import * as queryBody from '../../query-body'
+import * as model from '../../model'
 import onNewBody from "../on-new-body"
 import * as GEUtility from "../../util/graph-element-utility"
 import { guessDataType } from "../../ontology-graph"
@@ -22,13 +22,13 @@ filterDialog.onSubmit(async (id, op, params) => {
 
   if (id === undefined || id === null) {
     // add filter
-    id = queryBody.addFilter(newFilter)
-    newBody = (await filterApi.newFilter(id, queryBody.getBody())).data
+    id = model.addFilter(newFilter)
+    newBody = (await filterApi.newFilter(id, model.getQueryBody())).data
     filterDialog._id = id
     filterDialog.modality = Modality.EDIT
   } else {
-    queryBody.updateFilter(id, newFilter)
-    newBody = (await filterApi.editFilter(id, queryBody.getBody())).data
+    model.updateFilter(id, newFilter)
+    newBody = (await filterApi.editFilter(id, model.getQueryBody())).data
   }
 
   if (newBody) {
@@ -43,10 +43,10 @@ filterDialog.onDelete((filterId:number) => deleteFilter(filterId))
 export async function deleteFilter(filterId: number) {
   if (filterId === null || filterId === undefined) return
 
-  queryBody.removeFilter(filterId)
+  model.removeFilter(filterId)
   const filterApi = QueryGraphFilterApiFactory()
 
-  const newBody = (await filterApi.removeFilter(filterId, queryBody.getBody())).data
+  const newBody = (await filterApi.removeFilter(filterId, model.getQueryBody())).data
 
   if (newBody) {
     onNewBody(newBody)
@@ -80,7 +80,7 @@ export function showFilterDialogForVariable(graphElement: GraphElement) {
 }
 
 export function showFilterDialogEditingMode(filterId: number) {
-  const filter = queryBody.getFilterById(filterId)
+  const filter = model.getFilterById(filterId)
   filterDialog.modality = Modality.EDIT
   filterDialog._id = filterId
   filterDialog.operator = filter.expression?.operator

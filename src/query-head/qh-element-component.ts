@@ -2,7 +2,7 @@ import { UI } from 'grapholscape';
 import { css, html } from 'lit';
 import { Filter, Function, HeadElement, VarOrConstantConstantTypeEnum } from '../api/swagger';
 import { getFilterListStyle, getFilterListTemplate } from '../widgets/filters/filter-list-template';
-import { getFiltersOnVariable } from '../query-body';
+import { getFiltersOnVariable } from '../model';
 import { addFilter, crosshair, rubbishBin } from '../widgets/assets/icons';
 
 const ALIAS_INPUT_ID = 'alias'

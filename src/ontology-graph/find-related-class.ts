@@ -5,7 +5,7 @@ import getGscape from "./get-gscape"
 import { listSelectionDialog, relatedClassDialog } from "../widgets"
 import { classSelectDialogTitle } from "../widgets/assets/texts"
 import EventPosition from "../util/event-position"
-import { getSelectedGraphElement } from "../query-body"
+import { getSelectedGraphElement } from "../model"
 import * as GEUtility from "../util/graph-element-utility"
 import { isHighlighted } from "./highlights"
 

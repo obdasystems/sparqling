@@ -1,13 +1,13 @@
 import { Entity, EntityTypeEnum, GraphElement } from "../api/swagger"
-import * as queryBody from '../query-body'
+import * as model from '../model/'
 
 export function getGraphElementByID(id: string | number) {
-  const graph = queryBody.getBody()?.graph
+  const graph = model.getQueryBody()?.graph
   return findGraphElement(graph, (elem) => elem.id === id)
 }
 
 export function getGraphElementByIRI(iri: string) {
-  const graph = queryBody.getBody()?.graph
+  const graph = model.getQueryBody()?.graph
   return findGraphElement(graph, (elem) => graphElementHasIri(elem, iri))
 }
 
@@ -113,7 +113,7 @@ export function getdiffNew(oldGraph: GraphElement, newGraph: GraphElement): Grap
 
 export function areGraphElementsEqual(ge1: GraphElement, ge2: GraphElement) {
   const hasSameId = ge1.id === ge2.id
-  const hasSameFilters = queryBody.getFiltersOnVariable(ge1.id) === queryBody.getFiltersOnVariable(ge2.id)
+  const hasSameFilters = model.getFiltersOnVariable(ge1.id) === model.getFiltersOnVariable(ge2.id)
   const hasSameEntities = JSON.stringify(ge1.entities) === JSON.stringify(ge2.entities)
   
   return hasSameId && hasSameFilters && hasSameEntities

@@ -1,9 +1,6 @@
-import { CollectionReturnValue, SingularData } from "cytoscape"
-import { UI } from 'grapholscape'
-import tippy, { sticky } from "tippy.js"
+import { CollectionReturnValue } from "cytoscape"
 import { Entity, EntityTypeEnum, GraphElement, Optional } from "../../api/swagger"
-import { getFiltersOnVariable } from "../../query-body"
-import { filter } from "../../widgets/assets/icons"
+import { getFiltersOnVariable } from "../../model"
 import { DisplayedNameType } from "../displayed-name-type"
 import cy, { getDisplayedNameType, getLanguage } from './cy'
 import { getElementById, getElements } from "./getters"
