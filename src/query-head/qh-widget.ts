@@ -209,6 +209,17 @@ export default class QueryHeadWidget extends GscapeWidget {
     this.deleteFilterCallback = callback
   }
 
+
+  blur() {
+    // do not call super.blur() cause it will collapse query-head body.
+    // This because each click on cytoscape background calls document.activeElement.blur(), 
+    // so if any input field has focus, query-head will be the activeElement and will be
+    // blurred at each tap. this way we only blur the input elements.
+    this.shadowRoot.querySelectorAll('head-element').forEach(headElementComponent => {
+      headElementComponent.shadowRoot.querySelectorAll('input').forEach(inputElement => inputElement.blur())
+    })
+  }
+
   //createRenderRoot() { return this as any }
 }
 
