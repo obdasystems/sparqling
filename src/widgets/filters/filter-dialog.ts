@@ -1,6 +1,6 @@
 import { html } from "lit";
-import { FilterExpressionOperatorEnum } from "../api/swagger";
-import { getFormTemplate } from "../widgets/filter-function-form-template";
+import { FilterExpressionOperatorEnum } from "../../api/swagger";
+import { getFormTemplate } from "../filter-function-form-template";
 import FilterFunctionDialog, { Modality } from "./filter-function-dialog";
 
 export default class FilterDialog extends FilterFunctionDialog {

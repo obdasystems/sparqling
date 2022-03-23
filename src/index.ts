@@ -8,9 +8,8 @@ import * as queryGraph from './query-graph'
 import { DisplayedNameType } from './query-graph/displayed-name-type'
 import { OntologyGraphHandlers } from './main'
 import * as queryHead from './query-head'
-import { highlightsList, relatedClassDialog, sparqlDialog } from './widgets'
+import { highlightsList, relatedClassDialog, sparqlDialog, filterDialog, filterListDialog } from './widgets'
 import { leftColumnContainer } from './util/get-container'
-import { filterDialog, filterListDialog } from './filters'
 
 export default function sparqling(gscape: Grapholscape, file?: string | File, isStandalone?: boolean) {
   //sparqlingContainer.appendChild(gscapeContainer)

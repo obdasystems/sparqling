@@ -1,7 +1,7 @@
 import { UI } from 'grapholscape';
 import { css, html } from 'lit';
 import { Filter, Function, HeadElement, VarOrConstantConstantTypeEnum } from '../api/swagger';
-import { getFilterListStyle, getFilterListTemplate } from '../filters/filter-list-template';
+import { getFilterListStyle, getFilterListTemplate } from '../widgets/filters/filter-list-template';
 import { getFiltersOnVariable } from '../query-body';
 import { addFilter, crosshair, rubbishBin } from '../widgets/assets/icons';
 

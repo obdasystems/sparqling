@@ -1,5 +1,5 @@
 import { QueryGraphHeadApiFactory } from '../../api/swagger'
-import { showFilterDialogEditingMode, showFilterDialogForVariable } from '../../filters'
+import { showFilterDialogEditingMode, showFilterDialogForVariable } from './filters-handlers'
 import * as ontologyGraph from '../../ontology-graph'
 import * as queryBody from '../../query-body'
 import * as queryGraph from '../../query-graph'

@@ -1,14 +1,10 @@
-import FilterDialog from "./filter-dialog"
-import * as queryBody from "../query-body"
-import { EntityTypeEnum, FilterExpressionOperatorEnum, GraphElement, QueryGraph, QueryGraphFilterApiFactory, VarOrConstantTypeEnum } from "../api/swagger"
-import onNewBody from "../main/on-new-body"
-import { Modality } from "./filter-function-dialog"
-import * as GEUtility from "../util/graph-element-utility"
-import { guessDataType } from "../ontology-graph"
-import FilterListDialog from "./filter-list-dialog"
-
-export const filterDialog = new FilterDialog()
-export const filterListDialog = new FilterListDialog()
+import { EntityTypeEnum, FilterExpressionOperatorEnum, GraphElement, QueryGraph, QueryGraphFilterApiFactory, VarOrConstantTypeEnum } from "../../api/swagger"
+import { filterDialog, filterListDialog } from "../../widgets"
+import { Modality } from "../../widgets/filters/filter-function-dialog"
+import * as queryBody from '../../query-body'
+import onNewBody from "../on-new-body"
+import * as GEUtility from "../../util/graph-element-utility"
+import { guessDataType } from "../../ontology-graph"
 
 filterListDialog.onEdit((filterId: number) => showFilterDialogEditingMode(filterId))
 filterListDialog.onDelete((filterId: number) => { deleteFilter(filterId) })
@@ -42,6 +38,7 @@ filterDialog.onSubmit(async (id, op, params) => {
 })
 
 filterDialog.onDelete((filterId:number) => deleteFilter(filterId))
+
 
 export async function deleteFilter(filterId: number) {
   if (filterId === null || filterId === undefined) return

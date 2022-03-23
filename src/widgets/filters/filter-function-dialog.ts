@@ -1,8 +1,8 @@
 import { css } from 'lit'
 import { UI } from 'grapholscape'
-import { FilterExpressionOperatorEnum, FunctionNameEnum, VarOrConstant, VarOrConstantConstantTypeEnum, VarOrConstantTypeEnum } from '../api/swagger'
-import { FilterOrFunctionWidget } from '../util/filter-function-interface'
-import { checkmark, rubbishBin } from '../widgets/assets/icons'
+import { FilterExpressionOperatorEnum, FunctionNameEnum, VarOrConstant, VarOrConstantConstantTypeEnum, VarOrConstantTypeEnum } from '../../api/swagger'
+import { FilterOrFunctionWidget } from '../../util/filter-function-interface'
+import { checkmark, rubbishBin } from '../assets/icons'
 
 const CLASS_FIELD_ERROR = css`field-error`
 export enum Modality {
