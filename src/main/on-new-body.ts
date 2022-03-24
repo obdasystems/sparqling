@@ -8,7 +8,6 @@ import { emptyQueryMsg } from "../widgets/assets/texts"
 
 export default function onNewBody(newBody: QueryGraph) {
   let body = model.setQueryBody(newBody)
-  queryGraph.setGraph(body.graph)
   queryGraph.render(body.graph)
   const deletedNodeIds = queryGraph.removeNodesNotInQuery()
   deletedNodeIds.forEach(id => model.getOriginGrapholNodes().delete(id))

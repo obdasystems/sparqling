@@ -19,7 +19,6 @@ bgp.setJoinAllowedCondition((node1ID, node2ID) => {
   return GEUtility.isJoinAllowed(ge1, ge2)
 })
 
-let graph: GraphElement
 
 export function selectElement(nodeIDorIRI: string): GraphElement {
   let graphElem = GEUtility.getGraphElementByID(nodeIDorIRI) || GEUtility.getGraphElementByIRI(nodeIDorIRI)
@@ -120,12 +119,6 @@ export function onJoin(callback: (graphElem1: GraphElement, graphElem2: GraphEle
 export function onElementClick(callback: (graphElem: GraphElement, iri: string) => void) {
   bgp.onElementClick((id, iri) => callback(GEUtility.getGraphElementByID(id), iri))
 }
-
-export function setGraph(newGraph: GraphElement) {
-  graph = newGraph
-}
-
-export function getGraph() { return graph }
 
 export function isIriInQueryGraph(iri: string): boolean {
   return GEUtility.getGraphElementByIRI(iri) ? true : false
