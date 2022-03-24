@@ -82,6 +82,8 @@ export default class QueryGraphWidget extends (GscapeWidget as any) {
     return root
   }
 
+  blur() {}
+
   //createRenderRoot() { return this as any }
 }
 
