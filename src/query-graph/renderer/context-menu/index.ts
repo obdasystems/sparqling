@@ -1,7 +1,6 @@
 import cy from "../cy"
 import tippy from "tippy.js"
 import ContextMenuWidget from "./cxt-menu-widget"
-import getGscape from "../../../ontology-graph/get-gscape"
 import * as commands from "./commands"
 
 // A dummy element must be passed as tippy only accepts dom element(s) as the target
@@ -13,7 +12,7 @@ export const cxtMenu = tippy(dummyDomElement, {
   allowHTML: true,
   interactive: true,
   arrow: true,
-  appendTo: () => getGscape().container,
+  appendTo: () => cy.container().parentElement,
   placement: "bottom",
   // content prop can be used when the target is a single element https://atomiks.github.io/tippyjs/v6/constructor/#prop
   content: () => cxtMenuWidget as any,
