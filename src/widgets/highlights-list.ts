@@ -167,6 +167,7 @@ export default class HighlightsList extends UI.GscapeWidget {
   toggleBody() { super.toggleBody() }
   showBody() { super.showBody() }
   collapseBody() { super.collapseBody() }
+  blur() { }
 }
 
 customElements.define('sparqling-highlights-list', HighlightsList as any)
