@@ -14,6 +14,7 @@ import { leftColumnContainer } from './util/get-container'
 export default function sparqling(gscape: Grapholscape, file?: string | File, isStandalone?: boolean) {
   //sparqlingContainer.appendChild(gscapeContainer)
   //const gscape = await fullGrapholscape(file, gscapeContainer, { owl_translator: false })
+  gscape.widgets.OWL_VISUALIZER.disable()
   ontologyGraph.setGrapholscapeInstance(gscape)
 
   leftColumnContainer.appendChild(highlightsList as any)
