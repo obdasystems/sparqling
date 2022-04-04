@@ -61,6 +61,7 @@ export default class QueryGraphWidget extends (GscapeWidget as any) {
     super.firstUpdated()
     this.header.invertIcons()
     super.makeDraggableHeadTitle()
+    this.hide()
   }
 
   createRenderRoot() {

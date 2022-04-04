@@ -130,6 +130,7 @@ export default class HighlightsList extends UI.GscapeWidget {
     let self = this as any
     self.header.left_icon = lightbulbQuestion
     self.header.invertIcons()
+    this.hide()
   }
 
   handleClassSelection(e: any) {
@@ -163,6 +164,7 @@ export default class HighlightsList extends UI.GscapeWidget {
     return this.highlights?.dataProperties || []
   }
 
+  show() { super.show() }
   hide() { super.hide() }
   toggleBody() { super.toggleBody() }
   showBody() { super.showBody() }

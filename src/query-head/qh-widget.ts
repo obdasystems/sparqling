@@ -171,6 +171,7 @@ export default class QueryHeadWidget extends GscapeWidget {
 
     let self = this as any
     self.header.left_icon = tableEye
+    this.hide()
   }
 
   /**
@@ -218,6 +219,14 @@ export default class QueryHeadWidget extends GscapeWidget {
     this.shadowRoot.querySelectorAll('head-element').forEach(headElementComponent => {
       headElementComponent.shadowRoot.querySelectorAll('input').forEach(inputElement => inputElement.blur())
     })
+  }
+
+  hide() {
+    super.hide()
+  }
+
+  show() {
+    super.show()
   }
 
   //createRenderRoot() { return this as any }

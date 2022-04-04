@@ -41,3 +41,6 @@ export const questionMarkDashed = svg`<svg fill="currentColor" viewBox="0 0 24 2
 
 // https://materialdesignicons.com/icon/content-copy
 export const copyContent = svg`<svg fill="currentColor" viewBox="0 0 24 24"><path d="M19,21H8V7H19M19,5H8A2,2 0 0,0 6,7V21A2,2 0 0,0 8,23H19A2,2 0 0,0 21,21V7A2,2 0 0,0 19,5M16,1H4A2,2 0 0,0 2,3V17H4V3H16V1Z" /></svg>`
+
+// https://materialdesignicons.com/icon/alpha-s-circle
+export const sparqlingIcon = svg`<svg fill="currentColor" viewBox="0 0 24 24"><path d="M11,7A2,2 0 0,0 9,9V11A2,2 0 0,0 11,13H13V15H9V17H13A2,2 0 0,0 15,15V13A2,2 0 0,0 13,11H11V9H15V7H11M12,2A10,10 0 0,1 22,12A10,10 0 0,1 12,22A10,10 0 0,1 2,12A10,10 0 0,1 12,2Z" /></svg>`
