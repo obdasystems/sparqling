@@ -134,7 +134,8 @@ export const FilterExpressionOperatorEnum = {
     LessThanOrEqualTo: '<=',
     GreaterThanOrEqualTo: '>=',
     In: 'IN',
-    NotIn: 'NOT IN'
+    NotIn: 'NOT IN',
+    Regex: 'REGEX'
 } as const;
 
 export type FilterExpressionOperatorEnum = typeof FilterExpressionOperatorEnum[keyof typeof FilterExpressionOperatorEnum];
@@ -169,7 +170,6 @@ export const FunctionNameEnum = {
     Lcase: 'LCASE',
     Contains: 'CONTAINS',
     Concat: 'CONCAT',
-    Regex: 'REGEX',
     Round: 'ROUND',
     Ceil: 'CEIL',
     Floor: 'FLOOR',
