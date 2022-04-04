@@ -5,10 +5,9 @@ import FilterListDialog from "./filters/filter-list-dialog"
 import HighlightsList from "./highlights-list"
 import ListSelectionDialog from "./list-selection-dialog"
 import RelatedClassSelection from "./related-class-selection"
+import SparqlDialog from "./sparql-dialog"
 
-export const sparqlDialog = new UI.GscapeDialog()
-sparqlDialog.title = 'SPARQL'
-sparqlDialog.text = emptyQueryMsg()
+export const sparqlDialog = new SparqlDialog()
 
 export const listSelectionDialog = new ListSelectionDialog()
 export const relatedClassDialog = new RelatedClassSelection()
