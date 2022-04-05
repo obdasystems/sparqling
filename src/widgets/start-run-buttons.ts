@@ -1,6 +1,6 @@
 import { html, css } from 'lit'
 import { UI } from 'grapholscape'
-import { sparqlingIcon } from './assets/icons'
+import { playOutlined, sparqlingIcon } from './assets/icons'
 
 export default class SparqlingStartRunButtons extends UI.GscapeWidget {
   isEnabled: boolean = true
@@ -46,25 +46,25 @@ export default class SparqlingStartRunButtons extends UI.GscapeWidget {
   constructor() {
     super()
 
-    this.startSparqlingButton = new UI.GscapeButton(sparqlingIcon, 'Select Renderer')
+    this.startSparqlingButton = new UI.GscapeButton(sparqlingIcon, 'Start/Stop Sparqling')
     this.startSparqlingButton.onClick = () => this.handleStartButtonCLick()
     this.startSparqlingButton.style.position = 'inherit'
     this.startSparqlingButton.classList.add('flat')
     this.startSparqlingButton.asSwitch = true
+    this.startSparqlingButton.enabled = false
 
-    this.runQueryButton = new UI.GscapeButton(null, 'Run Query')
+    this.runQueryButton = new UI.GscapeButton(playOutlined, 'Run Query')
     this.runQueryButton.disbaled = true
     this.runQueryButton.style.position = 'inherit'
     this.runQueryButton.classList.add('flat')
     this.runQueryButton.onClick = () => this._onQueryRunCallback()
+    this.runQueryButton.enabled = false
   }
 
   render() {
     return html`
-      <!-- 
       ${this.runQueryButton}
       <div id="hr"></div>
-      -->
       ${this.startSparqlingButton}
     `
   }
@@ -86,7 +86,6 @@ export default class SparqlingStartRunButtons extends UI.GscapeWidget {
   }
 
   handleStartButtonCLick() {
-    console.log('click')
     this.isSparqlingRunning ? this._onSparqlingStopCallback() : this._onSparqlingStartCallback()
   }
 }

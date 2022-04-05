@@ -24,6 +24,7 @@ export function highlightIRI(iri: string) {
 }
 
 export async function highlightSuggestions(clickedIRI: string) {
+  if(!clickedIRI) return
   resetHighlights()
   await retrieveHighlights(clickedIRI)
   performHighlights(clickedIRI)
