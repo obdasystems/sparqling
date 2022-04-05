@@ -56,7 +56,7 @@ export default class SparqlingStartRunButtons extends (UI.GscapeWidget as any) {
         }
         .lds-ripple div {
           position: absolute;
-          border: 4px solid var(--theme-gscape-secondary);
+          border: 4px solid ${colors.secondary};
           opacity: 1;
           border-radius: 50%;
           animation: lds-ripple 1s cubic-bezier(0, 0.2, 0.8, 1) infinite;

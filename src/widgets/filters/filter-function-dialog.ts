@@ -10,7 +10,7 @@ export enum Modality {
   EDIT = 'Edit'
 }
 
-export default class FilterFunctionDialog extends UI.GscapeWidget implements FilterOrFunctionWidget {
+export default class FilterFunctionDialog extends (UI.GscapeWidget as any) implements FilterOrFunctionWidget {
   protected saveButton = new UI.GscapeButton(checkmark, "Save")
   protected deleteButton = new UI.GscapeButton(rubbishBin, "Delete")
   public operator: FilterExpressionOperatorEnum | FunctionNameEnum

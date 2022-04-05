@@ -3,9 +3,9 @@ import { html, css } from 'lit'
 import { copyContent } from './assets/icons'
 import { emptyQueryMsg } from './assets/texts'
 
-export default class SparqlDialog extends UI.GscapeDialog {
+export default class SparqlDialog extends (UI.GscapeDialog as any) {
   _text: string = emptyQueryMsg()
-  copyButton: UI.GscapeButton = new UI.GscapeButton(copyContent, "Copy Query")
+  copyButton = new UI.GscapeButton(copyContent, "Copy Query")
   isVisible: any
 
   static get styles() {

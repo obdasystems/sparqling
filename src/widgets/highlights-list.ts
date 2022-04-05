@@ -3,7 +3,7 @@ import { Highlights } from '../api/swagger'
 import { UI } from 'grapholscape'
 import { lightbulbQuestion } from './assets/icons'
 
-export default class HighlightsList extends UI.GscapeWidget {
+export default class HighlightsList extends (UI.GscapeWidget as any) {
   class: string
   highlights: Highlights
   collapsible = true
@@ -21,7 +21,7 @@ export default class HighlightsList extends UI.GscapeWidget {
 
   static get styles() {
     let super_styles = super.styles
-    let colors = super_styles[1]
+    let colors: any = super_styles[1]
     return [
       super_styles[0],
       css`

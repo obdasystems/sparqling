@@ -17,7 +17,7 @@ export default class RelatedClassSelection extends ListSelectionDialog {
 
   static get styles() {
     let super_styles = super.styles
-    let colors = super_styles[1]
+    let colors: any = super_styles[1]
     return [
       super_styles[0],
       css`

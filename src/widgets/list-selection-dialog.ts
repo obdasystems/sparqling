@@ -3,7 +3,7 @@ import { html, css } from 'lit'
 import EventPosition from '../util/event-position'
 import { defaultSelectDialogTitle } from './assets/texts'
 
-export default class ListSelectionDialog extends UI.GscapeWidget {
+export default class ListSelectionDialog extends (UI.GscapeWidget as any) {
   list: any[]
   title: string
   buildItemString: (item: any) => string
