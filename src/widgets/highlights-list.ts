@@ -109,7 +109,7 @@ export default class HighlightsList extends (UI.GscapeWidget as any) {
         </div>
       </details>
 
-      <details id="classes-panel">
+      <details id="classes-panel" open>
         <summary>Classes</summary>
         <div class="list">
           ${this.classes.map((classItem, i) => {
