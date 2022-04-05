@@ -13,14 +13,16 @@ import { DisplayedNameType } from '../query-graph/displayed-name-type'
 import { Theme, Type } from 'grapholscape'
 import * as OntologyGraphHandlers from '../handlers/og-handlers'
 import { refreshHighlights } from '../ontology-graph'
+import { handlePromise } from './handle-promises'
 
 export default function() {
   if (model.isStandalone()) {
-    startRunButtons.startLoadingAnimation()
-    new StandaloneApi().standaloneOntologyUploadPost(model.getOntologyFile()).then(_ => {
-      startSparqling()
-      startRunButtons.stopLoadingAnimation()
-    })
+    // setTimeout(() => {
+    //   if (isLoading())
+    //     throw new Error('Timeout expired, service not responding.')
+    // }, 30000)
+
+    handlePromise(new StandaloneApi().standaloneOntologyUploadPost(model.getOntologyFile())).then( _ => startSparqling())
   } else {
     startSparqling()
   }

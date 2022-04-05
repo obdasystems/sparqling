@@ -5,13 +5,13 @@ import * as model from '../model'
 import onNewBody from "../main/on-new-body"
 import * as GEUtility from "../util/graph-element-utility"
 import { guessDataType } from "../ontology-graph"
+import { handlePromise } from "../main/handle-promises"
 
 filterListDialog.onEdit((filterId: number) => showFilterDialogEditingMode(filterId))
 filterListDialog.onDelete((filterId: number) => { deleteFilter(filterId) })
 
 filterDialog.onSubmit(async (id, op, params) => {
   const filterApi = QueryGraphFilterApiFactory()
-  let newBody: QueryGraph
 
   const newFilter = {
     expression: {
@@ -23,21 +23,25 @@ filterDialog.onSubmit(async (id, op, params) => {
   if (id === undefined || id === null) {
     // add filter
     id = model.addFilter(newFilter)
-    newBody = (await filterApi.newFilter(id, model.getQueryBody())).data
-    filterDialog._id = id
-    filterDialog.modality = Modality.EDIT
+    handlePromise(filterApi.newFilter(id, model.getQueryBody())).then(newBody => {
+      filterDialog._id = id
+      filterDialog.modality = Modality.EDIT
+      finalizeFilterSubmit(newBody)
+    })
   } else {
-    model.updateFilter(id, newFilter)
-    newBody = (await filterApi.editFilter(id, model.getQueryBody())).data
+    handlePromise(filterApi.editFilter(id, model.getQueryBody())).then(newBody => {
+      model.updateFilter(id, newFilter)
+      finalizeFilterSubmit(newBody)
+    })
   }
 
-  if (newBody) {
+  function finalizeFilterSubmit(newBody: QueryGraph) {
     onNewBody(newBody)
     filterDialog.setAsCorrect()
   }
 })
 
-filterDialog.onDelete((filterId:number) => deleteFilter(filterId))
+filterDialog.onDelete((filterId: number) => deleteFilter(filterId))
 
 
 export async function deleteFilter(filterId: number) {
@@ -46,16 +50,14 @@ export async function deleteFilter(filterId: number) {
   model.removeFilter(filterId)
   const filterApi = QueryGraphFilterApiFactory()
 
-  const newBody = (await filterApi.removeFilter(filterId, model.getQueryBody())).data
-
-  if (newBody) {
+  handlePromise(filterApi.removeFilter(filterId, model.getQueryBody())).then(newBody => {
     onNewBody(newBody)
     filterDialog._id = null
     filterDialog.operator = null
     filterDialog.parameters.splice(1)
     filterDialog.modality = Modality.DEFINE
     filterDialog.setAsCorrect('Deleted correctly')
-  }
+  })
 }
 
 export function showFilterDialogForVariable(graphElement: GraphElement) {
@@ -73,7 +75,7 @@ export function showFilterDialogForVariable(graphElement: GraphElement) {
   filterDialog.parameters = [{
     type: VarOrConstantTypeEnum.Var,
     constantType: guessDataType(GEUtility.getIri(graphElement)),
-    value: '?'+graphElement.id
+    value: '?' + graphElement.id
   }]
   filterDialog.show()
   filterListDialog.hide()

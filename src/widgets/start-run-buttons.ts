@@ -3,12 +3,13 @@ import { UI } from 'grapholscape'
 import { playOutlined, sparqlingIcon } from './assets/icons'
 
 export default class SparqlingStartRunButtons extends (UI.GscapeWidget as any) {
-  isEnabled: boolean = true
-  style: any
-  startSparqlingButton: any
-  runQueryButton: any
-  isSparqlingRunning: boolean = false
-  isLoading: boolean = false
+  private isEnabled: boolean = true
+  private style: any
+  private isLoading: boolean = false
+
+  public startSparqlingButton: any
+  public runQueryButton: any
+  public isSparqlingRunning: boolean = false
 
   private _onSparqlingStartCallback = () => { }
   private _onSparqlingStopCallback = () => { }
@@ -128,7 +129,7 @@ export default class SparqlingStartRunButtons extends (UI.GscapeWidget as any) {
     this._onQueryRunCallback = callback
   }
 
-  handleStartButtonCLick() {
+  private handleStartButtonCLick() {
     this.isSparqlingRunning ? this._onSparqlingStopCallback() : this._onSparqlingStartCallback()
   }
 

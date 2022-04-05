@@ -10,13 +10,14 @@ import * as queryGraph from '../query-graph'
 import * as queryHead from '../query-head'
 import * as GEUtility from '../util/graph-element-utility'
 import onNewBody from '../main/on-new-body'
+import { handlePromise } from '../main/handle-promises'
 
 queryGraph.onAddHead(async graphElement => {
   const qgApi = QueryGraphHeadApiFactory()
   const body = model.getQueryBody()
-  let newBody = (await qgApi.addHeadTerm(graphElement.id, body)).data
-  if (newBody)
+  handlePromise(qgApi.addHeadTerm(graphElement.id, body)).then(newBody => {
     onNewBody(newBody)
+  })    
 })
 
 queryGraph.onDelete(async graphElement => {
@@ -25,8 +26,7 @@ queryGraph.onDelete(async graphElement => {
   const selectedGraphElement = model.getSelectedGraphElement()
   const gscape = getGscape()
 
-  let newBody = (await qgApi.deleteGraphElementId(graphElement.id, body)).data
-  if (newBody) {
+  handlePromise(qgApi.deleteGraphElementId(graphElement.id, body)).then(newBody => {
     if (newBody.graph && graphElement === selectedGraphElement) {
       // if we deleted selectedGraphElem, then select its parent
       let newSelectedGE = GEUtility.findGraphElement(body.graph, ge => {
@@ -53,18 +53,17 @@ queryGraph.onDelete(async graphElement => {
 
     model.getOriginGrapholNodes().delete(graphElement.id)
     onNewBody(newBody)
-  }
+  })
 })
 
 queryGraph.onJoin(async (ge1, ge2) => {
   const qgApi = QueryGraphBGPApiFactory()
   const body = model.getQueryBody()
 
-  let newBody = (await qgApi.putQueryGraphJoin(ge1.id, ge2.id, body)).data
-  if (newBody) {
+  handlePromise(qgApi.putQueryGraphJoin(ge1.id, ge2.id, body)).then(newBody => {
     model.setSelectedGraphElement(ge1)
     onNewBody(newBody)
-  }
+  })
 })
 
 queryGraph.onElementClick((graphElement, iri) => {

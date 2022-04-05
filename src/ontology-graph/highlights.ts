@@ -6,6 +6,7 @@ import * as model from "../model"
 import { getIri } from "../util/graph-element-utility"
 import { highlightsList } from "../widgets"
 import getGscape from "./get-gscape"
+import { handlePromise } from "../main/handle-promises"
 
 let actualHighlights: Highlights = null
 
@@ -23,12 +24,15 @@ export function highlightIRI(iri: string) {
   }
 }
 
-export async function highlightSuggestions(clickedIRI: string) {
+export function highlightSuggestions(clickedIRI: string) {
   if(!clickedIRI) return
   resetHighlights()
-  await retrieveHighlights(clickedIRI)
-  performHighlights(clickedIRI)
-  highlightsList.highlights = transformHighlightsToPrefixedIRIs()
+  const ogApi = new OntologyGraphApi()
+  handlePromise(ogApi.highligths(clickedIRI)).then(newHighlights => {
+    actualHighlights = newHighlights
+    performHighlights(clickedIRI)
+    highlightsList.highlights = transformHighlightsToPrefixedIRIs()
+  })
 }
 
 export function resetHighlights() {
@@ -59,11 +63,6 @@ export function refreshHighlights() {
   if (selectedGraphElem) {
     performHighlights(getIri(selectedGraphElem))
   }
-}
-
-async function retrieveHighlights(iri: string) {
-  const ogApi = new OntologyGraphApi()
-  actualHighlights = (await ogApi.highligths(iri)).data
 }
 
 function performHighlights(clickedIRI: string) {

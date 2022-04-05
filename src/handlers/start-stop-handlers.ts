@@ -5,7 +5,13 @@ import start from "../main/start";
 import stop from "../main/stop";
 
 startRunButtons.onSparqlingStart(() => {
-  start()
+  try {
+    start()
+  } catch(error) {
+    console.log('caught')
+    console.log(error)
+    return
+  }
   core.onStart()
 })
 

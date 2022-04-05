@@ -7,20 +7,23 @@ import * as queryHead from '../query-head'
 import { getGraphElementByID, getIri } from '../util/graph-element-utility'
 import { sparqlDialog } from '../widgets'
 import onNewBody from '../main/on-new-body'
+import { handlePromise } from '../main/handle-promises'
 
 queryHead.onDelete(async headElement => {
   const qgApi = QueryGraphHeadApiFactory()
   const body = model.getQueryBody()
-  let newBody = (await qgApi.deleteHeadTerm(headElement.id, body)).data
-  onNewBody(newBody)
+  handlePromise(qgApi.deleteHeadTerm(headElement.id, body)).then(newBody => {
+    onNewBody(newBody)
+  })
 })
 
 queryHead.onRename(async (headElement, alias) => {
   const qgApi = QueryGraphHeadApiFactory()
   const body = model.getQueryBody()
   headElement.alias = alias
-  let newBody = (await qgApi.renameHeadTerm(headElement.id, body)).data
-  onNewBody(newBody)
+  handlePromise(qgApi.renameHeadTerm(headElement.id, body)).then(newBody => {
+    onNewBody(newBody)
+  })
 })
 
 queryHead.onLocalize(headElement => {

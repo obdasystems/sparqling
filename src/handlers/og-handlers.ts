@@ -7,6 +7,7 @@ import * as queryGraph from "../query-graph"
 import { getdiffNew, graphElementHasIri, isClass } from "../util/graph-element-utility"
 import * as model from "../model"
 import onNewBody from "../main/on-new-body"
+import { handlePromise } from "../main/handle-promises"
 
 
 const { CONCEPT, OBJECT_PROPERTY, DATA_PROPERTY } = Type
@@ -41,8 +42,7 @@ export async function handleEntitySelection(cyEntity: CollectionReturnValue) {
       break
     }
     case CONCEPT: {
-      newBody = await handleConceptSelection(cyEntity)
-      if (newBody) {
+      handleConceptSelection(cyEntity)?.then(newBody => {
         // Get nodes not present in the old graph
         const newGraphElements = getdiffNew(model.getQueryBody()?.graph, newBody.graph)
         const newSelectedGraphElement = setOriginNode(cyEntity, newGraphElements)
@@ -55,16 +55,15 @@ export async function handleEntitySelection(cyEntity: CollectionReturnValue) {
           // The node to select is the one having the clickedIri among the new nodes
           model.setSelectedGraphElement(queryGraph.selectElement(newSelectedGraphElement.id))
         }
-      }
+      })
       break
     }
     case DATA_PROPERTY: {
-      newBody = await handleDataPropertySelection(cyEntity)
-      if (newBody) {
+      handleDataPropertySelection(cyEntity)?.then(newBody => {
         const newGraphElements = getdiffNew(model.getQueryBody()?.graph, newBody.graph)
         setOriginNode(cyEntity, newGraphElements)
         onNewBody(newBody)
-      }
+      })
       break
     }
   }
@@ -81,7 +80,7 @@ ontologyGraph.onRelatedClassSelection((branch: Branch, relatedClass) => {
 async function handleConceptSelection(cyEntity: CollectionReturnValue): Promise<QueryGraph> {
 
   getInitialInfo(cyEntity)
-  let newQueryGraph: QueryGraph
+  let newQueryGraph: Promise<QueryGraph>
   let actualBody = model.getQueryBody()
   /**
    * if it's not the first click, 
@@ -96,25 +95,23 @@ async function handleConceptSelection(cyEntity: CollectionReturnValue): Promise<
   }
 
   let selectedGraphElement = model.getSelectedGraphElement()
-  try {
-    if (lastObjProperty) {
-      // this comes after a selection of a object property
-      newQueryGraph = (await qgApi.putQueryGraphObjectProperty(
-        selectedGraphElement.id, "", lastObjProperty.objectPropertyIRI, clickedIRI,
-        lastObjProperty.direct,
-        actualBody
-      )).data
+  if (lastObjProperty) {
+    // this comes after a selection of a object property
+    newQueryGraph = handlePromise(qgApi.putQueryGraphObjectProperty(
+      selectedGraphElement.id, "", lastObjProperty.objectPropertyIRI, clickedIRI,
+      lastObjProperty.direct,
+      actualBody
+    ))
 
-    } else if (actualBody?.graph && isIriHighlighted) {
-      newQueryGraph = (await qgApi.putQueryGraphClass(
-        selectedGraphElement.id, '',
-        clickedIRI,
-        actualBody)).data
-    } else if (!actualBody?.graph) {
-      // initial selection
-      newQueryGraph = (await qgApi.getQueryGraph(clickedIRI)).data
-    }
-  } catch (error) { console.error(error) }
+  } else if (actualBody?.graph && isIriHighlighted) {
+    newQueryGraph = handlePromise(qgApi.putQueryGraphClass(
+      selectedGraphElement.id, '',
+      clickedIRI,
+      actualBody))
+  } else if (!actualBody?.graph) {
+    // initial selection
+    newQueryGraph = handlePromise(qgApi.getQueryGraph(clickedIRI))
+  }
   lastObjProperty = null
   return newQueryGraph
 }
@@ -128,13 +125,13 @@ async function handleDataPropertySelection(cyEntity: CollectionReturnValue): Pro
     return null
   }
 
-  let newQueryGraph: QueryGraph
+  let newQueryGraph: Promise<QueryGraph>
   const actualBody = model.getQueryBody()
   const selectedGraphElement = model.getSelectedGraphElement()
   if (isClass(selectedGraphElement)) {
-    newQueryGraph = (await qgApi.putQueryGraphDataProperty(
+    newQueryGraph = handlePromise(qgApi.putQueryGraphDataProperty(
       selectedGraphElement.id, '', clickedIRI, actualBody
-    )).data
+    ))
   }
   lastObjProperty = null
   return newQueryGraph
