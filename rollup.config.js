@@ -89,6 +89,16 @@ export default {
       grapholscape: 'Grapholscape'
     },
   },
+  output: {
+    file: 'demo/js/sparqling.js',
+    format: 'iife',
+    name,
+    sourcemap: SOURCEMAPS ? 'inline' : false,
+    globals:{
+      axios: 'axios',
+      grapholscape: 'Grapholscape'
+    },
+  },
   plugins: [
     json(getJsonOptions()),
     nodeResolve({ browser: true }),
