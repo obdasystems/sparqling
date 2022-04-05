@@ -8,3 +8,5 @@ coverage/**
 app/graphol/grapholscape.min.js
 sparqling.code-workspace
 openapitools.json
+demo/js/sparqling.js
+demo/js/grapholscape.min.js

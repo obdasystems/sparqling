@@ -1,6 +1,5 @@
 import nodeResolve from '@rollup/plugin-node-resolve'
 import commonjs from '@rollup/plugin-commonjs'
-import babel from '@rollup/plugin-babel'
 import replace from '@rollup/plugin-replace'
 import typescript from '@rollup/plugin-typescript'
 
@@ -11,14 +10,11 @@ import path from 'path'
 import json from '@rollup/plugin-json'
 
 const VERSION = process.env.VERSION || 'snapshot' // default snapshot
-const FILE = process.env.FILE
-const SOURCEMAPS = process.env.SOURCEMAPS === 'false' // default true
-const BABEL = process.env.BABEL !== 'false' // default true
 const NODE_ENV = process.env.NODE_ENV === 'production' ? 'production' : 'development' // default development
-const matchSnapshot = process.env.SNAPSHOT === 'match'
 const dependencies = Object.keys(require('./package.json').dependencies)
 dependencies.splice(dependencies.indexOf('lit-html'), 1)
 dependencies.splice(dependencies.indexOf('lit-element'), 1)
+dependencies.push('grapholscape')
 
 const input = './src/index.ts'
 const name = 'sparqling'
@@ -48,26 +44,6 @@ const getJsonOptions = () => ({
   namedExports: true // Default: true
 })
 
-const getBabelOptions = () => ({
-  include: [
-    'src/**',
-    'node_modules/lit-html/**',
-    'node_modules/lit-element/**',
-    'node_modules/@material/**'
-  ],
-  babelrc: false,
-  babelHelpers: 'bundled',
-  presets: [
-    [
-      '@babel/preset-env',
-      {
-        useBuiltIns: 'usage',
-        corejs: 3
-      }
-    ]
-  ]
-})
-
 const licenseHeaderOptions = {
   sourcemap: true,
   banner: {
@@ -77,33 +53,22 @@ const licenseHeaderOptions = {
   }
 }
 
-export default {
+const build_development = {
   input,
-  output: {
-    file: 'build/sparqling.js',
-    format: 'iife',
-    name,
-    sourcemap: SOURCEMAPS ? 'inline' : false,
-    globals:{
-      axios: 'axios',
-      grapholscape: 'Grapholscape'
-    },
-  },
   output: {
     file: 'demo/js/sparqling.js',
     format: 'iife',
     name,
-    sourcemap: SOURCEMAPS ? 'inline' : false,
-    globals:{
-      axios: 'axios',
+    sourcemap: 'inline',
+    globals: {
       grapholscape: 'Grapholscape'
     },
   },
   plugins: [
     json(getJsonOptions()),
     nodeResolve({ browser: true }),
-    commonjs({ include: '**/node_modules/**' }),
     replace(envVariables),
+    commonjs({ include: '**/node_modules/**' }),
     typescript({
       allowSyntheticDefaultImports: true,
       target: 'es6'
@@ -111,3 +76,64 @@ export default {
   ],
   external: ['grapholscape'],
 }
+
+const build_production = [
+  {
+    input,
+    output: {
+      file: 'build/sparqling.js',
+      format: 'iife',
+      name,
+      sourcemap: false,
+      globals:{
+        axios: 'axios',
+        grapholscape: 'Grapholscape'
+      },
+    },
+    output: {
+      file: 'demo/js/sparqling.js',
+      format: 'iife',
+      name,
+      sourcemap: false,
+      globals:{
+        axios: 'axios',
+        grapholscape: 'Grapholscape'
+      },
+    },
+    plugins: [
+      json(getJsonOptions()),
+      nodeResolve({ browser: true }),
+      replace(envVariables),
+      commonjs({ include: '**/node_modules/**' }),
+      typescript({
+        allowSyntheticDefaultImports: true,
+        target: 'es6'
+      }),
+      sizeSnapshot(),
+      terser(),
+      license(licenseHeaderOptions)
+    ],
+    external: ['grapholscape'],
+  },
+  {
+    input,
+    output: {
+      file: 'build/sparqling.esm.js',
+      format: 'es',
+    },
+    plugins: [
+      json(getJsonOptions()),
+      nodeResolve({ browser: true }),
+      replace(envVariables),
+      commonjs({ include: '**/node_modules/**' }),
+      typescript({
+        allowSyntheticDefaultImports: true,
+        target: 'es6'
+      }),
+      license(licenseHeaderOptions)
+    ],
+    external: dependencies,
+  }
+]
+
+export default NODE_ENV === 'production' ? build_production : build_development

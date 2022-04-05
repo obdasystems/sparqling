@@ -4,9 +4,10 @@
   "description": "",
   "main": "dist/sparlqing.js",
   "scripts": {
-    "start": "run-p serve watch:build",
-    "watch:build": "cross-env NODE_ENV=development FILE=main BABEL=false rollup -c -w",
-    "serve": "ws -o",
+    "start": "run-p inject-grapholscape serve watch:build",
+    "build": "npm run inject-grapholscape && cross-env NODE_ENV=production rollup -c",
+    "watch:build": "cross-env NODE_ENV=development rollup -c -w",
+    "serve": "ws -d ./demo -o",
     "apigen": "openapi-generator-cli generate -g typescript-axios -o ./src/api/swagger -i https://api.swaggerhub.com/apis/OBDASystems/swagger-sparqling_ws/1.0.0",
     "inject-grapholscape": "cpy ./node_modules/grapholscape/dist/grapholscape.min.js ./demo/js"
   },
@@ -18,10 +19,7 @@
   "author": "OBDA Systems",
   "license": "MIT",
   "devDependencies": {
-    "@babel/core": "^7.15.8",
-    "@babel/preset-env": "^7.15.8",
     "@openapitools/openapi-generator-cli": "^2.4.26",
-    "@rollup/plugin-babel": "^5.3.0",
     "@rollup/plugin-commonjs": "^21.0.0",
     "@rollup/plugin-json": "^4.1.0",
     "@rollup/plugin-node-resolve": "^13.0.5",
@@ -54,6 +52,6 @@
     "tippy.js": "^6.3.7"
   },
   "peerDependencies": {
-    "grapholscape": "^2.0.0"
+    "grapholscape": "^2.0.1"
   }
 }
