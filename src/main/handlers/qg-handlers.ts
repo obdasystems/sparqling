@@ -88,7 +88,7 @@ queryGraph.onElementClick((graphElement, iri) => {
     ontologyGraph.focusNodeByIRI(iri)
   }
   
-  UI.entityDetails.setEntity(gscape.ontology.getEntityOccurrences(iri)[0])
+  gscape.widgets.ENTITY_DETAILS.setEntity(gscape.ontology.getEntityOccurrences(iri)[0])
   // keep focus on selected class
   queryGraph.selectElement(model.getSelectedGraphElement().id)
 })
