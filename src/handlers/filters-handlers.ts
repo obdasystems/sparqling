@@ -1,10 +1,10 @@
-import { EntityTypeEnum, FilterExpressionOperatorEnum, GraphElement, QueryGraph, QueryGraphFilterApiFactory, VarOrConstantTypeEnum } from "../../api/swagger"
-import { filterDialog, filterListDialog } from "../../widgets"
-import { Modality } from "../../widgets/filters/filter-function-dialog"
-import * as model from '../../model'
-import onNewBody from "../on-new-body"
-import * as GEUtility from "../../util/graph-element-utility"
-import { guessDataType } from "../../ontology-graph"
+import { EntityTypeEnum, FilterExpressionOperatorEnum, GraphElement, QueryGraph, QueryGraphFilterApiFactory, VarOrConstantTypeEnum } from "../api/swagger"
+import { filterDialog, filterListDialog } from "../widgets"
+import { Modality } from "../widgets/filters/filter-function-dialog"
+import * as model from '../model'
+import onNewBody from "../main/on-new-body"
+import * as GEUtility from "../util/graph-element-utility"
+import { guessDataType } from "../ontology-graph"
 
 filterListDialog.onEdit((filterId: number) => showFilterDialogEditingMode(filterId))
 filterListDialog.onDelete((filterId: number) => { deleteFilter(filterId) })

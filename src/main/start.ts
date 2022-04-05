@@ -11,7 +11,7 @@ import { startRunButtons } from '../widgets'
 import { CollectionReturnValue, Core } from 'cytoscape'
 import { DisplayedNameType } from '../query-graph/displayed-name-type'
 import { Theme, Type } from 'grapholscape'
-import { OntologyGraphHandlers } from './handlers'
+import * as OntologyGraphHandlers from '../handlers/og-handlers'
 import { refreshHighlights } from '../ontology-graph'
 
 export default function() {

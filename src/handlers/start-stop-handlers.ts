@@ -1,8 +1,8 @@
-import core from "../../core";
-import { getQueryBody } from "../../model";
-import { startRunButtons } from "../../widgets";
-import start from "../start";
-import stop from "../stop";
+import core from "../core";
+import { getQueryBody } from "../model";
+import { startRunButtons } from "../widgets";
+import start from "../main/start";
+import stop from "../main/stop";
 
 startRunButtons.onSparqlingStart(() => {
   start()
