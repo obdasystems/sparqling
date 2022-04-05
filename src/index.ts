@@ -6,7 +6,7 @@ import * as queryGraph from './query-graph'
 import * as queryHead from './query-head'
 import { leftColumnContainer } from './util/get-container'
 import { filterDialog, filterListDialog, highlightsList, relatedClassDialog, sparqlDialog, startRunButtons } from './widgets'
-
+import * as handlers from './handlers'
 
 export default function sparqling(gscape: Grapholscape, file?: string | File, isStandalone?: boolean) {
   if (file && gscape) {
@@ -41,6 +41,8 @@ export default function sparqling(gscape: Grapholscape, file?: string | File, is
     if (model.isStandalone()) {
       startRunButtons.startSparqlingButton.enabled = true
     }
+
+    handlers // hack, just mention the handlers to make the module be evaluated 
 
     return core
   } else {

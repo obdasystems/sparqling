@@ -16,7 +16,11 @@ import { refreshHighlights } from '../ontology-graph'
 
 export default function() {
   if (model.isStandalone()) {
-    new StandaloneApi().standaloneOntologyUploadPost(model.getOntologyFile()).then(_ => startSparqling())
+    startRunButtons.startLoadingAnimation()
+    new StandaloneApi().standaloneOntologyUploadPost(model.getOntologyFile()).then(_ => {
+      startSparqling()
+      startRunButtons.stopLoadingAnimation()
+    })
   } else {
     startSparqling()
   }
