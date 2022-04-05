@@ -153,15 +153,15 @@ export default class HighlightsList extends (UI.GscapeWidget as any) {
   }
 
   private get objectProperties() {
-    return this.highlights?.objectProperties || []
+    return this.highlights?.objectProperties?.sort((a,b) => a.objectPropertyIRI.localeCompare(b.objectPropertyIRI)) || []
   }
 
   private get classes() {
-    return this.highlights?.classes || []
+    return this.highlights?.classes.sort((a,b) => a.localeCompare(b)) || []
   }
 
   private get dataProperties() {
-    return this.highlights?.dataProperties || []
+    return this.highlights?.dataProperties.sort((a,b) => a.localeCompare(b)) || []
   }
 
   show() { super.show() }
