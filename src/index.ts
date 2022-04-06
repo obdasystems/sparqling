@@ -5,7 +5,7 @@ import * as ontologyGraph from './ontology-graph'
 import * as queryGraph from './query-graph'
 import * as queryHead from './query-head'
 import { leftColumnContainer } from './util/get-container'
-import { filterDialog, filterListDialog, highlightsList, relatedClassDialog, sparqlDialog, startRunButtons } from './widgets'
+import { errorsDialog, filterDialog, filterListDialog, highlightsList, relatedClassDialog, sparqlDialog, startRunButtons } from './widgets'
 import * as handlers from './handlers'
 
 export default function sparqling(gscape: Grapholscape, file?: string | File, isStandalone?: boolean) {
@@ -32,6 +32,7 @@ export default function sparqling(gscape: Grapholscape, file?: string | File, is
     uiContainer.appendChild(sparqlDialog)
     uiContainer.appendChild(filterDialog)
     uiContainer.appendChild(filterListDialog)
+    uiContainer.appendChild(errorsDialog)
   
     gscape.container.querySelector('#gscape-ui-bottom-container').appendChild(startRunButtons)
   

@@ -1,5 +1,6 @@
 import { AxiosPromise, AxiosResponse } from "axios"
 import { Highlights, QueryGraph } from "../api/swagger"
+import { errorsDialog } from "../widgets"
 import { setLoading, stopLoading } from "./loading-state"
 
 function isResponseError(response) {
@@ -27,7 +28,10 @@ export function handlePromise(promise: AxiosPromise<any>): Promise<any> {
           resolve(response.data)
         }
       })
-      .catch(error => console.error('ERROR: ' + error))
+      .catch(error => {
+        errorsDialog.text = `${error.name} : ${error.message}`
+        errorsDialog.show()
+      })
       .finally(() => stopLoading())
   }
 }

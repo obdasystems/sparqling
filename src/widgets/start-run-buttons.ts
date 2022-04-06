@@ -91,7 +91,6 @@ export default class SparqlingStartRunButtons extends (UI.GscapeWidget as any) {
     this.startSparqlingButton.onClick = () => this.handleStartButtonCLick()
     this.startSparqlingButton.style.position = 'inherit'
     this.startSparqlingButton.classList.add('flat')
-    this.startSparqlingButton.asSwitch = true
     this.startSparqlingButton.enabled = false
 
     this.runQueryButton = new UI.GscapeButton(playOutlined, 'Run Query')
@@ -103,6 +102,7 @@ export default class SparqlingStartRunButtons extends (UI.GscapeWidget as any) {
   }
 
   render() {
+    this.startSparqlingButton.highlighted = this.isSparqlingRunning
     return html`
       ${this.runQueryButton}
       <div id="hr"></div>

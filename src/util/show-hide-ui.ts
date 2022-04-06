@@ -1,7 +1,7 @@
 import { widget as queryGraphWidget } from "../query-graph"
 import { cxtMenu } from "../query-graph/renderer"
 import { widget as queryHeadWidget } from "../query-head" 
-import { filterDialog, filterListDialog, highlightsList, relatedClassDialog, sparqlDialog } from "../widgets"
+import { errorsDialog, filterDialog, filterListDialog, highlightsList, relatedClassDialog, sparqlDialog } from "../widgets"
 
 export function showUI() {
   queryGraphWidget.show()
@@ -18,4 +18,5 @@ export function hideUI() {
   cxtMenu.hide()
   filterDialog.hide()
   filterListDialog.hide()
+  errorsDialog.hide()
 }
