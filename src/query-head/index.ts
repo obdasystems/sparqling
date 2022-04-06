@@ -1,10 +1,11 @@
 import { HeadElement } from "../api/swagger";
-import { code, filter } from "../widgets/assets/icons";
+import { code, refresh } from "../widgets/assets/icons";
 import QueryHeadWidget from "./qh-widget";
 import { UI } from "grapholscape"
 
 export const sparqlButton = new UI.GscapeButton(code, 'SPARQL')
-const qhWidget = new QueryHeadWidget(sparqlButton)
+export const refreshButton = new UI.GscapeButton(refresh, 'Clear Query')
+const qhWidget = new QueryHeadWidget([sparqlButton, refreshButton])
 let head: HeadElement[]
 
 export {qhWidget as widget}

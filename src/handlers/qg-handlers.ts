@@ -44,13 +44,6 @@ queryGraph.onDelete(async graphElement => {
       queryGraph.selectElement(newSelectedGE.id) // force selecting a new class
     }
 
-    // empty query
-    if (!newBody.graph) {
-      model.setSelectedGraphElement(null)
-      ontologyGraph.resetHighlights()
-      gscape.unselectEntity()
-    }
-
     model.getOriginGrapholNodes().delete(graphElement.id)
     onNewBody(newBody)
   })

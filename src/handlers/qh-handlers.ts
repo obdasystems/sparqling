@@ -1,4 +1,4 @@
-import { QueryGraphHeadApiFactory } from '../api/swagger'
+import { QueryGraphBGPApiFactory, QueryGraphHeadApiFactory } from '../api/swagger'
 import { deleteFilter, showFilterDialogEditingMode, showFilterDialogForVariable } from './filters-handlers'
 import * as ontologyGraph from '../ontology-graph'
 import * as model from '../model'
@@ -34,6 +34,14 @@ queryHead.onLocalize(headElement => {
 
 queryHead.sparqlButton.onClick = () => {
   sparqlDialog.isVisible ? sparqlDialog.hide() : sparqlDialog.show()
+}
+
+queryHead.refreshButton.onClick = () => {
+  const queryBody = model.getQueryBody()
+  const qgApi = QueryGraphBGPApiFactory()
+  handlePromise(qgApi.deleteGraphElementId(queryBody?.graph?.id, queryBody)).then(newBody => {
+    onNewBody(newBody)
+  })
 }
 
 queryHead.onAddFilter(headElement => {

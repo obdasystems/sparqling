@@ -11,7 +11,7 @@ const { GscapeWidget } = UI
  */
 export default class QueryHeadWidget extends GscapeWidget {
   public collapsible: boolean
-  private headSlottedWidget: Element
+  private headSlottedWidgets: Element[]
   public headElements: HeadElement[] = []
   private deleteElementCallback: (headElementId: string) => void
   private renameElementCallback: (headElemntId: string, alias: string) => void
@@ -120,10 +120,10 @@ export default class QueryHeadWidget extends GscapeWidget {
     ]
   }
 
-  constructor(headSlottedWidget?: Element) {
+  constructor(headSlottedWidget?: Element[]) {
     super()
     this.collapsible = true
-    this.headSlottedWidget = headSlottedWidget
+    this.headSlottedWidgets = headSlottedWidget
   }
 
   render() {
@@ -148,7 +148,7 @@ export default class QueryHeadWidget extends GscapeWidget {
       </div>
       <gscape-head title="Query Head">
         <div id="buttons-tray">
-          ${this.headSlottedWidget}
+          ${this.headSlottedWidgets}
         </div>
       </gscape-head>
     `
