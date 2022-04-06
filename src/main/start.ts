@@ -15,14 +15,21 @@ import * as OntologyGraphHandlers from '../handlers/og-handlers'
 import { refreshHighlights } from '../ontology-graph'
 import { handlePromise } from './handle-promises'
 
-export default function() {
+export default function () {
   if (model.isStandalone()) {
-    // setTimeout(() => {
-    //   if (isLoading())
-    //     throw new Error('Timeout expired, service not responding.')
-    // }, 30000)
+    const standaloneApi = new StandaloneApi()
+    const ontologyFile = model.getOntologyFile()
 
-    handlePromise(new StandaloneApi().standaloneOntologyUploadPost(model.getOntologyFile())).then( _ => startSparqling())
+    // If current ontology is already loaded, do not perform upload again
+    ontologyFile.text().then(ontologyString => {
+      handlePromise(standaloneApi.standaloneOntologyGrapholGet()).then(grapholFile => {
+        if (ontologyString.trim() === grapholFile.trim()) {
+          startSparqling()
+        } else {
+          handlePromise(new StandaloneApi().standaloneOntologyUploadPost(model.getOntologyFile())).then(_ => startSparqling())
+        }
+      })
+    })
   } else {
     startSparqling()
   }
