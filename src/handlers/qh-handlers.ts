@@ -36,12 +36,14 @@ queryHead.sparqlButton.onClick = () => {
   sparqlDialog.isVisible ? sparqlDialog.hide() : sparqlDialog.show()
 }
 
-queryHead.refreshButton.onClick = () => {
+queryHead.clearQueryButton.onClick = () => {
   const queryBody = model.getQueryBody()
-  const qgApi = QueryGraphBGPApiFactory()
-  handlePromise(qgApi.deleteGraphElementId(queryBody?.graph?.id, queryBody)).then(newBody => {
-    onNewBody(newBody)
-  })
+  if (queryBody?.graph?.id) {
+    const qgApi = QueryGraphBGPApiFactory()
+    handlePromise(qgApi.deleteGraphElementId(queryBody?.graph?.id, queryBody)).then(newBody => {
+      onNewBody(newBody)
+    })
+  }
 }
 
 queryHead.onAddFilter(headElement => {
