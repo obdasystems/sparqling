@@ -20,17 +20,23 @@ filterDialog.onSubmit(async (id, op, params) => {
     }
   }
 
+  // Perform edits on a dummy query body in order to preserve the actual working one
+  // The new data will be saved on service correct response
+  const dummyQueryBody = JSON.parse(JSON.stringify(model.getQueryBody()))
+
   if (id === undefined || id === null) {
     // add filter
-    id = model.addFilter(newFilter)
-    handlePromise(filterApi.newFilter(id, model.getQueryBody())).then(newBody => {
+    if (!dummyQueryBody.filters) dummyQueryBody.filters = []
+    id = dummyQueryBody.filters.push(newFilter) - 1
+    handlePromise(filterApi.newFilter(id, dummyQueryBody)).then(newBody => {
       filterDialog._id = id
       filterDialog.modality = Modality.EDIT
       finalizeFilterSubmit(newBody)
     })
   } else {
-    handlePromise(filterApi.editFilter(id, model.getQueryBody())).then(newBody => {
-      model.updateFilter(id, newFilter)
+    // update filter
+    dummyQueryBody.filters[id] = newFilter
+    handlePromise(filterApi.editFilter(id, dummyQueryBody)).then(newBody => {
       finalizeFilterSubmit(newBody)
     })
   }
@@ -47,9 +53,7 @@ filterDialog.onDelete((filterId: number) => deleteFilter(filterId))
 export async function deleteFilter(filterId: number) {
   if (filterId === null || filterId === undefined) return
 
-  model.removeFilter(filterId)
   const filterApi = QueryGraphFilterApiFactory()
-
   handlePromise(filterApi.removeFilter(filterId, model.getQueryBody())).then(newBody => {
     onNewBody(newBody)
     filterDialog._id = null
