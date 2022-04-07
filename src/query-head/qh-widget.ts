@@ -1,8 +1,9 @@
 import { UI } from 'grapholscape'
-import { html, css } from 'lit'
-import { Filter, FilterExpressionOperatorEnum, HeadElement, VarOrConstantConstantTypeEnum } from '../api/swagger'
+import { css, html } from 'lit'
+import { HeadElement } from '../api/swagger'
 import { asterisk, tableEye } from '../widgets/assets/icons'
 import { emptyHeadMsg, emptyHeadTipMsg, tipWhy } from '../widgets/assets/texts'
+import { allowDrop } from './drag-sorting'
 import HeadElementComponent from './qh-element-component'
 
 const { GscapeWidget } = UI
@@ -139,9 +140,9 @@ export default class QueryHeadWidget extends GscapeWidget {
           `
         : html`
           <div style="overflow-y:scroll; max-height:inherit; scrollbar-width: inherit;">
-          <div id="elems-wrapper">
-            ${this.headElements.map(headElement => new HeadElementComponent(headElement))}
-          </div>
+            <div id="elems-wrapper" @dragover=${allowDrop} @drop=${allowDrop}>
+              ${this.headElements.map(headElement => new HeadElementComponent(headElement))}
+            </div>
           </div>
           `
       }

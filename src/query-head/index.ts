@@ -50,3 +50,5 @@ export function onEditFilter(callback: (filterId: number) => void) {
 export function onDeleteFilter(callback: (filterId: number) => void) {
   qhWidget.onDeleteFilter(filterId => callback(filterId))
 }
+
+export { onElementSortChange } from './drag-sorting'

@@ -58,3 +58,7 @@ queryHead.onEditFilter((filterId) => {
 queryHead.onDeleteFilter((filterId) => {
   deleteFilter(filterId)
 })
+
+queryHead.onElementSortChange((headElementId, newIndex) => {
+  console.log(`HeadElement: "${headElementId}" has been moved in postion ${newIndex}`)
+})

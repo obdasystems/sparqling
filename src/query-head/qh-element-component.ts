@@ -3,7 +3,8 @@ import { css, html } from 'lit';
 import { Filter, Function, HeadElement, VarOrConstantConstantTypeEnum } from '../api/swagger';
 import { getFilterListStyle, getFilterListTemplate } from '../widgets/filters/filter-list-template';
 import { getFiltersOnVariable } from '../model';
-import { addFilter, crosshair, rubbishBin } from '../widgets/assets/icons';
+import { addFilter, crosshair, dragHandler, rubbishBin } from '../widgets/assets/icons';
+import { allowDrop, onDragLeave, onDragOver, onDragStart, onDragEnd } from './drag-sorting';
 
 const ALIAS_INPUT_ID = 'alias'
 
@@ -22,6 +23,12 @@ export default class HeadElementComponent extends UI.GscapeWidget {
   public localizeButton: UI.GscapeButton
   private addFilterButton: UI.GscapeButton
   private filters: { id: number, value: Filter }[]
+  
+  private ondragstart: (evt: any) => void;
+  private ondragover: (evt: any) => void;
+  private ondragleave: (evt: any) => void;
+  private ondragend: (evt: any) => void;
+  private ondrop: (evt: any) => any;
 
   static get properties() {
     let props = super.properties
@@ -33,7 +40,8 @@ export default class HeadElementComponent extends UI.GscapeWidget {
       _entityType: { type: String },
     }
 
-    return Object.assign(new_props, props)
+    Object.assign(props, new_props)
+    return props
   }
 
   static get styles() {
@@ -49,6 +57,14 @@ export default class HeadElementComponent extends UI.GscapeWidget {
           margin:5px 2.5px 5px 0;
           padding: 5px;
           position: relative;
+          opacity:1;
+          border: none;
+          transition: all 0.5s;
+        }
+
+        :host(.dragged) {
+          opacity: 0.2;
+          border: solid 2px var(--theme-gscape-secondary, ${colors.secondary});
         }
 
         input {
@@ -66,6 +82,11 @@ export default class HeadElementComponent extends UI.GscapeWidget {
 
         .input-wrapper, select {
           margin:5px 0;
+        }
+
+        #drag-handler {
+          display: none;
+          cursor: grab;
         }
 
         #field-head, #field-head-input-action-wrapper {
@@ -91,6 +112,10 @@ export default class HeadElementComponent extends UI.GscapeWidget {
 
         #field-head-input-action-wrapper:hover > #actions {
           display: flex;
+        }
+
+        #field-head:hover > #drag-handler {
+          display: block;
         }
 
         #field-head-input-action-wrapper > input:focus {
@@ -126,6 +151,11 @@ export default class HeadElementComponent extends UI.GscapeWidget {
         #filters-title {
           font-weight: bold;
         }
+
+        #drag-handler {
+          height: 20px;
+          width: 20px;
+        }
       `,
       getFilterListStyle(),
     ]
@@ -147,12 +177,23 @@ export default class HeadElementComponent extends UI.GscapeWidget {
 
     this.addFilterButton = new UI.GscapeButton(addFilter, 'Add Filter')
     this.addFilterButton.onClick = () => this.addFilterCallback(this._id)
+
+    this.ondragstart = (evt) => onDragStart(evt)
+    this.ondragover = (evt) => onDragOver(evt)
+    this.ondragend = (evt) => onDragEnd(evt)
+    this.ondrop = (evt) => evt.preventDefault()
   }
 
   render() {
     return html`
       <div>
         <div id="field-head">
+          <div
+            id="drag-handler"
+            draggable="true"
+          >
+            ${dragHandler}
+          </div>
           <div id="field-head-input-action-wrapper">
             <input
               id="${ALIAS_INPUT_ID}"
@@ -245,6 +286,10 @@ export default class HeadElementComponent extends UI.GscapeWidget {
   private deleteFilterCallback = (filterId: number) => { }
   public onDeleteFilter(callback: (filterId: number) => void) {
     this.deleteFilterCallback = callback
+  }
+
+  public get dragHandler() {
+    return (this as any).shadowRoot.querySelector('#drag-handler')
   }
 }
 
