@@ -23,7 +23,6 @@ export default function onNewBody(newBody: QueryGraph) {
   deletedNodeIds.forEach(id => model.getOriginGrapholNodes().delete(id))
   queryGraph.renderOptionals(body.optionals)
 
-  queryHead.setHead(body.head)
   queryHead.render(body.head?.map((headElem: HeadElement) => 
     getHeadElementWithDatatype(headElem)
   ))

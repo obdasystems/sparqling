@@ -60,5 +60,14 @@ queryHead.onDeleteFilter((filterId) => {
 })
 
 queryHead.onElementSortChange((headElementId, newIndex) => {
+  const tempHead = model.getTempQueryBody().head
+  console.log(`Old head: ${tempHead.map(h => h.id)}`)
+  const headElement = model.getHeadElementByID(headElementId)
+  const oldIndex = tempHead.indexOf(headElement)
+  
+  tempHead.splice(oldIndex, 1) // remove element from old index
+  tempHead.splice(newIndex, 0, headElement) // put it back in new index
+  
+  console.log(`New head: ${tempHead.map(h => h.id)}`)
   console.log(`HeadElement: "${headElementId}" has been moved in postion ${newIndex}`)
 })

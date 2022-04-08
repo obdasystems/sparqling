@@ -22,21 +22,21 @@ filterDialog.onSubmit(async (id, op, params) => {
 
   // Perform edits on a dummy query body in order to preserve the actual working one
   // The new data will be saved on service correct response
-  const dummyQueryBody = JSON.parse(JSON.stringify(model.getQueryBody()))
+  const tempQueryBody = model.getTempQueryBody()
 
   if (id === undefined || id === null) {
     // add filter
-    if (!dummyQueryBody.filters) dummyQueryBody.filters = []
-    id = dummyQueryBody.filters.push(newFilter) - 1
-    handlePromise(filterApi.newFilter(id, dummyQueryBody)).then(newBody => {
+    if (!tempQueryBody.filters) tempQueryBody.filters = []
+    id = tempQueryBody.filters.push(newFilter) - 1
+    handlePromise(filterApi.newFilter(id, tempQueryBody)).then(newBody => {
       filterDialog._id = id
       filterDialog.modality = Modality.EDIT
       finalizeFilterSubmit(newBody)
     })
   } else {
     // update filter
-    dummyQueryBody.filters[id] = newFilter
-    handlePromise(filterApi.editFilter(id, dummyQueryBody)).then(newBody => {
+    tempQueryBody.filters[id] = newFilter
+    handlePromise(filterApi.editFilter(id, tempQueryBody)).then(newBody => {
       finalizeFilterSubmit(newBody)
     })
   }

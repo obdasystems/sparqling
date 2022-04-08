@@ -1,4 +1,4 @@
-import { GraphElement, QueryGraph } from "../api/swagger"
+import { GraphElement, HeadElement, QueryGraph } from "../api/swagger"
 
 let body: QueryGraph
 let selectedGraphElement: GraphElement
@@ -30,4 +30,12 @@ export function isStandalone() {
 
 export function setStandalone(value: boolean) {
   standalone = value
+}
+
+export function getTempQueryBody(): QueryGraph {
+  return JSON.parse(JSON.stringify(body))
+}
+
+export function getHeadElementByID(headElementId: string): HeadElement {
+  return body?.head?.find(headElement => headElement.id === headElementId)
 }
