@@ -1,8 +1,8 @@
 import { css } from 'lit'
 import { UI } from 'grapholscape'
-import { FilterExpressionOperatorEnum, FunctionNameEnum, VarOrConstant, VarOrConstantConstantTypeEnum, VarOrConstantTypeEnum } from '../../api/swagger'
-import { FilterOrFunctionWidget } from '../../util/filter-function-interface'
-import { checkmark, rubbishBin } from '../assets/icons'
+import { FilterExpressionOperatorEnum, FunctionNameEnum, VarOrConstant, VarOrConstantConstantTypeEnum, VarOrConstantTypeEnum } from '../api/swagger'
+import { FilterOrFunctionWidget } from '../util/filter-function-interface'
+import { checkmark, rubbishBin } from './assets/icons'
 
 const CLASS_FIELD_ERROR = css`field-error`
 export enum Modality {
@@ -16,14 +16,14 @@ export default class FilterFunctionDialog extends (UI.GscapeWidget as any) imple
   public operator: FilterExpressionOperatorEnum | FunctionNameEnum
   public parameters: VarOrConstant[]
   public parametersType: VarOrConstantTypeEnum
-  public _id: number
+  public _id: any
   public modality: Modality = Modality.DEFINE
-  public submitCallback = (
-    id: number,
-    op: FilterExpressionOperatorEnum | FunctionNameEnum,
-    parameters: VarOrConstant[]
+  protected submitCallback = (
+    id: any,
+    op: any,
+    parameters: any[]
   ) => { }
-  private deleteCallback = (filterId: number) => { }
+  protected deleteCallback = (filterId: any) => { }
 
   static get properties() {
     let props = super.properties
@@ -118,14 +118,6 @@ export default class FilterFunctionDialog extends (UI.GscapeWidget as any) imple
     this.deleteButton.classList.add('danger')
   }
 
-  onSubmit(callback: (id: number, operator: FilterExpressionOperatorEnum | FunctionNameEnum, parameters: VarOrConstant[]) => void) {
-    this.submitCallback = callback
-  }
-
-  onDelete(callback: (filterId: number) => void) {
-    this.deleteCallback = callback
-  }
-
   handleSubmit() {
     this.resetMessages()
     let errorsFound = false
@@ -168,7 +160,7 @@ export default class FilterFunctionDialog extends (UI.GscapeWidget as any) imple
       this.parameters.splice(2) // Only 2 parameters needed, discard others (remove from index=2 till end)
     }
 
-    this.operator = FilterExpressionOperatorEnum[value]
+    this.operator = FilterExpressionOperatorEnum[value] || FunctionNameEnum[value]
     this.selectOperatorElem.classList.remove(CLASS_FIELD_ERROR.cssText)
   }
 

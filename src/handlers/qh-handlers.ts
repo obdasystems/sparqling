@@ -8,6 +8,7 @@ import { getGraphElementByID, getIri } from '../util/graph-element-utility'
 import { sparqlDialog } from '../widgets'
 import onNewBody from '../main/on-new-body'
 import { handlePromise } from '../main/handle-promises'
+import { showFunctionDialogForVariable } from './functions-handlers'
 
 queryHead.onDelete(async headElement => {
   const qgApi = QueryGraphHeadApiFactory()
@@ -59,7 +60,14 @@ queryHead.onDeleteFilter((filterId) => {
   deleteFilter(filterId)
 })
 
+queryHead.onAddFunction(headElementId => {
+  const graphElement = getGraphElementByID(model.getHeadElementByID(headElementId).graphElementId)
+  showFunctionDialogForVariable(graphElement)
+})
+
 queryHead.onElementSortChange((headElementId, newIndex) => {
+  const qhApi = QueryGraphHeadApiFactory()
+  const tempQueryBody = model.getTempQueryBody()
   const tempHead = model.getTempQueryBody().head
   console.log(`Old head: ${tempHead.map(h => h.id)}`)
   const headElement = model.getHeadElementByID(headElementId)
@@ -68,6 +76,7 @@ queryHead.onElementSortChange((headElementId, newIndex) => {
   tempHead.splice(oldIndex, 1) // remove element from old index
   tempHead.splice(newIndex, 0, headElement) // put it back in new index
   
+  //handlePromise(qhApi.reoder...).then()
   console.log(`New head: ${tempHead.map(h => h.id)}`)
   console.log(`HeadElement: "${headElementId}" has been moved in postion ${newIndex}`)
 })

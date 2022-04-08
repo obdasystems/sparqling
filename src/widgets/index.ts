@@ -6,6 +6,7 @@ import RelatedClassSelection from "./related-class-selection"
 import SparqlDialog from "./sparql-dialog"
 import SparqlingStartRunButtons from "./start-run-buttons"
 import { UI } from 'grapholscape'
+import FunctionDialog from "./functions/function-dialog"
 
 export const sparqlDialog = new SparqlDialog()
 
@@ -14,6 +15,7 @@ export const relatedClassDialog = new RelatedClassSelection()
 export const highlightsList = new HighlightsList()
 export const filterDialog = new FilterDialog()
 export const filterListDialog = new FilterListDialog()
+export const functionDialog = new FunctionDialog()
 export const startRunButtons = new SparqlingStartRunButtons()
 export const errorsDialog = new UI.GscapeDialog()
 errorsDialog.title = 'Error'

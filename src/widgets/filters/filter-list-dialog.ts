@@ -1,6 +1,7 @@
 import { UI } from 'grapholscape'
 import { css, html } from 'lit'
-import { FilterWithID, getFilterListStyle, getFilterListTemplate } from './filter-list-template'
+import { FilterWithID, getFilterListTemplate } from './filter-list-template'
+import { getElemWithOperatorStyle } from '../elem-with-operator-style'
 
 export default class FilterListDialog extends UI.GscapeWidget {
   public filterList: FilterWithID[] = []
@@ -48,7 +49,7 @@ export default class FilterListDialog extends UI.GscapeWidget {
           color: var(--theme-gscape-error, ${colors.error});
         }
       `,
-      getFilterListStyle()
+      getElemWithOperatorStyle()
     ]
   }
 

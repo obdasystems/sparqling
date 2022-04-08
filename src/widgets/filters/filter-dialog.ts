@@ -1,9 +1,17 @@
 import { html } from "lit";
-import { FilterExpressionOperatorEnum } from "../../api/swagger";
+import { FilterExpressionOperatorEnum, VarOrConstant } from "../../api/swagger";
 import { getFormTemplate } from "../filter-function-form-template";
-import FilterFunctionDialog, { Modality } from "./filter-function-dialog";
+import FilterFunctionDialog, { Modality } from "../filter-function-dialog";
 
 export default class FilterDialog extends FilterFunctionDialog {
+  _id: number
+  protected submitCallback = (
+    id: number,
+    op: FilterExpressionOperatorEnum,
+    parameters: VarOrConstant[]
+  ) => { }
+  protected deleteCallback = (filterId: number) => { }
+
   constructor() {
     super()
     this.saveButton.label = "Save Filter"
@@ -22,6 +30,14 @@ export default class FilterDialog extends FilterFunctionDialog {
         </div>
       </gscape-dialog>
     `
+  }
+
+  onSubmit(callback: (id: number, operator: FilterExpressionOperatorEnum, parameters: VarOrConstant[]) => void) {
+    this.submitCallback = callback
+  }
+
+  onDelete(callback: (filterId: number) => void) {
+    this.deleteCallback = callback
   }
 }
 

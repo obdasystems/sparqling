@@ -17,7 +17,7 @@ export function getFilterListTemplate(filterList: FilterWithID[], editFilterCall
       deleteButton.onClick = () => deleteFilterCallback(filter.id)
       deleteButton.classList.add('danger')
       return html`
-        <div class="filter">
+        <div class="elem-with-operator">
           <div
             class="operator"
             title="${Object.keys(FilterExpressionOperatorEnum).find(k => FilterExpressionOperatorEnum[k] === filter.value.expression.operator)}"
@@ -38,39 +38,5 @@ export function getFilterListTemplate(filterList: FilterWithID[], editFilterCall
         </div>
       `
     })}
-  `
-}
-
-export function getFilterListStyle() {
-  return css`
-    .filter {
-      display: flex;
-      gap: 10px;
-      align-items:center;
-    }
-
-    .parameters {
-      display: flex;
-      flex-direction: column;
-      gap: 2px;
-      flex-grow:2;
-      min-width: 0;
-      text-overflow: ellipsis;
-      overflow: hidden;
-    }
-
-    .operator {
-      font-weight:bold;
-      font-size:110%;
-    }
-
-    .operator, .parameter {
-      padding: 4px 6px;
-      padding-bottom: 2px;
-      border-radius: 6px;
-      background-color: var(--theme-gscape-primary);
-      color: var(--theme-gscape-on-primary);
-      line-height: 1;
-    }
   `
 }

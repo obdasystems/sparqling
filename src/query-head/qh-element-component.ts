@@ -1,10 +1,12 @@
 import { UI } from 'grapholscape';
 import { css, html } from 'lit';
 import { Filter, Function, HeadElement, VarOrConstantConstantTypeEnum } from '../api/swagger';
-import { getFilterListStyle, getFilterListTemplate } from '../widgets/filters/filter-list-template';
 import { getFiltersOnVariable } from '../model';
-import { addFilter, crosshair, dragHandler, rubbishBin } from '../widgets/assets/icons';
-import { allowDrop, onDragLeave, onDragOver, onDragStart, onDragEnd } from './drag-sorting';
+import { addFilter, crosshair, dragHandler, functionIcon, rubbishBin } from '../widgets/assets/icons'
+import { getElemWithOperatorStyle } from '../widgets/elem-with-operator-style';
+import { getFilterListTemplate } from '../widgets/filters/filter-list-template'
+import { getFunctionListTemplate } from '../widgets/functions/function-list-template'
+import { onDragEnd, onDragOver, onDragStart } from './drag-sorting';
 
 const ALIAS_INPUT_ID = 'alias'
 
@@ -22,13 +24,14 @@ export default class HeadElementComponent extends UI.GscapeWidget {
   private toggleBodyButton: UI.GscapeButton
   public localizeButton: UI.GscapeButton
   private addFilterButton: UI.GscapeButton
+  private addFunctionButton: any;
   private filters: { id: number, value: Filter }[]
   
-  private ondragstart: (evt: any) => void;
-  private ondragover: (evt: any) => void;
-  private ondragleave: (evt: any) => void;
-  private ondragend: (evt: any) => void;
-  private ondrop: (evt: any) => any;
+  private ondragstart: (evt: any) => void
+  private ondragover: (evt: any) => void
+  private ondragleave: (evt: any) => void
+  private ondragend: (evt: any) => void
+  private ondrop: (evt: any) => any
 
   static get properties() {
     let props = super.properties
@@ -139,16 +142,19 @@ export default class HeadElementComponent extends UI.GscapeWidget {
           color: var(--theme-gscape-error, ${colors.error});
         }
 
-        #filters-list {
+        .filters-function-list {
           display:flex;
           flex-direction: column;
           gap: 20px;
           padding: 10px 5px;
-          border: solid 1px var(--theme-gscape-borders);
-          border-radius: 6px;
         }
 
-        #filters-title {
+        .section {
+          padding: 5px;
+          margin: 10px 0;
+        }
+
+        .section > .title {
           font-weight: bold;
         }
 
@@ -157,7 +163,7 @@ export default class HeadElementComponent extends UI.GscapeWidget {
           width: 20px;
         }
       `,
-      getFilterListStyle(),
+      getElemWithOperatorStyle(),
     ]
   }
 
@@ -177,6 +183,9 @@ export default class HeadElementComponent extends UI.GscapeWidget {
 
     this.addFilterButton = new UI.GscapeButton(addFilter, 'Add Filter')
     this.addFilterButton.onClick = () => this.addFilterCallback(this._id)
+
+    this.addFunctionButton = new UI.GscapeButton(functionIcon, 'Add Filter')
+    this.addFunctionButton.onClick = () => this.addFunctionCallback(this._id)
 
     this.ondragstart = (evt) => onDragStart(evt)
     this.ondragover = (evt) => onDragOver(evt)
@@ -206,15 +215,34 @@ export default class HeadElementComponent extends UI.GscapeWidget {
               ${this.localizeButton}
               ${this.deleteButton}
               ${this.addFilterButton}
+              ${!this.function ? this.addFunctionButton : null }
             </div>
           </div>
-          ${this.filters?.length > 0 ? this.toggleBodyButton : null}
+          ${this.hasAnythingInBody ? this.toggleBodyButton : null}
         </div>
         <div id="field-body" class="widget-body hide">
-          <span id="filters-title">Filters</span>
-          <div id="filters-list">
-            ${getFilterListTemplate(this.filters, this.editFilterCallback, this.deleteFilterCallback)}
-          </div>
+          ${this.function 
+            ? html`
+              <div class="section">
+                <span class="title">Function</span>
+                <div class="filters-function-list">
+                  ${getFunctionListTemplate(this.function)}
+                </div>
+              </div>
+            `
+            : null
+          }
+          
+          ${this.filters?.length > 0
+            ? html`
+              <div class="section">
+                <span class="title">Filters</span>
+                <div class="filters-function-list">
+                  ${getFilterListTemplate(this.filters, this.editFilterCallback, this.deleteFilterCallback)}
+                </div>
+              </div>
+            `
+            : null}
           <!-- ******************  SORT  ****************** -->
           <div class="section" style="text-align: center; margin-bottom:0">
             ${this.getSelect('sort', 'sort-select', 'sort', { asc: 'Ascending', desc: 'Descending' })}
@@ -231,6 +259,8 @@ export default class HeadElementComponent extends UI.GscapeWidget {
     this.graphElementId = newElement.graphElementId
     this.entityType = newElement['entityType']
     this.dataType = newElement['dataType'] || 'Type'
+    this.function = newElement.function
+
     let types = {
       'class': 'concept',
       'objectProperty': 'role',
@@ -288,8 +318,17 @@ export default class HeadElementComponent extends UI.GscapeWidget {
     this.deleteFilterCallback = callback
   }
 
+  private addFunctionCallback = (headElementId: string) => { }
+  public onAddFunction(callback: (headElementId: string) => void) {
+    this.addFunctionCallback = callback
+  }
+
   public get dragHandler() {
     return (this as any).shadowRoot.querySelector('#drag-handler')
+  }
+
+  private get hasAnythingInBody() {
+    return this.filters?.length > 0 || this.function
   }
 }
 
