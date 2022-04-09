@@ -68,15 +68,13 @@ queryHead.onAddFunction(headElementId => {
 queryHead.onElementSortChange((headElementId, newIndex) => {
   const qhApi = QueryGraphHeadApiFactory()
   const tempQueryBody = model.getTempQueryBody()
-  const tempHead = model.getTempQueryBody().head
-  console.log(`Old head: ${tempHead.map(h => h.id)}`)
+  const tempHead = tempQueryBody.head
   const headElement = model.getHeadElementByID(headElementId)
-  const oldIndex = tempHead.indexOf(headElement)
-  
-  tempHead.splice(oldIndex, 1) // remove element from old index
-  tempHead.splice(newIndex, 0, headElement) // put it back in new index
-  
-  //handlePromise(qhApi.reoder...).then()
-  console.log(`New head: ${tempHead.map(h => h.id)}`)
-  console.log(`HeadElement: "${headElementId}" has been moved in postion ${newIndex}`)
+  const replacedHeadElement = tempHead[newIndex] // get the element to be "replaced", its index will change
+  const tempHeadIds = tempHead.map(he => he.id) // use array of id to find index of elements
+
+  tempHead.splice(tempHeadIds.indexOf(headElementId), 1) // remove headElement from its position
+  tempHead.splice(tempHeadIds.indexOf(replacedHeadElement.id), 0, headElement) // put headElement in place of the element to replace
+
+  handlePromise(qhApi.reorderHeadTerms(tempQueryBody)).then(newBody => onNewBody(newBody))
 })

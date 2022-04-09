@@ -222,10 +222,10 @@ export interface GraphElement {
 export interface GroupByElement {
     /**
      * 
-     * @type {Array<number>}
+     * @type {Array<string>}
      * @memberof GroupByElement
      */
-    'headElementIds'?: Array<number>;
+    'headElementIds'?: Array<string>;
     /**
      * 
      * @type {string}
@@ -274,6 +274,12 @@ export interface HeadElement {
      * @memberof HeadElement
      */
     'alias'?: string;
+    /**
+     * 1 is ascending -1 descending 0 not defined
+     * @type {number}
+     * @memberof HeadElement
+     */
+    'ordering'?: number;
     /**
      * 
      * @type {Function}
@@ -341,25 +347,6 @@ export interface Optional {
 /**
  * 
  * @export
- * @interface OrderByElement
- */
-export interface OrderByElement {
-    /**
-     * 
-     * @type {number}
-     * @memberof OrderByElement
-     */
-    'headElementId'?: number;
-    /**
-     * 
-     * @type {boolean}
-     * @memberof OrderByElement
-     */
-    'ascending'?: boolean;
-}
-/**
- * 
- * @export
  * @interface QueryGraph
  */
 export interface QueryGraph {
@@ -401,22 +388,16 @@ export interface QueryGraph {
     'minus'?: GraphElement;
     /**
      * 
-     * @type {OrderByElement}
-     * @memberof QueryGraph
-     */
-    'orderBy'?: OrderByElement;
-    /**
-     * 
      * @type {GroupByElement}
      * @memberof QueryGraph
      */
     'groupBy'?: GroupByElement;
     /**
      * 
-     * @type {Array<Filter>}
+     * @type {Filter}
      * @memberof QueryGraph
      */
-    'having'?: Array<Filter>;
+    'having'?: Filter;
     /**
      * 
      * @type {number}
@@ -2071,54 +2052,7 @@ export const QueryGraphHeadApiAxiosParamCreator = function (configuration?: Conf
             };
         },
         /**
-         * The having aggregation function is defined in the groupBy field of the query graph in the request body.
-         * @summary Set the having filter of the aggregation function to the head term.
-         * @param {string} headTerm The head term that should be involved in the having filter
-         * @param {string} direction 
-         * @param {QueryGraph} queryGraph 
-         * @param {*} [options] Override http request option.
-         * @throws {RequiredError}
-         */
-        aggregationHavingHeadTerm: async (headTerm: string, direction: string, queryGraph: QueryGraph, options: AxiosRequestConfig = {}): Promise<RequestArgs> => {
-            // verify required parameter 'headTerm' is not null or undefined
-            assertParamExists('aggregationHavingHeadTerm', 'headTerm', headTerm)
-            // verify required parameter 'direction' is not null or undefined
-            assertParamExists('aggregationHavingHeadTerm', 'direction', direction)
-            // verify required parameter 'queryGraph' is not null or undefined
-            assertParamExists('aggregationHavingHeadTerm', 'queryGraph', queryGraph)
-            const localVarPath = `/queryGraph/head/aggregation/having/{headTerm}`
-                .replace(`{${"headTerm"}}`, encodeURIComponent(String(headTerm)));
-            // use dummy base URL string because the URL constructor only accepts absolute URLs.
-            const localVarUrlObj = new URL(localVarPath, DUMMY_BASE_URL);
-            let baseOptions;
-            if (configuration) {
-                baseOptions = configuration.baseOptions;
-            }
-
-            const localVarRequestOptions = { method: 'PUT', ...baseOptions, ...options};
-            const localVarHeaderParameter = {} as any;
-            const localVarQueryParameter = {} as any;
-
-            if (direction !== undefined) {
-                localVarQueryParameter['direction'] = direction;
-            }
-
-
-    
-            localVarHeaderParameter['Content-Type'] = 'application/json';
-
-            setSearchParams(localVarUrlObj, localVarQueryParameter);
-            let headersFromBaseOptions = baseOptions && baseOptions.headers ? baseOptions.headers : {};
-            localVarRequestOptions.headers = {...localVarHeaderParameter, ...headersFromBaseOptions, ...options.headers};
-            localVarRequestOptions.data = serializeDataIfNeeded(queryGraph, localVarRequestOptions, configuration)
-
-            return {
-                url: toPathString(localVarUrlObj),
-                options: localVarRequestOptions,
-            };
-        },
-        /**
-         * The aggregation function is defined in the group by field of the query graph in the request body. Remember to set the alias of the head based on function name and variable.
+         * The aggregation function is defined in the group by field of the query graph in the request body along with the HAVING clause. Remember to set the alias of the head based on function name and variable.
          * @summary Set the aggregation function to the head term.
          * @param {string} headTerm The head term that should be involved in the aggregation function
          * @param {QueryGraph} queryGraph 
@@ -2241,16 +2175,13 @@ export const QueryGraphHeadApiAxiosParamCreator = function (configuration?: Conf
          * The OrderBy object is passed in the request body in the Query Graph.
          * @summary Order by the head from the query graph.
          * @param {string} headTerm The head term that should be ordered
-         * @param {'desc' | 'asc'} direction 
          * @param {QueryGraph} queryGraph 
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
-        orderByHeadTerm: async (headTerm: string, direction: 'desc' | 'asc', queryGraph: QueryGraph, options: AxiosRequestConfig = {}): Promise<RequestArgs> => {
+        orderByHeadTerm: async (headTerm: string, queryGraph: QueryGraph, options: AxiosRequestConfig = {}): Promise<RequestArgs> => {
             // verify required parameter 'headTerm' is not null or undefined
             assertParamExists('orderByHeadTerm', 'headTerm', headTerm)
-            // verify required parameter 'direction' is not null or undefined
-            assertParamExists('orderByHeadTerm', 'direction', direction)
             // verify required parameter 'queryGraph' is not null or undefined
             assertParamExists('orderByHeadTerm', 'queryGraph', queryGraph)
             const localVarPath = `/queryGraph/head/orderBy/{headTerm}`
@@ -2265,10 +2196,6 @@ export const QueryGraphHeadApiAxiosParamCreator = function (configuration?: Conf
             const localVarRequestOptions = { method: 'PUT', ...baseOptions, ...options};
             const localVarHeaderParameter = {} as any;
             const localVarQueryParameter = {} as any;
-
-            if (direction !== undefined) {
-                localVarQueryParameter['direction'] = direction;
-            }
 
 
     
@@ -2324,6 +2251,42 @@ export const QueryGraphHeadApiAxiosParamCreator = function (configuration?: Conf
                 options: localVarRequestOptions,
             };
         },
+        /**
+         * 
+         * @summary Reorder the head elements accrding to Query GRaph object.
+         * @param {QueryGraph} queryGraph 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        reorderHeadTerms: async (queryGraph: QueryGraph, options: AxiosRequestConfig = {}): Promise<RequestArgs> => {
+            // verify required parameter 'queryGraph' is not null or undefined
+            assertParamExists('reorderHeadTerms', 'queryGraph', queryGraph)
+            const localVarPath = `/queryGraph/head/reorderHeadTerms`;
+            // use dummy base URL string because the URL constructor only accepts absolute URLs.
+            const localVarUrlObj = new URL(localVarPath, DUMMY_BASE_URL);
+            let baseOptions;
+            if (configuration) {
+                baseOptions = configuration.baseOptions;
+            }
+
+            const localVarRequestOptions = { method: 'PUT', ...baseOptions, ...options};
+            const localVarHeaderParameter = {} as any;
+            const localVarQueryParameter = {} as any;
+
+
+    
+            localVarHeaderParameter['Content-Type'] = 'application/json';
+
+            setSearchParams(localVarUrlObj, localVarQueryParameter);
+            let headersFromBaseOptions = baseOptions && baseOptions.headers ? baseOptions.headers : {};
+            localVarRequestOptions.headers = {...localVarHeaderParameter, ...headersFromBaseOptions, ...options.headers};
+            localVarRequestOptions.data = serializeDataIfNeeded(queryGraph, localVarRequestOptions, configuration)
+
+            return {
+                url: toPathString(localVarUrlObj),
+                options: localVarRequestOptions,
+            };
+        },
     }
 };
 
@@ -2347,20 +2310,7 @@ export const QueryGraphHeadApiFp = function(configuration?: Configuration) {
             return createRequestFunction(localVarAxiosArgs, globalAxios, BASE_PATH, configuration);
         },
         /**
-         * The having aggregation function is defined in the groupBy field of the query graph in the request body.
-         * @summary Set the having filter of the aggregation function to the head term.
-         * @param {string} headTerm The head term that should be involved in the having filter
-         * @param {string} direction 
-         * @param {QueryGraph} queryGraph 
-         * @param {*} [options] Override http request option.
-         * @throws {RequiredError}
-         */
-        async aggregationHavingHeadTerm(headTerm: string, direction: string, queryGraph: QueryGraph, options?: AxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<QueryGraph>> {
-            const localVarAxiosArgs = await localVarAxiosParamCreator.aggregationHavingHeadTerm(headTerm, direction, queryGraph, options);
-            return createRequestFunction(localVarAxiosArgs, globalAxios, BASE_PATH, configuration);
-        },
-        /**
-         * The aggregation function is defined in the group by field of the query graph in the request body. Remember to set the alias of the head based on function name and variable.
+         * The aggregation function is defined in the group by field of the query graph in the request body along with the HAVING clause. Remember to set the alias of the head based on function name and variable.
          * @summary Set the aggregation function to the head term.
          * @param {string} headTerm The head term that should be involved in the aggregation function
          * @param {QueryGraph} queryGraph 
@@ -2399,13 +2349,12 @@ export const QueryGraphHeadApiFp = function(configuration?: Configuration) {
          * The OrderBy object is passed in the request body in the Query Graph.
          * @summary Order by the head from the query graph.
          * @param {string} headTerm The head term that should be ordered
-         * @param {'desc' | 'asc'} direction 
          * @param {QueryGraph} queryGraph 
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
-        async orderByHeadTerm(headTerm: string, direction: 'desc' | 'asc', queryGraph: QueryGraph, options?: AxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<QueryGraph>> {
-            const localVarAxiosArgs = await localVarAxiosParamCreator.orderByHeadTerm(headTerm, direction, queryGraph, options);
+        async orderByHeadTerm(headTerm: string, queryGraph: QueryGraph, options?: AxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<QueryGraph>> {
+            const localVarAxiosArgs = await localVarAxiosParamCreator.orderByHeadTerm(headTerm, queryGraph, options);
             return createRequestFunction(localVarAxiosArgs, globalAxios, BASE_PATH, configuration);
         },
         /**
@@ -2418,6 +2367,17 @@ export const QueryGraphHeadApiFp = function(configuration?: Configuration) {
          */
         async renameHeadTerm(headTerm: string, queryGraph: QueryGraph, options?: AxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<QueryGraph>> {
             const localVarAxiosArgs = await localVarAxiosParamCreator.renameHeadTerm(headTerm, queryGraph, options);
+            return createRequestFunction(localVarAxiosArgs, globalAxios, BASE_PATH, configuration);
+        },
+        /**
+         * 
+         * @summary Reorder the head elements accrding to Query GRaph object.
+         * @param {QueryGraph} queryGraph 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        async reorderHeadTerms(queryGraph: QueryGraph, options?: AxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<QueryGraph>> {
+            const localVarAxiosArgs = await localVarAxiosParamCreator.reorderHeadTerms(queryGraph, options);
             return createRequestFunction(localVarAxiosArgs, globalAxios, BASE_PATH, configuration);
         },
     }
@@ -2442,19 +2402,7 @@ export const QueryGraphHeadApiFactory = function (configuration?: Configuration,
             return localVarFp.addHeadTerm(graphElementId, queryGraph, options).then((request) => request(axios, basePath));
         },
         /**
-         * The having aggregation function is defined in the groupBy field of the query graph in the request body.
-         * @summary Set the having filter of the aggregation function to the head term.
-         * @param {string} headTerm The head term that should be involved in the having filter
-         * @param {string} direction 
-         * @param {QueryGraph} queryGraph 
-         * @param {*} [options] Override http request option.
-         * @throws {RequiredError}
-         */
-        aggregationHavingHeadTerm(headTerm: string, direction: string, queryGraph: QueryGraph, options?: any): AxiosPromise<QueryGraph> {
-            return localVarFp.aggregationHavingHeadTerm(headTerm, direction, queryGraph, options).then((request) => request(axios, basePath));
-        },
-        /**
-         * The aggregation function is defined in the group by field of the query graph in the request body. Remember to set the alias of the head based on function name and variable.
+         * The aggregation function is defined in the group by field of the query graph in the request body along with the HAVING clause. Remember to set the alias of the head based on function name and variable.
          * @summary Set the aggregation function to the head term.
          * @param {string} headTerm The head term that should be involved in the aggregation function
          * @param {QueryGraph} queryGraph 
@@ -2490,13 +2438,12 @@ export const QueryGraphHeadApiFactory = function (configuration?: Configuration,
          * The OrderBy object is passed in the request body in the Query Graph.
          * @summary Order by the head from the query graph.
          * @param {string} headTerm The head term that should be ordered
-         * @param {'desc' | 'asc'} direction 
          * @param {QueryGraph} queryGraph 
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
-        orderByHeadTerm(headTerm: string, direction: 'desc' | 'asc', queryGraph: QueryGraph, options?: any): AxiosPromise<QueryGraph> {
-            return localVarFp.orderByHeadTerm(headTerm, direction, queryGraph, options).then((request) => request(axios, basePath));
+        orderByHeadTerm(headTerm: string, queryGraph: QueryGraph, options?: any): AxiosPromise<QueryGraph> {
+            return localVarFp.orderByHeadTerm(headTerm, queryGraph, options).then((request) => request(axios, basePath));
         },
         /**
          * Put the alias in the HeadElement passed via request body.
@@ -2508,6 +2455,16 @@ export const QueryGraphHeadApiFactory = function (configuration?: Configuration,
          */
         renameHeadTerm(headTerm: string, queryGraph: QueryGraph, options?: any): AxiosPromise<QueryGraph> {
             return localVarFp.renameHeadTerm(headTerm, queryGraph, options).then((request) => request(axios, basePath));
+        },
+        /**
+         * 
+         * @summary Reorder the head elements accrding to Query GRaph object.
+         * @param {QueryGraph} queryGraph 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        reorderHeadTerms(queryGraph: QueryGraph, options?: any): AxiosPromise<QueryGraph> {
+            return localVarFp.reorderHeadTerms(queryGraph, options).then((request) => request(axios, basePath));
         },
     };
 };
@@ -2533,21 +2490,7 @@ export class QueryGraphHeadApi extends BaseAPI {
     }
 
     /**
-     * The having aggregation function is defined in the groupBy field of the query graph in the request body.
-     * @summary Set the having filter of the aggregation function to the head term.
-     * @param {string} headTerm The head term that should be involved in the having filter
-     * @param {string} direction 
-     * @param {QueryGraph} queryGraph 
-     * @param {*} [options] Override http request option.
-     * @throws {RequiredError}
-     * @memberof QueryGraphHeadApi
-     */
-    public aggregationHavingHeadTerm(headTerm: string, direction: string, queryGraph: QueryGraph, options?: AxiosRequestConfig) {
-        return QueryGraphHeadApiFp(this.configuration).aggregationHavingHeadTerm(headTerm, direction, queryGraph, options).then((request) => request(this.axios, this.basePath));
-    }
-
-    /**
-     * The aggregation function is defined in the group by field of the query graph in the request body. Remember to set the alias of the head based on function name and variable.
+     * The aggregation function is defined in the group by field of the query graph in the request body along with the HAVING clause. Remember to set the alias of the head based on function name and variable.
      * @summary Set the aggregation function to the head term.
      * @param {string} headTerm The head term that should be involved in the aggregation function
      * @param {QueryGraph} queryGraph 
@@ -2589,14 +2532,13 @@ export class QueryGraphHeadApi extends BaseAPI {
      * The OrderBy object is passed in the request body in the Query Graph.
      * @summary Order by the head from the query graph.
      * @param {string} headTerm The head term that should be ordered
-     * @param {'desc' | 'asc'} direction 
      * @param {QueryGraph} queryGraph 
      * @param {*} [options] Override http request option.
      * @throws {RequiredError}
      * @memberof QueryGraphHeadApi
      */
-    public orderByHeadTerm(headTerm: string, direction: 'desc' | 'asc', queryGraph: QueryGraph, options?: AxiosRequestConfig) {
-        return QueryGraphHeadApiFp(this.configuration).orderByHeadTerm(headTerm, direction, queryGraph, options).then((request) => request(this.axios, this.basePath));
+    public orderByHeadTerm(headTerm: string, queryGraph: QueryGraph, options?: AxiosRequestConfig) {
+        return QueryGraphHeadApiFp(this.configuration).orderByHeadTerm(headTerm, queryGraph, options).then((request) => request(this.axios, this.basePath));
     }
 
     /**
@@ -2610,6 +2552,18 @@ export class QueryGraphHeadApi extends BaseAPI {
      */
     public renameHeadTerm(headTerm: string, queryGraph: QueryGraph, options?: AxiosRequestConfig) {
         return QueryGraphHeadApiFp(this.configuration).renameHeadTerm(headTerm, queryGraph, options).then((request) => request(this.axios, this.basePath));
+    }
+
+    /**
+     * 
+     * @summary Reorder the head elements accrding to Query GRaph object.
+     * @param {QueryGraph} queryGraph 
+     * @param {*} [options] Override http request option.
+     * @throws {RequiredError}
+     * @memberof QueryGraphHeadApi
+     */
+    public reorderHeadTerms(queryGraph: QueryGraph, options?: AxiosRequestConfig) {
+        return QueryGraphHeadApiFp(this.configuration).reorderHeadTerms(queryGraph, options).then((request) => request(this.axios, this.basePath));
     }
 }
 
