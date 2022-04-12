@@ -113,6 +113,13 @@ export default (theme: Theme) => {
       }
     },
 
+    {
+      selector: '$node > node', // parent of a node, compound nodes
+      style: {
+        'label': '',
+      }
+    },
+
     //-----------------------------------------------------------
     // selected selector always last
     {
