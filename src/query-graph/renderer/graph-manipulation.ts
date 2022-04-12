@@ -5,7 +5,7 @@ import { DisplayedNameType } from "../displayed-name-type"
 import cy, { getDisplayedNameType, getLanguage } from './cy'
 import { getElementById, getElements } from "./getters"
 import { addOrRemoveFilterIcon, removeHasFilterIcon } from "./has-filter-icon"
-import { klayLayoutOpt, radialLayoutOpt } from "./layout-options"
+import { gridLayoutOpt, klayLayoutOpt, radialLayoutOpt } from "./layout-options"
 
 export const DISPLAYED_NAME = 'displayed_name'
 
@@ -120,9 +120,13 @@ export function arrange() {
   cy.layout(klayLayoutOpt).run()
   cy.$(classSelector).forEach(node => {
     const dataProperties = node.neighborhood(dataPropertySelector)
+    // run grid layout on compound nodes
+    if (!node.isChildless()) {
+      node.union(node.children()).layout(gridLayoutOpt).run()
+    }
+
     if (!dataProperties.empty()) {
-      let layoutConcentric = node.union(node.children()).union(dataProperties).layout(radialLayoutOpt(node))
-      layoutConcentric.run()
+      dataProperties.layout(radialLayoutOpt(node)).run()
     }
   })
 
