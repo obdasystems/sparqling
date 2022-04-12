@@ -89,9 +89,10 @@ export function onAddHead(callback: (graphElem: GraphElement) => void) {
   bgp.onAddHead(id => callback(GEUtility.getGraphElementByID(id)))
 }
 
-export function onDelete(callback: (graphElem: GraphElement) => void) {
-  bgp.onDelete(id => {
-    callback(GEUtility.getGraphElementByID(id))
+export function onDelete(callback: (graphElement: GraphElement, iri?: string) => void) {
+  bgp.onDelete((id, iri) => {
+    const graphElement = GEUtility.getGraphElementByID(id) || GEUtility.getParentFromChildId(id)
+    callback(graphElement, iri)
     cxtMenu.hide()
   })
 }

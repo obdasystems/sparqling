@@ -37,7 +37,6 @@ export function addNode(node: GraphElement) {
         arrange()
       }
     })
-    return
   }
   
   if (!existingNode) {
@@ -91,6 +90,13 @@ export function removeNode(nodeID: any) {
   if (!node || node.empty()) return
 
   removeHasFilterIcon(node)
+  if (node.isChild()) {
+    const parent = node.parent()
+    // if node is child and there is only one child left, remove all child from parent
+    if (parent.children().length === 2) {
+      parent.children().each(child => { child.remove() })
+    }
+  }
   node.remove()
 }
 

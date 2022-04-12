@@ -118,3 +118,11 @@ export function areGraphElementsEqual(ge1: GraphElement, ge2: GraphElement) {
   
   return hasSameId && hasSameFilters && hasSameEntities
 }
+
+export function getParentFromChildId(id: string) {
+  const splittedId = id.split('-')
+  const parentId = splittedId[0]
+  const childIri = splittedId[1]
+  const graph = model.getQueryBody()?.graph
+  return findGraphElement(graph, ge => graphElementHasIri(ge, childIri) && ge.id === parentId)
+}

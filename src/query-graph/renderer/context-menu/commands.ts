@@ -1,4 +1,4 @@
-import { SingularData } from "cytoscape"
+import { SingularElementReturnValue } from "cytoscape"
 import { EntityTypeEnum } from "../../../api/swagger"
 import { addFilter as addFilterIcon, editList, questionMarkDashed, rubbishBin, tableColumnPlus } from "../../../widgets/assets/icons"
 import { commandAddFilterText, commandAddHeadText, commandDeleteText, commandMakeOptionalText, commandRemoveOptionalText } from "../../../widgets/assets/texts"
@@ -11,31 +11,31 @@ export interface Command {
 }
 
 let addHeadCallback: (elemId: string) => void
-let deleteCallback: (elemId: string) => void
+let deleteCallback: (elemId: string, elemIri?: string) => void
 let addFilterCallback: (elemId: string) => void
 let seeFiltersCallback: (elemId: string) => void
 let makeOptionalCallback: (elemId: string) => void
 let removeOptionalCallback: (elemId: string) => void
 
-let _ele: SingularData
-export function getCommandsForElement(ele: SingularData) {
-  _ele = ele
+let _ele: SingularElementReturnValue
+export function getCommandsForElement(elem: SingularElementReturnValue) {
+  _ele = elem
   const commands = []
 
-  if (ele.data().type === EntityTypeEnum.Class || ele.data().type === EntityTypeEnum.DataProperty) {
+  if (!elem.isChild()) {
     commands.push(addHead)
 
-    if (ele.data().hasFilters) {
+    if (elem.data().hasFilters) {
       commands.push(seeFilters)
     }
 
     commands.push(addFilter)
-  }
 
-  if (ele.data().optional) {
-    commands.push(removeOptional)
-  } else {
-    commands.push(makeOptional)
+    if (elem.data().optional) {
+      commands.push(removeOptional)
+    } else {
+      commands.push(makeOptional)
+    }
   }
 
   commands.push(del)
@@ -51,7 +51,7 @@ const del: Command = {
   content: commandDeleteText(),
   icon: rubbishBin,
   select: () => {
-    deleteCallback(_ele.id())
+    _ele.isChild() ? deleteCallback(_ele.id(), _ele.data().iri) : deleteCallback(_ele.id())
   }
 }
 const addFilter: Command = {
@@ -78,11 +78,11 @@ export function onAddHead(callback: (elemId: string) => void) {
   addHeadCallback = callback
 }
 
-export function onDelete(callback: (elemId: string) => void) {
+export function onDelete(callback: (elemId: string, elemIri?: string) => void) {
   deleteCallback = callback
 }
 
-export function onAddFilter(callback: (elemId: string) => void) {
+export function onAddFilter(callback: (elemId: string, elemIri?: string) => void) {
   addFilterCallback = callback
 }
 
