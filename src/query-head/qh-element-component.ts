@@ -2,7 +2,7 @@ import { UI } from 'grapholscape';
 import { css, html } from 'lit';
 import { Filter, Function, HeadElement, VarOrConstantConstantTypeEnum } from '../api/swagger';
 import { getFiltersOnVariable } from '../model';
-import { addFilter, crosshair, dragHandler, functionIcon, rubbishBin, sortAscendingIcon, sortDiscendingIcon, sortIcon } from '../widgets/assets/icons'
+import { addFilter, crosshair, dragHandler, filter as filterIcon, functionIcon, rubbishBin, sortAscendingIcon, sortDescendingIcon, sortIcon } from '../widgets/assets/icons'
 import { getElemWithOperatorStyle } from '../widgets/elem-with-operator-style';
 import { getFilterListTemplate } from '../widgets/filters/filter-list-template'
 import { getFunctionListTemplate } from '../widgets/functions/function-list-template'
@@ -119,6 +119,10 @@ export default class HeadElementComponent extends UI.GscapeWidget {
           display: flex;
         }
 
+        #field-head-input-action-wrapper:hover > #state-tray {
+          display: none;
+        }
+
         #field-head:hover > #drag-handler {
           display: block;
         }
@@ -164,6 +168,14 @@ export default class HeadElementComponent extends UI.GscapeWidget {
           height: 20px;
           width: 20px;
         }
+
+        #state-tray {
+          display: flex;
+        }
+        #state-tray > svg {
+          height: calc(var(--gscape-icon-size) - 6px);
+          width: calc(var(--gscape-icon-size) - 6px);
+        }
       `,
       getElemWithOperatorStyle(),
     ]
@@ -203,7 +215,7 @@ export default class HeadElementComponent extends UI.GscapeWidget {
       this.orderByButton.icon = sortAscendingIcon
       this.orderByButton.highlighted = true
     } else if (this.ordering < 0) {
-      this.orderByButton.icon = sortDiscendingIcon
+      this.orderByButton.icon = sortDescendingIcon
       this.orderByButton.highlighted = true
     } else {
       this.orderByButton.icon = sortIcon
@@ -226,6 +238,17 @@ export default class HeadElementComponent extends UI.GscapeWidget {
               value="${this.alias || this.graphElementId}"
               title="Rename Field"
             />
+            ${this.hasAnythingInBody || this.ordering
+              ? html`
+                <div id="state-tray">
+                  ${this.filters?.length > 0 ? filterIcon : null}
+                  ${this.function ? functionIcon : null}
+                  ${this.ordering > 0 ? sortAscendingIcon : null}
+                  ${this.ordering < 0 ? sortDescendingIcon : null}
+                </div>
+              `
+              : null
+            }
             <div id="actions">
               ${this.localizeButton}
               ${this.deleteButton}
