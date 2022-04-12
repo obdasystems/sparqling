@@ -21,6 +21,7 @@ export default class QueryHeadWidget extends GscapeWidget {
   private editFilterCallback: (filterId: number) => void
   private deleteFilterCallback: (filterId: number) => void
   private addFunctionCallback: (headElementId: string) => void
+  private orderByChangeCallback: (headElementId: string) => void
 
   static get properties() {
 
@@ -166,6 +167,7 @@ export default class QueryHeadWidget extends GscapeWidget {
       element.onEditFilter(this.editFilterCallback)
       element.onDeleteFilter(this.deleteFilterCallback)
       element.onAddFunction(this.addFunctionCallback)
+      element.onOrderByChange(this.orderByChangeCallback)
     });
   }
 
@@ -215,6 +217,10 @@ export default class QueryHeadWidget extends GscapeWidget {
 
   onAddFunction(callback: (headElementId: string) => void) {
     this.addFunctionCallback = callback
+  }
+
+  onOrderByChange(callback: (headElementId: string) => void) {
+    this.orderByChangeCallback = callback
   }
 
 

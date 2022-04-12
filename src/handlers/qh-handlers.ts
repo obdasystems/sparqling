@@ -9,6 +9,7 @@ import { sparqlDialog } from '../widgets'
 import onNewBody from '../main/on-new-body'
 import { handlePromise } from '../main/handle-promises'
 import { showFunctionDialogForVariable } from './functions-handlers'
+import { getHeadElementByID, getTempQueryBody } from '../model'
 
 queryHead.onDelete(async headElement => {
   const qgApi = QueryGraphHeadApiFactory()
@@ -77,4 +78,16 @@ queryHead.onElementSortChange((headElementId, newIndex) => {
   tempHead.splice(tempHeadIds.indexOf(replacedHeadElement.id), 0, headElement) // put headElement in place of the element to replace
 
   handlePromise(qhApi.reorderHeadTerms(tempQueryBody)).then(newBody => onNewBody(newBody))
+})
+
+queryHead.onOrderByChange(headElementId => {
+  const queryBody = getTempQueryBody()
+  const headElement = queryBody.head.find(he => he.id === headElementId)
+  headElement.ordering = headElement.ordering + 1
+  
+  if (headElement.ordering > 2) {
+    headElement.ordering = -1
+  }
+
+  onNewBody(queryBody)
 })

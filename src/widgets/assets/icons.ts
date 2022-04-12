@@ -56,3 +56,12 @@ export const dragHandler = svg`<svg fill="currentColor" viewBox="0 0 24 24"><pat
 
 // https://materialdesignicons.com/icon/function
 export const functionIcon = svg`<svg fill="currentColor" viewBox="0 0 24 24"><path d="M15.6,5.29C14.5,5.19 13.53,6 13.43,7.11L13.18,10H16V12H13L12.56,17.07C12.37,19.27 10.43,20.9 8.23,20.7C6.92,20.59 5.82,19.86 5.17,18.83L6.67,17.33C6.91,18.07 7.57,18.64 8.4,18.71C9.5,18.81 10.47,18 10.57,16.89L11,12H8V10H11.17L11.44,6.93C11.63,4.73 13.57,3.1 15.77,3.3C17.08,3.41 18.18,4.14 18.83,5.17L17.33,6.67C17.09,5.93 16.43,5.36 15.6,5.29Z" /></svg>`
+
+// https://materialdesignicons.com/icon/sort-alphabetical-variant
+export const sortIcon = svg`<svg fill="currentColor" viewBox="0 0 24 24"><path d="M9.25,5L12.5,1.75L15.75,5H9.25M15.75,19L12.5,22.25L9.25,19H15.75M8.89,14.3H6L5.28,17H2.91L6,7H9L12.13,17H9.67L8.89,14.3M6.33,12.68H8.56L7.93,10.56L7.67,9.59L7.42,8.63H7.39L7.17,9.6L6.93,10.58L6.33,12.68M13.05,17V15.74L17.8,8.97V8.91H13.5V7H20.73V8.34L16.09,15V15.08H20.8V17H13.05Z" /></svg>`
+
+// https://materialdesignicons.com/icon/sort-alphabetical-ascending
+export const sortAscendingIcon = svg`<svg fill="currentColor" viewBox="0 0 24 24"><path d="M19 17H22L18 21L14 17H17V3H19M11 13V15L7.67 19H11V21H5V19L8.33 15H5V13M9 3H7C5.9 3 5 3.9 5 5V11H7V9H9V11H11V5C11 3.9 10.11 3 9 3M9 7H7V5H9Z" /></svg>`
+
+// https://materialdesignicons.com/icon/sort-alphabetical-descending
+export const sortDiscendingIcon = svg`<svg fill="currentColor" viewBox="0 0 24 24"><path d="M19 7H22L18 3L14 7H17V21H19M11 13V15L7.67 19H11V21H5V19L8.33 15H5V13M9 3H7C5.9 3 5 3.9 5 5V11H7V9H9V11H11V5C11 3.9 10.11 3 9 3M9 7H7V5H9Z" /></svg>`

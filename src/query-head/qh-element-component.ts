@@ -2,7 +2,7 @@ import { UI } from 'grapholscape';
 import { css, html } from 'lit';
 import { Filter, Function, HeadElement, VarOrConstantConstantTypeEnum } from '../api/swagger';
 import { getFiltersOnVariable } from '../model';
-import { addFilter, crosshair, dragHandler, functionIcon, rubbishBin } from '../widgets/assets/icons'
+import { addFilter, crosshair, dragHandler, functionIcon, rubbishBin, sortAscendingIcon, sortDiscendingIcon, sortIcon } from '../widgets/assets/icons'
 import { getElemWithOperatorStyle } from '../widgets/elem-with-operator-style';
 import { getFilterListTemplate } from '../widgets/filters/filter-list-template'
 import { getFunctionListTemplate } from '../widgets/functions/function-list-template'
@@ -20,11 +20,13 @@ export default class HeadElementComponent extends UI.GscapeWidget {
   private variable: string
   private entityType: string
   private dataType: VarOrConstantConstantTypeEnum
+  private ordering: number
   public deleteButton: UI.GscapeWidget
   private toggleBodyButton: UI.GscapeButton
   public localizeButton: UI.GscapeButton
-  private addFilterButton: UI.GscapeButton
-  private addFunctionButton: any;
+  public addFilterButton: UI.GscapeButton
+  public addFunctionButton: any
+  public orderByButton: any
   private filters: { id: number, value: Filter }[]
   
   private ondragstart: (evt: any) => void
@@ -187,6 +189,9 @@ export default class HeadElementComponent extends UI.GscapeWidget {
     this.addFunctionButton = new UI.GscapeButton(functionIcon, 'Add Filter')
     this.addFunctionButton.onClick = () => this.addFunctionCallback(this._id)
 
+    this.orderByButton = new UI.GscapeButton(null, 'Order By')
+    this.orderByButton.onClick = () => this.orderByCallback(this._id)
+
     this.ondragstart = (evt) => onDragStart(evt)
     this.ondragover = (evt) => onDragOver(evt)
     this.ondragend = (evt) => onDragEnd(evt)
@@ -194,6 +199,16 @@ export default class HeadElementComponent extends UI.GscapeWidget {
   }
 
   render() {
+    if (this.ordering > 0) {
+      this.orderByButton.icon = sortAscendingIcon
+      this.orderByButton.highlighted = true
+    } else if (this.ordering < 0) {
+      this.orderByButton.icon = sortDiscendingIcon
+      this.orderByButton.highlighted = true
+    } else {
+      this.orderByButton.icon = sortIcon
+      this.orderByButton.highlighted = false
+    }
     return html`
       <div>
         <div id="field-head">
@@ -216,6 +231,7 @@ export default class HeadElementComponent extends UI.GscapeWidget {
               ${this.deleteButton}
               ${this.addFilterButton}
               ${!this.function ? this.addFunctionButton : null }
+              ${this.orderByButton}
             </div>
           </div>
           ${this.hasAnythingInBody ? this.toggleBodyButton : null}
@@ -260,6 +276,7 @@ export default class HeadElementComponent extends UI.GscapeWidget {
     this.entityType = newElement['entityType']
     this.dataType = newElement['dataType'] || 'Type'
     this.function = newElement.function
+    this.ordering = newElement.ordering
 
     let types = {
       'class': 'concept',
@@ -321,6 +338,11 @@ export default class HeadElementComponent extends UI.GscapeWidget {
   private addFunctionCallback = (headElementId: string) => { }
   public onAddFunction(callback: (headElementId: string) => void) {
     this.addFunctionCallback = callback
+  }
+
+  private orderByCallback = (headElementId: string) => { }
+  public onOrderByChange(callback: (headElementId: string) => void) {
+    this.orderByCallback = callback
   }
 
   public get dragHandler() {

@@ -52,4 +52,8 @@ export function onAddFunction(callback: (headElementId: string) => void) {
   qhWidget.onAddFunction(headElementId => callback(headElementId))
 }
 
+export function onOrderByChange(callback: (headElementId: string) => void) {
+  qhWidget.onOrderByChange(headElementId => callback(headElementId))
+}
+
 export { onElementSortChange } from './drag-sorting'
