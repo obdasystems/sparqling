@@ -1,4 +1,4 @@
-import { Function, FunctionNameEnum } from "../../api/swagger"
+import { Function, FunctionNameEnum } from "../../../api/swagger"
 import { html, css } from 'lit'
 
 export function getFunctionListTemplate(funct: Function) {

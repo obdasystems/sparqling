@@ -1,7 +1,7 @@
 import { html, css } from 'lit'
 import { UI } from 'grapholscape'
-import { edit, rubbishBin } from '../assets/icons'
-import { Filter, FilterExpressionOperatorEnum } from '../../api/swagger'
+import { edit, rubbishBin } from '../../assets/icons'
+import { Filter, FilterExpressionOperatorEnum } from '../../../api/swagger'
 
 export interface FilterWithID {
   id: number,

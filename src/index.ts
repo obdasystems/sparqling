@@ -33,6 +33,7 @@ export default function sparqling(gscape: Grapholscape, file?: string | File, is
     uiContainer.appendChild(widgets.filterListDialog)
     uiContainer.appendChild(widgets.functionDialog)
     uiContainer.appendChild(widgets.errorsDialog)
+    uiContainer.appendChild(widgets.aggregationDialog)
   
     gscape.container.querySelector('#gscape-ui-bottom-container').appendChild(widgets.startRunButtons)
   

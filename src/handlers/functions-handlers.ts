@@ -5,7 +5,7 @@ import * as model from '../model'
 import { guessDataType } from "../ontology-graph"
 import * as GEUtility from "../util/graph-element-utility"
 import { functionDialog } from "../widgets"
-import { Modality } from "../widgets/filter-function-dialog"
+import { Modality } from "../widgets/forms/base-form-dialog"
 
 functionDialog.onSubmit(async (id, op, params) => {
   const qhApi = QueryGraphHeadApiFactory()
