@@ -36,6 +36,7 @@ export default function () {
 
   function startSparqling() {
     init()
+    getGscape().widgets.OWL_VISUALIZER.disable()
     showUI()
     startRunButtons.isSparqlingRunning = true
     ontologyGraph.highlightSuggestions(getIri(model.getSelectedGraphElement()))
@@ -44,6 +45,7 @@ export default function () {
 }
 
 function init() {
+  if (model.isSparqlingInitialised()) return
   const gscape = getGscape()
   ontologyGraph.addStylesheet(gscape.renderer.cy, sparqlingStyle)
 
@@ -71,6 +73,8 @@ function init() {
     await gscape.SimplifiedOntologyPromise
     refreshHighlights()
   })
+
+  model.setInitialised(true)
 }
 
 function setHandlers(cy: Core) {
