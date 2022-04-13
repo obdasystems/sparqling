@@ -81,13 +81,20 @@ queryHead.onElementSortChange((headElementId, newIndex) => {
 })
 
 queryHead.onOrderByChange(headElementId => {
-  const queryBody = getTempQueryBody()
-  const headElement = queryBody.head.find(he => he.id === headElementId)
+  const tempQueryBody = getTempQueryBody()
+  const headElement = tempQueryBody.head.find(he => he.id === headElementId)
+
   headElement.ordering = headElement.ordering + 1
-  
-  if (headElement.ordering > 2) {
+  if (headElement.ordering >= 2) {
     headElement.ordering = -1
   }
 
-  onNewBody(queryBody)
+  // if (headElement.ordering === 0) {
+  //   headElement.ordering = null
+  // }
+
+  const qhApi = QueryGraphHeadApiFactory()
+  handlePromise(qhApi.orderByHeadTerm(headElementId, tempQueryBody)).then(newBody => {
+    onNewBody(newBody)
+  })
 })
