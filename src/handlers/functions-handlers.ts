@@ -20,11 +20,10 @@ functionDialog.onSubmit(async (id, op, params) => {
   const tempQueryBody = model.getTempQueryBody()
 
   if (id) {
-    console.log(id)
     // add function
     const tempHeadElement = tempQueryBody.head.find(elem => elem.id === id)
     tempHeadElement.function = newFunction
-    handlePromise(qhApi.functionHeadTerm(id,tempQueryBody)).then(newBody => {
+    handlePromise(qhApi.functionHeadTerm(id as string, tempQueryBody)).then(newBody => {
       onNewBody(newBody)
       functionDialog.setAsCorrect()
     })

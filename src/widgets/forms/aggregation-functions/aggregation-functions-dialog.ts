@@ -1,21 +1,27 @@
-import FilterFunctionDialog, { CLASS_FIELD_ERROR, Modality } from "../base-form-dialog"
-import { getFormTemplate, getSelect } from "../form-template"
+import { UI } from "grapholscape"
 import { html } from 'lit'
 import { FilterExpressionOperatorEnum, GroupByElementAggregateFunctionEnum } from "../../../api/swagger"
 import { FormID } from "../../../util/filter-function-interface"
-import { UI } from "grapholscape"
-import { addFilter, filter } from "../../assets/icons"
+import { addFilter } from "../../assets/icons"
+import FilterFunctionDialog, { CLASS_FIELD_ERROR } from "../base-form-dialog"
+import { getFormTemplate, getSelect } from "../form-template"
 
 export default class AggregationDialog extends FilterFunctionDialog {
   private showHavingFormButton = new UI.GscapeButton(addFilter, "Add Having")
-  private definingHaving: boolean
+  private definingHaving: boolean = false
 
+  static get properties() {
+    const props = super.properties
 
+    props.definingHaving = { attribute: false }
+    return props
+  }
   constructor() {
     super()
     this.saveButton.label = "Save Aggregation"
     this.showHavingFormButton.label = "Filter Groups - Having"
     this.showHavingFormButton.classList.add('flat')
+    this.showHavingFormButton.onClick = () => { this.definingHaving = true }
     this.havingOperator = GroupByElementAggregateFunctionEnum.Avarage
   }
 
@@ -26,7 +32,8 @@ export default class AggregationDialog extends FilterFunctionDialog {
           <div id="select-aggregate-function">
             ${getSelect(this.aggregateOperator || "Aggregate Function", GroupByElementAggregateFunctionEnum)}
           </div>
-          ${this.showHavingFormButton}
+
+          ${!this.definingHaving ? this.showHavingFormButton : null}
 
           ${getFormTemplate(
             this.operator, 
@@ -43,18 +50,48 @@ export default class AggregationDialog extends FilterFunctionDialog {
     `
   }
 
+  handleSubmit(): void {
+    if (this.definingHaving) {
+      super.handleSubmit()
+    } else {
+      let errorsFound = false
+      if (!this.isAggregateOperatorValid) {
+        errorsFound = true
+        this.selectAggregateOperatorElem.classList.add(CLASS_FIELD_ERROR.cssText)
+        this.addMessage('Select aggregate function', 'error-message')
+      }
+  
+      if (!errorsFound) {
+        this.resetErrors()
+        this.submitCallback(this._id, this.operator, this.parameters, this.aggregateOperator)
+      }
+    }
+  }
+ 
+  updated(): void {
+    super.updated()
+
+    const formSection = this.innerDialog.querySelector('.form').parentNode 
+    if (!this.definingHaving) {
+      formSection.classList.add('hide')
+    } else {
+      formSection.classList.remove('hide')
+    }
+  }
+
   onSubmit(callback: (headElementId: FormID, havingOperator: any, havingParameters: any[], aggregateOperator: GroupByElementAggregateFunctionEnum) => void) {
     this.submitCallback = callback
   }
 
   setAsCorrect(customText?: string): void {
-    super.setAsCorrect()
+    super.setAsCorrect(customText)
     this.saveButton.hide()
   }
 
   show() {
     super.show()
     this.saveButton.show()
+    this.definingHaving = false
   }
 
   

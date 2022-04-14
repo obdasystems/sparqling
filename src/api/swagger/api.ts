@@ -161,10 +161,10 @@ export interface Function {
 }
 
 export const FunctionNameEnum = {
-    Plus: '+',
-    Minus: '-',
-    Star: '*',
-    Slash: '/',
+    Add: 'ADD',
+    Subctract: 'SUBCTRACT',
+    Multiply: 'MULTIPLY',
+    Divide: 'DIVIDE',
     Substr: 'SUBSTR',
     Ucase: 'UCASE',
     Lcase: 'LCASE',
@@ -220,12 +220,6 @@ export interface GraphElement {
  * @interface GroupByElement
  */
 export interface GroupByElement {
-    /**
-     * 
-     * @type {Array<string>}
-     * @memberof GroupByElement
-     */
-    'headElementIds'?: Array<string>;
     /**
      * 
      * @type {string}

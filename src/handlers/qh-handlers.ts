@@ -1,17 +1,16 @@
-import { EntityTypeEnum, QueryGraphBGPApiFactory, QueryGraphHeadApiFactory, VarOrConstantTypeEnum } from '../api/swagger'
-import { deleteFilter, showFilterDialogEditingMode, showFilterDialogForVariable } from './filters-handlers'
-import * as ontologyGraph from '../ontology-graph'
+import { QueryGraphBGPApiFactory, QueryGraphHeadApiFactory } from '../api/swagger'
+import { handlePromise } from '../main/handle-promises'
+import onNewBody from '../main/on-new-body'
 import * as model from '../model'
+import { getTempQueryBody } from '../model'
+import * as ontologyGraph from '../ontology-graph'
 import * as queryGraph from '../query-graph'
 import * as queryHead from '../query-head'
-import { getEntityType, getGraphElementByID, getIri } from '../util/graph-element-utility'
-import { aggregationDialog, sparqlDialog } from '../widgets'
-import onNewBody from '../main/on-new-body'
-import { handlePromise } from '../main/handle-promises'
+import { getGraphElementByID, getIri } from '../util/graph-element-utility'
+import { sparqlDialog } from '../widgets'
+import { showAggregationsDialog } from './aggregatetions-handlers'
+import { deleteFilter, showFilterDialogEditingMode, showFilterDialogForVariable } from './filters-handlers'
 import { showFunctionDialogForVariable } from './functions-handlers'
-import { getHeadElementByID, getTempQueryBody } from '../model'
-import { Modality } from '../widgets/forms/base-form-dialog'
-import { guessDataType } from '../ontology-graph'
 
 queryHead.onDelete(async headElement => {
   const qgApi = QueryGraphHeadApiFactory()
@@ -103,21 +102,5 @@ queryHead.onOrderByChange(headElementId => {
 
 queryHead.onAddAggregation(headElementId => {
   const graphElement = getGraphElementByID(model.getHeadElementByID(headElementId).graphElementId)
-  const type = getEntityType(graphElement)
-
-  if (type === EntityTypeEnum.Class) {
-    aggregationDialog.parametersType = VarOrConstantTypeEnum.Iri
-  } else {
-    aggregationDialog.parametersType = VarOrConstantTypeEnum.Constant
-  }
-
-  aggregationDialog.modality = Modality.DEFINE
-  aggregationDialog._id = '?' + graphElement.id
-  aggregationDialog.operator = null
-  aggregationDialog.parameters = [{
-    type: VarOrConstantTypeEnum.Var,
-    constantType: guessDataType(getIri(graphElement)),
-    value: '?' + graphElement.id
-  }]
-  aggregationDialog.show()
+  showAggregationsDialog(graphElement)
 })

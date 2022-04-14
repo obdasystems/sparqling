@@ -157,7 +157,8 @@ export default class FilterFunctionDialog extends (UI.GscapeWidget as any) imple
 
     if (!this.isAggregateOperatorValid) {
       errorsFound = true
-      this.selectAggregateOperator.classList.add(CLASS_FIELD_ERROR.cssText)
+      this.selectAggregateOperatorElem.classList.add(CLASS_FIELD_ERROR.cssText)
+      this.addMessage('Select aggregate function', 'error-message')
     }
 
     if (!errorsFound) {
@@ -307,6 +308,8 @@ export default class FilterFunctionDialog extends (UI.GscapeWidget as any) imple
   }
 
   protected get isDatatypeValid() {
+    console.log(this.datatype)
+    console.log(Object.values(VarOrConstantConstantTypeEnum).includes(this.datatype))
     return Object.values(VarOrConstantConstantTypeEnum).includes(this.datatype)
   }
 
@@ -326,7 +329,7 @@ export default class FilterFunctionDialog extends (UI.GscapeWidget as any) imple
     this.selectAggregateOperatorElem.classList.remove(CLASS_FIELD_ERROR.cssText)
   }
 
-  private get selectAggregateOperatorElem() {
+  protected get selectAggregateOperatorElem() {
     return this.innerDialog.querySelector('#select-aggregate-function > select')
   }
 }
