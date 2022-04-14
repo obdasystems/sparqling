@@ -22,6 +22,7 @@ export default class QueryHeadWidget extends GscapeWidget {
   private deleteFilterCallback: (filterId: number) => void
   private addFunctionCallback: (headElementId: string) => void
   private orderByChangeCallback: (headElementId: string) => void
+  private addAggregationCallback: (headElementId: string) => void
 
   static get properties() {
 
@@ -168,6 +169,7 @@ export default class QueryHeadWidget extends GscapeWidget {
       element.onDeleteFilter(this.deleteFilterCallback)
       element.onAddFunction(this.addFunctionCallback)
       element.onOrderByChange(this.orderByChangeCallback)
+      element.onAddAggregation(this.addAggregationCallback)
     });
   }
 
@@ -221,6 +223,10 @@ export default class QueryHeadWidget extends GscapeWidget {
 
   onOrderByChange(callback: (headElementId: string) => void) {
     this.orderByChangeCallback = callback
+  }
+
+  onAddAggregation(callback: (headElementId: string) => void) {
+    this.addAggregationCallback = callback
   }
 
 

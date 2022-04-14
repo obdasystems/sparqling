@@ -1,27 +1,29 @@
 import { css } from 'lit'
 import { UI } from 'grapholscape'
-import { FilterExpressionOperatorEnum, FunctionNameEnum, VarOrConstant, VarOrConstantConstantTypeEnum, VarOrConstantTypeEnum } from '../api/swagger'
-import { FilterOrFunctionWidget } from '../util/filter-function-interface'
-import { checkmark, rubbishBin } from './assets/icons'
+import { FilterExpressionOperatorEnum, FunctionNameEnum, GroupByElementAggregateFunctionEnum, VarOrConstant, VarOrConstantConstantTypeEnum, VarOrConstantTypeEnum } from '../../api/swagger'
+import { FormID, FormOperator, FormWidget } from '../../util/filter-function-interface'
+import { checkmark, rubbishBin } from '../assets/icons'
 
-const CLASS_FIELD_ERROR = css`field-error`
+export const CLASS_FIELD_ERROR = css`field-error`
 export enum Modality {
   DEFINE = 'Define',
   EDIT = 'Edit'
 }
 
-export default class FilterFunctionDialog extends (UI.GscapeWidget as any) implements FilterOrFunctionWidget {
+export default class FilterFunctionDialog extends (UI.GscapeWidget as any) implements FormWidget {
   protected saveButton = new UI.GscapeButton(checkmark, "Save")
   protected deleteButton = new UI.GscapeButton(rubbishBin, "Delete")
-  public operator: FilterExpressionOperatorEnum | FunctionNameEnum
+  public operator: FormOperator
   public parameters: VarOrConstant[]
   public parametersType: VarOrConstantTypeEnum
-  public _id: any
+  public _id: FormID
   public modality: Modality = Modality.DEFINE
+  public aggregateOperator: GroupByElementAggregateFunctionEnum
   protected submitCallback = (
-    id: any,
+    id: FormID,
     op: any,
-    parameters: any[]
+    parameters: any[],
+    aggregateOperator?: GroupByElementAggregateFunctionEnum,
   ) => { }
   protected deleteCallback = (filterId: any) => { }
 
@@ -32,6 +34,8 @@ export default class FilterFunctionDialog extends (UI.GscapeWidget as any) imple
     props.operator = { attribute: false }
     props.parameters = { attribute: false }
     props.modality = { attribute: false }
+    props.datatype = { attribute: false }
+    props.aggregateOperator = { attribute: false }
     return props
   }
 
@@ -107,6 +111,18 @@ export default class FilterFunctionDialog extends (UI.GscapeWidget as any) imple
           width: 100%;
           justify-content: space-between;
         }
+
+        .section-header {
+          text-align: center;
+          font-weight: bold;
+          border-bottom: solid 1px var(--theme-gscape-borders);
+          color: var(--theme-gscape-secondary);
+          width: 85%;
+          margin: auto;
+          margin-bottom: auto;
+          margin-bottom: 10px;
+          padding-bottom: 5px;
+        }
       `
     ]
   }
@@ -123,25 +139,30 @@ export default class FilterFunctionDialog extends (UI.GscapeWidget as any) imple
     let errorsFound = false
     if (!this.isOperatorValid) {
       errorsFound = true
-      this.selectOperatorElem.classList.add('field-error')
+      this.selectOperatorElem.classList.add(CLASS_FIELD_ERROR.cssText)
       this.addMessage('Select operator', 'error-message')
     }
 
     if (!this.isDatatypeValid) {
       errorsFound = true
-      this.selectDatatypeElem.classList.add('field-error')
+      this.selectDatatypeElem.classList.add(CLASS_FIELD_ERROR.cssText)
       this.addMessage('Select datatype', 'error-message')
     }
 
     if (!this.isAnyValueDefined) {
       errorsFound = true
-      this.innerDialog.querySelector('input').classList.add('field-error')
+      this.innerDialog.querySelector('input').classList.add(CLASS_FIELD_ERROR.cssText)
       this.addMessage('Input value not set', 'error-message')
+    }
+
+    if (!this.isAggregateOperatorValid) {
+      errorsFound = true
+      this.selectAggregateOperator.classList.add(CLASS_FIELD_ERROR.cssText)
     }
 
     if (!errorsFound) {
       this.resetErrors()
-      this.submitCallback(this._id, this.operator, this.parameters)
+      this.submitCallback(this._id, this.operator, this.parameters, this.aggregateOperator)
     }
   }
 
@@ -153,6 +174,9 @@ export default class FilterFunctionDialog extends (UI.GscapeWidget as any) imple
 
     this.selectOperatorElem.onchange = (e) => this.onOperatorChange(e.currentTarget.value)
     this.selectDatatypeElem.onchange = (e) => this.onDatatypeChange(e.currentTarget.value)
+
+    if (this.selectAggregateOperatorElem)
+      this.selectAggregateOperatorElem.onchange = (e) => this.onAggregateOperatorChange(e.currentTarget.value)
   }
 
   private onOperatorChange(value: string) {
@@ -214,6 +238,8 @@ export default class FilterFunctionDialog extends (UI.GscapeWidget as any) imple
   }
 
   addMessage(msg: string, msgType: string) {
+    if (!this.messagesElem) return
+    
     let msgDiv = document.createElement('div')
     msgDiv.classList.add(msgType)
     msgDiv.innerHTML = msg
@@ -221,7 +247,8 @@ export default class FilterFunctionDialog extends (UI.GscapeWidget as any) imple
   }
 
   resetMessages() {
-    this.messagesElem.textContent = ''
+    if (this.messagesElem)
+      this.messagesElem.textContent = ''
   }
 
   resetErrors() {
@@ -287,5 +314,19 @@ export default class FilterFunctionDialog extends (UI.GscapeWidget as any) imple
     return this.parameters.some(p => {
       return p.value && p.type !== VarOrConstantTypeEnum.Var
     })
+  }
+
+  protected get isAggregateOperatorValid() {
+    return Object.values(GroupByElementAggregateFunctionEnum).includes(this.aggregateOperator)
+  }
+
+  private onAggregateOperatorChange(value: string) {
+    console.log(value)
+    this.aggregateOperator = GroupByElementAggregateFunctionEnum[value]
+    this.selectAggregateOperatorElem.classList.remove(CLASS_FIELD_ERROR.cssText)
+  }
+
+  private get selectAggregateOperatorElem() {
+    return this.innerDialog.querySelector('#select-aggregate-function > select')
   }
 }

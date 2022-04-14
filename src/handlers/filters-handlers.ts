@@ -1,6 +1,6 @@
 import { EntityTypeEnum, FilterExpressionOperatorEnum, GraphElement, QueryGraph, QueryGraphFilterApiFactory, VarOrConstantTypeEnum } from "../api/swagger"
 import { filterDialog, filterListDialog } from "../widgets"
-import { Modality } from "../widgets/filter-function-dialog"
+import { Modality } from "../widgets/forms/base-form-dialog"
 import * as model from '../model'
 import onNewBody from "../main/on-new-body"
 import * as GEUtility from "../util/graph-element-utility"
@@ -34,6 +34,7 @@ filterDialog.onSubmit(async (id, op, params) => {
       finalizeFilterSubmit(newBody)
     })
   } else {
+    id = id as number
     // update filter
     tempQueryBody.filters[id] = newFilter
     handlePromise(filterApi.editFilter(id, tempQueryBody)).then(newBody => {

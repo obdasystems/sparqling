@@ -2,10 +2,10 @@ import { UI } from 'grapholscape';
 import { css, html } from 'lit';
 import { Filter, Function, HeadElement, VarOrConstantConstantTypeEnum } from '../api/swagger';
 import { getFiltersOnVariable } from '../model';
-import { addFilter, crosshair, dragHandler, filter as filterIcon, functionIcon, rubbishBin, sortAscendingIcon, sortDescendingIcon, sortIcon } from '../widgets/assets/icons'
-import { getElemWithOperatorStyle } from '../widgets/elem-with-operator-style';
-import { getFilterListTemplate } from '../widgets/filters/filter-list-template'
-import { getFunctionListTemplate } from '../widgets/functions/function-list-template'
+import { addFilter, crosshair, dragHandler, filter as filterIcon, functionIcon, rubbishBin, sigma, sortAscendingIcon, sortDescendingIcon, sortIcon } from '../widgets/assets/icons'
+import { getElemWithOperatorStyle } from '../widgets/forms/elem-with-operator-style';
+import { getFilterListTemplate } from '../widgets/forms/filters/filter-list-template'
+import { getFunctionListTemplate } from '../widgets/forms/functions/function-list-template'
 import { onDragEnd, onDragOver, onDragStart } from './drag-sorting';
 
 const ALIAS_INPUT_ID = 'alias'
@@ -27,6 +27,7 @@ export default class HeadElementComponent extends UI.GscapeWidget {
   public addFilterButton: UI.GscapeButton
   public addFunctionButton: any
   public orderByButton: any
+  public addAggregationButton: any
   private filters: { id: number, value: Filter }[]
   
   private ondragstart: (evt: any) => void
@@ -198,11 +199,14 @@ export default class HeadElementComponent extends UI.GscapeWidget {
     this.addFilterButton = new UI.GscapeButton(addFilter, 'Add Filter')
     this.addFilterButton.onClick = () => this.addFilterCallback(this._id)
 
-    this.addFunctionButton = new UI.GscapeButton(functionIcon, 'Add Filter')
+    this.addFunctionButton = new UI.GscapeButton(functionIcon, 'Add Function')
     this.addFunctionButton.onClick = () => this.addFunctionCallback(this._id)
 
     this.orderByButton = new UI.GscapeButton(null, 'Order By')
     this.orderByButton.onClick = () => this.orderByCallback(this._id)
+
+    this.addAggregationButton = new UI.GscapeButton(sigma, 'Add Aggregation Function')
+    this.addAggregationButton.onClick = () => this.addAggregationCallback(this._id)
 
     this.ondragstart = (evt) => onDragStart(evt)
     this.ondragover = (evt) => onDragOver(evt)
@@ -255,6 +259,7 @@ export default class HeadElementComponent extends UI.GscapeWidget {
               ${this.addFilterButton}
               ${!this.function ? this.addFunctionButton : null }
               ${this.orderByButton}
+              ${this.addAggregationButton}
             </div>
           </div>
           ${this.hasAnythingInBody ? this.toggleBodyButton : null}
@@ -366,6 +371,11 @@ export default class HeadElementComponent extends UI.GscapeWidget {
   private orderByCallback = (headElementId: string) => { }
   public onOrderByChange(callback: (headElementId: string) => void) {
     this.orderByCallback = callback
+  }
+
+  private addAggregationCallback = (headElementId: string) => { }
+  public onAddAggregation(callback: (headElementId: string) => void) {
+    this.addAggregationCallback = callback
   }
 
   public get dragHandler() {

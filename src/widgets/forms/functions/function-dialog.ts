@@ -1,15 +1,10 @@
-import FilterFunctionDialog, { Modality } from "../filter-function-dialog"
-import { getFormTemplate } from "../filter-function-form-template"
+import FilterFunctionDialog, { Modality } from "../base-form-dialog"
+import { getFormTemplate } from "../form-template"
 import { html } from 'lit'
-import { FunctionNameEnum, VarOrConstant } from "../../api/swagger"
+import { FunctionNameEnum, VarOrConstant } from "../../../api/swagger"
+import { FormID } from "../../../util/filter-function-interface"
 
 export default class FunctionDialog extends FilterFunctionDialog {
-  _id: string;
-  protected submitCallback = (
-    id: string,
-    op: FunctionNameEnum,
-    parameters: VarOrConstant[]
-  ) => { }
   private isCorrect: boolean
 
   constructor() {
@@ -31,7 +26,7 @@ export default class FunctionDialog extends FilterFunctionDialog {
     `
   }
 
-  onSubmit(callback: (id: string, op: FunctionNameEnum, parameters: VarOrConstant[]) => void) {
+  onSubmit(callback: (headElementId: FormID, functionOperator: FunctionNameEnum, parameters: VarOrConstant[]) => void) {
     this.submitCallback = callback
   }
 

@@ -1,4 +1,4 @@
-import { FilterExpressionOperatorEnum, FunctionNameEnum, VarOrConstant, VarOrConstantConstantTypeEnum, VarOrConstantTypeEnum } from "../api/swagger"
+import { FilterExpressionOperatorEnum, FunctionNameEnum, GroupByElementAggregateFunctionEnum, VarOrConstant, VarOrConstantConstantTypeEnum, VarOrConstantTypeEnum } from "../../api/swagger"
 import { html } from 'lit'
 import { UI } from 'grapholscape'
 
@@ -16,11 +16,13 @@ import { UI } from 'grapholscape'
 //   return getFormTemplate(operator, parameters, FunctionNameEnum, datatype)
 // }
 
+
 export function getFormTemplate(
   operator: FilterExpressionOperatorEnum | FunctionNameEnum,
   parameters: VarOrConstant[],
   operators: typeof FilterExpressionOperatorEnum | typeof FunctionNameEnum,
-  datatype: VarOrConstantConstantTypeEnum) {
+  datatype: VarOrConstantConstantTypeEnum,
+  formTitle?: string) {
 
   const op:string = operator || "Operator"
   const dt:string = datatype || "Datatype"
@@ -28,24 +30,27 @@ export function getFormTemplate(
   addInputButton.id = "add-input-btn"
 
   return html`
-    <div class="form">
-      <div class="selects-wrapper">
-        <div id="select-operator">
-          <label>Operator</label>
-          ${getSelect(op, operators)}
+    <div class="section">
+      ${formTitle ? html`<div class="section-header">${formTitle}</div>` : null}
+      <div class="form">
+        <div class="selects-wrapper">
+          <div id="select-operator">
+            <label>Operator</label>
+            ${getSelect(op, operators)}
+          </div>
+          <div id="select-datatype">
+            <label>Datatype</label>
+            ${getSelect(dt, VarOrConstantConstantTypeEnum)}
+          </div>
         </div>
-        <div id="select-datatype">
-          <label>Datatype</label>
-          ${getSelect(dt, VarOrConstantConstantTypeEnum)}
+        <div class="inputs-wrapper">
+          ${parameters?.map((parameter, index) => getInput(index, parameter.value, "Set input value"))}
+          ${operator === FilterExpressionOperatorEnum.In ||
+            operator === FilterExpressionOperatorEnum.NotIn
+            ? html`${addInputButton}`
+            : null
+          }
         </div>
-      </div>
-      <div class="inputs-wrapper">
-        ${parameters?.map((parameter, index) => getInput(index, parameter.value, "Set input value"))}
-        ${operator === FilterExpressionOperatorEnum.In ||
-          operator === FilterExpressionOperatorEnum.NotIn
-          ? html`${addInputButton}`
-          : null
-        }
       </div>
     </div>
     <div id="message-tray"></div>
@@ -63,7 +68,7 @@ function getInput(index: number, value?: string, titleText = '') {
     />`
 }
 
-function getSelect(defaultOpt: string, options: object = {}) {
+export function getSelect(defaultOpt: string, options: object = {}) {
   const isDefaultAlreadySet = Object.values(options).includes(defaultOpt)
   return html`
     <select>

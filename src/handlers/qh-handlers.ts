@@ -1,15 +1,17 @@
-import { QueryGraphBGPApiFactory, QueryGraphHeadApiFactory } from '../api/swagger'
+import { EntityTypeEnum, QueryGraphBGPApiFactory, QueryGraphHeadApiFactory, VarOrConstantTypeEnum } from '../api/swagger'
 import { deleteFilter, showFilterDialogEditingMode, showFilterDialogForVariable } from './filters-handlers'
 import * as ontologyGraph from '../ontology-graph'
 import * as model from '../model'
 import * as queryGraph from '../query-graph'
 import * as queryHead from '../query-head'
-import { getGraphElementByID, getIri } from '../util/graph-element-utility'
-import { sparqlDialog } from '../widgets'
+import { getEntityType, getGraphElementByID, getIri } from '../util/graph-element-utility'
+import { aggregationDialog, sparqlDialog } from '../widgets'
 import onNewBody from '../main/on-new-body'
 import { handlePromise } from '../main/handle-promises'
 import { showFunctionDialogForVariable } from './functions-handlers'
 import { getHeadElementByID, getTempQueryBody } from '../model'
+import { Modality } from '../widgets/forms/base-form-dialog'
+import { guessDataType } from '../ontology-graph'
 
 queryHead.onDelete(async headElement => {
   const qgApi = QueryGraphHeadApiFactory()
@@ -97,4 +99,25 @@ queryHead.onOrderByChange(headElementId => {
   handlePromise(qhApi.orderByHeadTerm(headElementId, tempQueryBody)).then(newBody => {
     onNewBody(newBody)
   })
+})
+
+queryHead.onAddAggregation(headElementId => {
+  const graphElement = getGraphElementByID(model.getHeadElementByID(headElementId).graphElementId)
+  const type = getEntityType(graphElement)
+
+  if (type === EntityTypeEnum.Class) {
+    aggregationDialog.parametersType = VarOrConstantTypeEnum.Iri
+  } else {
+    aggregationDialog.parametersType = VarOrConstantTypeEnum.Constant
+  }
+
+  aggregationDialog.modality = Modality.DEFINE
+  aggregationDialog._id = '?' + graphElement.id
+  aggregationDialog.operator = null
+  aggregationDialog.parameters = [{
+    type: VarOrConstantTypeEnum.Var,
+    constantType: guessDataType(getIri(graphElement)),
+    value: '?' + graphElement.id
+  }]
+  aggregationDialog.show()
 })

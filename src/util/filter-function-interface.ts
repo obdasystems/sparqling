@@ -1,6 +1,11 @@
-import { FilterExpressionOperatorEnum, FunctionNameEnum, VarOrConstant } from "../api/swagger";
+import { FilterExpressionOperatorEnum, FunctionNameEnum, GroupByElementAggregateFunctionEnum, VarOrConstant } from "../api/swagger";
 
-export interface FilterOrFunctionWidget {
-  operator: FilterExpressionOperatorEnum | FunctionNameEnum,
-  parameters: VarOrConstant[]
+export type FormOperator = FilterExpressionOperatorEnum | FunctionNameEnum
+export type FormID = string | number
+
+export interface FormWidget {
+  _id: FormID,
+  operator: FormOperator,
+  parameters: VarOrConstant[],
+  aggregateOperator: GroupByElementAggregateFunctionEnum,
 }
