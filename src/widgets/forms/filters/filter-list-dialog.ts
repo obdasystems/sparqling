@@ -1,7 +1,7 @@
 import { UI } from 'grapholscape'
 import { css, html } from 'lit'
-import { FilterWithID, getFilterListTemplate } from './filter-list-template'
 import { getElemWithOperatorStyle } from '../elem-with-operator-style'
+import { FilterWithID, getElemWithOperatorList } from '../elems-with-operator-list-template'
 
 export default class FilterListDialog extends UI.GscapeWidget {
   public filterList: FilterWithID[] = []
@@ -61,7 +61,7 @@ export default class FilterListDialog extends UI.GscapeWidget {
     return html`
       <gscape-dialog title="Defined Filters for ${this.variable}">
         <div class="dialog-body">
-          ${getFilterListTemplate(this.filterList, this.editFilterCallback, this.deleteFilterCallback)}
+          ${getElemWithOperatorList(this.filterList, this.editFilterCallback, this.deleteFilterCallback)}
         </div>
       </gscape-dialog>
     `

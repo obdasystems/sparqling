@@ -1,26 +1,25 @@
 import { UI } from 'grapholscape';
 import { css, html } from 'lit';
-import { Filter, Function, HeadElement, VarOrConstantConstantTypeEnum } from '../api/swagger';
+import { Filter, Function, GroupByElement, HeadElement, VarOrConstantConstantTypeEnum } from '../api/swagger';
 import { getFiltersOnVariable } from '../model';
-import { addFilter, crosshair, dragHandler, filter as filterIcon, functionIcon, rubbishBin, sigma, sortAscendingIcon, sortDescendingIcon, sortIcon } from '../widgets/assets/icons'
+import { addFilter, crosshair, dragHandler, filter as filterIcon, functionIcon, rubbishBin, sigma, sortAscendingIcon, sortDescendingIcon, sortIcon } from '../widgets/assets/icons';
 import { getElemWithOperatorStyle } from '../widgets/forms/elem-with-operator-style';
-import { getFilterListTemplate } from '../widgets/forms/filters/filter-list-template'
-import { getFunctionListTemplate } from '../widgets/forms/functions/function-list-template'
+import { getElemWithOperatorList } from '../widgets/forms/elems-with-operator-list-template';
 import { onDragEnd, onDragOver, onDragStart } from './drag-sorting';
 
 const ALIAS_INPUT_ID = 'alias'
 
-export default class HeadElementComponent extends UI.GscapeWidget {
+export default class HeadElementComponent extends UI.GscapeWidget implements HeadElement {
   private collapsible = true;
 
   public _id: string
-  private graphElementId: string
-  private alias: string
-  private function: Function
-  private variable: string
-  private entityType: string
-  private dataType: VarOrConstantConstantTypeEnum
-  private ordering: number
+  graphElementId: string
+  alias: string
+  function: Function
+  variable: string
+  entityType: string
+  dataType: VarOrConstantConstantTypeEnum
+  ordering: number
   public deleteButton: UI.GscapeWidget
   private toggleBodyButton: UI.GscapeButton
   public localizeButton: UI.GscapeButton
@@ -28,7 +27,9 @@ export default class HeadElementComponent extends UI.GscapeWidget {
   public addFunctionButton: any
   public orderByButton: any
   public addAggregationButton: any
-  private filters: { id: number, value: Filter }[]
+  filters: { id: number, value: Filter }[]
+  groupBy: GroupByElement
+  having: Filter[]
   
   private ondragstart: (evt: any) => void
   private ondragover: (evt: any) => void
@@ -249,6 +250,7 @@ export default class HeadElementComponent extends UI.GscapeWidget {
                   ${this.function ? functionIcon : null}
                   ${this.ordering > 0 ? sortAscendingIcon : null}
                   ${this.ordering < 0 ? sortDescendingIcon : null}
+                  ${this.groupBy ? sigma : null}
                 </div>
               `
               : null
@@ -257,20 +259,36 @@ export default class HeadElementComponent extends UI.GscapeWidget {
               ${this.localizeButton}
               ${this.deleteButton}
               ${this.addFilterButton}
-              ${!this.function ? this.addFunctionButton : null }
+              ${!this.function ? this.addFunctionButton : null}
               ${this.orderByButton}
-              ${this.addAggregationButton}
+              ${!this.groupBy ? this.addAggregationButton : null}
             </div>
           </div>
           ${this.hasAnythingInBody ? this.toggleBodyButton : null}
         </div>
         <div id="field-body" class="widget-body hide">
+          ${this.groupBy
+            ? html`
+              <div class="section">
+                <div class="section-header">Aggregation</div>
+                <div class="filters-function-list">
+                  ${getElemWithOperatorList([this.groupBy])}
+                </div>
+                <span class="title">Having</span>
+                <div class="filters-function-list">
+                  ${getElemWithOperatorList(this.having)}
+                </div>
+              </div>
+            `
+            : null
+          }
+
           ${this.function 
             ? html`
               <div class="section">
-                <span class="title">Function</span>
+                <div class="section-header">Function</div>
                 <div class="filters-function-list">
-                  ${getFunctionListTemplate(this.function)}
+                  ${getElemWithOperatorList([this.function])}
                 </div>
               </div>
             `
@@ -280,9 +298,9 @@ export default class HeadElementComponent extends UI.GscapeWidget {
           ${this.filters?.length > 0
             ? html`
               <div class="section">
-                <span class="title">Filters</span>
+                <div class="section-header">Filters</div>
                 <div class="filters-function-list">
-                  ${getFilterListTemplate(this.filters, this.editFilterCallback, this.deleteFilterCallback)}
+                  ${getElemWithOperatorList(this.filters, this.editFilterCallback, this.deleteFilterCallback)}
                 </div>
               </div>
             `
@@ -305,6 +323,8 @@ export default class HeadElementComponent extends UI.GscapeWidget {
     this.dataType = newElement['dataType'] || 'Type'
     this.function = newElement.function
     this.ordering = newElement.ordering
+    this.groupBy = newElement.groupBy
+    this.having = newElement.having
 
     let types = {
       'class': 'concept',
@@ -383,7 +403,7 @@ export default class HeadElementComponent extends UI.GscapeWidget {
   }
 
   private get hasAnythingInBody() {
-    return this.filters?.length > 0 || this.function
+    return this.filters?.length > 0 || this.function || this.groupBy
   }
 }
 

@@ -308,8 +308,6 @@ export default class SparqlingFormDialog extends (UI.GscapeWidget as any) implem
   }
 
   protected get isDatatypeValid() {
-    console.log(this.datatype)
-    console.log(Object.values(VarOrConstantConstantTypeEnum).includes(this.datatype))
     return Object.values(VarOrConstantConstantTypeEnum).includes(this.datatype)
   }
 

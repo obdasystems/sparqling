@@ -98,7 +98,6 @@ export default class AggregationDialog extends SparqlingFormDialog {
   }
 
   private onAggregateOperatorChange(value: string) {
-    console.log(value)
     this.aggregateOperator = GroupByElementAggregateFunctionEnum[value]
     this.selectAggregateOperatorElem.classList.remove(CLASS_FIELD_ERROR.cssText)
   }

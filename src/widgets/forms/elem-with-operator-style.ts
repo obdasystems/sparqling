@@ -6,6 +6,7 @@ export function getElemWithOperatorStyle() {
       display: flex;
       gap: 10px;
       align-items:center;
+      justify-content: center;
     }
 
     .parameters {

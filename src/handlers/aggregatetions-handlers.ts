@@ -10,18 +10,20 @@ import { Modality } from "../widgets/forms/base-form-dialog";
 aggregationDialog.onSubmit((headElementID, havingOperator, havingParameters, aggregateOperator) => {
   const qhApi = QueryGraphHeadApiFactory()
   const tempQueryBody = model.getTempQueryBody()
-
-  tempQueryBody.groupBy = {
+  
+  const headElement = tempQueryBody.head.find(he => he.id === headElementID)
+  headElement.groupBy = {
+    distinct: false,
     aggregateFunction: aggregateOperator
   }
 
   if (havingOperator && havingParameters) {
-    tempQueryBody.having = {
+    headElement.having = [{
       expression: {
         operator: havingOperator,
         parameters: havingParameters,
       }
-    }
+    }]
   }
   
   handlePromise(qhApi.aggregationHeadTerm(headElementID as string, tempQueryBody)).then(newBody => {
