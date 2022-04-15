@@ -27,7 +27,7 @@ queryGraph.onDelete((graphElement, iri) => {
 
   if (!iri) {
     handlePromise(qgApi.deleteGraphElementId(graphElement.id, body)).then(newBody => {
-      if (newBody.graph && !GEUtility.findGraphElement(newBody.graph, ge => ge === selectedGraphElement)) {
+      if (newBody.graph && !GEUtility.findGraphElement(newBody.graph, ge => ge.id === selectedGraphElement.id)) {
         // if we deleted selectedGraphElem, then select its parent
         let newSelectedGE = GEUtility.findGraphElement(body.graph, ge => {
           return ge.children?.some(c => {
