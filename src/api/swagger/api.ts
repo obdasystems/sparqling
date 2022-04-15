@@ -222,6 +222,12 @@ export interface GraphElement {
 export interface GroupByElement {
     /**
      * 
+     * @type {boolean}
+     * @memberof GroupByElement
+     */
+    'distinct'?: boolean;
+    /**
+     * 
      * @type {string}
      * @memberof GroupByElement
      */
@@ -280,6 +286,18 @@ export interface HeadElement {
      * @memberof HeadElement
      */
     'function'?: Function;
+    /**
+     * 
+     * @type {GroupByElement}
+     * @memberof HeadElement
+     */
+    'groupBy'?: GroupByElement;
+    /**
+     * 
+     * @type {Array<Filter>}
+     * @memberof HeadElement
+     */
+    'having'?: Array<Filter>;
 }
 /**
  * 
@@ -374,24 +392,6 @@ export interface QueryGraph {
      * @memberof QueryGraph
      */
     'optionals'?: Array<Optional>;
-    /**
-     * 
-     * @type {GraphElement}
-     * @memberof QueryGraph
-     */
-    'minus'?: GraphElement;
-    /**
-     * 
-     * @type {GroupByElement}
-     * @memberof QueryGraph
-     */
-    'groupBy'?: GroupByElement;
-    /**
-     * 
-     * @type {Filter}
-     * @memberof QueryGraph
-     */
-    'having'?: Filter;
     /**
      * 
      * @type {number}
@@ -1396,6 +1396,49 @@ export class QueryGraphBGPApi extends BaseAPI {
 export const QueryGraphExtraApiAxiosParamCreator = function (configuration?: Configuration) {
     return {
         /**
+         * 
+         * @summary Remove query head and replace it with `count(*)`.
+         * @param {boolean} distinct 
+         * @param {QueryGraph} queryGraph 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        countStarQueryGraph: async (distinct: boolean, queryGraph: QueryGraph, options: AxiosRequestConfig = {}): Promise<RequestArgs> => {
+            // verify required parameter 'distinct' is not null or undefined
+            assertParamExists('countStarQueryGraph', 'distinct', distinct)
+            // verify required parameter 'queryGraph' is not null or undefined
+            assertParamExists('countStarQueryGraph', 'queryGraph', queryGraph)
+            const localVarPath = `/queryGraph/countStar`;
+            // use dummy base URL string because the URL constructor only accepts absolute URLs.
+            const localVarUrlObj = new URL(localVarPath, DUMMY_BASE_URL);
+            let baseOptions;
+            if (configuration) {
+                baseOptions = configuration.baseOptions;
+            }
+
+            const localVarRequestOptions = { method: 'PUT', ...baseOptions, ...options};
+            const localVarHeaderParameter = {} as any;
+            const localVarQueryParameter = {} as any;
+
+            if (distinct !== undefined) {
+                localVarQueryParameter['distinct'] = distinct;
+            }
+
+
+    
+            localVarHeaderParameter['Content-Type'] = 'application/json';
+
+            setSearchParams(localVarUrlObj, localVarQueryParameter);
+            let headersFromBaseOptions = baseOptions && baseOptions.headers ? baseOptions.headers : {};
+            localVarRequestOptions.headers = {...localVarHeaderParameter, ...headersFromBaseOptions, ...options.headers};
+            localVarRequestOptions.data = serializeDataIfNeeded(queryGraph, localVarRequestOptions, configuration)
+
+            return {
+                url: toPathString(localVarUrlObj),
+                options: localVarRequestOptions,
+            };
+        },
+        /**
          * The distinct value is defined in the query graph in the request body.
          * @summary Set the distinct value.
          * @param {boolean} distinct 
@@ -1535,6 +1578,18 @@ export const QueryGraphExtraApiFp = function(configuration?: Configuration) {
     const localVarAxiosParamCreator = QueryGraphExtraApiAxiosParamCreator(configuration)
     return {
         /**
+         * 
+         * @summary Remove query head and replace it with `count(*)`.
+         * @param {boolean} distinct 
+         * @param {QueryGraph} queryGraph 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        async countStarQueryGraph(distinct: boolean, queryGraph: QueryGraph, options?: AxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<QueryGraph>> {
+            const localVarAxiosArgs = await localVarAxiosParamCreator.countStarQueryGraph(distinct, queryGraph, options);
+            return createRequestFunction(localVarAxiosArgs, globalAxios, BASE_PATH, configuration);
+        },
+        /**
          * The distinct value is defined in the query graph in the request body.
          * @summary Set the distinct value.
          * @param {boolean} distinct 
@@ -1581,6 +1636,17 @@ export const QueryGraphExtraApiFactory = function (configuration?: Configuration
     const localVarFp = QueryGraphExtraApiFp(configuration)
     return {
         /**
+         * 
+         * @summary Remove query head and replace it with `count(*)`.
+         * @param {boolean} distinct 
+         * @param {QueryGraph} queryGraph 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        countStarQueryGraph(distinct: boolean, queryGraph: QueryGraph, options?: any): AxiosPromise<QueryGraph> {
+            return localVarFp.countStarQueryGraph(distinct, queryGraph, options).then((request) => request(axios, basePath));
+        },
+        /**
          * The distinct value is defined in the query graph in the request body.
          * @summary Set the distinct value.
          * @param {boolean} distinct 
@@ -1623,6 +1689,19 @@ export const QueryGraphExtraApiFactory = function (configuration?: Configuration
  * @extends {BaseAPI}
  */
 export class QueryGraphExtraApi extends BaseAPI {
+    /**
+     * 
+     * @summary Remove query head and replace it with `count(*)`.
+     * @param {boolean} distinct 
+     * @param {QueryGraph} queryGraph 
+     * @param {*} [options] Override http request option.
+     * @throws {RequiredError}
+     * @memberof QueryGraphExtraApi
+     */
+    public countStarQueryGraph(distinct: boolean, queryGraph: QueryGraph, options?: AxiosRequestConfig) {
+        return QueryGraphExtraApiFp(this.configuration).countStarQueryGraph(distinct, queryGraph, options).then((request) => request(this.axios, this.basePath));
+    }
+
     /**
      * The distinct value is defined in the query graph in the request body.
      * @summary Set the distinct value.
