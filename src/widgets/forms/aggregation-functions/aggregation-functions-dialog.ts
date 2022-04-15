@@ -3,12 +3,13 @@ import { html } from 'lit'
 import { FilterExpressionOperatorEnum, GroupByElementAggregateFunctionEnum, VarOrConstantConstantTypeEnum } from "../../../api/swagger"
 import { FormID } from "../../../util/filter-function-interface"
 import { addFilter } from "../../assets/icons"
-import SparqlingFormDialog, { CLASS_FIELD_ERROR } from "../base-form-dialog"
+import SparqlingFormDialog, { CLASS_FIELD_ERROR, ValidationCheck } from "../base-form-dialog"
 import { getFormTemplate, getSelect } from "../form-template"
 
 export default class AggregationDialog extends SparqlingFormDialog {
   private showHavingFormButton = new UI.GscapeButton(addFilter, "Add Having")
   private definingHaving: boolean = false
+  private aggregateOperatorValidityCheck: ValidationCheck
 
   static get properties() {
     const props = super.properties
@@ -50,21 +51,21 @@ export default class AggregationDialog extends SparqlingFormDialog {
     `
   }
 
+  firstUpdated(): void {
+    super.firstUpdated()
+    this.aggregateOperatorValidityCheck = {
+      name: 'isAggregateOperatorValid',
+      errorMessage: 'Select Aggregate Function',
+      elem: this.selectAggregateOperatorElem
+    }
+    this.selectAggregateOperatorElem.onchange = (e) => this.onAggregateOperatorChange(e.currentTarget.value)
+  }
+
   handleSubmit(): void {
     if (this.definingHaving) {
       super.handleSubmit()
     } else {
-      let errorsFound = false
-      if (!this.isAggregateOperatorValid) {
-        errorsFound = true
-        this.selectAggregateOperatorElem.classList.add(CLASS_FIELD_ERROR.cssText)
-        this.addMessage('Select aggregate function', 'error-message')
-      }
-  
-      if (!errorsFound) {
-        this.resetErrors()
-        this.submitCallback(this._id, this.operator, this.parameters, this.aggregateOperator)
-      }
+      super.handleSubmit([this.aggregateOperatorValidityCheck])
     }
   }
  
@@ -77,6 +78,8 @@ export default class AggregationDialog extends SparqlingFormDialog {
     } else {
       formSection.classList.remove('hide')
     }
+
+    this.validationChecks.push(this.aggregateOperatorValidityCheck)
   }
 
   onSubmit(callback: (headElementId: FormID, havingOperator: any, havingParameters: any[], aggregateOperator: GroupByElementAggregateFunctionEnum) => void) {
@@ -94,10 +97,23 @@ export default class AggregationDialog extends SparqlingFormDialog {
     this.definingHaving = false
   }
 
+  private onAggregateOperatorChange(value: string) {
+    console.log(value)
+    this.aggregateOperator = GroupByElementAggregateFunctionEnum[value]
+    this.selectAggregateOperatorElem.classList.remove(CLASS_FIELD_ERROR.cssText)
+  }
+
   protected get datatype(): VarOrConstantConstantTypeEnum {
     return super.datatype
   }
-  
+
+  protected get isAggregateOperatorValid() {
+    return Object.values(GroupByElementAggregateFunctionEnum).includes(this.aggregateOperator)
+  }
+
+  protected get selectAggregateOperatorElem() {
+    return this.innerDialog.querySelector('#select-aggregate-function > select')
+  }
 }
 
 customElements.define('sparqling-aggregation-dialog', AggregationDialog as any)

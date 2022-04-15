@@ -10,6 +10,12 @@ export enum Modality {
   EDIT = 'Edit'
 }
 
+export type ValidationCheck = {
+  name: string,
+  errorMessage: string,
+  elem: HTMLElement,
+}
+
 export default class SparqlingFormDialog extends (UI.GscapeWidget as any) implements FormWidget {
   protected saveButton = new UI.GscapeButton(checkmark, "Save")
   protected deleteButton = new UI.GscapeButton(rubbishBin, "Delete")
@@ -26,6 +32,8 @@ export default class SparqlingFormDialog extends (UI.GscapeWidget as any) implem
     aggregateOperator?: GroupByElementAggregateFunctionEnum,
   ) => { }
   protected deleteCallback = (filterId: any) => { }
+
+  protected validationChecks: ValidationCheck[]
 
   static get properties() {
     let props = super.properties
@@ -134,32 +142,21 @@ export default class SparqlingFormDialog extends (UI.GscapeWidget as any) implem
     this.deleteButton.classList.add('danger')
   }
 
-  handleSubmit() {
+  protected setElemError(elem: HTMLElement, errorMsg: string) {
+    elem.classList.add(CLASS_FIELD_ERROR.cssText)
+    this.addMessage(errorMsg, 'error-message')
+  }
+
+  protected handleSubmit(validationChecks = this.validationChecks) {
     this.resetMessages()
     let errorsFound = false
-    if (!this.isOperatorValid) {
-      errorsFound = true
-      this.selectOperatorElem.classList.add(CLASS_FIELD_ERROR.cssText)
-      this.addMessage('Select operator', 'error-message')
-    }
 
-    if (!this.isDatatypeValid) {
-      errorsFound = true
-      this.selectDatatypeElem.classList.add(CLASS_FIELD_ERROR.cssText)
-      this.addMessage('Select datatype', 'error-message')
-    }
-
-    if (!this.isAnyValueDefined) {
-      errorsFound = true
-      this.innerDialog.querySelector('input').classList.add(CLASS_FIELD_ERROR.cssText)
-      this.addMessage('Input value not set', 'error-message')
-    }
-
-    if (!this.isAggregateOperatorValid) {
-      errorsFound = true
-      this.selectAggregateOperatorElem.classList.add(CLASS_FIELD_ERROR.cssText)
-      this.addMessage('Select aggregate function', 'error-message')
-    }
+    validationChecks.forEach(validationCheck => {
+      if (!this[validationCheck.name]) {
+        errorsFound = true
+        this.setElemError(validationCheck.elem, validationCheck.errorMessage)
+      }
+    })
 
     if (!errorsFound) {
       this.resetErrors()
@@ -175,9 +172,6 @@ export default class SparqlingFormDialog extends (UI.GscapeWidget as any) implem
 
     this.selectOperatorElem.onchange = (e) => this.onOperatorChange(e.currentTarget.value)
     this.selectDatatypeElem.onchange = (e) => this.onDatatypeChange(e.currentTarget.value)
-
-    if (this.selectAggregateOperatorElem)
-      this.selectAggregateOperatorElem.onchange = (e) => this.onAggregateOperatorChange(e.currentTarget.value)
   }
 
   private onOperatorChange(value: string) {
@@ -236,6 +230,12 @@ export default class SparqlingFormDialog extends (UI.GscapeWidget as any) implem
 
     if (this.parametersIriOrConstants?.length <= 0)
       this.addInputValue()
+
+    this.validationChecks = [
+      { name: 'isOperatorValid', errorMessage: 'Select operator', elem: this.selectOperatorElem },
+      { name: 'isDatatypeValid', errorMessage: 'Select datatype', elem: this.selectDatatypeElem },
+      { name: 'isAnyValueDefined', errorMessage: 'Input value not set', elem: this.inputElems[0] }
+    ]
   }
 
   addMessage(msg: string, msgType: string) {
@@ -317,19 +317,5 @@ export default class SparqlingFormDialog extends (UI.GscapeWidget as any) implem
     return this.parameters.some(p => {
       return p.value && p.type !== VarOrConstantTypeEnum.Var
     })
-  }
-
-  protected get isAggregateOperatorValid() {
-    return Object.values(GroupByElementAggregateFunctionEnum).includes(this.aggregateOperator)
-  }
-
-  private onAggregateOperatorChange(value: string) {
-    console.log(value)
-    this.aggregateOperator = GroupByElementAggregateFunctionEnum[value]
-    this.selectAggregateOperatorElem.classList.remove(CLASS_FIELD_ERROR.cssText)
-  }
-
-  protected get selectAggregateOperatorElem() {
-    return this.innerDialog.querySelector('#select-aggregate-function > select')
   }
 }
