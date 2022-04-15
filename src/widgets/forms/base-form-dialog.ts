@@ -164,16 +164,6 @@ export default class SparqlingFormDialog extends (UI.GscapeWidget as any) implem
     }
   }
 
-  firstUpdated() {
-    super.firstUpdated()
-    //let self = this as any
-    // self.header.left_icon = 'lightbulbQuestion'
-    //self.header.invertIcons()
-
-    this.selectOperatorElem.onchange = (e) => this.onOperatorChange(e.currentTarget.value)
-    this.selectDatatypeElem.onchange = (e) => this.onDatatypeChange(e.currentTarget.value)
-  }
-
   private onOperatorChange(value: string) {
     if (value !== FilterExpressionOperatorEnum.In && value !== FilterExpressionOperatorEnum.NotIn) {
       this.parameters.splice(2) // Only 2 parameters needed, discard others (remove from index=2 till end)
@@ -219,6 +209,12 @@ export default class SparqlingFormDialog extends (UI.GscapeWidget as any) implem
 
   updated() {
     super.updated()
+
+    if (this.selectOperatorElem)
+      this.selectOperatorElem.onchange = (e) => this.onOperatorChange(e.currentTarget.value)
+    
+    if (this.selectDatatypeElem)
+      this.selectDatatypeElem.onchange = (e) => this.onDatatypeChange(e.currentTarget.value)
 
     this.inputElems?.forEach((input: any) =>
       input.onchange = (e) => this.onInputChange(input.getAttribute('index'), e.currentTarget.value)
@@ -308,7 +304,7 @@ export default class SparqlingFormDialog extends (UI.GscapeWidget as any) implem
   }
 
   protected get isDatatypeValid() {
-    return Object.values(VarOrConstantConstantTypeEnum).includes(this.datatype)
+    return this.parametersType === VarOrConstantTypeEnum.Iri || Object.values(VarOrConstantConstantTypeEnum).includes(this.datatype)
   }
 
   protected get isAnyValueDefined() {

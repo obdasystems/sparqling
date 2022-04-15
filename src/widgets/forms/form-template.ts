@@ -38,10 +38,15 @@ export function getFormTemplate(
             <label>Operator</label>
             ${getSelect(op, operators)}
           </div>
-          <div id="select-datatype">
-            <label>Datatype</label>
-            ${getSelect(dt, VarOrConstantConstantTypeEnum)}
-          </div>
+          ${parameters?.length > 0 && parameters[0]?.type === VarOrConstantTypeEnum.Constant 
+            ? html`
+              <div id="select-datatype">
+                <label>Datatype</label>
+                ${getSelect(dt, VarOrConstantConstantTypeEnum)}
+              </div>
+            `
+            : null
+          }
         </div>
         <div class="inputs-wrapper">
           ${parameters?.map((parameter, index) => getInput(index, parameter.value, "Set input value"))}

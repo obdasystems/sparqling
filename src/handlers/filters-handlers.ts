@@ -66,9 +66,7 @@ export async function deleteFilter(filterId: number) {
 }
 
 export function showFilterDialogForVariable(graphElement: GraphElement) {
-  const type = GEUtility.getEntityType(graphElement)
-
-  if (type === EntityTypeEnum.Class) {
+  if (GEUtility.isClass(graphElement)) {
     filterDialog.parametersType = VarOrConstantTypeEnum.Iri
   } else {
     filterDialog.parametersType = VarOrConstantTypeEnum.Constant
