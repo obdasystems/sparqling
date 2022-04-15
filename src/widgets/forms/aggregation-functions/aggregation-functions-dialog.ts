@@ -1,12 +1,12 @@
 import { UI } from "grapholscape"
 import { html } from 'lit'
-import { FilterExpressionOperatorEnum, GroupByElementAggregateFunctionEnum } from "../../../api/swagger"
+import { FilterExpressionOperatorEnum, GroupByElementAggregateFunctionEnum, VarOrConstantConstantTypeEnum } from "../../../api/swagger"
 import { FormID } from "../../../util/filter-function-interface"
 import { addFilter } from "../../assets/icons"
-import FilterFunctionDialog, { CLASS_FIELD_ERROR } from "../base-form-dialog"
+import SparqlingFormDialog, { CLASS_FIELD_ERROR } from "../base-form-dialog"
 import { getFormTemplate, getSelect } from "../form-template"
 
-export default class AggregationDialog extends FilterFunctionDialog {
+export default class AggregationDialog extends SparqlingFormDialog {
   private showHavingFormButton = new UI.GscapeButton(addFilter, "Add Having")
   private definingHaving: boolean = false
 
@@ -94,6 +94,9 @@ export default class AggregationDialog extends FilterFunctionDialog {
     this.definingHaving = false
   }
 
+  protected get datatype(): VarOrConstantConstantTypeEnum {
+    return super.datatype
+  }
   
 }
 

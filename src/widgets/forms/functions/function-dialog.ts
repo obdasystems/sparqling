@@ -1,10 +1,10 @@
-import FilterFunctionDialog, { Modality } from "../base-form-dialog"
+import SparqlingFormDialog, { Modality } from "../base-form-dialog"
 import { getFormTemplate } from "../form-template"
 import { html } from 'lit'
 import { FunctionNameEnum, VarOrConstant } from "../../../api/swagger"
 import { FormID } from "../../../util/filter-function-interface"
 
-export default class FunctionDialog extends FilterFunctionDialog {
+export default class FunctionDialog extends SparqlingFormDialog {
   private isCorrect: boolean
 
   constructor() {

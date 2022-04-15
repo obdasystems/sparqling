@@ -10,7 +10,7 @@ export enum Modality {
   EDIT = 'Edit'
 }
 
-export default class FilterFunctionDialog extends (UI.GscapeWidget as any) implements FormWidget {
+export default class SparqlingFormDialog extends (UI.GscapeWidget as any) implements FormWidget {
   protected saveButton = new UI.GscapeButton(checkmark, "Save")
   protected deleteButton = new UI.GscapeButton(rubbishBin, "Delete")
   public operator: FormOperator
@@ -52,7 +52,7 @@ export default class FilterFunctionDialog extends (UI.GscapeWidget as any) imple
         }
 
         gscape-dialog {
-          width: fit-content;
+          min-width: 300px;
         }
 
         .dialog-body {

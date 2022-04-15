@@ -1,10 +1,10 @@
 import { html } from "lit";
 import { FilterExpressionOperatorEnum, VarOrConstant } from "../../../api/swagger";
 import { getFormTemplate } from "../form-template";
-import FilterFunctionDialog, { Modality } from "../base-form-dialog";
+import SparqlingFormDialog, { Modality } from "../base-form-dialog";
 import { FormID } from "../../../util/filter-function-interface";
 
-export default class FilterDialog extends FilterFunctionDialog {
+export default class FilterDialog extends SparqlingFormDialog {
   protected deleteCallback = (filterId: number) => { }
 
   constructor() {

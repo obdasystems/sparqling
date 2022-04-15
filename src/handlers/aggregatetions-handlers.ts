@@ -47,6 +47,7 @@ export function showAggregationsDialog(graphElement: GraphElement) {
     constantType: guessDataType(getIri(graphElement)),
     value: '?' + graphElement.id
   }]
+
   aggregationDialog.aggregateOperator = null
   aggregationDialog.show()
 }
