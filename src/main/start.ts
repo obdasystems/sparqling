@@ -59,13 +59,11 @@ function init() {
     queryGraph.setTheme(newTheme)
     ontologyGraph.addStylesheet(gscape.renderer.cy, sparqlingStyle)
   })
-  gscape.onEntitySelection(async (cyEntity: CollectionReturnValue) => {
-    if (startRunButtons.isSparqlingRunning)
-      OntologyGraphHandlers.handleEntitySelection(cyEntity)
-  })
+
   gscape.onDiagramChange(() => {
     setHandlers(gscape.renderer.cy)
     ontologyGraph.addStylesheet(gscape.renderer.cy, sparqlingStyle)
+    refreshHighlights()
   })
 
   gscape.onRendererChange(async () => {
@@ -88,5 +86,10 @@ function setHandlers(cy: Core) {
   cy.on('mouseout', objPropertiesSelector, e => {
     if (startRunButtons.isSparqlingRunning)
       ontologyGraph.hideRelatedClassesWidget()
+  })
+
+  cy.on('dblclick', `[displayed_name].predicate`, e => {
+    if (startRunButtons.isSparqlingRunning)
+      OntologyGraphHandlers.handleEntitySelection(e.target)
   })
 }

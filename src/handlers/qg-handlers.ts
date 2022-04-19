@@ -71,22 +71,22 @@ queryGraph.onJoin(async (ge1, ge2) => {
 queryGraph.onElementClick((graphElement, iri) => {
   const gscape = getGscape()
 
-  if (GEUtility.isClass(graphElement)) {
-    // if the new graphElement is different from the current selected one the select it
-    if (model.getSelectedGraphElement() !== graphElement) {
-      model.setSelectedGraphElement(graphElement)
-    }
-
-    // Highlight suggestions for the actual clicked iri (might be a child node)
-    ontologyGraph.highlightSuggestions(iri)
-  }
-
   // move ontology graph to show origin graphol node or any other iri occurrence
   const originGrapholNodeId = model.getOriginGrapholNodes().get(graphElement.id + iri)
   if (originGrapholNodeId) {
     ontologyGraph.focusNodeByIdAndDiagram(originGrapholNodeId)
   } else {
     ontologyGraph.focusNodeByIRI(iri)
+  }
+
+  if (GEUtility.isClass(graphElement)) {
+    // if the new graphElement is different from the current selected one the select it
+    if (model.getSelectedGraphElement() !== graphElement) {
+      model.setSelectedGraphElement(graphElement)
+
+      // Highlight suggestions for the actual clicked iri (might be a child node)
+      ontologyGraph.highlightSuggestions(iri)
+    }
   }
 
   gscape.widgets.ENTITY_DETAILS.setEntity(gscape.ontology.getEntityOccurrences(iri)[0])

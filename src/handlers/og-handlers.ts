@@ -75,6 +75,7 @@ ontologyGraph.onRelatedClassSelection((branch: Branch, relatedClass) => {
   const gscape = getGscape()
   lastObjProperty = branch
   gscape.centerOnNode(relatedClass.id())
+  handleEntitySelection(relatedClass)
 })
 
 async function handleConceptSelection(cyEntity: CollectionReturnValue): Promise<QueryGraph> {

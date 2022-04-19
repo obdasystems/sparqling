@@ -17,10 +17,10 @@ export function clearSelected() {
 
 export function isIriSelected(iri: string) {
   let sparqlingSelectedNode: CollectionReturnValue = gscape.renderer.cy.$('.sparqling-selected')
-  if(sparqlingSelectedNode.empty()) 
+  if (sparqlingSelectedNode.empty())
     return false
   else {
-    const sparqlingSelectedIri = sparqlingSelectedNode.data().iri
+    const sparqlingSelectedIri = sparqlingSelectedNode.first().data().iri
     return sparqlingSelectedIri.full === iri || sparqlingSelectedIri.prefixed === iri
   }
 }

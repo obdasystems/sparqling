@@ -72,16 +72,17 @@ function performHighlights(clickedIRI: string) {
   actualHighlights.objectProperties?.forEach((o: any) => highlightIRI(o.objectPropertyIRI))
 
   // select all nodes having iri = clickedIRI
-  gscape.ontology
-    .getEntityOccurrences(clickedIRI)
-    .forEach((node: CollectionReturnValue) => {
-      if (node.data('diagram_id') === gscape.actualDiagramID) node.addClass('sparqling-selected')
-    })
+  for(const node of gscape.ontology.getEntityOccurrences(clickedIRI)) {
+    if (node.data('diagram_id') === gscape.actualDiagramID) {
+      node.addClass('sparqling-selected')
+      break
+    }
+  }
 
   const highlightedElems = gscape.renderer.cy.$('.highlighted, .sparqling-selected')
   const fadedElems = gscape.renderer.cy.elements().difference(highlightedElems)
   fadedElems.addClass('faded')
-  fadedElems.unselectify()
+  //fadedElems.unselectify()
 }
 
 function transformHighlightsToPrefixedIRIs(): Highlights {
