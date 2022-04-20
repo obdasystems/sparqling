@@ -73,7 +73,17 @@ export default (theme: Theme) => {
       style: {
         'line-color': theme.role_dark,
         'target-arrow-color': theme.role_dark,
+        'source-arrow-color': theme.role_dark,
         'text-max-width': '60px'
+      }
+    },
+
+    {
+      selector: `edge[type = "${InverseObjectProperty}"]`,
+      style: {
+        'target-arrow-shape': 'none',
+        'source-arrow-shape': 'triangle',
+        'source-arrow-fill': 'filled',
       }
     },
 

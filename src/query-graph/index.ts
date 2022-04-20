@@ -37,12 +37,7 @@ export function render(graphElem: GraphElement, parent?: GraphElement, objectPro
   if (!GEUtility.isObjectProperty(graphElem)) {
     bgp.addNode(graphElem)
     if (parent) {
-      // if the object property is inverse, switch source and target
-      if (GEUtility.isInverseObjectProperty(objectProperty)) {
-        bgp.addEdge(graphElem, parent, objectProperty)
-      } else {
-        bgp.addEdge(parent, graphElem, objectProperty)
-      } 
+      bgp.addEdge(parent, graphElem, objectProperty)
     }
   }
 
