@@ -1,6 +1,7 @@
 import { UI } from 'grapholscape'
 import { html, css } from 'lit'
-import { rdfLogo } from '../widgets/assets/icons'
+import { dbClick, rdfLogo } from '../widgets/assets/icons'
+import { emptyGraphMsg, emptyGraphTipMsg, tipWhatIsQueryGraph } from '../widgets/assets/texts'
 import cy from './renderer/cy'
 
 const { GscapeWidget, GscapeHeader } = UI
@@ -11,6 +12,15 @@ export default class QueryGraphWidget extends (GscapeWidget as any) {
   public collapsible : boolean
   public draggable: boolean
   private bgpContainer: HTMLElement
+  private _isBGPEmpty: boolean = true
+
+  static get properties() {
+    const props = super.properties
+
+    props._isBGPEmpty = { attribute: false, type: Boolean }
+
+    return props
+  }
 
   static get styles() {
     let super_styles = super.styles as any
@@ -28,13 +38,40 @@ export default class QueryGraphWidget extends (GscapeWidget as any) {
         }
 
         .widget-body {
-          height: 300px;
+          min-height: 50px;
           margin:0;
           border-top: none;
-          border-bottom: 1px solid var(--theme-gscape-shadows, ${colors.shadows});
           border-radius: inherit;
           border-bottom-left-radius:0;
           border-bottom-right-radius:0;
+        }
+
+        #empty-graph {
+          padding: 20px;
+          display: flex;
+          flex-direction: column;
+          align-items: center;
+          gap: 20px;
+          text-align: center;
+        }
+
+        #empty-graph > .icon {
+          --gscape-icon-size: 60px;
+        }
+
+        #empty-graph-msg {
+          font-weight: bold;
+        }
+
+        .tip {
+          font-size: 90%;
+          color: var(--theme-gscape-shadows, ${colors.shadows});
+          border-bottom: dotted 2px;
+          cursor: help;
+        }
+
+        .tip: hover {
+          color:inherit;
         }
       `
     ]
@@ -52,7 +89,17 @@ export default class QueryGraphWidget extends (GscapeWidget as any) {
 
   render() {
     return html`
-      <div class="widget-body">${this.bgpContainer}</div>
+      <div class="widget-body">
+        ${this.isBGPEmpty
+          ? html`
+            <div id="empty-graph">
+              <div class="icon">${dbClick}</div>
+              <div id="empty-graph-msg">${emptyGraphMsg()}</div>
+              <div class="tip" title="${emptyGraphTipMsg()}">${tipWhatIsQueryGraph()}</div>
+            </div>
+          `
+          : this.bgpContainer}
+      </div>
       ${this.header}
     `
   }
@@ -84,6 +131,22 @@ export default class QueryGraphWidget extends (GscapeWidget as any) {
   }
 
   blur() {}
+
+  set isBGPEmpty(value: boolean) {
+    this._isBGPEmpty = value
+  }
+
+  get isBGPEmpty() {
+    return this._isBGPEmpty
+  }
+
+  set graphContainerHeight(value: number) {
+    this.bgpContainer.style.height = `${value + 40}px`
+  }
+
+  set graphContainerWidth(value: number) {
+    this.bgpContainer.style.width = `${value + 40}px`
+  }
 
   //createRenderRoot() { return this as any }
 }

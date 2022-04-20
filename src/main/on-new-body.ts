@@ -18,6 +18,7 @@ export default function onNewBody(newBody: QueryGraph) {
   }
 
   let body = model.setQueryBody(newBody)
+  queryGraph.widget.isBGPEmpty = body.graph === null || body.graph === undefined
   queryGraph.render(body.graph)
   const deletedNodeIds = queryGraph.removeNodesNotInQuery()
   deletedNodeIds.forEach(id => model.getOriginGrapholNodes().delete(id))
