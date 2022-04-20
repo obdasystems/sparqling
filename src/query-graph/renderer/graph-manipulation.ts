@@ -117,20 +117,22 @@ export function arrange() {
   const dataPropertySelector = `node[type = "${EntityTypeEnum.DataProperty}"]`
   const classSelector = `node[type = "${EntityTypeEnum.Class}"]`
 
-  cy.layout(klayLayoutOpt).run()
-  cy.$(classSelector).forEach(node => {
-    const dataProperties = node.neighborhood(dataPropertySelector)
-    // run grid layout on compound nodes
-    if (!node.isChildless()) {
-      node.union(node.children()).layout(gridLayoutOpt).run()
-    }
-
-    if (!dataProperties.empty()) {
-      dataProperties.layout(radialLayoutOpt(node)).run()
-    }
+  const klayLayout = cy.elements().layout(klayLayoutOpt)
+  klayLayout.on('layoutstop', () => {
+    cy.$(classSelector).forEach(node => {
+      const dataProperties = node.neighborhood(dataPropertySelector)
+      // run grid layout on compound nodes
+      if (!node.isChildless()) {
+        node.children().layout(gridLayoutOpt(node)).run()
+      }
+  
+      if (!dataProperties.empty()) {
+        dataProperties.layout(radialLayoutOpt(node)).run()
+      }
+    })
   })
 
-  cy.fit()
+  klayLayout.run()
   //dataPropSources.lock()
   // apply floaty layout only to dataproperties
   //cy.$(dataPropertySelector).closedNeighborhood().layout(radialLayoutOpt).run()

@@ -3,12 +3,13 @@ import { SingularElementReturnValue } from "cytoscape"
 export const klayLayoutOpt = {
   nodeDimensionsIncludeLabels: true,
   name: 'klay',
-  fit: false, // Whether to fit
+  fit: true, // Whether to fit
   klay: {
     direction: 'RIGHT',
     spacing: 60,
     layoutHierarchy: true,
-    fixedAlignment: 'BALANCED'
+    fixedAlignment: 'BALANCED',
+    nodeLayering: 'INTERACTIVE',
   }
 }
 
@@ -31,10 +32,19 @@ export function radialLayoutOpt(node: SingularElementReturnValue) {
   }
 }
 
-export const gridLayoutOpt = {
-  name: 'grid',
-  condense: true,
-  padding: 10,
-  fit: false,
-  cols: 2,
+export function gridLayoutOpt(node: SingularElementReturnValue) {
+  const p = node.position()
+  return {
+    name: 'grid',
+    condense: true,
+    padding: 10,
+    fit: false,
+    cols: 2,
+    boundingBox: {
+      x1: p.x - 20,
+      x2: p.x + 20,
+      y1: p.y - 20,
+      y2: p.y + 20
+    },
+  } 
 }
