@@ -150,7 +150,7 @@ export default class QueryHeadWidget extends GscapeWidget {
           `
       }
       </div>
-      <gscape-head title="Query Head">
+      <gscape-head title="Query Results">
         <div id="buttons-tray">
           ${this.headSlottedWidgets}
         </div>
