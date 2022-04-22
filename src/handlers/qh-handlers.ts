@@ -20,11 +20,12 @@ queryHead.onDelete(async headElement => {
   })
 })
 
-queryHead.onRename(async (headElement, alias) => {
+queryHead.onRename(async (headElementId, alias) => {
   const qgApi = QueryGraphHeadApiFactory()
-  const body = model.getQueryBody()
+  const tempQueryBody = model.getTempQueryBody()
+  const headElement = model.getHeadElementByID(headElementId, tempQueryBody)
   headElement.alias = alias
-  handlePromise(qgApi.renameHeadTerm(headElement.id, body)).then(newBody => {
+  handlePromise(qgApi.renameHeadTerm(headElement.id, tempQueryBody)).then(newBody => {
     onNewBody(newBody)
   })
 })

@@ -36,6 +36,6 @@ export function getTempQueryBody(): QueryGraph {
   return JSON.parse(JSON.stringify(body))
 }
 
-export function getHeadElementByID(headElementId: string): HeadElement {
-  return body?.head?.find(headElement => headElement.id === headElementId)
+export function getHeadElementByID(headElementId: string, queryBody = body): HeadElement {
+  return queryBody?.head?.find(headElement => headElement.id === headElementId)
 }

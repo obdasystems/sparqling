@@ -14,9 +14,9 @@ export function onDelete(callback: (headElement: HeadElement) => void) {
   qhWidget.onDelete( headElementId => callback(model.getHeadElementByID(headElementId)))
 }
 
-export function onRename(callback: (headElement: HeadElement, alias: string) => void) {
+export function onRename(callback: (headElement: string, alias: string) => void) {
   qhWidget.onRename( (headElementId: string, alias:string) => {
-    callback(model.getHeadElementByID(headElementId), alias)
+    callback(headElementId, alias)
   })
 }
 
