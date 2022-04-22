@@ -20,7 +20,7 @@ and it seems like you have nothing in it yet.\n\n\
 We don\'t think an empty query is what you want\n\
 so your result now will be everything. \n\n\
 You can choose what to see in output from the\n\
-query graph, data properties (i.e. attributes)\n\
+query graph, data properties \n\
 will automatically go in the query head.'
   }
 
@@ -60,7 +60,7 @@ you specify to be satisfied by results.\n\n\
 If you add a class (e.g. Person), only\n\
 instances belonging to that class will\n\
 be included in the results (e.g. only persons). \n\n\
-If you then add a object property (i.e. role)\n\
+If you then add a object property \n\
 involving that class (e.g. hasCar), results will now\n\
 include only those participating in such relationship\n\
 (e.g. only persons having a Car).'
