@@ -5,5 +5,5 @@ export default function(elem: CollectionReturnValue, zoom?: number) {
   if (zoom) cy.zoom(zoom)
   let pos = elem.renderedPosition()
   let center = { x: cy.width() / 2, y: cy.height() / 2 }
-  cy.panBy({ x: -(pos.x -= center.x), y: -(pos.y -= center.y)})
+  cy.panBy({ x: -(pos.x - center.x), y: -(pos.y - center.y)})
 }
