@@ -7,10 +7,9 @@ import * as ontologyGraph from '../ontology-graph'
 import * as queryGraph from '../query-graph'
 import * as queryHead from '../query-head'
 import { getGraphElementByID, getIri } from '../util/graph-element-utility'
-import { sparqlDialog } from '../widgets'
-import { showAggregationsDialog } from './aggregatetions-handlers'
-import { deleteFilter, showFilterDialogEditingMode, showFilterDialogForVariable } from './filters-handlers'
-import { showFunctionDialogForVariable } from './functions-handlers'
+import { aggregationDialog, filterDialog, functionDialog, sparqlDialog } from '../widgets'
+import { deleteFilter, showFilterDialogEditingMode } from './filters-handlers'
+import showFormDialog from './show-form-dialog'
 
 queryHead.onDelete(async headElement => {
   const qgApi = QueryGraphHeadApiFactory()
@@ -50,9 +49,9 @@ queryHead.clearQueryButton.onClick = () => {
   }
 }
 
-queryHead.onAddFilter(headElement => {
-  const graphElement = getGraphElementByID(headElement.graphElementId)
-  showFilterDialogForVariable(graphElement)
+queryHead.onAddFilter(headElementId => {
+  const headElement = model.getHeadElementByID(headElementId)
+  showFormDialog(headElement, filterDialog)
 })
 
 queryHead.onEditFilter((filterId) => {
@@ -64,8 +63,8 @@ queryHead.onDeleteFilter((filterId) => {
 })
 
 queryHead.onAddFunction(headElementId => {
-  const graphElement = getGraphElementByID(model.getHeadElementByID(headElementId).graphElementId)
-  showFunctionDialogForVariable(graphElement)
+  const headElement = model.getHeadElementByID(headElementId)
+  showFormDialog(headElement, functionDialog)
 })
 
 queryHead.onElementSortChange((headElementId, newIndex) => {
@@ -102,6 +101,6 @@ queryHead.onOrderByChange(headElementId => {
 })
 
 queryHead.onAddAggregation(headElementId => {
-  const graphElement = getGraphElementByID(model.getHeadElementByID(headElementId).graphElementId)
-  showAggregationsDialog(graphElement)
+  const headElement = model.getHeadElementByID(headElementId)
+  showFormDialog(headElement, aggregationDialog)
 })

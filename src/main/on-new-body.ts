@@ -28,7 +28,7 @@ export default function onNewBody(newBody: QueryGraph) {
     getHeadElementWithDatatype(headElem)
   ))
 
-  filterListDialog.filterList = model.getFiltersOnVariable('?'+filterListDialog.variable)
+  filterListDialog.filterList = model.getFiltersOnVariable(filterListDialog.variable)
 
   sparqlDialog.text = body?.sparql ? body.sparql : emptyQueryMsg()
 }

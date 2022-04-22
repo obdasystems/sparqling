@@ -333,7 +333,7 @@ export default class HeadElementComponent extends UI.GscapeWidget implements Hea
     }
     let self = this as any
     self.style.backgroundColor = `var(--theme-gscape-${types[this.entityType]})`
-    this.filters = getFiltersOnVariable(newElement.var)
+    this.filters = getFiltersOnVariable(newElement.graphElementId)
   }
 
   private getSelect(sectionName: string, name: string, defaultOpt: string, options: object) {

@@ -66,6 +66,7 @@ function getInput(index: number, value?: string, titleText = '') {
   let placeholder = value || 'value'
   return html`
     <input
+      class="input-elem"
       placeholder="${placeholder}" 
       value="${value}"
       title="${titleText}"

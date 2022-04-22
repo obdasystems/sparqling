@@ -1,4 +1,4 @@
-import { EntityTypeEnum, Function, FunctionNameEnum, GraphElement, QueryGraphHeadApiFactory, VarOrConstantTypeEnum } from "../api/swagger"
+import { EntityTypeEnum, Function, FunctionNameEnum, GraphElement, HeadElement, QueryGraphHeadApiFactory, VarOrConstantTypeEnum } from "../api/swagger"
 import { handlePromise } from "../main/handle-promises"
 import onNewBody from "../main/on-new-body"
 import * as model from '../model'
@@ -29,24 +29,3 @@ functionDialog.onSubmit(async (id, op, params) => {
     })
   }
 })
-
-export function showFunctionDialogForVariable(graphElement: GraphElement) {
-  const type = GEUtility.getEntityType(graphElement)
-
-  if (type === EntityTypeEnum.Class) {
-    functionDialog.parametersType = VarOrConstantTypeEnum.Iri
-  } else {
-    functionDialog.parametersType = VarOrConstantTypeEnum.Constant
-  }
-
-  functionDialog.modality = Modality.DEFINE
-  functionDialog._id = '?' + graphElement.id
-  functionDialog.operator = null
-  functionDialog.parameters = [{
-    type: VarOrConstantTypeEnum.Var,
-    constantType: guessDataType(GEUtility.getIri(graphElement)),
-    value: '?' + graphElement.id
-  }]
-  functionDialog.show()
-  //filterListDialog.hide()
-}

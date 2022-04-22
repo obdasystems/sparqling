@@ -181,7 +181,7 @@ function getDataObj(graphElement: GraphElement, i = null) {
   } else {
     data.id = graphElement.id
   }
-  data.hasFilters = getFiltersOnVariable(`?${graphElement.id}`)?.length > 0 ? true : false
+  data.hasFilters = getFiltersOnVariable(graphElement.id)?.length > 0 ? true : false
   data.displayed_name = getDisplayedName(data)
 
   return data

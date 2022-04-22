@@ -14,7 +14,7 @@ export default class FunctionDialog extends SparqlingFormDialog {
 
   render() {
     return html`
-      <gscape-dialog title="${this.modality} Function for ${this.variable?.value}">
+      <gscape-dialog title="${this.modality} Function for ${this.variableName}">
         <div class="dialog-body">
           ${getFormTemplate(this.operator, this.parametersIriOrConstants, FunctionNameEnum, this.datatype)}
         
@@ -31,7 +31,7 @@ export default class FunctionDialog extends SparqlingFormDialog {
   }
 
   setAsCorrect(customText?: string): void {
-    super.setAsCorrect()
+    super.setAsCorrect(customText)
     this.saveButton.hide()
   }
 

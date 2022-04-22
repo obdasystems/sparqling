@@ -25,12 +25,7 @@ export default class SparqlingFormDialog extends (UI.GscapeWidget as any) implem
   public _id: FormID
   public modality: Modality = Modality.DEFINE
   public aggregateOperator: GroupByElementAggregateFunctionEnum
-  protected submitCallback = (
-    id: FormID,
-    op: any,
-    parameters: any[],
-    aggregateOperator?: GroupByElementAggregateFunctionEnum,
-  ) => { }
+  public variableName: string
   protected deleteCallback = (filterId: any) => { }
 
   protected validationChecks: ValidationCheck[]
@@ -123,13 +118,17 @@ export default class SparqlingFormDialog extends (UI.GscapeWidget as any) implem
         .section-header {
           text-align: center;
           font-weight: bold;
-          border-bottom: solid 1px var(--theme-gscape-borders);
-          color: var(--theme-gscape-secondary);
+          border-bottom: solid 1px var(--theme-gscape-borders, ${colors.borders});
+          color: var(--theme-gscape-secondary, , ${colors.secondary});
           width: 85%;
           margin: auto;
           margin-bottom: auto;
           margin-bottom: 10px;
           padding-bottom: 5px;
+        }
+
+        .input-elem {
+          margin:5px;
         }
       `
     ]
@@ -160,7 +159,7 @@ export default class SparqlingFormDialog extends (UI.GscapeWidget as any) implem
 
     if (!errorsFound) {
       this.resetErrors()
-      this.submitCallback(this._id, this.operator, this.parameters, this.aggregateOperator)
+      this.onValidSubmit()
     }
   }
 
@@ -261,6 +260,10 @@ export default class SparqlingFormDialog extends (UI.GscapeWidget as any) implem
     setTimeout(() => this.resetMessages(), 2000)
   }
 
+  protected onValidSubmit() {
+    this.submitCallback(this._id, this.operator, this.parameters)
+  }
+
   protected get innerDialog() { return (this as any).shadowRoot.querySelector('gscape-dialog') }
 
   protected get selectOperatorElem() {
@@ -272,7 +275,7 @@ export default class SparqlingFormDialog extends (UI.GscapeWidget as any) implem
   }
 
   protected get inputElems() {
-    return this.innerDialog.querySelectorAll('input')
+    return this.innerDialog.querySelectorAll('.inputs-wrapper > input')
   }
 
   protected get messagesElem() {

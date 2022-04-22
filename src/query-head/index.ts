@@ -33,10 +33,9 @@ export function render(newHead: HeadElement[]) {
 }
 
 
-export function onAddFilter(callback: (headElement: HeadElement) => void) {
+export function onAddFilter(callback: (headElementId: string) => void) {
   qhWidget.onAddFilter((headElementId) => {
-    let headElement = model.getHeadElementByID(headElementId)
-    callback(headElement)
+    callback(headElementId)
   })
 }
 

@@ -65,25 +65,6 @@ export async function deleteFilter(filterId: number) {
   })
 }
 
-export function showFilterDialogForVariable(graphElement: GraphElement) {
-  if (GEUtility.isClass(graphElement)) {
-    filterDialog.parametersType = VarOrConstantTypeEnum.Iri
-  } else {
-    filterDialog.parametersType = VarOrConstantTypeEnum.Constant
-  }
-
-  filterDialog.modality = Modality.DEFINE
-  filterDialog._id = null
-  filterDialog.operator = null
-  filterDialog.parameters = [{
-    type: VarOrConstantTypeEnum.Var,
-    constantType: guessDataType(GEUtility.getIri(graphElement)),
-    value: '?' + graphElement.id
-  }]
-  filterDialog.show()
-  filterListDialog.hide()
-}
-
 export function showFilterDialogEditingMode(filterId: number) {
   const filter = model.getFilterById(filterId)
   filterDialog.modality = Modality.EDIT

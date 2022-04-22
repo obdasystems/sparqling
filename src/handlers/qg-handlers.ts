@@ -1,7 +1,6 @@
 import { newOptionalGraphElementId, removeOptionalGraphElementId } from '../api/api_stub'
 import { QueryGraph, QueryGraphBGPApiFactory, QueryGraphHeadApiFactory } from '../api/swagger'
-import { filterListDialog } from '../widgets'
-import { showFilterDialogForVariable } from './filters-handlers'
+import { filterDialog, filterListDialog } from '../widgets'
 import * as ontologyGraph from '../ontology-graph'
 import getGscape from '../ontology-graph/get-gscape'
 import * as model from '../model'
@@ -10,6 +9,7 @@ import * as queryHead from '../query-head'
 import * as GEUtility from '../util/graph-element-utility'
 import onNewBody from '../main/on-new-body'
 import { handlePromise } from '../main/handle-promises'
+import showFormDialog from './show-form-dialog'
 
 queryGraph.onAddHead(async graphElement => {
   const qgApi = QueryGraphHeadApiFactory()
@@ -113,7 +113,7 @@ queryGraph.onRemoveOptional(graphElement => {
 })
 
 queryGraph.onAddFilter(graphElement => {
-  showFilterDialogForVariable(graphElement)
+  showFormDialog(graphElement, filterDialog)
 })
 
 queryGraph.onSeeFilters(graphElement => {
@@ -129,7 +129,7 @@ queryGraph.onSeeFilters(graphElement => {
   }
 
   // if not in query head, show dialog
-  filterListDialog.filterList = model.getFiltersOnVariable('?' + graphElement.id)
+  filterListDialog.filterList = model.getFiltersOnVariable(graphElement.id)
   filterListDialog.variable = graphElement.id
   filterListDialog.show()
 })

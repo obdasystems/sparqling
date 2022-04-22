@@ -14,7 +14,7 @@ export default class FilterDialog extends SparqlingFormDialog {
 
   render() {
     return html`
-      <gscape-dialog title="${this.modality} Filter for ${this.variable?.value}">
+      <gscape-dialog title="${this.modality} Filter for ${this.variableName}">
         <div class="dialog-body">
           ${getFormTemplate(this.operator, this.parametersIriOrConstants, FilterExpressionOperatorEnum, this.datatype)}
           
