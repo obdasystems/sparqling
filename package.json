@@ -49,6 +49,7 @@
     "cytoscape-cxtmenu": "^3.4.0",
     "cytoscape-klay": "^3.1.4",
     "cytoscape-popper": "^2.0.0",
+    "lit": "^2.2.2",
     "tippy.js": "^6.3.7"
   },
   "peerDependencies": {
