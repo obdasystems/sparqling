@@ -26,6 +26,8 @@ cy.on('cxttap', 'node', e => {
   attachCxtMenuToElement(e.target.popperRef())
   cxtMenuWidget.commands = commands.getCommandsForElement(e.target)
   cxtMenu.show()
-});
+})
+
+cxtMenuWidget.onCommandRun = () => cxtMenu.hide()
 
 export * from './commands'

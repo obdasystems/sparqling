@@ -4,6 +4,8 @@ import { Command } from "./commands"
 
 export default class ContextMenuWidget extends UI.GscapeWidget {
   commands: Command[] = []
+  onCommandRun: () => void
+
   static get properties() {
     const props = super.properties
     props.commands = { attribute: false }
@@ -52,15 +54,20 @@ export default class ContextMenuWidget extends UI.GscapeWidget {
 
   render() {
     return html`
-      ${this.commands.map(command => {
+      ${this.commands.map((command, id) => {
         return html`
-          <div class="command-entry highlight" @click=${command.select}>
+          <div class="command-entry highlight" command-id="${id}" @click=${this.handleCommandClick}>
             <span class="command-icon">${command.icon}</span>
             <span class="command-text">${command.content}</span>
           <div>
         `
       })}
     `
+  }
+
+  private handleCommandClick(e: any) {
+    this.commands[e.currentTarget.getAttribute('command-id')].select()
+    this.onCommandRun()
   }
 }
 

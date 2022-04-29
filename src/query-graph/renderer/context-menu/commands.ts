@@ -1,5 +1,5 @@
 import { SingularElementReturnValue } from "cytoscape"
-import { EntityTypeEnum } from "../../../api/swagger"
+import { getHeadElementByID } from "../../../model"
 import { addFilter as addFilterIcon, editList, questionMarkDashed, rubbishBin, tableColumnPlus } from "../../../widgets/assets/icons"
 import { commandAddFilterText, commandAddHeadText, commandDeleteText, commandMakeOptionalText, commandRemoveOptionalText } from "../../../widgets/assets/texts"
 
@@ -23,7 +23,10 @@ export function getCommandsForElement(elem: SingularElementReturnValue) {
   const commands = []
 
   if (!elem.isChild()) {
-    commands.push(addHead)
+
+    if (!getHeadElementByID('?' + elem.id())) {
+      commands.push(addHead)
+    }
 
     if (elem.data().hasFilters) {
       commands.push(seeFilters)
