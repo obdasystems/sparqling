@@ -33,6 +33,12 @@ export default class AggregationDialog extends SparqlingFormDialog {
     this.showHavingFormButton.classList.add('flat')
     this.showHavingFormButton.onClick = () => { this.definingHaving = true }
     this.havingOperator = GroupByElementAggregateFunctionEnum.Avarage
+
+    this.aggregateOperatorValidityCheck = {
+      name: 'isAggregateOperatorValid',
+      errorMessage: 'Select Aggregate Function',
+      getErrorElems: () => [this.selectAggregateOperatorElem]
+    }
   }
 
   render() {
@@ -69,11 +75,6 @@ export default class AggregationDialog extends SparqlingFormDialog {
 
   firstUpdated(): void {
     super.firstUpdated()
-    this.aggregateOperatorValidityCheck = {
-      name: 'isAggregateOperatorValid',
-      errorMessage: 'Select Aggregate Function',
-      elem: this.selectAggregateOperatorElem
-    }
     this.selectAggregateOperatorElem.onchange = (e) => this.onAggregateOperatorChange(e.currentTarget.value)
   }
 

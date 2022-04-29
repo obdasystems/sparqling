@@ -13,7 +13,7 @@ export enum Modality {
 export type ValidationCheck = {
   name: string,
   errorMessage: string,
-  elem: HTMLElement,
+  getErrorElems: () => HTMLElement[],
 }
 
 export default class SparqlingFormDialog extends (UI.GscapeWidget as any) implements FormWidget {
@@ -139,11 +139,16 @@ export default class SparqlingFormDialog extends (UI.GscapeWidget as any) implem
     this.saveButton.onClick = () => this.handleSubmit()
     this.deleteButton.onClick = () => this.deleteCallback(this._id)
     this.deleteButton.classList.add('danger')
+
+    this.validationChecks = [
+      { name: 'isOperatorValid', errorMessage: 'Select operator', getErrorElems: () => [this.selectOperatorElem] },
+      { name: 'isDatatypeValid', errorMessage: 'Select datatype', getErrorElems: () => [this.selectDatatypeElem] },
+      { name: 'isAnyValueDefined', errorMessage: 'Input value not set', getErrorElems: () => this.emptyInputsValue }
+    ]
   }
 
-  protected setElemError(elem: HTMLElement, errorMsg: string) {
+  protected setElemError(elem: HTMLElement) {
     elem.classList.add(CLASS_FIELD_ERROR.cssText)
-    this.addMessage(errorMsg, 'error-message')
   }
 
   protected handleSubmit(validationChecks = this.validationChecks) {
@@ -153,7 +158,10 @@ export default class SparqlingFormDialog extends (UI.GscapeWidget as any) implem
     validationChecks.forEach(validationCheck => {
       if (!this[validationCheck.name]) {
         errorsFound = true
-        this.setElemError(validationCheck.elem, validationCheck.errorMessage)
+        validationCheck.getErrorElems().forEach(erroElement => {
+          this.setElemError(erroElement)
+        })
+        this.addMessage(validationCheck.errorMessage, 'error-message')
       }
     })
 
@@ -164,12 +172,17 @@ export default class SparqlingFormDialog extends (UI.GscapeWidget as any) implem
   }
 
   private onOperatorChange(value: string) {
-    if (value !== FilterExpressionOperatorEnum.In && value !== FilterExpressionOperatorEnum.NotIn) {
-      this.parameters.splice(2) // Only 2 parameters needed, discard others (remove from index=2 till end)
-    }
-
     this.operator = FilterExpressionOperatorEnum[value] || FunctionNameEnum[value]
     this.selectOperatorElem.classList.remove(CLASS_FIELD_ERROR.cssText)
+
+    if (this.operator !== FilterExpressionOperatorEnum.In && this.operator !== FilterExpressionOperatorEnum.NotIn) {
+      this.parameters.splice(2) // Only 2 parameters needed, discard others (remove from index=2 till end)
+    } else {
+      // IN and NOT IN needs at least 2 constants, so at least 3 parameters, variable + 2 constants
+      if (this.parameters.length <= 2) {
+        this.addInputValue()
+      }
+    }
   }
 
   private onDatatypeChange(value: string) {
@@ -225,12 +238,6 @@ export default class SparqlingFormDialog extends (UI.GscapeWidget as any) implem
 
     if (this.parametersIriOrConstants?.length <= 0)
       this.addInputValue()
-
-    this.validationChecks = [
-      { name: 'isOperatorValid', errorMessage: 'Select operator', elem: this.selectOperatorElem },
-      { name: 'isDatatypeValid', errorMessage: 'Select datatype', elem: this.selectDatatypeElem },
-      { name: 'isAnyValueDefined', errorMessage: 'Input value not set', elem: this.inputElems[0] }
-    ]
   }
 
   addMessage(msg: string, msgType: string) {
@@ -311,8 +318,14 @@ export default class SparqlingFormDialog extends (UI.GscapeWidget as any) implem
   }
 
   protected get isAnyValueDefined() {
-    return this.parameters.some(p => {
-      return p.value && p.type !== VarOrConstantTypeEnum.Var
-    })
+    if (this.operator === FilterExpressionOperatorEnum.In || FilterExpressionOperatorEnum.NotIn) {
+      return this.parameters.filter(p => p.value && p.type === VarOrConstantTypeEnum.Constant).length >= 2
+    } else {
+      return this.parameters.some(p => p.value && p.type !== VarOrConstantTypeEnum.Var )
+    }
+  }
+
+  private get emptyInputsValue() {
+    return Array.from(this.inputElems).filter((input: any) => !input.value)
   }
 }
