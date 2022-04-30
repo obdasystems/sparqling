@@ -42,6 +42,7 @@ export default class AggregationDialog extends SparqlingFormDialog {
   }
 
   render() {
+    console.log(this.datatype)
     return html`
       <gscape-dialog title="${this.modality} Aggregate Function for ${this.variableName}">
         <div class="dialog-body">
@@ -131,6 +132,10 @@ export default class AggregationDialog extends SparqlingFormDialog {
 
   protected get datatype(): VarOrConstantConstantTypeEnum {
     return super.datatype
+  }
+
+  protected set datatype(value) {
+    super.datatype = value
   }
 
   protected get isAggregateOperatorValid() {

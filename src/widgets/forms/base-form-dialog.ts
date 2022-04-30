@@ -186,7 +186,7 @@ export default class SparqlingFormDialog extends (UI.GscapeWidget as any) implem
   }
 
   private onDatatypeChange(value: string) {
-    this.variable.constantType = VarOrConstantConstantTypeEnum[value]
+    this.datatype = VarOrConstantConstantTypeEnum[value]
     this.selectDatatypeElem.classList.remove(CLASS_FIELD_ERROR.cssText)
   }
 
@@ -295,6 +295,11 @@ export default class SparqlingFormDialog extends (UI.GscapeWidget as any) implem
 
   protected get datatype() { return this.variable?.constantType }
 
+  protected set datatype(value) {
+    this.variable.constantType = value
+    this.requestUpdate()
+  }
+
   protected get parametersIriOrConstants() {
     return this.parameters?.filter(p => p.type !== VarOrConstantTypeEnum.Var)
   }
@@ -318,7 +323,7 @@ export default class SparqlingFormDialog extends (UI.GscapeWidget as any) implem
   }
 
   protected get isAnyValueDefined() {
-    if (this.operator === FilterExpressionOperatorEnum.In || FilterExpressionOperatorEnum.NotIn) {
+    if (this.operator === FilterExpressionOperatorEnum.In || this.operator === FilterExpressionOperatorEnum.NotIn) {
       return this.parameters.filter(p => p.value && p.type === VarOrConstantTypeEnum.Constant).length >= 2
     } else {
       return this.parameters.some(p => p.value && p.type !== VarOrConstantTypeEnum.Var )

@@ -32,7 +32,7 @@ export function getFormTemplate(
   return html`
     <div class="section">
       ${formTitle ? html`<div class="section-header">${formTitle}</div>` : null}
-      <div class="form">
+      <form class="form">
         <div class="selects-wrapper">
           <div id="select-operator">
             <label>Operator</label>
@@ -49,25 +49,26 @@ export function getFormTemplate(
           }
         </div>
         <div class="inputs-wrapper">
-          ${parameters?.map((parameter, index) => getInput(index, parameter.value, "Set input value"))}
+          ${parameters?.map((parameter, index) => getInput(index, datatype, parameter.value, "Set input value"))}
           ${operator === FilterExpressionOperatorEnum.In ||
             operator === FilterExpressionOperatorEnum.NotIn
             ? html`${addInputButton}`
             : null
           }
         </div>
-      </div>
+      </form>
     </div>
     <div id="message-tray"></div>
   `
 }
 
-function getInput(index: number, value?: string, titleText = '') {
+function getInput(index: number, datatype: VarOrConstantConstantTypeEnum, value?: string, titleText = '') {
   let placeholder = value || 'value'
   return html`
     <input
       class="input-elem"
-      placeholder="${placeholder}" 
+      type="${getInputType(datatype)}"
+      placeholder="${placeholder}"
       value="${value}"
       title="${titleText}"
       index="${index + 1}"
@@ -87,4 +88,19 @@ export function getSelect(defaultOpt: string, options: object = {}) {
       })}
     </select>
   `
+}
+
+function getInputType(datatype: VarOrConstantConstantTypeEnum) {
+  switch(datatype) {
+    case VarOrConstantConstantTypeEnum.DateTime:
+      return 'date'
+    case VarOrConstantConstantTypeEnum.Decimal:
+      return 'number'
+
+    case VarOrConstantConstantTypeEnum.String:
+      return 'text'
+
+    default:
+      return ''
+  }
 }
