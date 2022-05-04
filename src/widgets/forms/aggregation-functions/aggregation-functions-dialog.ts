@@ -1,15 +1,14 @@
 import { UI } from "grapholscape"
 import { html } from 'lit'
-import { Filter, FilterExpressionOperatorEnum, GroupByElementAggregateFunctionEnum, VarOrConstant, VarOrConstantConstantTypeEnum } from "../../../api/swagger"
+import { FilterExpressionOperatorEnum, GroupByElementAggregateFunctionEnum, VarOrConstant, VarOrConstantConstantTypeEnum } from "../../../api/swagger"
 import { FormID } from "../../../util/filter-function-interface"
 import { addFilter } from "../../assets/icons"
-import SparqlingFormDialog, { CLASS_FIELD_ERROR, ValidationCheck } from "../base-form-dialog"
+import SparqlingFormDialog from "../base-form-dialog"
 import { getFormTemplate, getSelect } from "../form-template"
 
 export default class AggregationDialog extends SparqlingFormDialog {
   private showHavingFormButton = new UI.GscapeButton(addFilter, "Add Having")
   private definingHaving: boolean = false
-  private aggregateOperatorValidityCheck: ValidationCheck
   private distinct: boolean = false
   private submitCallback: (
     headElementId: FormID,
@@ -33,12 +32,6 @@ export default class AggregationDialog extends SparqlingFormDialog {
     this.showHavingFormButton.classList.add('flat')
     this.showHavingFormButton.onClick = () => { this.definingHaving = true }
     this.havingOperator = GroupByElementAggregateFunctionEnum.Avarage
-
-    this.aggregateOperatorValidityCheck = {
-      name: 'isAggregateOperatorValid',
-      errorMessage: 'Select Aggregate Function',
-      getErrorElems: () => [this.selectAggregateOperatorElem]
-    }
   }
 
   render() {
@@ -50,22 +43,23 @@ export default class AggregationDialog extends SparqlingFormDialog {
             <div id="select-aggregate-function">
               ${getSelect(this.aggregateOperator || "Aggregate Function", GroupByElementAggregateFunctionEnum)}
             </div>
-            <div class="input-elem">
+            <div style="margin: 10px 0">
               <label>
                 <input id="distinct-checkbox" type="checkbox" @click="${this.onDistinctChange}" ?checked=${this.distinct}>
                 Only distinct values
               </label>
             </div>
           </div>
-          ${!this.definingHaving ? this.showHavingFormButton : null}
-
-          ${getFormTemplate(
-            this.operator, 
-            this.parametersIriOrConstants, 
-            FilterExpressionOperatorEnum, 
-            this.datatype,
-            "Having"
-          )}
+          ${!this.definingHaving
+            ? this.showHavingFormButton
+            : getFormTemplate(
+                this.operator,
+                this.parametersIriOrConstants,
+                FilterExpressionOperatorEnum,
+                this.datatype,
+                "Having"
+              )
+          }
           <div class="bottom-buttons">
             ${this.saveButton}
           </div>
@@ -80,28 +74,16 @@ export default class AggregationDialog extends SparqlingFormDialog {
   }
 
   handleSubmit(): void {
-    if (this.definingHaving) {
-      super.handleSubmit()
-    } else {
-      super.handleSubmit([this.aggregateOperatorValidityCheck])
+    if (this.selectAggregateOperatorElem.reportValidity()) {
+      if (this.definingHaving)
+        super.handleSubmit() // this evaluate validity of the having too
+      else
+        this.onValidSubmit()
     }
   }
 
   protected onValidSubmit(): void {
     this.submitCallback(this._id, this.aggregateOperator, this.distinct, this.operator as FilterExpressionOperatorEnum, this.parameters)
-  }
- 
-  updated(): void {
-    super.updated()
-
-    const formSection = this.innerDialog.querySelector('.form').parentNode 
-    if (!this.definingHaving) {
-      formSection.classList.add('hide')
-    } else {
-      formSection.classList.remove('hide')
-    }
-
-    this.validationChecks.push(this.aggregateOperatorValidityCheck)
   }
 
   onSubmit(callback: { (headElementId: FormID, aggregateOperator: GroupByElementAggregateFunctionEnum, distinct: boolean, havingOperator: FilterExpressionOperatorEnum, havingParameters: VarOrConstant[]): void }) {
@@ -119,11 +101,11 @@ export default class AggregationDialog extends SparqlingFormDialog {
     this.definingHaving = false
     this.distinct = false
     this.distinctCheckboxElem.checked = this.distinct
+    this.aggregateOperator = null
   }
 
   private onAggregateOperatorChange(value: string) {
     this.aggregateOperator = GroupByElementAggregateFunctionEnum[value]
-    this.selectAggregateOperatorElem.classList.remove(CLASS_FIELD_ERROR.cssText)
   }
 
   private onDistinctChange(e: MouseEvent) {

@@ -1,6 +1,6 @@
-import { html, css } from 'lit'
+import { html, css, HTMLTemplateResult } from 'lit'
 import { UI } from 'grapholscape'
-import { Filter, FilterExpressionOperatorEnum, FunctionNameEnum, GroupByElement, Function, GroupByElementAggregateFunctionEnum } from '../../api/swagger'
+import { Filter, FilterExpressionOperatorEnum, FunctionNameEnum, GroupByElement, Function, GroupByElementAggregateFunctionEnum, VarOrConstantConstantTypeEnum, VarOrConstant } from '../../api/swagger'
 import { edit, rubbishBin } from '../assets/icons'
 
 export interface FilterWithID {
@@ -8,11 +8,11 @@ export interface FilterWithID {
   value: Filter
 }
 
-export function getElemWithOperatorList(list: Filter[])
-export function getElemWithOperatorList(list: GroupByElement[])
-export function getElemWithOperatorList(list: Function[])
-export function getElemWithOperatorList(list: FilterWithID[], editElemCallback, deleteElemCallback)
-export function getElemWithOperatorList(list: any, editElemCallback?, deleteElemCallback?) {
+export function getElemWithOperatorList(list: Filter[]): HTMLTemplateResult
+export function getElemWithOperatorList(list: GroupByElement[]): HTMLTemplateResult
+export function getElemWithOperatorList(list: Function[]): HTMLTemplateResult
+export function getElemWithOperatorList(list: FilterWithID[], editElemCallback, deleteElemCallback): HTMLTemplateResult
+export function getElemWithOperatorList(list: any, editElemCallback?, deleteElemCallback?): HTMLTemplateResult {
   return html`
     ${list?.map((elemWithOperator: any) => {
       const elem = elemWithOperator.value || elemWithOperator
@@ -48,11 +48,15 @@ export function getElemWithOperatorList(list: any, editElemCallback?, deleteElem
           ${parameters
             ? html`
               <div class="parameters">
-                ${parameters?.map((param, index) => {
+                ${parameters?.map((param: VarOrConstant, index:number) => {
                   if (index === 0) return null
+                  let value = param.value
+                  if (param.constantType === VarOrConstantConstantTypeEnum.DateTime) {
+                    value = value?.split('T')[0] || value // Take only date from ISO format 2022-01-01T00:00:....
+                  }
                   return html`
                     <div class="parameter">
-                      ${param.value}
+                      ${value}
                     </div>
                   `
                 })}

@@ -32,7 +32,7 @@ export function getFormTemplate(
   return html`
     <div class="section">
       ${formTitle ? html`<div class="section-header">${formTitle}</div>` : null}
-      <form class="form">
+      <form id="form-dialog" class="form" action="javascript:void(0)" onsubmit="this.handleSubmit">
         <div class="selects-wrapper">
           <div id="select-operator">
             <label>Operator</label>
@@ -63,6 +63,9 @@ export function getFormTemplate(
 }
 
 function getInput(index: number, datatype: VarOrConstantConstantTypeEnum, value?: string, titleText = '') {
+  if (datatype === VarOrConstantConstantTypeEnum.DateTime) {
+    value = value?.split('T')[0] || 'value' // Take only date from ISO format 2022-01-01T00:00:....
+  }
   let placeholder = value || 'value'
   return html`
     <input
@@ -72,14 +75,15 @@ function getInput(index: number, datatype: VarOrConstantConstantTypeEnum, value?
       value="${value}"
       title="${titleText}"
       index="${index + 1}"
+      required
     />`
 }
 
 export function getSelect(defaultOpt: string, options: object = {}) {
   const isDefaultAlreadySet = Object.values(options).includes(defaultOpt)
   return html`
-    <select>
-      ${isDefaultAlreadySet ? null : html`<option selected>${defaultOpt}</option>`}
+    <select required>
+      ${isDefaultAlreadySet ? null : html`<option value="" hidden selected>${defaultOpt}</option>`}
       ${Object.keys(options).map(key => {
         if (options[key] === defaultOpt)
           return html`<option value="${key}" selected>${options[key]}</option>`
