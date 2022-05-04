@@ -41,7 +41,7 @@ export default class AggregationDialog extends SparqlingFormDialog {
         <div class="dialog-body">
           <div style="text-align: center;">
             <div id="select-aggregate-function">
-              ${getSelect(this.aggregateOperator || "Aggregate Function", GroupByElementAggregateFunctionEnum)}
+              ${getSelect(this.aggregateOperator || "Aggregate Function", Object.values(GroupByElementAggregateFunctionEnum))}
             </div>
             <div style="margin: 10px 0">
               <label>
@@ -55,7 +55,7 @@ export default class AggregationDialog extends SparqlingFormDialog {
             : getFormTemplate(
                 this.operator,
                 this.parametersIriOrConstants,
-                FilterExpressionOperatorEnum,
+                Object.values(FilterExpressionOperatorEnum),
                 this.datatype,
                 "Having"
               )

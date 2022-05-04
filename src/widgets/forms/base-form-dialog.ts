@@ -146,21 +146,42 @@ export default class SparqlingFormDialog extends (UI.GscapeWidget as any) implem
     }
   }
 
-  private onOperatorChange(value: string) {
-    this.operator = FilterExpressionOperatorEnum[value] || FunctionNameEnum[value]
+  private onOperatorChange(value: FilterExpressionOperatorEnum | FunctionNameEnum) {
+    this.operator = value
 
-    if (this.operator !== FilterExpressionOperatorEnum.In && this.operator !== FilterExpressionOperatorEnum.NotIn) {
-      this.parameters.splice(2) // Only 2 parameters needed, discard others (remove from index=2 till end)
-    } else {
-      // IN and NOT IN needs at least 2 constants, so at least 3 parameters, variable + 2 constants
-      if (this.parameters.length <= 2) {
-        this.addInputValue()
-      }
+    switch (this.operator) {
+      case FilterExpressionOperatorEnum.In:
+      case FilterExpressionOperatorEnum.NotIn:
+        // IN and NOT IN needs at least 2 constants, so at least 3 parameters, variable + 2 constants
+        if (this.parametersIriOrConstants.length < 2) {
+          this.addInputValue(2 - this.parametersIriOrConstants.length)
+        }
+        break
+      
+      case FunctionNameEnum.Ceil:
+      case FunctionNameEnum.Floor:
+      case FunctionNameEnum.Round:
+      case FunctionNameEnum.Day:
+      case FunctionNameEnum.Year:
+      case FunctionNameEnum.Month:
+      case FunctionNameEnum.Hours:
+      case FunctionNameEnum.Minutes:
+      case FunctionNameEnum.Seconds:
+      case FunctionNameEnum.Lcase:
+      case FunctionNameEnum.Ucase:
+        this.parameters.splice(1) // no parameters
+        break;
+
+      default:
+        this.parameters.splice(2)
+        if (this.parametersIriOrConstants.length <= 0) {
+          this.addInputValue()
+        }
     }
   }
 
-  private onDatatypeChange(value: string) {
-    this.datatype = VarOrConstantConstantTypeEnum[value]
+  protected onDatatypeChange(value: VarOrConstantConstantTypeEnum) {
+    this.datatype = value
   }
 
   private onInputChange(index: number, inputElem: HTMLInputElement) {
@@ -181,12 +202,14 @@ export default class SparqlingFormDialog extends (UI.GscapeWidget as any) implem
     this.innerDialog.hide()
   }
 
-  addInputValue() {
-    this.parameters.push({
-      type: this.parametersType,
-      value: "",
-      constantType: this.datatype
-    });
+  addInputValue(number = 1) {
+    for (let i = 0; i < number; i++) {
+      this.parameters.push({
+        type: this.parametersType,
+        value: "",
+        constantType: this.datatype
+      })
+    }
 
     (this as any).requestUpdate()
   }
@@ -196,7 +219,7 @@ export default class SparqlingFormDialog extends (UI.GscapeWidget as any) implem
 
     if (this.selectOperatorElem)
       this.selectOperatorElem.onchange = (e) => this.onOperatorChange(e.currentTarget.value)
-    
+
     if (this.selectDatatypeElem)
       this.selectDatatypeElem.onchange = (e) => this.onDatatypeChange(e.currentTarget.value)
 
@@ -207,14 +230,11 @@ export default class SparqlingFormDialog extends (UI.GscapeWidget as any) implem
     const addInputButton: any = this.innerDialog.querySelector('#add-input-btn')
     if (addInputButton)
       addInputButton.onClick = () => this.addInputValue()
-
-    if (this.parametersIriOrConstants?.length <= 0)
-      this.addInputValue()
   }
 
   addMessage(msg: string, msgType: string) {
     if (!this.messagesElem) return
-    
+
     let msgDiv = document.createElement('div')
     msgDiv.classList.add(msgType)
     msgDiv.innerHTML = msg
@@ -292,7 +312,7 @@ export default class SparqlingFormDialog extends (UI.GscapeWidget as any) implem
     if (this.operator === FilterExpressionOperatorEnum.In || this.operator === FilterExpressionOperatorEnum.NotIn) {
       return this.parameters.filter(p => p.value && p.type === VarOrConstantTypeEnum.Constant).length >= 2
     } else {
-      return this.parameters.some(p => p.value && p.type !== VarOrConstantTypeEnum.Var )
+      return this.parameters.some(p => p.value && p.type !== VarOrConstantTypeEnum.Var)
     }
   }
 

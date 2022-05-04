@@ -20,7 +20,7 @@ import { UI } from 'grapholscape'
 export function getFormTemplate(
   operator: FilterExpressionOperatorEnum | FunctionNameEnum,
   parameters: VarOrConstant[],
-  operators: typeof FilterExpressionOperatorEnum | typeof FunctionNameEnum,
+  operators: string[],
   datatype: VarOrConstantConstantTypeEnum,
   formTitle?: string) {
 
@@ -38,15 +38,10 @@ export function getFormTemplate(
             <label>Operator</label>
             ${getSelect(op, operators)}
           </div>
-          ${parameters?.length > 0 && parameters[0]?.type === VarOrConstantTypeEnum.Constant 
-            ? html`
-              <div id="select-datatype">
-                <label>Datatype</label>
-                ${getSelect(dt, VarOrConstantConstantTypeEnum)}
-              </div>
-            `
-            : null
-          }
+          <div id="select-datatype">
+            <label>Datatype</label>
+            ${getSelect(dt, Object.values(VarOrConstantConstantTypeEnum))}
+          </div>
         </div>
         <div class="inputs-wrapper">
           ${parameters?.map((parameter, index) => getInput(index, datatype, parameter.value, "Set input value"))}
@@ -79,16 +74,16 @@ function getInput(index: number, datatype: VarOrConstantConstantTypeEnum, value?
     />`
 }
 
-export function getSelect(defaultOpt: string, options: object = {}) {
-  const isDefaultAlreadySet = Object.values(options).includes(defaultOpt)
+export function getSelect(defaultOpt: string, options: string[]) {
+  const isDefaultAlreadySet = options.includes(defaultOpt)
   return html`
     <select required>
       ${isDefaultAlreadySet ? null : html`<option value="" hidden selected>${defaultOpt}</option>`}
-      ${Object.keys(options).map(key => {
-        if (options[key] === defaultOpt)
-          return html`<option value="${key}" selected>${options[key]}</option>`
+      ${options.map(op => {
+        if (op === defaultOpt)
+          return html`<option value="${op}" selected>${op}</option>`
         else
-          return html`<option value="${key}">${options[key]}</option>`
+          return html`<option value="${op}">${op}</option>`
       })}
     </select>
   `

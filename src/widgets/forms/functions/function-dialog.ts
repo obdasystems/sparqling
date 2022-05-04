@@ -1,7 +1,7 @@
 import SparqlingFormDialog, { Modality } from "../base-form-dialog"
 import { getFormTemplate } from "../form-template"
 import { html } from 'lit'
-import { FunctionNameEnum, VarOrConstant } from "../../../api/swagger"
+import { FunctionNameEnum, VarOrConstant, VarOrConstantConstantTypeEnum } from "../../../api/swagger"
 import { FormID } from "../../../util/filter-function-interface"
 
 export default class FunctionDialog extends SparqlingFormDialog {
@@ -16,7 +16,7 @@ export default class FunctionDialog extends SparqlingFormDialog {
     return html`
       <gscape-dialog title="${this.modality} Function for ${this.variableName}">
         <div class="dialog-body">
-          ${getFormTemplate(this.operator, this.parametersIriOrConstants, FunctionNameEnum, this.datatype)}
+          ${getFormTemplate(this.operator, this.parametersIriOrConstants, this.operators, this.datatype)}
         
           <div class="bottom-buttons">
             ${this.saveButton}
@@ -38,6 +38,60 @@ export default class FunctionDialog extends SparqlingFormDialog {
   show() {
     super.show()
     this.saveButton.show()
+  }
+
+  protected onDatatypeChange(value: VarOrConstantConstantTypeEnum): void {
+    super.onDatatypeChange(value)
+    this.selectOperatorElem.value = null
+  }
+
+  protected get operators() {
+    switch(this.datatype) {
+      case VarOrConstantConstantTypeEnum.String:
+        return this.operatorsOnString
+      
+      case VarOrConstantConstantTypeEnum.Decimal:
+        return this.operatorsOnNumber
+
+      case VarOrConstantConstantTypeEnum.DateTime:
+        return this.operatorsOnDate
+
+      default:
+        return this.operatorsOnString
+    }
+  }
+
+  private get operatorsOnString() {
+    return [
+      FunctionNameEnum.Concat, 
+      FunctionNameEnum.Contains, 
+      FunctionNameEnum.Lcase, 
+      FunctionNameEnum.Substr,
+      FunctionNameEnum.Ucase
+    ]
+  }
+
+  private get operatorsOnNumber() {
+    return [
+      FunctionNameEnum.Add,
+      FunctionNameEnum.Subctract,
+      FunctionNameEnum.Multiply,
+      FunctionNameEnum.Divide,
+      FunctionNameEnum.Round,
+      FunctionNameEnum.Ceil,
+      FunctionNameEnum.Floor
+    ]
+  }
+
+  private get operatorsOnDate() {
+    return [
+      FunctionNameEnum.Year,
+      FunctionNameEnum.Month,
+      FunctionNameEnum.Day,
+      FunctionNameEnum.Hours,
+      FunctionNameEnum.Minutes,
+      FunctionNameEnum.Seconds,
+    ]
   }
 }
 
