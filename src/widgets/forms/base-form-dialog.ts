@@ -79,18 +79,6 @@ export default class SparqlingFormDialog extends (UI.GscapeWidget as any) implem
           display: inline-block;
         }
 
-        #message-tray {
-          font-size: 80%;
-        }
-
-        #message-tray > .correct-message {
-          color: var(--theme-gscape-secondary);
-        }
-
-        #message-tray > .error-message {
-          color: var(--theme-gscape-error);
-        }
-
         .danger:hover {
           color: var(--theme-gscape-error, ${colors.error});
         }
@@ -288,36 +276,6 @@ export default class SparqlingFormDialog extends (UI.GscapeWidget as any) implem
 
   protected get parametersIriOrConstants() {
     return this.parameters?.filter(p => p.type !== VarOrConstantTypeEnum.Var)
-  }
-
-  protected get isOperatorValid() {
-    let isFilterOperator = false
-    let isFunctionOperator = false
-    try {
-      isFilterOperator = Object.values(FilterExpressionOperatorEnum).includes(this.operator as FilterExpressionOperatorEnum)
-    } catch (e) { }
-
-    try {
-      isFunctionOperator = Object.values(FunctionNameEnum).includes(this.operator as FunctionNameEnum)
-    } catch (e) { }
-
-    return isFilterOperator || isFunctionOperator
-  }
-
-  protected get isDatatypeValid() {
-    return this.parametersType === VarOrConstantTypeEnum.Iri || Object.values(VarOrConstantConstantTypeEnum).includes(this.datatype)
-  }
-
-  protected get isAnyValueDefined() {
-    if (this.operator === FilterExpressionOperatorEnum.In || this.operator === FilterExpressionOperatorEnum.NotIn) {
-      return this.parameters.filter(p => p.value && p.type === VarOrConstantTypeEnum.Constant).length >= 2
-    } else {
-      return this.parameters.some(p => p.value && p.type !== VarOrConstantTypeEnum.Var)
-    }
-  }
-
-  private get emptyInputsValue() {
-    return Array.from(this.inputElems).filter((input: any) => !input.value)
   }
 
   protected get formElement(): HTMLFormElement {

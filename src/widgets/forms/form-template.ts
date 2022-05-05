@@ -22,10 +22,11 @@ export function getFormTemplate(
   parameters: VarOrConstant[],
   operators: string[],
   datatype: VarOrConstantConstantTypeEnum,
+  parametersType: VarOrConstantTypeEnum,
   formTitle?: string) {
 
-  const op:string = operator || "Operator"
-  const dt:string = datatype || "Datatype"
+  const op: string = operator || "Operator"
+  const dt: string = datatype || "Datatype"
   const addInputButton = new UI.GscapeButton(UI.icons.plus, "Add input value")
   addInputButton.id = "add-input-btn"
 
@@ -38,10 +39,14 @@ export function getFormTemplate(
             <label>Operator</label>
             ${getSelect(op, operators)}
           </div>
-          <div id="select-datatype">
-            <label>Datatype</label>
-            ${getSelect(dt, Object.values(VarOrConstantConstantTypeEnum))}
-          </div>
+          ${parametersType === VarOrConstantTypeEnum.Constant
+            ? html`
+              <div id="select-datatype">
+                <label>Datatype</label>
+                ${getSelect(dt, Object.values(VarOrConstantConstantTypeEnum))}
+              </div>`
+            : null
+          }
         </div>
         <div class="inputs-wrapper">
           ${parameters?.map((parameter, index) => getInput(index, datatype, parameter.value, "Set input value"))}

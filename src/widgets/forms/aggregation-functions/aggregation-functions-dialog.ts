@@ -35,7 +35,6 @@ export default class AggregationDialog extends SparqlingFormDialog {
   }
 
   render() {
-    console.log(this.datatype)
     return html`
       <gscape-dialog title="${this.modality} Aggregate Function for ${this.variableName}">
         <div class="dialog-body">
@@ -57,6 +56,7 @@ export default class AggregationDialog extends SparqlingFormDialog {
                 this.parametersIriOrConstants,
                 Object.values(FilterExpressionOperatorEnum),
                 this.datatype,
+                this.parametersType,
                 "Having"
               )
           }
