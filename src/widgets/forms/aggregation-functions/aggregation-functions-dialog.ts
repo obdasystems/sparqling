@@ -104,8 +104,8 @@ export default class AggregationDialog extends SparqlingFormDialog {
     this.aggregateOperator = null
   }
 
-  private onAggregateOperatorChange(value: string) {
-    this.aggregateOperator = GroupByElementAggregateFunctionEnum[value]
+  private onAggregateOperatorChange(value: GroupByElementAggregateFunctionEnum) {
+    this.aggregateOperator = value
   }
 
   private onDistinctChange(e: MouseEvent) {
