@@ -193,6 +193,8 @@ export default class SparqlingFormDialog extends (UI.GscapeWidget as any) implem
   show() {
     super.show()
     this.innerDialog.show()
+
+    this.isDatatypeSelectorDisabled = this.datatype ? true : false
   }
 
   hide() {
@@ -276,7 +278,7 @@ export default class SparqlingFormDialog extends (UI.GscapeWidget as any) implem
     return this.parameters?.find(p => p.type === VarOrConstantTypeEnum.Var)
   }
 
-  protected get datatype() { return this.variable?.constantType }
+  public get datatype() { return this.variable?.constantType }
 
   protected set datatype(value) {
     this.variable.constantType = value
@@ -284,7 +286,7 @@ export default class SparqlingFormDialog extends (UI.GscapeWidget as any) implem
     this.requestUpdate()
   }
 
-  protected get parametersIriOrConstants() {
+  public get parametersIriOrConstants() {
     return this.parameters?.filter(p => p.type !== VarOrConstantTypeEnum.Var)
   }
 

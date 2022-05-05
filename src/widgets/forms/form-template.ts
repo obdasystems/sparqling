@@ -1,6 +1,7 @@
 import { FilterExpressionOperatorEnum, FunctionNameEnum, GroupByElementAggregateFunctionEnum, VarOrConstant, VarOrConstantConstantTypeEnum, VarOrConstantTypeEnum } from "../../api/swagger"
 import { html } from 'lit'
 import { UI } from 'grapholscape'
+import SparqlingFormDialog from "./base-form-dialog"
 
 // export function getfilterFormTemplate(
 //   operator: FilterExpressionOperatorEnum,
@@ -17,41 +18,35 @@ import { UI } from 'grapholscape'
 // }
 
 
-export function getFormTemplate(
-  operator: FilterExpressionOperatorEnum | FunctionNameEnum,
-  parameters: VarOrConstant[],
-  operators: string[],
-  datatype: VarOrConstantConstantTypeEnum,
-  parametersType: VarOrConstantTypeEnum,
-  formTitle?: string) {
+export function getFormTemplate(formComponent: SparqlingFormDialog, operators: string[]) {
 
-  const op: string = operator || "Operator"
-  const dt: string = datatype || "Datatype"
+  const op: string = formComponent.operator || "Operator"
+  const dt: string = formComponent.datatype || "Datatype"
   const addInputButton = new UI.GscapeButton(UI.icons.plus, "Add input value")
   addInputButton.id = "add-input-btn"
 
   return html`
     <div class="section">
-      ${formTitle ? html`<div class="section-header">${formTitle}</div>` : null}
+      ${formComponent.formTitle ? html`<div class="section-header">${formComponent.formTitle}</div>` : null}
       <form id="form-dialog" class="form" action="javascript:void(0)" onsubmit="this.handleSubmit">
         <div class="selects-wrapper">
           <div id="select-operator">
             <label>Operator</label>
             ${getSelect(op, operators)}
           </div>
-          ${parametersType === VarOrConstantTypeEnum.Constant
+          ${formComponent.parametersType === VarOrConstantTypeEnum.Constant
             ? html`
               <div id="select-datatype">
                 <label>Datatype</label>
-                ${getSelect(dt, Object.values(VarOrConstantConstantTypeEnum))}
+                ${getSelect(dt, Object.values(VarOrConstantConstantTypeEnum), formComponent.isDatatypeSelectorDisabled)}
               </div>`
             : null
           }
         </div>
         <div class="inputs-wrapper">
-          ${parameters?.map((parameter, index) => getInput(index, datatype, parameter.value, "Set input value"))}
-          ${operator === FilterExpressionOperatorEnum.In ||
-            operator === FilterExpressionOperatorEnum.NotIn
+          ${formComponent.parametersIriOrConstants?.map((parameter, index) => getInput(index, formComponent.datatype, parameter.value, "Set input value"))}
+          ${formComponent.operator === FilterExpressionOperatorEnum.In ||
+            formComponent.operator === FilterExpressionOperatorEnum.NotIn
             ? html`${addInputButton}`
             : null
           }
@@ -79,10 +74,10 @@ function getInput(index: number, datatype: VarOrConstantConstantTypeEnum, value?
     />`
 }
 
-export function getSelect(defaultOpt: string, options: string[]) {
+export function getSelect(defaultOpt: string, options: string[], disabled = false) {
   const isDefaultAlreadySet = options.includes(defaultOpt)
   return html`
-    <select required>
+    <select required ?disabled=${disabled}>
       ${isDefaultAlreadySet ? null : html`<option value="" hidden selected>${defaultOpt}</option>`}
       ${options.map(op => {
         if (op === defaultOpt)

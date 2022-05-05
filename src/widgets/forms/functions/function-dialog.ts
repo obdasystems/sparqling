@@ -16,7 +16,7 @@ export default class FunctionDialog extends SparqlingFormDialog {
     return html`
       <gscape-dialog title="${this.modality} Function for ${this.variableName}">
         <div class="dialog-body">
-          ${getFormTemplate(this.operator, this.parametersIriOrConstants, this.operators, this.datatype, this.parametersType)}
+          ${getFormTemplate(this, this.operators)}
         
           <div class="bottom-buttons">
             ${this.saveButton}

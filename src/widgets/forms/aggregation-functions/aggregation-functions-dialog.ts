@@ -1,6 +1,6 @@
 import { UI } from "grapholscape"
 import { html } from 'lit'
-import { FilterExpressionOperatorEnum, GroupByElementAggregateFunctionEnum, VarOrConstant, VarOrConstantConstantTypeEnum } from "../../../api/swagger"
+import { FilterExpressionOperatorEnum, GroupByElementAggregateFunctionEnum, VarOrConstant } from "../../../api/swagger"
 import { FormID } from "../../../util/filter-function-interface"
 import { addFilter } from "../../assets/icons"
 import SparqlingFormDialog from "../base-form-dialog"
@@ -32,6 +32,7 @@ export default class AggregationDialog extends SparqlingFormDialog {
     this.showHavingFormButton.classList.add('flat')
     this.showHavingFormButton.onClick = () => { this.definingHaving = true }
     this.havingOperator = GroupByElementAggregateFunctionEnum.Avarage
+    this.formTitle = "Having"
   }
 
   render() {
@@ -51,14 +52,7 @@ export default class AggregationDialog extends SparqlingFormDialog {
           </div>
           ${!this.definingHaving
             ? this.showHavingFormButton
-            : getFormTemplate(
-                this.operator,
-                this.parametersIriOrConstants,
-                Object.values(FilterExpressionOperatorEnum),
-                this.datatype,
-                this.parametersType,
-                "Having"
-              )
+            : getFormTemplate(this, Object.values(FilterExpressionOperatorEnum))
           }
           <div class="bottom-buttons">
             ${this.saveButton}
@@ -110,14 +104,6 @@ export default class AggregationDialog extends SparqlingFormDialog {
 
   private onDistinctChange(e: MouseEvent) {
     this.distinct = (e.target as HTMLFormElement).checked
-  }
-
-  protected get datatype(): VarOrConstantConstantTypeEnum {
-    return super.datatype
-  }
-
-  protected set datatype(value) {
-    super.datatype = value
   }
 
   protected get isAggregateOperatorValid() {
