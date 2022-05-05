@@ -102,6 +102,16 @@ export default class SparqlingFormDialog extends (UI.GscapeWidget as any) implem
           padding-bottom: 5px;
         }
 
+        #message-tray {
+          font-size: 80%;
+        }
+        #message-tray > .correct-message {
+          color: var(--theme-gscape-secondary);
+        }
+        #message-tray > .error-message {
+          color: var(--theme-gscape-error);
+        }
+
         .input-elem {
           color: inherit;
           margin:5px;
