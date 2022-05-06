@@ -1527,12 +1527,12 @@ export const QueryGraphExtraApiAxiosParamCreator = function (configuration?: Con
         /**
          * The offset value is defined in the query graph in the request body.
          * @summary Set the offset value.
-         * @param {boolean} offset 
+         * @param {number} offset 
          * @param {QueryGraph} queryGraph 
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
-        offsetQueryGraph: async (offset: boolean, queryGraph: QueryGraph, options: AxiosRequestConfig = {}): Promise<RequestArgs> => {
+        offsetQueryGraph: async (offset: number, queryGraph: QueryGraph, options: AxiosRequestConfig = {}): Promise<RequestArgs> => {
             // verify required parameter 'offset' is not null or undefined
             assertParamExists('offsetQueryGraph', 'offset', offset)
             // verify required parameter 'queryGraph' is not null or undefined
@@ -1616,12 +1616,12 @@ export const QueryGraphExtraApiFp = function(configuration?: Configuration) {
         /**
          * The offset value is defined in the query graph in the request body.
          * @summary Set the offset value.
-         * @param {boolean} offset 
+         * @param {number} offset 
          * @param {QueryGraph} queryGraph 
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
-        async offsetQueryGraph(offset: boolean, queryGraph: QueryGraph, options?: AxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<QueryGraph>> {
+        async offsetQueryGraph(offset: number, queryGraph: QueryGraph, options?: AxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<QueryGraph>> {
             const localVarAxiosArgs = await localVarAxiosParamCreator.offsetQueryGraph(offset, queryGraph, options);
             return createRequestFunction(localVarAxiosArgs, globalAxios, BASE_PATH, configuration);
         },
@@ -1671,12 +1671,12 @@ export const QueryGraphExtraApiFactory = function (configuration?: Configuration
         /**
          * The offset value is defined in the query graph in the request body.
          * @summary Set the offset value.
-         * @param {boolean} offset 
+         * @param {number} offset 
          * @param {QueryGraph} queryGraph 
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
-        offsetQueryGraph(offset: boolean, queryGraph: QueryGraph, options?: any): AxiosPromise<QueryGraph> {
+        offsetQueryGraph(offset: number, queryGraph: QueryGraph, options?: any): AxiosPromise<QueryGraph> {
             return localVarFp.offsetQueryGraph(offset, queryGraph, options).then((request) => request(axios, basePath));
         },
     };
@@ -1731,13 +1731,13 @@ export class QueryGraphExtraApi extends BaseAPI {
     /**
      * The offset value is defined in the query graph in the request body.
      * @summary Set the offset value.
-     * @param {boolean} offset 
+     * @param {number} offset 
      * @param {QueryGraph} queryGraph 
      * @param {*} [options] Override http request option.
      * @throws {RequiredError}
      * @memberof QueryGraphExtraApi
      */
-    public offsetQueryGraph(offset: boolean, queryGraph: QueryGraph, options?: AxiosRequestConfig) {
+    public offsetQueryGraph(offset: number, queryGraph: QueryGraph, options?: AxiosRequestConfig) {
         return QueryGraphExtraApiFp(this.configuration).offsetQueryGraph(offset, queryGraph, options).then((request) => request(this.axios, this.basePath));
     }
 }
