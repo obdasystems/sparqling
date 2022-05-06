@@ -117,7 +117,24 @@ export function arrange() {
   const dataPropertySelector = `node[type = "${EntityTypeEnum.DataProperty}"]`
   const classSelector = `node[type = "${EntityTypeEnum.Class}"]`
 
-  const klayLayout = cy.elements().layout(klayLayoutOpt)
+  if (getElements().length <= 1) {
+    /**
+     * [HACKY]
+     * In case of the first element added to the queryGraph, the widget is asynchronously
+     * updating adding the bgpContainer to its body, hence cytoscape's container's
+     * dimensions are still (0,0) and the fit can't be performed.
+     * Let's wait a little bit so the update in the widget finishes and we can fit viewport
+     * to the graph.
+     */
+    cy.container().style.visibility = 'hidden' // avoid seeing node moving across the viewport
+    setTimeout(() => {
+      cy.fit()
+      cy.container().style.visibility = 'visible' // show graph only when it's correctly fitted
+    }, 200)
+    return
+  }
+
+  const klayLayout = cy.layout(klayLayoutOpt)
   klayLayout.on('layoutstop', () => {
     cy.$(classSelector).forEach(node => {
       const dataProperties = node.neighborhood(dataPropertySelector)
@@ -130,13 +147,9 @@ export function arrange() {
         dataProperties.layout(radialLayoutOpt(node)).run()
       }
     })
+    cy.fit()
   })
-
   klayLayout.run()
-  //dataPropSources.lock()
-  // apply floaty layout only to dataproperties
-  //cy.$(dataPropertySelector).closedNeighborhood().layout(radialLayoutOpt).run()
-  //dataPropSources.unlock()
 }
 
 export function renderOptionals(optionals: Optional[]) {

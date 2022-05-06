@@ -1,14 +1,10 @@
 import { SingularElementReturnValue } from "cytoscape"
 
 export const klayLayoutOpt = {
-  nodeDimensionsIncludeLabels: true,
   name: 'klay',
-  fit: true, // Whether to fit
   klay: {
     direction: 'RIGHT',
     spacing: 60,
-    layoutHierarchy: true,
-    fixedAlignment: 'BALANCED',
     nodeLayering: 'INTERACTIVE',
   }
 }
