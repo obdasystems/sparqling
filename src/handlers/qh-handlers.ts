@@ -35,20 +35,6 @@ queryHead.onLocalize(headElement => {
   ontologyGraph.focusNodeByIRI(getIri(graphElement))
 })
 
-queryHead.sparqlButton.onClick = () => {
-  sparqlDialog.isVisible ? sparqlDialog.hide() : sparqlDialog.show()
-}
-
-queryHead.clearQueryButton.onClick = () => {
-  const queryBody = model.getQueryBody()
-  if (queryBody?.graph?.id) {
-    const qgApi = QueryGraphBGPApiFactory()
-    handlePromise(qgApi.deleteGraphElementId(queryBody?.graph?.id, queryBody)).then(newBody => {
-      onNewBody(newBody)
-    })
-  }
-}
-
 queryHead.onAddFilter(headElementId => {
   const headElement = model.getHeadElementByID(headElementId)
   showFormDialog(headElement, filterDialog)

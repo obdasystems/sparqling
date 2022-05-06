@@ -8,6 +8,7 @@ import SparqlingStartRunButtons from "./start-run-buttons"
 import { UI } from 'grapholscape'
 import FunctionDialog from "./forms/functions/function-dialog"
 import AggregationDialog from "./forms/aggregation-functions/aggregation-functions-dialog"
+import { code, refresh } from "./assets/icons"
 
 export const sparqlDialog = new SparqlDialog()
 
@@ -21,3 +22,11 @@ export const aggregationDialog = new AggregationDialog()
 export const startRunButtons = new SparqlingStartRunButtons()
 export const errorsDialog = new UI.GscapeDialog()
 errorsDialog.title = 'Error'
+
+export { default as limit } from './limit'
+export { default as offset } from './offset'
+
+export const sparqlButton = new UI.GscapeButton(code, 'SPARQL')
+export const clearQueryButton = new UI.GscapeButton(refresh, 'Clear Query')
+export const distinctToggle = new UI.GscapeToggle('distinct', false, true, 'Duplicates', null, true)
+distinctToggle.style.marginRight = '5px'

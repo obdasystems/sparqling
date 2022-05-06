@@ -4,9 +4,7 @@ import QueryHeadWidget from "./qh-widget";
 import { UI } from "grapholscape"
 import * as model from '../model'
 
-export const sparqlButton = new UI.GscapeButton(code, 'SPARQL')
-export const clearQueryButton = new UI.GscapeButton(refresh, 'Clear Query')
-const qhWidget = new QueryHeadWidget([sparqlButton, clearQueryButton])
+const qhWidget = new QueryHeadWidget()
 
 export {qhWidget as widget}
 

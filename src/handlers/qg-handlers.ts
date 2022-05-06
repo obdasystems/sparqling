@@ -1,6 +1,6 @@
 import { newOptionalGraphElementId, removeOptionalGraphElementId } from '../api/api_stub'
 import { QueryGraph, QueryGraphBGPApiFactory, QueryGraphHeadApiFactory } from '../api/swagger'
-import { filterDialog, filterListDialog } from '../widgets'
+import { clearQueryButton, filterDialog, filterListDialog, sparqlButton, sparqlDialog } from '../widgets'
 import * as ontologyGraph from '../ontology-graph'
 import getGscape from '../ontology-graph/get-gscape'
 import * as model from '../model'
@@ -133,3 +133,17 @@ queryGraph.onSeeFilters(graphElement => {
   filterListDialog.variable = graphElement.id
   filterListDialog.show()
 })
+
+sparqlButton.onClick = () => {
+  sparqlDialog.isVisible ? sparqlDialog.hide() : sparqlDialog.show()
+}
+
+clearQueryButton.onClick = () => {
+  const queryBody = model.getQueryBody()
+  if (queryBody?.graph?.id) {
+    const qgApi = QueryGraphBGPApiFactory()
+    handlePromise(qgApi.deleteGraphElementId(queryBody?.graph?.id, queryBody)).then(newBody => {
+      onNewBody(newBody)
+    })
+  }
+}

@@ -5,3 +5,4 @@ export * as StartStopHandlers from './start-stop-handlers'
 
 import './aggregatetions-handlers'
 import './functions-handlers'
+import './extra-handlers'

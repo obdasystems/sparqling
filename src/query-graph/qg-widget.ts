@@ -13,6 +13,7 @@ export default class QueryGraphWidget extends (GscapeWidget as any) {
   public draggable: boolean
   private bgpContainer: HTMLElement
   private _isBGPEmpty: boolean = true
+  private headSlottedWidgets: Element[]
 
   static get properties() {
     const props = super.properties
@@ -73,17 +74,45 @@ export default class QueryGraphWidget extends (GscapeWidget as any) {
         .tip: hover {
           color:inherit;
         }
+
+        #buttons-tray > * {
+          position: initial;
+        }
+
+        #buttons-tray {
+          display: flex;
+          align-items: center;
+          justify-content: end;
+          gap:10px;
+          flex-grow: 3;
+          padding: 0 10px;
+        }
+
+        #buttons-tray > gscape-button {
+          --gscape-icon-size: 20px;
+        }
+
+        #buttons-tray > input {
+          max-width:50px;
+        }
+
+        .input-elem {
+          color: inherit;
+          padding: 5px;
+          border: none;
+          border-bottom: solid 1px;
+          max-width: 50px;
+        }
       `
     ]
   }
 
-  constructor(bgpContainer: HTMLElement) {
+  constructor(bgpContainer: HTMLElement, headSlottedWidgets?: Element[]) {
     super()
     this.bgpContainer = bgpContainer
     this.collapsible = true
     this.draggable = true
-    this.header = new GscapeHeader('Query Graph', rdfLogo as any)
-
+    this.headSlottedWidgets = headSlottedWidgets
     //super.makeDraggable()
   }
 
@@ -100,12 +129,18 @@ export default class QueryGraphWidget extends (GscapeWidget as any) {
           `
           : this.bgpContainer}
       </div>
-      ${this.header}
+
+      <gscape-head title="Query Graph">
+        <div id="buttons-tray">
+          ${this.headSlottedWidgets}
+        </div>
+      </gscape-head>
     `
   }
 
   firstUpdated() {
     super.firstUpdated()
+    this.header.left_icon = rdfLogo
     this.header.invertIcons()
     super.makeDraggableHeadTitle()
     this.hide()
