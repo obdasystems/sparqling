@@ -6,7 +6,7 @@ label.innerHTML = 'Offset'
 input.type = 'number'
 input.classList.add('input-elem')
 input.id = 'offset-input'
-input.min = '0'
+input.min = '1'
 input.disabled = true
 
 

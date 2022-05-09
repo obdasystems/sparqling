@@ -6,7 +6,7 @@ label.innerHTML = 'N. of results'
 input.type = 'number'
 input.classList.add('input-elem')
 input.id = 'limit-input'
-input.min = '0'
+input.min = '1'
 input.disabled = true
 
 
