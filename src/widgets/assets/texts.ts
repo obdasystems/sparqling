@@ -131,3 +131,12 @@ export const commandRemoveOptionalText = (l = lang) => {
 
   return text[l]
 }
+
+export const countStarMsg = (l = lang) => {
+  const text = {
+    en: 'Count the number of results',
+    it: 'Conta il numero di risultati'
+  }
+
+  return text[l]
+}

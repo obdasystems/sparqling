@@ -1,12 +1,19 @@
-import { QueryGraphExtraApi } from "../api/swagger";
+import { QueryGraphExtraApi, QueryGraphHeadApi } from "../api/swagger";
 import { handlePromise } from "../main/handle-promises";
 import onNewBody from "../main/on-new-body";
-import { getQueryBody } from "../model";
+import { getQueryBody, isCountStarActive } from "../model";
 import { countStarToggle, distinctToggle, limit, offset } from "../widgets";
 
-distinctToggle.onToggle = () => setDistinct(distinctToggle.state)
+distinctToggle.onToggle = () => {
+  if (!isCountStarActive()) {
+    setMainDistinct(distinctToggle.state)
+  } else {
+    const qExtraApi = new QueryGraphExtraApi()
+    handlePromise(qExtraApi.countStarQueryGraph(distinctToggle.state, getQueryBody())).then(newBody => onNewBody(newBody))
+  }
+}
 
-export function setDistinct(value: boolean) {
+export function setMainDistinct(value: boolean) {
   const qExtraApi = new QueryGraphExtraApi()
   handlePromise(qExtraApi.distinctQueryGraph(value, getQueryBody())).then(newBody => {
     onNewBody(newBody)
@@ -24,10 +31,22 @@ getInputElement(offset).onsubmit = handleOffsetChange
 countStarToggle.onToggle = () => {
   const queryBody = getQueryBody()
   const qExtraApi = new QueryGraphExtraApi()
-  const distinct = queryBody.distinct ? true : false
-  handlePromise(qExtraApi.countStarQueryGraph(distinct, queryBody)).then(newBody => {
-    onNewBody(newBody)
-  })
+  const distinct = distinctToggle.state
+
+  if (isCountStarActive()) {
+    // remove headElement associated to count star
+    const qHeadApi = new QueryGraphHeadApi()
+    handlePromise(qHeadApi.deleteHeadTerm(queryBody.head[0].id, queryBody)).then(newBody => {
+      onNewBody(newBody)
+      setMainDistinct(distinct)
+    })
+  } else {
+    // add count star
+    handlePromise(qExtraApi.countStarQueryGraph(distinct, queryBody)).then(newBody => {
+      onNewBody(newBody)
+      setMainDistinct(false)
+    })
+  }
 }
 
 function handleOffsetChange() {

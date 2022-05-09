@@ -1,5 +1,5 @@
 import { SingularElementReturnValue } from "cytoscape"
-import { getHeadElementByID } from "../../../model"
+import { getHeadElementByID, isCountStarActive } from "../../../model"
 import { addFilter as addFilterIcon, editList, questionMarkDashed, rubbishBin, tableColumnPlus } from "../../../widgets/assets/icons"
 import { commandAddFilterText, commandAddHeadText, commandDeleteText, commandMakeOptionalText, commandRemoveOptionalText } from "../../../widgets/assets/texts"
 
@@ -24,7 +24,7 @@ export function getCommandsForElement(elem: SingularElementReturnValue) {
 
   if (!elem.isChild()) {
 
-    if (!getHeadElementByID('?' + elem.id())) {
+    if (!getHeadElementByID('?' + elem.id()) && !isCountStarActive()) {
       commands.push(addHead)
     }
 

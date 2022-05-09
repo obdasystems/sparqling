@@ -3,6 +3,7 @@ import { GraphElement, HeadElement, QueryGraph } from "../api/swagger"
 let body: QueryGraph
 let selectedGraphElement: GraphElement
 let standalone: boolean
+export const COUNT_STAR_ID = '?COUNT_STAR'
 
 // map GraphElementId+IRI -> OriginGrapholNodeID
 // Use iri to distinguish children of a GraphElement
@@ -38,4 +39,12 @@ export function getTempQueryBody(): QueryGraph {
 
 export function getHeadElementByID(headElementId: string, queryBody = body): HeadElement {
   return queryBody?.head?.find(headElement => headElement.id === headElementId)
+}
+
+export function isCountStarActive(): boolean {
+  return body?.head?.length === 1 && body?.head[0]?.graphElementId === null
+}
+
+export function getCountStarHeadElement(): HeadElement {
+  return isCountStarActive() ? body?.head[0] : null
 }

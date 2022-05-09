@@ -1,5 +1,4 @@
 import { HeadElement, QueryGraph } from "../api/swagger"
-import { setDistinct } from "../handlers/extra-handlers"
 import * as model from "../model"
 import * as ontologyGraph from "../ontology-graph"
 import getGscape from "../ontology-graph/get-gscape"

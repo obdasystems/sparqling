@@ -1,8 +1,9 @@
 import { UI } from 'grapholscape'
 import { css, html } from 'lit'
 import { HeadElement } from '../api/swagger'
-import { asterisk, tableEye } from '../widgets/assets/icons'
-import { emptyHeadMsg, emptyHeadTipMsg, tipWhy } from '../widgets/assets/texts'
+import { isCountStarActive } from '../model'
+import { asterisk, counter, tableEye } from '../widgets/assets/icons'
+import { countStarMsg, emptyHeadMsg, emptyHeadTipMsg, tipWhy } from '../widgets/assets/texts'
 import { allowDrop } from './drag-sorting'
 import HeadElementComponent from './qh-element-component'
 
@@ -133,21 +134,28 @@ export default class QueryHeadWidget extends GscapeWidget {
   render() {
     return html`
       <div class="widget-body">
-      ${this.headElements.length === 0
+      ${isCountStarActive()
         ? html`
           <div id="empty-head">
-            <div class="icon">${asterisk}</div>
-            <div id="empty-head-msg">${emptyHeadMsg()}</div>
-            <div class="tip" title="${emptyHeadTipMsg()}">${tipWhy()}</div>
+            <div class="icon">${counter}</div>
+            <div id="empty-head-msg">${countStarMsg()}</div>
           </div>
-          `
-        : html`
-          <div style="overflow-y:scroll; max-height:inherit; scrollbar-width: inherit;">
-            <div id="elems-wrapper" @dragover=${allowDrop} @drop=${allowDrop}>
-              ${this.headElements.map(headElement => new HeadElementComponent(headElement))}
+        `
+        : this.headElements.length === 0
+          ? html`
+            <div id="empty-head">
+              <div class="icon">${asterisk}</div>
+              <div id="empty-head-msg">${emptyHeadMsg()}</div>
+              <div class="tip" title="${emptyHeadTipMsg()}">${tipWhy()}</div>
             </div>
-          </div>
-          `
+            `
+          : html`
+            <div style="overflow-y:scroll; max-height:inherit; scrollbar-width: inherit;">
+              <div id="elems-wrapper" @dragover=${allowDrop} @drop=${allowDrop}>
+                ${this.headElements.map(headElement => new HeadElementComponent(headElement))}
+              </div>
+            </div>
+            `
       }
       </div>
       <gscape-head title="Query Results">

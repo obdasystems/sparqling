@@ -1,9 +1,8 @@
 import { HeadElement } from "../api/swagger"
 import * as model from '../model'
-import { countStarToggle } from "../widgets"
 import QueryHeadWidget from "./qh-widget"
 
-const qhWidget = new QueryHeadWidget([countStarToggle])
+const qhWidget = new QueryHeadWidget()
 
 export { onElementSortChange } from './drag-sorting'
 export { qhWidget as widget }

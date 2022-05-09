@@ -2,7 +2,7 @@ import { GraphElement } from "../api/swagger"
 import centerOnElement from "../util/center-on-element"
 import { bgpContainer } from "../util/get-container"
 import * as GEUtility from "../util/graph-element-utility"
-import { clearQueryButton, distinctToggle, limit, offset, sparqlButton } from "../widgets"
+import { clearQueryButton, countStarToggle, distinctToggle, limit, offset, sparqlButton } from "../widgets"
 import QueryGraphWidget from "./qg-widget"
 import * as bgp from "./renderer"
 import { cxtMenu } from "./renderer"
@@ -11,7 +11,7 @@ export * from './optionals'
 export { renderOptionals, setLanguage } from './renderer'
 export * from './renderer/setters'
 
-export const widget = new QueryGraphWidget(bgpContainer, [limit, offset, distinctToggle, sparqlButton, clearQueryButton])
+export const widget = new QueryGraphWidget(bgpContainer, [limit, offset, distinctToggle, countStarToggle, sparqlButton, clearQueryButton])
 
 // inject tests for allowing joins into renderer, keep renderer logic agnostic
 bgp.setJoinStartCondition((nodeID: string) => GEUtility.canStartJoin(GEUtility.getGraphElementByID(nodeID)))
