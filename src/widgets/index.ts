@@ -30,3 +30,4 @@ export const sparqlButton = new UI.GscapeButton(code, 'SPARQL')
 export const clearQueryButton = new UI.GscapeButton(refresh, 'Clear Query')
 export const distinctToggle = new UI.GscapeToggle('distinct', false, true, 'Duplicates', null, true)
 distinctToggle.style.marginRight = '5px'
+export const countStarToggle = new UI.GscapeToggle('count-star', false, true, 'Count Results')

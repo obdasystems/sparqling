@@ -6,7 +6,7 @@ import getGscape from "../ontology-graph/get-gscape"
 import * as queryGraph from "../query-graph"
 import * as queryHead from "../query-head"
 import { getHeadElementWithDatatype } from "../util/head-element-utility"
-import { sparqlDialog, filterListDialog, distinctToggle, offset, limit } from "../widgets"
+import { sparqlDialog, filterListDialog, distinctToggle, offset, limit, countStarToggle } from "../widgets"
 import { emptyQueryMsg } from "../widgets/assets/texts"
 
 export default function onNewBody(newBody: QueryGraph) {
@@ -17,6 +17,7 @@ export default function onNewBody(newBody: QueryGraph) {
     ontologyGraph.resetHighlights()
     getGscape().unselectEntity()
     distinctToggle.state = false
+    countStarToggle.state = false
     limit.querySelector('input').value = null
     offset.querySelector('input').value = null
   }
@@ -28,12 +29,16 @@ export default function onNewBody(newBody: QueryGraph) {
   deletedNodeIds.forEach(id => model.getOriginGrapholNodes().delete(id))
   queryGraph.renderOptionals(body.optionals)
 
-  queryHead.render(body.head?.map((headElem: HeadElement) => 
+  queryHead.render(body.head?.map((headElem: HeadElement) =>
     getHeadElementWithDatatype(headElem)
   ))
 
   filterListDialog.filterList = model.getFiltersOnVariable(filterListDialog.variable)
 
   sparqlDialog.text = body?.sparql ? body.sparql : emptyQueryMsg()
-  distinctToggle.disabled = limit.querySelector('input').disabled = offset.querySelector('input').disabled = newBody?.graph ? false : true
+  distinctToggle.disabled =
+    countStarToggle.disabled =
+    limit.querySelector('input').disabled =
+    offset.querySelector('input').disabled =
+    newBody?.graph ? false : true
 }

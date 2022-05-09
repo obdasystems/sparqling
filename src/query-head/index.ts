@@ -1,12 +1,12 @@
-import { HeadElement } from "../api/swagger";
-import { code, refresh } from "../widgets/assets/icons";
-import QueryHeadWidget from "./qh-widget";
-import { UI } from "grapholscape"
+import { HeadElement } from "../api/swagger"
 import * as model from '../model'
+import { countStarToggle } from "../widgets"
+import QueryHeadWidget from "./qh-widget"
 
-const qhWidget = new QueryHeadWidget()
+const qhWidget = new QueryHeadWidget([countStarToggle])
 
-export {qhWidget as widget}
+export { onElementSortChange } from './drag-sorting'
+export { qhWidget as widget }
 
 export function onDelete(callback: (headElement: HeadElement) => void) {
   qhWidget.onDelete( headElementId => callback(model.getHeadElementByID(headElementId)))
@@ -57,4 +57,3 @@ export function onAddAggregation(callback: (headElementId: string) => void) {
   qhWidget.onAddAggregation(headElementId => callback(headElementId))
 }
 
-export { onElementSortChange } from './drag-sorting'

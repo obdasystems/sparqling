@@ -2,7 +2,7 @@ import { QueryGraphExtraApi } from "../api/swagger";
 import { handlePromise } from "../main/handle-promises";
 import onNewBody from "../main/on-new-body";
 import { getQueryBody } from "../model";
-import { distinctToggle, limit, offset } from "../widgets";
+import { countStarToggle, distinctToggle, limit, offset } from "../widgets";
 
 distinctToggle.onToggle = () => setDistinct(distinctToggle.state)
 
@@ -18,6 +18,15 @@ getInputElement(limit).onblur = handleLimitChange
 
 getInputElement(offset).onchange = handleOffsetChange
 getInputElement(offset).onblur = handleOffsetChange
+
+countStarToggle.onToggle = () => {
+  const queryBody = getQueryBody()
+  const qExtraApi = new QueryGraphExtraApi()
+  const distinct = queryBody.distinct ? true : false
+  handlePromise(qExtraApi.countStarQueryGraph(distinct, queryBody)).then(newBody => {
+    onNewBody(newBody)
+  })
+}
 
 function handleOffsetChange() {
   const input = getInputElement(offset)
