@@ -13,17 +13,17 @@ export function setDistinct(value: boolean) {
   })
 }
 
-limit.onchange = handleLimitChange
-limit.onblur = handleLimitChange
+getInputElement(limit).onchange = handleLimitChange
+getInputElement(limit).onblur = handleLimitChange
 
-offset.onchange = handleOffsetChange
-offset.onblur = handleOffsetChange
+getInputElement(offset).onchange = handleOffsetChange
+getInputElement(offset).onblur = handleOffsetChange
 
 function handleOffsetChange() {
   const input = getInputElement(offset)
   const value = input.valueAsNumber
   const queryBody = getQueryBody()
-  if (input.reportValidity() && queryBody?.graph && input.valueAsNumber !== queryBody.offset) {
+  if (input.reportValidity() && queryBody?.graph && value !== queryBody.offset) {
     const qExtraApi = new QueryGraphExtraApi()
     handlePromise(qExtraApi.offsetQueryGraph(value, queryBody)).then(newBody => {
       onNewBody(newBody)
@@ -41,10 +41,6 @@ function handleLimitChange() {
       onNewBody(newBody)
     })
   }
-}
-
-function setOffset(value: number) {
-  
 }
 
 function getInputElement(elem: HTMLDivElement) {
