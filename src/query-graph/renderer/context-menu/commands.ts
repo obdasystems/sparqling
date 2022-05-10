@@ -1,7 +1,7 @@
 import { SingularElementReturnValue } from "cytoscape"
 import { EntityTypeEnum } from "../../../api/swagger"
 import { getHeadElementByID, isCountStarActive } from "../../../model"
-import { addFilter as addFilterIcon, editList, questionMarkDashed, rubbishBin, tableColumnPlus } from "../../../widgets/assets/icons"
+import { addFilter as addFilterIcon, editList, dashedCross, questionMarkDashed, rubbishBin, tableColumnPlus } from "../../../widgets/assets/icons"
 import { commandAddFilterText, commandAddHeadText, commandDeleteText, commandMakeOptionalText, commandRemoveOptionalText } from "../../../widgets/assets/texts"
 
 
@@ -76,6 +76,7 @@ const makeOptional: Command = {
 }
 const removeOptional: Command = {
   content: commandRemoveOptionalText(),
+  icon: dashedCross,
   select: () => removeOptionalCallback(_ele.id())
 }
 const seeFilters: Command = {
