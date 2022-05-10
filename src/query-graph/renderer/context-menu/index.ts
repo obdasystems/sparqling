@@ -2,6 +2,7 @@ import cy from "../cy"
 import tippy from "tippy.js"
 import ContextMenuWidget from "./cxt-menu-widget"
 import * as commands from "./commands"
+import { EntityTypeEnum } from "../../../api/swagger"
 
 // A dummy element must be passed as tippy only accepts dom element(s) as the target
 // https://atomiks.github.io/tippyjs/v6/constructor/#target-types
@@ -22,7 +23,7 @@ function attachCxtMenuToElement(ref: HTMLElement) {
   cxtMenu.setProps({ getReferenceClientRect: ref.getBoundingClientRect })
 }
 
-cy.on('cxttap', 'node', e => {
+cy.on('cxttap', `node, edge[type = "${EntityTypeEnum.ObjectProperty}"], edge[type = "${EntityTypeEnum.InverseObjectProperty}"]`, e => {
   attachCxtMenuToElement(e.target.popperRef())
   cxtMenuWidget.commands = commands.getCommandsForElement(e.target)
   cxtMenu.show()

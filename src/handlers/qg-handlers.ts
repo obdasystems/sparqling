@@ -1,5 +1,5 @@
 import { newOptionalGraphElementId, removeOptionalGraphElementId } from '../api/api_stub'
-import { QueryGraph, QueryGraphBGPApiFactory, QueryGraphHeadApiFactory } from '../api/swagger'
+import { QueryGraph, QueryGraphBGPApiFactory, QueryGraphHeadApiFactory, QueryGraphOptionalApi } from '../api/swagger'
 import { clearQueryButton, filterDialog, filterListDialog, sparqlButton, sparqlDialog } from '../widgets'
 import * as ontologyGraph from '../ontology-graph'
 import getGscape from '../ontology-graph/get-gscape'
@@ -95,21 +95,19 @@ queryGraph.onElementClick((graphElement, iri) => {
 })
 
 queryGraph.onMakeOptional(graphElement => {
-  const qgApi = QueryGraphBGPApiFactory()
+  const qgOptionalApi = new QueryGraphOptionalApi()
   const body = model.getQueryBody()
-  let newBody = newOptionalGraphElementId(graphElement.id, body)
-
-  if (newBody)
+  handlePromise(qgOptionalApi.newOptionalGraphElementId(graphElement.id, body, GEUtility.getIri(graphElement))).then(newBody => {
     onNewBody(newBody)
+  })
 })
 
 queryGraph.onRemoveOptional(graphElement => {
-  const qgApi = QueryGraphBGPApiFactory()
+  const qgOptionalApi = new QueryGraphOptionalApi()
   const body = model.getQueryBody()
-  let newBody = removeOptionalGraphElementId(graphElement.id, null, body)
-
-  if (newBody)
+  handlePromise(qgOptionalApi.removeOptionalGraphElementId(graphElement.id, body, GEUtility.getIri(graphElement))).then(newBody => {
     onNewBody(newBody)
+  })
 })
 
 queryGraph.onAddFilter(graphElement => {

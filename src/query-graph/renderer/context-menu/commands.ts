@@ -1,4 +1,5 @@
 import { SingularElementReturnValue } from "cytoscape"
+import { EntityTypeEnum } from "../../../api/swagger"
 import { getHeadElementByID, isCountStarActive } from "../../../model"
 import { addFilter as addFilterIcon, editList, questionMarkDashed, rubbishBin, tableColumnPlus } from "../../../widgets/assets/icons"
 import { commandAddFilterText, commandAddHeadText, commandDeleteText, commandMakeOptionalText, commandRemoveOptionalText } from "../../../widgets/assets/texts"
@@ -22,7 +23,13 @@ export function getCommandsForElement(elem: SingularElementReturnValue) {
   _ele = elem
   const commands = []
 
-  if (!elem.isChild()) {
+  if (elem.data().type === EntityTypeEnum.ObjectProperty || elem.data().type === EntityTypeEnum.InverseObjectProperty) {
+    if (elem.data().optional) {
+      commands.push(removeOptional)
+    } else {
+      commands.push(makeOptional)
+    }
+  } else if (!elem.isChild()) {
 
     if (!getHeadElementByID('?' + elem.id()) && !isCountStarActive()) {
       commands.push(addHead)
@@ -39,9 +46,9 @@ export function getCommandsForElement(elem: SingularElementReturnValue) {
     } else {
       commands.push(makeOptional)
     }
+    commands.push(del)
   }
 
-  commands.push(del)
   return commands
 }
 

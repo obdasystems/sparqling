@@ -102,10 +102,7 @@ export default (theme: Theme) => {
     {
       selector: '[?optional]',
       style: {
-        'ghost': 'yes',
-        'ghost-offset-x': '5px',
-        'ghost-offset-y': '-5px',
-        'ghost-opacity': 0.3
+        'opacity': 0.8
       }
     },
 
