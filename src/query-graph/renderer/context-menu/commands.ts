@@ -29,22 +29,25 @@ export function getCommandsForElement(elem: SingularElementReturnValue) {
     } else {
       commands.push(makeOptional)
     }
-  } else if (!elem.isChild()) {
+  } else {
+    if (!elem.isChild()) {
 
-    if (!getHeadElementByID('?' + elem.id()) && !isCountStarActive()) {
-      commands.push(addHead)
-    }
+      if (!getHeadElementByID('?' + elem.id()) && !isCountStarActive()) {
+        commands.push(addHead)
+      }
 
-    if (elem.data().hasFilters) {
-      commands.push(seeFilters)
-    }
+      if (elem.data().hasFilters) {
+        commands.push(seeFilters)
+      }
 
-    commands.push(addFilter)
+      commands.push(addFilter)
 
-    if (elem.data().optional) {
-      commands.push(removeOptional)
-    } else {
-      commands.push(makeOptional)
+      if (elem.data().optional) {
+        commands.push(removeOptional)
+      } else {
+        commands.push(makeOptional)
+      }
+
     }
     commands.push(del)
   }
