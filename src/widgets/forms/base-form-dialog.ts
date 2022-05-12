@@ -117,7 +117,8 @@ export default class SparqlingFormDialog extends (UI.GscapeWidget as any) implem
           margin:5px;
           padding: 5px;
           border: none;
-          border-bottom: solid 1px;
+          border-bottom: solid 1px var(--theme-gscape-borders, ${colors.borders});
+          background: var(--theme-gscape-primary, ${colors.primary});
         }
 
         form *:invalid {
