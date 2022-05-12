@@ -9,6 +9,10 @@ export function getElemWithOperatorStyle() {
       justify-content: center;
     }
 
+    .elem-with-operator > gscape-button {
+      --gscape-icon-size: 20px;
+    }
+
     .parameters {
       display: flex;
       flex-direction: column;

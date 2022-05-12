@@ -3,26 +3,26 @@ import { getFormTemplate } from "../form-template"
 import { html } from 'lit'
 import { FunctionNameEnum, VarOrConstant, VarOrConstantConstantTypeEnum } from "../../../api/swagger"
 import { FormID } from "../../../util/filter-function-interface"
+import { functionIcon } from "../../assets/icons"
 
 export default class FunctionDialog extends SparqlingFormDialog {
-  private isCorrect: boolean
 
   constructor() {
     super()
     this.saveButton.label = "Save Function"
+    this.left_icon = functionIcon
   }
 
   render() {
     return html`
-      <gscape-dialog title="${this.modality} Function for ${this.variableName}">
-        <div class="dialog-body">
-          ${getFormTemplate(this, this.operators)}
-        
-          <div class="bottom-buttons">
-            ${this.saveButton}
-          </div>
+      <gscape-head title="${this.modality} Function for ${this.variableName}" class="drag-handler"></gscape-head>
+      <div class="dialog-body">
+        ${getFormTemplate(this, this.operators)}
+      
+        <div class="bottom-buttons">
+          ${this.saveButton}
         </div>
-      </gscape-dialog>
+      </div>
     `
   }
 

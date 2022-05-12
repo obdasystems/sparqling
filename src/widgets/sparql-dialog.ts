@@ -1,6 +1,6 @@
 import { UI } from 'grapholscape'
 import { html, css } from 'lit'
-import { copyContent } from './assets/icons'
+import { code, copyContent } from './assets/icons'
 import { emptyQueryMsg } from './assets/texts'
 
 export default class SparqlDialog extends (UI.GscapeDialog as any) {
@@ -64,6 +64,11 @@ export default class SparqlDialog extends (UI.GscapeDialog as any) {
         <div class="sparql-code" title="Click to copy query" @click=${this.copyQuery}>${this.text.trim()}</div>
       </div>
     `
+  }
+
+  firstUpdated() {
+    super.firstUpdated()
+    this.header.left_icon = code
   }
 
   copyQuery() {
