@@ -3,6 +3,7 @@ import { handlePromise } from "../main/handle-promises";
 import onNewBody from "../main/on-new-body";
 import { getQueryBody, isCountStarActive } from "../model";
 import { countStarToggle, distinctToggle, limit, offset } from "../widgets";
+import { validateInputElement } from "../widgets/forms/validate-form";
 
 distinctToggle.onToggle = () => {
   if (!isCountStarActive()) {
@@ -57,7 +58,7 @@ function handleOffsetChange() {
   let value = input.valueAsNumber
   const qExtraApi = new QueryGraphExtraApi()
 
-  if (input.reportValidity() && value !== queryBody.offset) {
+  if (validateInputElement(input) && value !== queryBody.offset) {
     // if NaN but valid, then th field is empty, pass -1 to remove the offset
     if (isNaN(value)) {
       value = -1
@@ -83,7 +84,7 @@ function handleLimitChange() {
   let value = input.valueAsNumber
   const qExtraApi = new QueryGraphExtraApi()
 
-  if (input.reportValidity() && value !== queryBody.limit) {
+  if (validateInputElement(input) && value !== queryBody.limit) {
     // if NaN but valid, then th field is empty, pass -1 to remove the limit
     if (isNaN(value)) {
       value = -1

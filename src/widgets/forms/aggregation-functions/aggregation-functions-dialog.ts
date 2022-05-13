@@ -5,6 +5,7 @@ import { FormID } from "../../../util/filter-function-interface"
 import { addFilter, sigma } from "../../assets/icons"
 import SparqlingFormDialog from "../base-form-dialog"
 import { getFormTemplate, getSelect } from "../form-template"
+import { validateSelectElement } from "../validate-form"
 
 export default class AggregationDialog extends SparqlingFormDialog {
   private showHavingFormButton = new UI.GscapeButton(addFilter, "Add Having")
@@ -68,7 +69,7 @@ export default class AggregationDialog extends SparqlingFormDialog {
   }
 
   handleSubmit(): void {
-    if (this.selectAggregateOperatorElem.reportValidity()) {
+    if (validateSelectElement(this.selectAggregateOperatorElem)) {
       if (this.definingHaving)
         super.handleSubmit() // this evaluate validity of the having too
       else

@@ -3,6 +3,7 @@ import { UI } from 'grapholscape'
 import { FilterExpressionOperatorEnum, FunctionNameEnum, GroupByElementAggregateFunctionEnum, VarOrConstant, VarOrConstantConstantTypeEnum, VarOrConstantTypeEnum } from '../../api/swagger'
 import { FormID, FormOperator, FormWidget } from '../../util/filter-function-interface'
 import { checkmark, rubbishBin } from '../assets/icons'
+import validateForm, { validateSelectElement } from './validate-form'
 
 export enum Modality {
   DEFINE = 'Define',
@@ -140,7 +141,7 @@ export default class SparqlingFormDialog extends (UI.GscapeDialog as any) implem
   }
 
   protected handleSubmit() {
-    if (this.formElement && this.formElement.reportValidity()) {
+    if (this.formElement && validateForm(this.formElement)) {
       this.onValidSubmit()
     }
   }
