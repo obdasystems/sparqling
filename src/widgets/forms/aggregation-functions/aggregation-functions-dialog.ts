@@ -2,7 +2,7 @@ import { UI } from "grapholscape"
 import { html } from 'lit'
 import { FilterExpressionOperatorEnum, GroupByElementAggregateFunctionEnum, VarOrConstant } from "../../../api/swagger"
 import { FormID } from "../../../util/filter-function-interface"
-import { addFilter } from "../../assets/icons"
+import { addFilter, sigma } from "../../assets/icons"
 import SparqlingFormDialog from "../base-form-dialog"
 import { getFormTemplate, getSelect } from "../form-template"
 
@@ -33,32 +33,32 @@ export default class AggregationDialog extends SparqlingFormDialog {
     this.showHavingFormButton.onClick = () => { this.definingHaving = true }
     this.havingOperator = GroupByElementAggregateFunctionEnum.Avarage
     this.formTitle = "Having"
+    this.left_icon = sigma
   }
 
   render() {
     return html`
-      <gscape-dialog title="${this.modality} Aggregate Function for ${this.variableName}">
-        <div class="dialog-body">
-          <div style="text-align: center;">
-            <div id="select-aggregate-function">
-              ${getSelect(this.aggregateOperator || "Aggregate Function", Object.values(GroupByElementAggregateFunctionEnum))}
-            </div>
-            <div style="margin: 10px 0">
-              <label>
-                <input id="distinct-checkbox" type="checkbox" @click="${this.onDistinctChange}" ?checked=${this.distinct}>
-                Only distinct values
-              </label>
-            </div>
+      <gscape-head title="${this.modality} Aggregate Function for ${this.variableName}" class="drag-handler"></gscape-head>
+      <div class="dialog-body">
+        <div style="text-align: center;">
+          <div id="select-aggregate-function">
+            ${getSelect(this.aggregateOperator || "Aggregate Function", Object.values(GroupByElementAggregateFunctionEnum))}
           </div>
-          ${!this.definingHaving
-            ? this.showHavingFormButton
-            : getFormTemplate(this, Object.values(FilterExpressionOperatorEnum))
-          }
-          <div class="bottom-buttons">
-            ${this.saveButton}
+          <div style="margin: 10px 0">
+            <label>
+              <input id="distinct-checkbox" type="checkbox" @click="${this.onDistinctChange}" ?checked=${this.distinct}>
+              Only distinct values
+            </label>
           </div>
         </div>
-      </gscape-dialog>
+        ${!this.definingHaving
+          ? this.showHavingFormButton
+          : getFormTemplate(this, Object.values(FilterExpressionOperatorEnum))
+        }
+        <div class="bottom-buttons">
+          ${this.saveButton}
+        </div>
+      </div>
     `
   }
 
@@ -111,11 +111,11 @@ export default class AggregationDialog extends SparqlingFormDialog {
   }
 
   protected get selectAggregateOperatorElem() {
-    return this.innerDialog.querySelector('#select-aggregate-function > select')
+    return this.shadowRoot.querySelector('#select-aggregate-function > select')
   }
 
   private get distinctCheckboxElem() {
-    return this.innerDialog.querySelector('#distinct-checkbox')
+    return this.shadowRoot.querySelector('#distinct-checkbox')
   }
 }
 

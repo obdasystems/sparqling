@@ -1,9 +1,10 @@
 import { UI } from 'grapholscape'
 import { css, html } from 'lit'
+import { filterMultiple } from '../../assets/icons'
 import { getElemWithOperatorStyle } from '../elem-with-operator-style'
 import { FilterWithID, getElemWithOperatorList } from '../elems-with-operator-list-template'
 
-export default class FilterListDialog extends UI.GscapeWidget {
+export default class FilterListDialog extends (UI.GscapeDialog as any) {
   public filterList: FilterWithID[] = []
   public variable: string
   private editFilterCallback: (filterId: number) => void = () => {}
@@ -18,7 +19,7 @@ export default class FilterListDialog extends UI.GscapeWidget {
 
   static get styles() {
     let super_styles = super.styles
-    let colors = super_styles[1]
+    let colors = UI.GscapeWidget.styles[1]
     return [
       super_styles[0],
       css`
@@ -26,10 +27,7 @@ export default class FilterListDialog extends UI.GscapeWidget {
           position: absolute;
           top: 30%;
           left: 50%;
-        }
-
-        gscape-dialog {
-          width: fit-content;
+          transform: translate(-50%, 0)
         }
 
         .dialog-body {
@@ -37,8 +35,6 @@ export default class FilterListDialog extends UI.GscapeWidget {
           flex-direction: column;
           gap: 20px;
           padding: 10px 5px;
-          border: solid 1px var(--theme-gscape-borders);
-          border-radius: 6px;
         }
 
         gscape-button {
@@ -59,22 +55,24 @@ export default class FilterListDialog extends UI.GscapeWidget {
 
   render() {
     return html`
-      <gscape-dialog title="Defined Filters for ${this.variable}">
-        <div class="dialog-body">
-          ${getElemWithOperatorList(this.filterList, this.editFilterCallback, this.deleteFilterCallback)}
-        </div>
-      </gscape-dialog>
+      <gscape-head title="Defined Filters for ${this.variable}" class="drag-handler"></gscape-head>
+      <div class="dialog-body">
+        ${getElemWithOperatorList(this.filterList, this.editFilterCallback, this.deleteFilterCallback)}
+      </div>
     `
+  }
+
+  firstUpdated() {
+    super.firstUpdated()
+    this.header.left_icon = filterMultiple
   }
 
   show() {
     super.show()
-    this.innerDialog.show()
   }
 
   hide() {
     super.hide()
-    this.innerDialog.hide()
   }
 
   onEdit(callback: (filterId: number) => void) {
@@ -85,7 +83,6 @@ export default class FilterListDialog extends UI.GscapeWidget {
     this.deleteFilterCallback = callback
   }
 
-  private get innerDialog() { return (this as any).shadowRoot.querySelector('gscape-dialog') }
 }
 
 

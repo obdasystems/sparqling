@@ -1,4 +1,4 @@
-import { css } from 'lit'
+import { css, TemplateResult } from 'lit'
 import { UI } from 'grapholscape'
 import { FilterExpressionOperatorEnum, FunctionNameEnum, GroupByElementAggregateFunctionEnum, VarOrConstant, VarOrConstantConstantTypeEnum, VarOrConstantTypeEnum } from '../../api/swagger'
 import { FormID, FormOperator, FormWidget } from '../../util/filter-function-interface'
@@ -9,7 +9,8 @@ export enum Modality {
   EDIT = 'Edit'
 }
 
-export default class SparqlingFormDialog extends (UI.GscapeWidget as any) implements FormWidget {
+export default class SparqlingFormDialog extends (UI.GscapeDialog as any) implements FormWidget {
+  protected left_icon: TemplateResult
   protected saveButton = new UI.GscapeButton(checkmark, "Save")
   protected deleteButton = new UI.GscapeButton(rubbishBin, "Delete")
   public operator: FormOperator
@@ -35,7 +36,7 @@ export default class SparqlingFormDialog extends (UI.GscapeWidget as any) implem
 
   static get styles() {
     let super_styles = super.styles
-    let colors = super_styles[1]
+    let colors = UI.GscapeWidget.styles[1]
     return [
       super_styles[0],
       css`
@@ -43,17 +44,16 @@ export default class SparqlingFormDialog extends (UI.GscapeWidget as any) implem
           position: absolute;
           top: 30%;
           left: 50%;
+          transform: translate(-50%, 0)
         }
 
-        gscape-dialog {
-          min-width: 300px;
-        }
 
         .dialog-body {
           display: flex;
           flex-direction: column;
           gap: 30px;
           align-items: center;
+          padding: 10px;
         }
 
         .form, .inputs-wrapper {
@@ -94,7 +94,7 @@ export default class SparqlingFormDialog extends (UI.GscapeWidget as any) implem
           text-align: center;
           font-weight: bold;
           border-bottom: solid 1px var(--theme-gscape-borders, ${colors.borders});
-          color: var(--theme-gscape-secondary, , ${colors.secondary});
+          color: var(--theme-gscape-secondary, ${colors.secondary});
           width: 85%;
           margin: auto;
           margin-bottom: auto;
@@ -117,7 +117,8 @@ export default class SparqlingFormDialog extends (UI.GscapeWidget as any) implem
           margin:5px;
           padding: 5px;
           border: none;
-          border-bottom: solid 1px;
+          border-bottom: solid 1px var(--theme-gscape-borders, ${colors.borders});
+          background: var(--theme-gscape-primary, ${colors.primary});
         }
 
         form *:invalid {
@@ -192,14 +193,8 @@ export default class SparqlingFormDialog extends (UI.GscapeWidget as any) implem
 
   show() {
     super.show()
-    this.innerDialog.show()
 
     this.isDatatypeSelectorDisabled = this.datatype ? true : false
-  }
-
-  hide() {
-    super.hide()
-    this.innerDialog.hide()
   }
 
   addInputValue(number = 1) {
@@ -212,6 +207,11 @@ export default class SparqlingFormDialog extends (UI.GscapeWidget as any) implem
     }
 
     (this as any).requestUpdate()
+  }
+
+  firstUpdated() {
+    super.firstUpdated()
+    this.header.left_icon = this.left_icon
   }
 
   updated() {
@@ -227,7 +227,7 @@ export default class SparqlingFormDialog extends (UI.GscapeWidget as any) implem
       input.onchange = (e) => this.onInputChange(input.getAttribute('index'), e.currentTarget)
     )
 
-    const addInputButton: any = this.innerDialog.querySelector('#add-input-btn')
+    const addInputButton: any = this.shadowRoot.querySelector('#add-input-btn')
     if (addInputButton)
       addInputButton.onClick = () => this.addInputValue()
   }
@@ -256,22 +256,20 @@ export default class SparqlingFormDialog extends (UI.GscapeWidget as any) implem
     this.submitCallback(this._id, this.operator, this.parameters)
   }
 
-  protected get innerDialog() { return (this as any).shadowRoot.querySelector('gscape-dialog') }
-
   protected get selectOperatorElem() {
-    return this.innerDialog.querySelector('#select-operator > select')
+    return this.shadowRoot.querySelector('#select-operator > select')
   }
 
   protected get selectDatatypeElem() {
-    return this.innerDialog.querySelector('#select-datatype > select')
+    return this.shadowRoot.querySelector('#select-datatype > select')
   }
 
   protected get inputElems() {
-    return this.innerDialog.querySelectorAll('.inputs-wrapper > input')
+    return this.shadowRoot.querySelectorAll('.inputs-wrapper > input')
   }
 
   protected get messagesElem() {
-    return this.innerDialog.querySelector('#message-tray')
+    return this.shadowRoot.querySelector('#message-tray')
   }
 
   protected get variable(): VarOrConstant {
@@ -291,6 +289,6 @@ export default class SparqlingFormDialog extends (UI.GscapeWidget as any) implem
   }
 
   protected get formElement(): HTMLFormElement {
-    return this.innerDialog?.querySelector('form')
+    return this.shadowRoot?.querySelector('form')
   }
 }

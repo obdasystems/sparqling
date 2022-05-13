@@ -100,8 +100,9 @@ export default class QueryGraphWidget extends (GscapeWidget as any) {
           color: inherit;
           padding: 5px;
           border: none;
-          border-bottom: solid 1px;
+          border-bottom: solid 1px var(--theme-gscape-borders, ${colors.borders});
           max-width: 50px;
+          background: var(--theme-gscape-primary, ${colors.primary});
         }
       `
     ]
