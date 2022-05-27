@@ -36,9 +36,9 @@ export function getCommandsForElement(elem: SingularElementReturnValue) {
 
       commands.push(addFilter)
 
-      if (!elem.incomers().empty()) {
+      if (!elem.incomers().empty() && elem.data().type !== EntityTypeEnum.Class) {
         if (elem.data().optional) {
-        commands.push(removeOptional)
+          commands.push(removeOptional)
         } else {
           commands.push(makeOptional)
         }
