@@ -23,13 +23,7 @@ export function getCommandsForElement(elem: SingularElementReturnValue) {
   _ele = elem
   const commands = []
 
-  if (elem.data().type === EntityTypeEnum.ObjectProperty || elem.data().type === EntityTypeEnum.InverseObjectProperty) {
-    if (elem.data().optional) {
-      commands.push(removeOptional)
-    } else {
-      commands.push(makeOptional)
-    }
-  } else {
+  if (elem.data().type !== EntityTypeEnum.ObjectProperty || elem.data().type === EntityTypeEnum.InverseObjectProperty) {
     if (!elem.isChild()) {
 
       if (!getHeadElementByID('?' + elem.id()) && !isCountStarActive()) {
@@ -42,12 +36,13 @@ export function getCommandsForElement(elem: SingularElementReturnValue) {
 
       commands.push(addFilter)
 
-      if (elem.data().optional) {
+      if (!elem.incomers().empty()) {
+        if (elem.data().optional) {
         commands.push(removeOptional)
-      } else {
-        commands.push(makeOptional)
+        } else {
+          commands.push(makeOptional)
+        }
       }
-
     }
     commands.push(del)
   }
