@@ -23,6 +23,15 @@ export function getCommandsForElement(elem: SingularElementReturnValue) {
   _ele = elem
   const commands = []
 
+  // COMANDI OPTIONALS SU OBJECT/DATA PROPERTY
+  // if (elem.data().type === EntityTypeEnum.ObjectProperty || elem.data().type === EntityTypeEnum.InverseObjectProperty) {
+  //   if (elem.data().optional) {
+  //     commands.push(removeOptional)
+  //   } else {
+  //     commands.push(makeOptional)
+  //   }
+  // }
+
   if (elem.data().type !== EntityTypeEnum.ObjectProperty || elem.data().type === EntityTypeEnum.InverseObjectProperty) {
     if (!elem.isChild()) {
 
