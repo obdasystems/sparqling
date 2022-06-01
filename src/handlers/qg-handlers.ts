@@ -97,7 +97,7 @@ queryGraph.onElementClick((graphElement, iri) => {
 queryGraph.onMakeOptional(graphElement => {
   const qgOptionalApi = new QueryGraphOptionalApi()
   const body = model.getQueryBody()
-  handlePromise(qgOptionalApi.newOptionalGraphElementId(graphElement.id, body, GEUtility.getIri(graphElement))).then(newBody => {
+  handlePromise(qgOptionalApi.newOptionalGraphElementId(graphElement.id, body)).then(newBody => {
     onNewBody(newBody)
   })
 })
@@ -105,7 +105,7 @@ queryGraph.onMakeOptional(graphElement => {
 queryGraph.onRemoveOptional(graphElement => {
   const qgOptionalApi = new QueryGraphOptionalApi()
   const body = model.getQueryBody()
-  handlePromise(qgOptionalApi.removeOptionalGraphElementId(graphElement.id, body, GEUtility.getIri(graphElement))).then(newBody => {
+  handlePromise(qgOptionalApi.removeOptionalGraphElementId(graphElement.id, body)).then(newBody => {
     onNewBody(newBody)
   })
 })

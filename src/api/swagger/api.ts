@@ -2652,11 +2652,10 @@ export const QueryGraphOptionalApiAxiosParamCreator = function (configuration?: 
          * @summary Add the `graphElementId` to a new optional.
          * @param {string} graphElementId The GraphElement that should be added to the optional
          * @param {QueryGraph} queryGraph 
-         * @param {string} [classIRI] The IRI of the class that will be inserted in the optional.
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
-        newOptionalGraphElementId: async (graphElementId: string, queryGraph: QueryGraph, classIRI?: string, options: AxiosRequestConfig = {}): Promise<RequestArgs> => {
+        newOptionalGraphElementId: async (graphElementId: string, queryGraph: QueryGraph, options: AxiosRequestConfig = {}): Promise<RequestArgs> => {
             // verify required parameter 'graphElementId' is not null or undefined
             assertParamExists('newOptionalGraphElementId', 'graphElementId', graphElementId)
             // verify required parameter 'queryGraph' is not null or undefined
@@ -2673,10 +2672,6 @@ export const QueryGraphOptionalApiAxiosParamCreator = function (configuration?: 
             const localVarRequestOptions = { method: 'PUT', ...baseOptions, ...options};
             const localVarHeaderParameter = {} as any;
             const localVarQueryParameter = {} as any;
-
-            if (classIRI !== undefined) {
-                localVarQueryParameter['classIRI'] = classIRI;
-            }
 
 
     
@@ -2788,12 +2783,11 @@ export const QueryGraphOptionalApiFp = function(configuration?: Configuration) {
          * @summary Add the `graphElementId` to a new optional.
          * @param {string} graphElementId The GraphElement that should be added to the optional
          * @param {QueryGraph} queryGraph 
-         * @param {string} [classIRI] The IRI of the class that will be inserted in the optional.
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
-        async newOptionalGraphElementId(graphElementId: string, queryGraph: QueryGraph, classIRI?: string, options?: AxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<QueryGraph>> {
-            const localVarAxiosArgs = await localVarAxiosParamCreator.newOptionalGraphElementId(graphElementId, queryGraph, classIRI, options);
+        async newOptionalGraphElementId(graphElementId: string, queryGraph: QueryGraph, options?: AxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<QueryGraph>> {
+            const localVarAxiosArgs = await localVarAxiosParamCreator.newOptionalGraphElementId(graphElementId, queryGraph, options);
             return createRequestFunction(localVarAxiosArgs, globalAxios, BASE_PATH, configuration);
         },
         /**
@@ -2835,12 +2829,11 @@ export const QueryGraphOptionalApiFactory = function (configuration?: Configurat
          * @summary Add the `graphElementId` to a new optional.
          * @param {string} graphElementId The GraphElement that should be added to the optional
          * @param {QueryGraph} queryGraph 
-         * @param {string} [classIRI] The IRI of the class that will be inserted in the optional.
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
-        newOptionalGraphElementId(graphElementId: string, queryGraph: QueryGraph, classIRI?: string, options?: any): AxiosPromise<QueryGraph> {
-            return localVarFp.newOptionalGraphElementId(graphElementId, queryGraph, classIRI, options).then((request) => request(axios, basePath));
+        newOptionalGraphElementId(graphElementId: string, queryGraph: QueryGraph, options?: any): AxiosPromise<QueryGraph> {
+            return localVarFp.newOptionalGraphElementId(graphElementId, queryGraph, options).then((request) => request(axios, basePath));
         },
         /**
          * 
@@ -2879,13 +2872,12 @@ export class QueryGraphOptionalApi extends BaseAPI {
      * @summary Add the `graphElementId` to a new optional.
      * @param {string} graphElementId The GraphElement that should be added to the optional
      * @param {QueryGraph} queryGraph 
-     * @param {string} [classIRI] The IRI of the class that will be inserted in the optional.
      * @param {*} [options] Override http request option.
      * @throws {RequiredError}
      * @memberof QueryGraphOptionalApi
      */
-    public newOptionalGraphElementId(graphElementId: string, queryGraph: QueryGraph, classIRI?: string, options?: AxiosRequestConfig) {
-        return QueryGraphOptionalApiFp(this.configuration).newOptionalGraphElementId(graphElementId, queryGraph, classIRI, options).then((request) => request(this.axios, this.basePath));
+    public newOptionalGraphElementId(graphElementId: string, queryGraph: QueryGraph, options?: AxiosRequestConfig) {
+        return QueryGraphOptionalApiFp(this.configuration).newOptionalGraphElementId(graphElementId, queryGraph, options).then((request) => request(this.axios, this.basePath));
     }
 
     /**
