@@ -40,8 +40,8 @@ export default function sparqling(gscape: Grapholscape, file?: string | File, is
     queryGraph.setDisplayedNameType(gscape.actualEntityNameType, gscape.languages.selected)
     queryGraph.setTheme(gscape.themesController.actualTheme)
     
-    if (model.isStandalone()) {
-      widgets.startRunButtons.startSparqlingButton.enabled = true
+    if (!model.isStandalone()) {
+      widgets.startRunButtons.runQueryButton.enabled = true
     }
 
     handlers // hack, just mention the handlers to make the module be evaluated 
