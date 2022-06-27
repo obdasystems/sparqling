@@ -8,7 +8,7 @@ import stop from './main/stop'
 export default {
   queryGraph: queryGraph,
   queryHead: queryHead,
-  queryBody: model.getQueryBody(),
+  getQueryBody: model.getQueryBody,
   startStopButton: startRunButtons.startSparqlingButton,
   runQueryButton: startRunButtons.runQueryButton,
   onQueryRun: (sparqlQuery: string) => { },
