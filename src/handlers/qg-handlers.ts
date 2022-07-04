@@ -12,7 +12,7 @@ import { handlePromise } from '../main/handle-promises'
 import showFormDialog from './show-form-dialog'
 
 queryGraph.onAddHead(async graphElement => {
-  const qgApi = QueryGraphHeadApiFactory()
+  const qgApi = QueryGraphHeadApiFactory(undefined, model.getBasePath())
   const body = model.getQueryBody()
   handlePromise(qgApi.addHeadTerm(graphElement.id, body)).then(newBody => {
     onNewBody(newBody)
@@ -20,7 +20,7 @@ queryGraph.onAddHead(async graphElement => {
 })
 
 queryGraph.onDelete((graphElement, iri) => {
-  const qgApi = QueryGraphBGPApiFactory()
+  const qgApi = QueryGraphBGPApiFactory(undefined, model.getBasePath())
   const body = model.getQueryBody()
   const selectedGraphElement = model.getSelectedGraphElement()
   const gscape = getGscape()
@@ -59,7 +59,7 @@ queryGraph.onDelete((graphElement, iri) => {
 })
 
 queryGraph.onJoin(async (ge1, ge2) => {
-  const qgApi = QueryGraphBGPApiFactory()
+  const qgApi = QueryGraphBGPApiFactory(undefined, model.getBasePath())
   const body = model.getQueryBody()
 
   handlePromise(qgApi.putQueryGraphJoin(ge1.id, ge2.id, body)).then(newBody => {
@@ -139,7 +139,7 @@ sparqlButton.onClick = () => {
 clearQueryButton.onClick = () => {
   const queryBody = model.getQueryBody()
   if (queryBody?.graph?.id) {
-    const qgApi = QueryGraphBGPApiFactory()
+    const qgApi = QueryGraphBGPApiFactory(undefined, model.getBasePath())
     handlePromise(qgApi.deleteGraphElementId(queryBody?.graph?.id, queryBody)).then(newBody => {
       onNewBody(newBody)
     })

@@ -16,7 +16,7 @@ let lastObjProperty: Branch
 let isIriHighlighted: boolean
 let iriInQueryGraph: boolean
 let clickedIRI: string
-const qgApi = QueryGraphBGPApiFactory()
+const qgApi = QueryGraphBGPApiFactory(undefined, model.getBasePath())
 // const iriInQueryGraph = actualBody ? queryManager.getGraphElementByIRI(clickedIRI) : null
 
 export async function handleEntitySelection(cyEntity: CollectionReturnValue) {

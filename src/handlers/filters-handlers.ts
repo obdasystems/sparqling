@@ -11,7 +11,7 @@ filterListDialog.onEdit((filterId: number) => showFilterDialogEditingMode(filter
 filterListDialog.onDelete((filterId: number) => { deleteFilter(filterId) })
 
 filterDialog.onSubmit(async (id, op, params) => {
-  const filterApi = QueryGraphFilterApiFactory()
+  const filterApi = QueryGraphFilterApiFactory(undefined, model.getBasePath())
 
   const newFilter = {
     expression: {
@@ -54,7 +54,7 @@ filterDialog.onDelete((filterId: number) => deleteFilter(filterId))
 export async function deleteFilter(filterId: number) {
   if (filterId === null || filterId === undefined) return
 
-  const filterApi = QueryGraphFilterApiFactory()
+  const filterApi = QueryGraphFilterApiFactory(undefined, model.getBasePath())
   handlePromise(filterApi.removeFilter(filterId, model.getQueryBody())).then(newBody => {
     onNewBody(newBody)
     filterDialog._id = null

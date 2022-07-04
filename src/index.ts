@@ -8,13 +8,23 @@ import { leftColumnContainer } from './util/get-container'
 import * as widgets from './widgets'
 import * as handlers from './handlers'
 
-export default function sparqling(gscape: Grapholscape, file?: string | File, isStandalone?: boolean) {
+/**
+ * Initialise sparqling on a grapholscape instance
+ * @param gscape the grapholscape instance (ontology graph)
+ * @param file the ontology .graphol, in string or Blob representation
+ * @param basePath basePath of the rest api, not needed for standalone usage
+ * @returns a core object, see ./core.ts
+ */
+export default function sparqling(gscape: Grapholscape, file: string | Blob, basePath?: string) {
   if (file && gscape) {
-    if (typeof file === 'string')
-      file = new File([file], `${gscape.ontology.name}-from-string.graphol`)
+    let ontologyFile = new File([file], `${gscape.ontology.name}-from-string.graphol`)
 
-    model.setStandalone(isStandalone)
-    model.setOntologyFile(file)
+    model.setStandalone(basePath !== undefined)
+    model.setOntologyFile(ontologyFile)
+    
+    if (basePath) {
+      model.setBasePath(basePath)
+    }
 
     //sparqlingContainer.appendChild(gscapeContainer)
     //const gscape = await fullGrapholscape(file, gscapeContainer, { owl_translator: false })

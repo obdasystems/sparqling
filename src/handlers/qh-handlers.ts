@@ -12,7 +12,7 @@ import { deleteFilter, showFilterDialogEditingMode } from './filters-handlers'
 import showFormDialog from './show-form-dialog'
 
 queryHead.onDelete(async headElement => {
-  const qgApi = QueryGraphHeadApiFactory()
+  const qgApi = QueryGraphHeadApiFactory(undefined, model.getBasePath())
   const body = model.getQueryBody()
   handlePromise(qgApi.deleteHeadTerm(headElement.id, body)).then(newBody => {
     onNewBody(newBody)
@@ -20,7 +20,7 @@ queryHead.onDelete(async headElement => {
 })
 
 queryHead.onRename(async (headElementId, alias) => {
-  const qgApi = QueryGraphHeadApiFactory()
+  const qgApi = QueryGraphHeadApiFactory(undefined, model.getBasePath())
   const tempQueryBody = model.getTempQueryBody()
   const headElement = model.getHeadElementByID(headElementId, tempQueryBody)
   headElement.alias = alias
@@ -54,7 +54,7 @@ queryHead.onAddFunction(headElementId => {
 })
 
 queryHead.onElementSortChange((headElementId, newIndex) => {
-  const qhApi = QueryGraphHeadApiFactory()
+  const qhApi = QueryGraphHeadApiFactory(undefined, model.getBasePath())
   const tempQueryBody = model.getTempQueryBody()
   const tempHead = tempQueryBody.head
   const headElement = model.getHeadElementByID(headElementId)
@@ -80,7 +80,7 @@ queryHead.onOrderByChange(headElementId => {
   //   headElement.ordering = null
   // }
 
-  const qhApi = QueryGraphHeadApiFactory()
+  const qhApi = QueryGraphHeadApiFactory(undefined, model.getBasePath())
   handlePromise(qhApi.orderByHeadTerm(headElementId, tempQueryBody)).then(newBody => {
     onNewBody(newBody)
   })

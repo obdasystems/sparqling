@@ -5,7 +5,7 @@ import * as model from "../model";
 import { aggregationDialog } from "../widgets";
 
 aggregationDialog.onSubmit((headElementId, aggregateOperator, distinct, havingOperator, havingParameters) => {
-  const qhApi = QueryGraphHeadApiFactory()
+  const qhApi = QueryGraphHeadApiFactory(undefined, model.getBasePath())
   const tempQueryBody = model.getTempQueryBody()
   
   const headElement = model.getHeadElementByID(headElementId as string, tempQueryBody)

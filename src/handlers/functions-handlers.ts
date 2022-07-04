@@ -1,14 +1,11 @@
-import { EntityTypeEnum, Function, FunctionNameEnum, GraphElement, HeadElement, QueryGraphHeadApiFactory, VarOrConstantTypeEnum } from "../api/swagger"
+import { Function, QueryGraphHeadApiFactory } from "../api/swagger"
 import { handlePromise } from "../main/handle-promises"
 import onNewBody from "../main/on-new-body"
 import * as model from '../model'
-import { guessDataType } from "../ontology-graph"
-import * as GEUtility from "../util/graph-element-utility"
 import { functionDialog } from "../widgets"
-import { Modality } from "../widgets/forms/base-form-dialog"
 
 functionDialog.onSubmit(async (id, op, params) => {
-  const qhApi = QueryGraphHeadApiFactory()
+  const qhApi = QueryGraphHeadApiFactory(undefined, model.getBasePath())
 
   const newFunction: Function = {
     name: op,
