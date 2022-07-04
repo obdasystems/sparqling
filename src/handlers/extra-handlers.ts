@@ -21,13 +21,20 @@ export function setMainDistinct(value: boolean) {
   })
 }
 
-getInputElement(limit).onchange = handleLimitChange
-getInputElement(limit).addEventListener('focusout', handleLimitChange)
-getInputElement(limit).onsubmit = handleOffsetChange
+const limitInputElement = getInputElement(limit)
+if (limitInputElement) {
+  limitInputElement.onchange = handleLimitChange
+  limitInputElement.addEventListener('focusout', handleLimitChange)
+  limitInputElement.onsubmit = handleOffsetChange
+}
 
-getInputElement(offset).onchange = handleOffsetChange
-getInputElement(offset).addEventListener('focusout', handleOffsetChange)
-getInputElement(offset).onsubmit = handleOffsetChange
+const offsetInputElement = getInputElement(offset)
+if (offsetInputElement) {
+  offsetInputElement.onchange = handleOffsetChange
+  offsetInputElement.addEventListener('focusout', handleOffsetChange)
+  offsetInputElement.onsubmit = handleOffsetChange
+}
+
 
 countStarToggle.onToggle = () => {
   const queryBody = getQueryBody()
@@ -37,10 +44,15 @@ countStarToggle.onToggle = () => {
   if (isCountStarActive()) {
     // remove headElement associated to count star
     const qHeadApi = new QueryGraphHeadApi(undefined, getBasePath())
-    handlePromise(qHeadApi.deleteHeadTerm(queryBody.head[0].id, queryBody)).then(newBody => {
-      onNewBody(newBody)
-      setMainDistinct(distinct)
-    })
+    const countStarHeadElement = queryBody.head[0]
+
+    if (countStarHeadElement?.id) {
+      handlePromise(qHeadApi.deleteHeadTerm(countStarHeadElement.id, queryBody)).then(newBody => {
+        onNewBody(newBody)
+        setMainDistinct(distinct)
+      })
+    }
+
   } else {
     // add count star
     handlePromise(qExtraApi.countStarQueryGraph(distinct, queryBody)).then(newBody => {
@@ -55,24 +67,30 @@ function handleOffsetChange() {
   if (!queryBody?.graph) return
 
   const input = getInputElement(offset)
-  let value = input.valueAsNumber
-  const qExtraApi = new QueryGraphExtraApi(undefined, getBasePath())
 
-  if (validateInputElement(input) && value !== queryBody.offset) {
-    // if NaN but valid, then th field is empty, pass -1 to remove the offset
-    if (isNaN(value)) {
-      value = -1
+  if (input) {
 
-      if(value === queryBody.offset || !queryBody.offset) {
-        //if offset is not set, no need to remove it, return
-        return
+    let value = input.valueAsNumber
+    const qExtraApi = new QueryGraphExtraApi(undefined, getBasePath())
+
+    if (validateInputElement(input) && value !== queryBody.offset) {
+      // if NaN but valid, then th field is empty, pass -1 to remove the offset
+      if (isNaN(value)) {
+        value = -1
+
+        if (value === queryBody.offset || !queryBody.offset) {
+          //if offset is not set, no need to remove it, return
+          return
+        }
       }
+      handlePromise(qExtraApi.offsetQueryGraph(value, queryBody)).then(newBody => {
+        onNewBody(newBody)
+      })
+    } else {
+      input.value = queryBody.offset && queryBody.offset > 0
+        ? queryBody.offset.toString()
+        : ''
     }
-    handlePromise(qExtraApi.offsetQueryGraph(value, queryBody)).then(newBody => {
-      onNewBody(newBody)
-    })
-  } else {
-    input.value = queryBody.offset > 0 ? queryBody.offset.toString() : null
   }
 }
 
@@ -81,24 +99,27 @@ function handleLimitChange() {
   if (!queryBody?.graph) return
 
   const input = getInputElement(limit)
-  let value = input.valueAsNumber
-  const qExtraApi = new QueryGraphExtraApi(undefined, getBasePath())
 
-  if (validateInputElement(input) && value !== queryBody.limit) {
-    // if NaN but valid, then th field is empty, pass -1 to remove the limit
-    if (isNaN(value)) {
-      value = -1
+  if (input) {
+    let value = input.valueAsNumber
+    const qExtraApi = new QueryGraphExtraApi(undefined, getBasePath())
 
-      if(value === queryBody.limit || !queryBody.limit) {
-        //if limit is not set, no need to remove it, return
-        return
+    if (validateInputElement(input) && value !== queryBody.limit) {
+      // if NaN but valid, then th field is empty, pass -1 to remove the limit
+      if (isNaN(value)) {
+        value = -1
+
+        if (value === queryBody.limit || !queryBody.limit) {
+          //if limit is not set, no need to remove it, return
+          return
+        }
       }
+      handlePromise(qExtraApi.limitQueryGraph(value, queryBody)).then(newBody => {
+        onNewBody(newBody)
+      })
+    } else {
+      input.value = queryBody.limit && queryBody.limit > 0 ? queryBody.limit.toString() : ''
     }
-    handlePromise(qExtraApi.limitQueryGraph(value, queryBody)).then(newBody => {
-      onNewBody(newBody)
-    })
-  } else {
-    input.value = queryBody.limit > 0 ? queryBody.limit.toString() : null
   }
 }
 

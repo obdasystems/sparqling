@@ -4,8 +4,8 @@ export type FormOperator = FilterExpressionOperatorEnum | FunctionNameEnum
 export type FormID = string | number
 
 export interface FormWidget {
-  _id: FormID,
-  operator: FormOperator,
-  parameters: VarOrConstant[],
-  aggregateOperator: GroupByElementAggregateFunctionEnum,
+  _id?: FormID,
+  operator?: FormOperator,
+  parameters?: VarOrConstant[],
+  aggregateOperator?: GroupByElementAggregateFunctionEnum,
 }

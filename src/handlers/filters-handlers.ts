@@ -1,11 +1,9 @@
-import { EntityTypeEnum, FilterExpressionOperatorEnum, GraphElement, QueryGraph, QueryGraphFilterApiFactory, VarOrConstantTypeEnum } from "../api/swagger"
+import { FilterExpressionOperatorEnum, QueryGraph, QueryGraphFilterApiFactory } from "../api/swagger"
+import { handlePromise } from "../main/handle-promises"
+import onNewBody from "../main/on-new-body"
+import * as model from '../model'
 import { filterDialog, filterListDialog } from "../widgets"
 import { Modality } from "../widgets/forms/base-form-dialog"
-import * as model from '../model'
-import onNewBody from "../main/on-new-body"
-import * as GEUtility from "../util/graph-element-utility"
-import { guessDataType } from "../ontology-graph"
-import { handlePromise } from "../main/handle-promises"
 
 filterListDialog.onEdit((filterId: number) => showFilterDialogEditingMode(filterId))
 filterListDialog.onDelete((filterId: number) => { deleteFilter(filterId) })
@@ -36,10 +34,12 @@ filterDialog.onSubmit(async (id, op, params) => {
   } else {
     id = id as number
     // update filter
-    tempQueryBody.filters[id] = newFilter
-    handlePromise(filterApi.editFilter(id, tempQueryBody)).then(newBody => {
-      finalizeFilterSubmit(newBody)
-    })
+    if (tempQueryBody.filters) {
+      tempQueryBody.filters[id] = newFilter
+      handlePromise(filterApi.editFilter(id, tempQueryBody)).then(newBody => {
+        finalizeFilterSubmit(newBody)
+      })
+    }
   }
 
   function finalizeFilterSubmit(newBody: QueryGraph) {
@@ -57,9 +57,9 @@ export async function deleteFilter(filterId: number) {
   const filterApi = QueryGraphFilterApiFactory(undefined, model.getBasePath())
   handlePromise(filterApi.removeFilter(filterId, model.getQueryBody())).then(newBody => {
     onNewBody(newBody)
-    filterDialog._id = null
-    filterDialog.operator = null
-    filterDialog.parameters.splice(1)
+    filterDialog._id = undefined
+    filterDialog.operator = undefined
+    filterDialog.parameters?.splice(1)
     filterDialog.modality = Modality.DEFINE
     filterDialog.setAsCorrect('Deleted correctly')
   })
@@ -71,7 +71,7 @@ export function showFilterDialogEditingMode(filterId: number) {
   filterDialog._id = filterId
   filterDialog.operator = filter.expression?.operator
   filterDialog.parameters = filter.expression?.parameters
-  filterDialog.parametersType = filter.expression?.parameters[1]?.type
+  filterDialog.parametersType = filter.expression?.parameters ? filter.expression.parameters[1].type : undefined
   filterDialog.show()
   filterListDialog.hide()
 }

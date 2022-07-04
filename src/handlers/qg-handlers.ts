@@ -1,25 +1,30 @@
-import { newOptionalGraphElementId, removeOptionalGraphElementId } from '../api/api_stub'
 import { QueryGraph, QueryGraphBGPApiFactory, QueryGraphHeadApiFactory, QueryGraphOptionalApi } from '../api/swagger'
-import { clearQueryButton, filterDialog, filterListDialog, sparqlButton, sparqlDialog } from '../widgets'
+import { handlePromise } from '../main/handle-promises'
+import onNewBody from '../main/on-new-body'
+import * as model from '../model'
 import * as ontologyGraph from '../ontology-graph'
 import getGscape from '../ontology-graph/get-gscape'
-import * as model from '../model'
 import * as queryGraph from '../query-graph'
 import * as queryHead from '../query-head'
 import * as GEUtility from '../util/graph-element-utility'
-import onNewBody from '../main/on-new-body'
-import { handlePromise } from '../main/handle-promises'
+import { clearQueryButton, filterDialog, filterListDialog, sparqlButton, sparqlDialog } from '../widgets'
 import showFormDialog from './show-form-dialog'
 
 queryGraph.onAddHead(async graphElement => {
-  const qgApi = QueryGraphHeadApiFactory(undefined, model.getBasePath())
-  const body = model.getQueryBody()
-  handlePromise(qgApi.addHeadTerm(graphElement.id, body)).then(newBody => {
-    onNewBody(newBody)
-  })
+  if (graphElement?.id) {
+    const qgApi = QueryGraphHeadApiFactory(undefined, model.getBasePath())
+    const body = model.getQueryBody()
+    handlePromise(qgApi.addHeadTerm(graphElement.id, body)).then(newBody => {
+      onNewBody(newBody)
+    })
+  }
 })
 
 queryGraph.onDelete((graphElement, iri) => {
+  if (!graphElement.id) {
+    return
+  }
+
   const qgApi = QueryGraphBGPApiFactory(undefined, model.getBasePath())
   const body = model.getQueryBody()
   const selectedGraphElement = model.getSelectedGraphElement()
@@ -33,7 +38,7 @@ queryGraph.onDelete((graphElement, iri) => {
           return ge.children?.some(c => {
             if (c.children?.find(c2 => c2.id === graphElement.id))
               return true
-          })
+          }) || false
         })
   
         model.setSelectedGraphElement(newSelectedGE)
@@ -41,7 +46,9 @@ queryGraph.onDelete((graphElement, iri) => {
         gscape.unselectEntity()
         ontologyGraph.focusNodeByIRI(GEUtility.getIri(newSelectedGE))
         ontologyGraph.highlightSuggestions(GEUtility.getIri(newSelectedGE))
-        queryGraph.selectElement(newSelectedGE.id) // force selecting a new class
+        if (newSelectedGE.id) {
+          queryGraph.selectElement(newSelectedGE.id) // force selecting a new class
+        }
       }
       
       finalizeDelete(newBody)
@@ -53,19 +60,23 @@ queryGraph.onDelete((graphElement, iri) => {
   }
 
   function finalizeDelete(newBody: QueryGraph) {
-    model.getOriginGrapholNodes().delete(graphElement.id)
-    onNewBody(newBody)
+    if (graphElement.id) {
+      model.getOriginGrapholNodes().delete(graphElement.id)
+      onNewBody(newBody)
+    }
   }
 })
 
 queryGraph.onJoin(async (ge1, ge2) => {
-  const qgApi = QueryGraphBGPApiFactory(undefined, model.getBasePath())
-  const body = model.getQueryBody()
+  if (ge1.id && ge2.id) {
+    const qgApi = QueryGraphBGPApiFactory(undefined, model.getBasePath())
+    const body = model.getQueryBody()
 
-  handlePromise(qgApi.putQueryGraphJoin(ge1.id, ge2.id, body)).then(newBody => {
-    model.setSelectedGraphElement(ge1)
-    onNewBody(newBody)
-  })
+    handlePromise(qgApi.putQueryGraphJoin(ge1.id, ge2.id, body)).then(newBody => {
+      model.setSelectedGraphElement(ge1)
+      onNewBody(newBody)
+    })
+  }
 })
 
 queryGraph.onElementClick((graphElement, iri) => {
@@ -91,23 +102,29 @@ queryGraph.onElementClick((graphElement, iri) => {
 
   gscape.widgets.ENTITY_DETAILS.setEntity(gscape.ontology.getEntityOccurrences(iri)[0])
   // keep focus on selected class
-  queryGraph.selectElement(model.getSelectedGraphElement().id)
+  const selectedGraphElem = model.getSelectedGraphElement()
+  if (selectedGraphElem.id)
+    queryGraph.selectElement(selectedGraphElem.id)
 })
 
 queryGraph.onMakeOptional(graphElement => {
-  const qgOptionalApi = new QueryGraphOptionalApi()
-  const body = model.getQueryBody()
-  handlePromise(qgOptionalApi.newOptionalGraphElementId(graphElement.id, body)).then(newBody => {
-    onNewBody(newBody)
-  })
+  if (graphElement.id) {
+    const qgOptionalApi = new QueryGraphOptionalApi()
+    const body = model.getQueryBody()
+    handlePromise(qgOptionalApi.newOptionalGraphElementId(graphElement.id, body)).then(newBody => {
+      onNewBody(newBody)
+    })
+  }
 })
 
 queryGraph.onRemoveOptional(graphElement => {
-  const qgOptionalApi = new QueryGraphOptionalApi()
-  const body = model.getQueryBody()
-  handlePromise(qgOptionalApi.removeOptionalGraphElementId(graphElement.id, body)).then(newBody => {
-    onNewBody(newBody)
-  })
+  if (graphElement.id) {
+    const qgOptionalApi = new QueryGraphOptionalApi()
+    const body = model.getQueryBody()
+    handlePromise(qgOptionalApi.removeOptionalGraphElementId(graphElement.id, body)).then(newBody => {
+      onNewBody(newBody)
+    })
+  }
 })
 
 queryGraph.onAddFilter(graphElement => {
@@ -115,21 +132,24 @@ queryGraph.onAddFilter(graphElement => {
 })
 
 queryGraph.onSeeFilters(graphElement => {
-  const body = model.getQueryBody()
-
-  for (const headElementComponent of queryHead.widget.shadowRoot.querySelectorAll('head-element')) {
-    if (headElementComponent.graphElementId === graphElement.id) {
-      headElementComponent.focus()
-      headElementComponent.showBody()
-      headElementComponent.scrollIntoView({ behavior: 'smooth' })
-      return
+  if (graphElement.id) {
+    for (const headElementComponent of queryHead.widget.shadowRoot.querySelectorAll('head-element')) {
+      if (headElementComponent.graphElementId === graphElement.id) {
+        headElementComponent.focus()
+        headElementComponent.showBody()
+        headElementComponent.scrollIntoView({ behavior: 'smooth' })
+        return
+      }
     }
-  }
 
-  // if not in query head, show dialog
-  filterListDialog.filterList = model.getFiltersOnVariable(graphElement.id)
-  filterListDialog.variable = graphElement.id
-  filterListDialog.show()
+    // if not in query head, show dialog
+    const filtersOnVariable = model.getFiltersOnVariable(graphElement.id)
+    if (filtersOnVariable)
+      filterListDialog.filterList = filtersOnVariable
+
+    filterListDialog.variable = graphElement.id
+    filterListDialog.show()
+  }
 })
 
 sparqlButton.onClick = () => {

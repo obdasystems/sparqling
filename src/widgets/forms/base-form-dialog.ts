@@ -14,12 +14,12 @@ export default class SparqlingFormDialog extends (UI.GscapeDialog as any) implem
   protected left_icon: TemplateResult
   protected saveButton = new UI.GscapeButton(checkmark, "Save")
   protected deleteButton = new UI.GscapeButton(rubbishBin, "Delete")
-  public operator: FormOperator
-  public parameters: VarOrConstant[]
-  public parametersType: VarOrConstantTypeEnum
-  public _id: FormID
+  public operator?: FormOperator
+  public parameters?: VarOrConstant[]
+  public parametersType?: VarOrConstantTypeEnum
+  public _id?: FormID
   public modality: Modality = Modality.DEFINE
-  public aggregateOperator: GroupByElementAggregateFunctionEnum
+  public aggregateOperator?: GroupByElementAggregateFunctionEnum
   public variableName: string
   protected deleteCallback = (filterId: any) => { }
 

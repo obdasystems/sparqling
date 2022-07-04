@@ -25,7 +25,7 @@ bgp.setJoinAllowedCondition((node1ID, node2ID) => {
 export function selectElement(nodeIDorIRI: string): GraphElement {
   let graphElem = GEUtility.getGraphElementByID(nodeIDorIRI) || GEUtility.getGraphElementByIRI(nodeIDorIRI)
   //bgp.unselect()
-  if (graphElem) {
+  if (graphElem?.id) {
     bgp.selectNode(graphElem.id)
     // selectedGraphElement = graphElem
   }
