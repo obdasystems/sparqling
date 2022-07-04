@@ -57,11 +57,12 @@ export function getFormTemplate(formComponent: SparqlingFormDialog, operators: s
   `
 }
 
-function getInput(index: number, datatype: VarOrConstantConstantTypeEnum, value?: string, titleText = '') {
+function getInput(index: number, datatype?: VarOrConstantConstantTypeEnum, value?: string, titleText = '') {
   if (datatype === VarOrConstantConstantTypeEnum.DateTime) {
     value = value?.split('T')[0] || 'value' // Take only date from ISO format 2022-01-01T00:00:....
   }
   let placeholder = value || 'value'
+
   return html`
     <input
       class="input-elem"
@@ -89,7 +90,7 @@ export function getSelect(defaultOpt: string, options: string[], disabled = fals
   `
 }
 
-function getInputType(datatype: VarOrConstantConstantTypeEnum) {
+function getInputType(datatype?: VarOrConstantConstantTypeEnum) {
   switch(datatype) {
     case VarOrConstantConstantTypeEnum.DateTime:
       return 'date'

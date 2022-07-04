@@ -3,7 +3,7 @@ import ListSelectionDialog from './list-selection-dialog'
 
 export default class RelatedClassSelection extends ListSelectionDialog {
   objProperty: string
-  class: string
+  class?: string
   reverseArrow = false
 
   static get properties() {
@@ -150,7 +150,7 @@ export default class RelatedClassSelection extends ListSelectionDialog {
         </span>
       </div>
       <div id="right-panel" class="list">
-        ${this.list.map((classItem, i) => {
+        ${this.list?.map((classItem, i) => {
           return html`<span index="${i}" @click=${this.handleSelection} class="list-item highlight">${this.buildItemString(classItem)}</span>`
         })}
       </div>

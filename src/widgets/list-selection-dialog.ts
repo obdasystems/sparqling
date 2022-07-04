@@ -4,7 +4,7 @@ import EventPosition from '../util/event-position'
 import { defaultSelectDialogTitle } from './assets/texts'
 
 export default class ListSelectionDialog extends (UI.GscapeWidget as any) {
-  list: any[]
+  list?: any[]
   title: string
   buildItemString: (item: any) => string
   selectionCallback: (item: any) => void
@@ -60,7 +60,7 @@ export default class ListSelectionDialog extends (UI.GscapeWidget as any) {
     return html`
     <gscape-dialog title="${this.title}">
       <div>
-      ${this.list.map((item, i) => {
+      ${this.list?.map((item, i) => {
       return html`
           <div class="list-item highlight" index="${i}" @click=${this.handleSelection}>
             <span>${this.buildItemString(item)}</span>
@@ -82,7 +82,14 @@ export default class ListSelectionDialog extends (UI.GscapeWidget as any) {
 
   handleSelection(e: MouseEvent) {
     e.preventDefault()
-    this.selectionCallback(this.list[(e.currentTarget as HTMLElement).getAttribute('index')])
+    if (this.list) {
+      const index = (e.currentTarget as HTMLElement).getAttribute('index')
+
+      if (index !== null) {
+        let listItem = this.list[index]
+        this.selectionCallback(listItem)
+      }
+    }
   }
 
   hide() { super.hide() }

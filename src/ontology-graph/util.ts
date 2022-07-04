@@ -7,12 +7,12 @@ import { Type } from "grapholscape"
  * Search a value-domain node in the neighborhood of an Entity
  * @param iri the Entity IRI
  */
-export function guessDataType(iri:string): VarOrConstantConstantTypeEnum {
+export function guessDataType(iri:string): VarOrConstantConstantTypeEnum | undefined {
   let gscape = getGscape()
   // search entities in the standard graphol ontologies because in simplified versions
   // datatype are not present
   let nodes: CollectionReturnValue[] = gscape.ontologies.default.getEntityOccurrences(iri)
-  if (!nodes) return null
+  if (!nodes) return
   // for each node we have, find a range node leading to a datatype
   for (let node of nodes) {
     let valueDomainNodes = node

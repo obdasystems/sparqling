@@ -13,7 +13,7 @@ export const cxtMenu = tippy(dummyDomElement, {
   allowHTML: true,
   interactive: true,
   arrow: true,
-  appendTo: () => cy.container().parentElement,
+  appendTo: () => cy.container()?.parentElement as any,
   placement: "bottom",
   // content prop can be used when the target is a single element https://atomiks.github.io/tippyjs/v6/constructor/#prop
   content: () => cxtMenuWidget as any,

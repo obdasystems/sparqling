@@ -14,15 +14,18 @@ export * from './renderer/setters'
 export const widget = new QueryGraphWidget(bgpContainer, [limit, offset, distinctToggle, countStarToggle, sparqlButton, clearQueryButton])
 
 // inject tests for allowing joins into renderer, keep renderer logic agnostic
-bgp.setJoinStartCondition((nodeID: string) => GEUtility.canStartJoin(GEUtility.getGraphElementByID(nodeID)))
+bgp.setJoinStartCondition((nodeID: string) => {
+  const graphElement = GEUtility.getGraphElementByID(nodeID)
+  return graphElement ? GEUtility.canStartJoin(graphElement) : false
+})
 bgp.setJoinAllowedCondition((node1ID, node2ID) => {
   let ge1 = GEUtility.getGraphElementByID(node1ID)
   let ge2 = GEUtility.getGraphElementByID(node2ID)
-  return GEUtility.isJoinAllowed(ge1, ge2)
+  return ge1 && ge2 ? GEUtility.isJoinAllowed(ge1, ge2) : false
 })
 
 
-export function selectElement(nodeIDorIRI: string): GraphElement {
+export function selectElement(nodeIDorIRI: string): GraphElement | undefined {
   let graphElem = GEUtility.getGraphElementByID(nodeIDorIRI) || GEUtility.getGraphElementByIRI(nodeIDorIRI)
   //bgp.unselect()
   if (graphElem?.id) {
@@ -55,8 +58,9 @@ export function render(graphElem: GraphElement, parent?: GraphElement, objectPro
 // remove elements not in query anymore, asynchronously
 export function removeNodesNotInQuery() {
   let deletedNodeIds: string[] = []
-  bgp.getElements().forEach( elem => {
-    if ( elem.data('displayed_name') && !GEUtility.getGraphElementByID(elem.id())) {
+  bgp.getElements().forEach(elem => {
+    const graphElement = GEUtility.getGraphElementByID(elem.id())
+    if (elem.data('displayed_name') && !graphElement) {
       /**
        * remove it if elem is:
        *  - not a child
@@ -73,8 +77,11 @@ export function removeNodesNotInQuery() {
 }
 
 export function centerOnElem(graphElem: GraphElement) {
-  let cyElem = bgp.getElementById(graphElem.id)
-  centerOnElement(cyElem, cyElem.cy().maxZoom())
+  if (graphElem.id) {
+    let cyElem = bgp.getElementById(graphElem.id)
+    if (cyElem)
+      centerOnElement(cyElem, cyElem.cy().maxZoom())
+  }
 }
 
 export function getSelectedGraphElement() {
@@ -83,26 +90,35 @@ export function getSelectedGraphElement() {
 
 // ******************************* GRAPH INTERACTION CALLBACKS ******************************* //
 export function onAddHead(callback: (graphElem: GraphElement) => void) {
-  bgp.onAddHead(id => callback(GEUtility.getGraphElementByID(id)))
+  bgp.onAddHead(id => {
+    const graphElement = GEUtility.getGraphElementByID(id)
+    if (graphElement)
+      callback(graphElement)
+  })
 }
 
 export function onDelete(callback: (graphElement: GraphElement, iri?: string) => void) {
   bgp.onDelete((id, iri) => {
     const graphElement = GEUtility.getGraphElementByID(id) || GEUtility.getParentFromChildId(id)
-    callback(graphElement, iri)
+    if (graphElement)
+      callback(graphElement, iri)
     cxtMenu.hide()
   })
 }
 
 export function onAddFilter(callback: (graphElem: GraphElement) => void) {
   bgp.onAddFilter(id => {
-    callback(GEUtility.getGraphElementByID(id))
+    const graphElement = GEUtility.getGraphElementByID(id)
+    if (graphElement)
+      callback(graphElement)
   })
 }
 
 export function onSeeFilters(callback: (graphElem: GraphElement) => void) {
   bgp.onSeeFilters(id => {
-    callback(GEUtility.getGraphElementByID(id))
+    const graphElement = GEUtility.getGraphElementByID(id)
+    if (graphElement)
+      callback(graphElement)
   })
 }
 
@@ -110,12 +126,17 @@ export function onJoin(callback: (graphElem1: GraphElement, graphElem2: GraphEle
   bgp.onJoin((node1ID, node2ID) => {
     let graphElem1 = GEUtility.getGraphElementByID(node1ID)
     let graphElem2 = GEUtility.getGraphElementByID(node2ID)
-    callback(graphElem1, graphElem2)
+    if (graphElem1 && graphElem2)
+      callback(graphElem1, graphElem2)
   })
 }
 
 export function onElementClick(callback: (graphElem: GraphElement, iri: string) => void) {
-  bgp.onElementClick((id, iri) => callback(GEUtility.getGraphElementByID(id), iri))
+  bgp.onElementClick((id, iri) => {
+    const graphElement = GEUtility.getGraphElementByID(id)
+    if (graphElement)
+      callback(graphElement, iri)
+  })
 }
 
 export function isIriInQueryGraph(iri: string): boolean {

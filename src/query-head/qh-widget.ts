@@ -128,7 +128,8 @@ export default class QueryHeadWidget extends GscapeWidget {
   constructor(headSlottedWidget?: Element[]) {
     super()
     this.collapsible = true
-    this.headSlottedWidgets = headSlottedWidget
+    if (headSlottedWidget)
+      this.headSlottedWidgets = headSlottedWidget
   }
 
   render() {

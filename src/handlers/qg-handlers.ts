@@ -32,7 +32,7 @@ queryGraph.onDelete((graphElement, iri) => {
 
   if (!iri) {
     handlePromise(qgApi.deleteGraphElementId(graphElement.id, body)).then(newBody => {
-      if (newBody.graph && !GEUtility.findGraphElement(newBody.graph, ge => ge.id === selectedGraphElement.id)) {
+      if (newBody.graph && !GEUtility.findGraphElement(newBody.graph, ge => ge.id === selectedGraphElement?.id)) {
         // if we deleted selectedGraphElem, then select its parent
         let newSelectedGE = GEUtility.findGraphElement(body.graph, ge => {
           return ge.children?.some(c => {
@@ -40,13 +40,21 @@ queryGraph.onDelete((graphElement, iri) => {
               return true
           }) || false
         })
+        
   
         model.setSelectedGraphElement(newSelectedGE)
         ontologyGraph.resetHighlights()
         gscape.unselectEntity()
-        ontologyGraph.focusNodeByIRI(GEUtility.getIri(newSelectedGE))
-        ontologyGraph.highlightSuggestions(GEUtility.getIri(newSelectedGE))
-        if (newSelectedGE.id) {
+
+        if (newSelectedGE) {
+          const newSelectedGEIri = GEUtility.getIri(newSelectedGE)
+          if (newSelectedGEIri) {
+            ontologyGraph.focusNodeByIRI(newSelectedGEIri)
+            ontologyGraph.highlightSuggestions(newSelectedGEIri)
+          }
+        }
+        
+        if (newSelectedGE?.id) {
           queryGraph.selectElement(newSelectedGE.id) // force selecting a new class
         }
       }
@@ -103,7 +111,7 @@ queryGraph.onElementClick((graphElement, iri) => {
   gscape.widgets.ENTITY_DETAILS.setEntity(gscape.ontology.getEntityOccurrences(iri)[0])
   // keep focus on selected class
   const selectedGraphElem = model.getSelectedGraphElement()
-  if (selectedGraphElem.id)
+  if (selectedGraphElem?.id)
     queryGraph.selectElement(selectedGraphElem.id)
 })
 

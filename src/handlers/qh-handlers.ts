@@ -1,4 +1,4 @@
-import { QueryGraphBGPApiFactory, QueryGraphHeadApiFactory } from '../api/swagger'
+import { QueryGraphHeadApiFactory } from '../api/swagger'
 import { handlePromise } from '../main/handle-promises'
 import onNewBody from '../main/on-new-body'
 import * as model from '../model'
@@ -7,37 +7,51 @@ import * as ontologyGraph from '../ontology-graph'
 import * as queryGraph from '../query-graph'
 import * as queryHead from '../query-head'
 import { getGraphElementByID, getIri } from '../util/graph-element-utility'
-import { aggregationDialog, filterDialog, functionDialog, sparqlDialog } from '../widgets'
+import { aggregationDialog, filterDialog, functionDialog } from '../widgets'
 import { deleteFilter, showFilterDialogEditingMode } from './filters-handlers'
 import showFormDialog from './show-form-dialog'
 
 queryHead.onDelete(async headElement => {
   const qgApi = QueryGraphHeadApiFactory(undefined, model.getBasePath())
   const body = model.getQueryBody()
-  handlePromise(qgApi.deleteHeadTerm(headElement.id, body)).then(newBody => {
-    onNewBody(newBody)
-  })
+
+  if (headElement.id) {
+    handlePromise(qgApi.deleteHeadTerm(headElement.id, body)).then(newBody => {
+      onNewBody(newBody)
+    })
+  }
 })
 
 queryHead.onRename(async (headElementId, alias) => {
   const qgApi = QueryGraphHeadApiFactory(undefined, model.getBasePath())
   const tempQueryBody = model.getTempQueryBody()
   const headElement = model.getHeadElementByID(headElementId, tempQueryBody)
-  headElement.alias = alias
-  handlePromise(qgApi.renameHeadTerm(headElement.id, tempQueryBody)).then(newBody => {
-    onNewBody(newBody)
-  })
+
+  if (headElement?.id) {
+    headElement.alias = alias
+    handlePromise(qgApi.renameHeadTerm(headElement.id, tempQueryBody)).then(newBody => {
+      onNewBody(newBody)
+    })
+  }
 })
 
 queryHead.onLocalize(headElement => {
-  let graphElement = getGraphElementByID(headElement.graphElementId)
-  queryGraph.centerOnElem(graphElement)
-  ontologyGraph.focusNodeByIRI(getIri(graphElement))
+  if (headElement.graphElementId) {
+    let graphElement = getGraphElementByID(headElement.graphElementId)
+    if (graphElement) {
+      const geIri = getIri(graphElement)
+      if (geIri) {
+        queryGraph.centerOnElem(graphElement)
+        ontologyGraph.focusNodeByIRI(geIri)
+      }
+    }
+  }
 })
 
 queryHead.onAddFilter(headElementId => {
   const headElement = model.getHeadElementByID(headElementId)
-  showFormDialog(headElement, filterDialog)
+  if (headElement)
+    showFormDialog(headElement, filterDialog)
 })
 
 queryHead.onEditFilter((filterId) => {
@@ -50,14 +64,17 @@ queryHead.onDeleteFilter((filterId) => {
 
 queryHead.onAddFunction(headElementId => {
   const headElement = model.getHeadElementByID(headElementId)
-  showFormDialog(headElement, functionDialog)
+  if (headElement)
+    showFormDialog(headElement, functionDialog)
 })
 
 queryHead.onElementSortChange((headElementId, newIndex) => {
+  const headElement = model.getHeadElementByID(headElementId)
+  if (!headElement) return
+
   const qhApi = QueryGraphHeadApiFactory(undefined, model.getBasePath())
   const tempQueryBody = model.getTempQueryBody()
   const tempHead = tempQueryBody.head
-  const headElement = model.getHeadElementByID(headElementId)
   const replacedHeadElement = tempHead[newIndex] // get the element to be "replaced", its index will change
   const tempHeadIds = tempHead.map(he => he.id) // use array of id to find index of elements
 
@@ -71,9 +88,11 @@ queryHead.onOrderByChange(headElementId => {
   const tempQueryBody = getTempQueryBody()
   const headElement = tempQueryBody.head.find(he => he.id === headElementId)
 
-  headElement.ordering = headElement.ordering + 1
-  if (headElement.ordering >= 2) {
-    headElement.ordering = -1
+  if (headElement) {
+    headElement.ordering = (headElement.ordering || 0) + 1
+    if (headElement.ordering >= 2) {
+      headElement.ordering = -1
+    }
   }
 
   // if (headElement.ordering === 0) {
@@ -88,5 +107,6 @@ queryHead.onOrderByChange(headElementId => {
 
 queryHead.onAddAggregation(headElementId => {
   const headElement = model.getHeadElementByID(headElementId)
-  showFormDialog(headElement, aggregationDialog)
+  if (headElement)
+    showFormDialog(headElement, aggregationDialog)
 })

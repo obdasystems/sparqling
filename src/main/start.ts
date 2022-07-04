@@ -1,18 +1,18 @@
+import { Core } from 'cytoscape'
+import { Theme, Type } from 'grapholscape'
 import { StandaloneApi } from '../api/swagger'
 import core from '../core'
+import * as OntologyGraphHandlers from '../handlers/og-handlers'
 import * as model from '../model'
 import * as ontologyGraph from '../ontology-graph'
-import * as queryGraph from '../query-graph'
-import sparqlingStyle from '../ontology-graph/style'
+import { refreshHighlights } from '../ontology-graph'
 import getGscape from '../ontology-graph/get-gscape'
+import sparqlingStyle from '../ontology-graph/style'
+import * as queryGraph from '../query-graph'
+import { DisplayedNameType } from '../query-graph/displayed-name-type'
 import { getIri } from '../util/graph-element-utility'
 import { showUI } from '../util/show-hide-ui'
 import { startRunButtons } from '../widgets'
-import { CollectionReturnValue, Core } from 'cytoscape'
-import { DisplayedNameType } from '../query-graph/displayed-name-type'
-import { Theme, Type } from 'grapholscape'
-import * as OntologyGraphHandlers from '../handlers/og-handlers'
-import { refreshHighlights } from '../ontology-graph'
 import { handlePromise } from './handle-promises'
 
 export default function () {
@@ -39,7 +39,15 @@ export default function () {
     getGscape().widgets.OWL_VISUALIZER.disable()
     showUI()
     startRunButtons.isSparqlingRunning = true
-    ontologyGraph.highlightSuggestions(getIri(model.getSelectedGraphElement()))
+
+    const selectedGraphElement = model.getSelectedGraphElement()
+    if (selectedGraphElement) {
+      const selectedGraphElementIri = getIri(selectedGraphElement)
+
+      if (selectedGraphElementIri)
+        ontologyGraph.highlightSuggestions(selectedGraphElementIri)
+
+    }
     core.onStart()
   }
 }

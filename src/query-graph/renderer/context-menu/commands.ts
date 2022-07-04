@@ -21,7 +21,7 @@ let removeOptionalCallback: (elemId: string) => void
 let _ele: SingularElementReturnValue
 export function getCommandsForElement(elem: SingularElementReturnValue) {
   _ele = elem
-  const commands = []
+  const commands: Command[] = []
 
   // COMANDI OPTIONALS SU OBJECT PROPERTY
   if (elem.data().type === EntityTypeEnum.ObjectProperty || elem.data().type === EntityTypeEnum.InverseObjectProperty) {

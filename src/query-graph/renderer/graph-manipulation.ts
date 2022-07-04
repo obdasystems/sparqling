@@ -1,6 +1,6 @@
 import { CollectionReturnValue } from "cytoscape"
 import { Entity, EntityTypeEnum, GraphElement, Optional } from "../../api/swagger"
-import { getFiltersOnVariable } from "../../model"
+import { getFiltersOnVariable, getQueryBody } from "../../model"
 import { DisplayedNameType } from "../displayed-name-type"
 import cy, { getDisplayedNameType, getLanguage } from './cy'
 import { getElementById, getElements } from "./getters"
@@ -25,20 +25,20 @@ cy.on('tap', 'node, edge', e => {
  * Add a node to the query graph
  */
 export function addNode(node: GraphElement) {
-  if (!node) return
+  if (!node || !node.id) return
   const newNodeData = getDataObj(node)
   const existingNode = getElementById(node.id)
-  let newNode: CollectionReturnValue
+  let newNode: CollectionReturnValue | undefined = undefined
 
-  if (node.entities?.length > 1 && existingNode?.children().length !== node.entities?.length) {
+  if (node.entities?.length && node.entities.length > 1 && existingNode?.children().length !== node.entities?.length) {
     node.entities.forEach((child: Entity, i: number) => {
-      if (!existingNode.children().some(c => c[0].data('iri') === child.iri)) {
+      if (!existingNode?.children().some(c => c[0].data('iri') === child.iri)) {
         newNode = cy.add({ data: getDataObj(node, i) })
         arrange()
       }
     })
   }
-  
+
   if (!existingNode) {
     newNode = cy.add({ data: newNodeData })
     arrange()
@@ -48,12 +48,15 @@ export function addNode(node: GraphElement) {
   }
 
   newNode = newNode || existingNode
-  addOrRemoveFilterIcon(newNode)
+  if (newNode)
+    addOrRemoveFilterIcon(newNode)
 }
 
 export function addEdge(sourceNode: GraphElement, targetNode: GraphElement, edgeData?: GraphElement) {
   let newEdgeData: any
   //const sourceCyNode = getElementById(sourceNode.id)
+  if (!targetNode.id || !targetNode.entities) return
+
   const targetCyNode = getElementById(targetNode.id)
   if (!targetCyNode) {
     addNode(targetNode)
@@ -126,11 +129,15 @@ export function arrange() {
      * Let's wait a little bit so the update in the widget finishes and we can fit viewport
      * to the graph.
      */
-    cy.container().style.visibility = 'hidden' // avoid seeing node moving across the viewport
-    setTimeout(() => {
-      cy.fit()
-      cy.container().style.visibility = 'visible' // show graph only when it's correctly fitted
-    }, 200)
+    const container = cy.container()
+    if (container) {
+      container.style.visibility = 'hidden' // avoid seeing node moving across the viewport
+      setTimeout(() => {
+        cy.fit()
+        container.style.visibility = 'visible' // show graph only when it's correctly fitted
+      }, 200)
+    }
+
     return
   }
 
@@ -142,7 +149,7 @@ export function arrange() {
       if (!node.isChildless()) {
         node.children().layout(gridLayoutOpt(node)).run()
       }
-  
+
       if (!dataProperties.empty()) {
         dataProperties.layout(radialLayoutOpt(node)).run()
       }
@@ -152,10 +159,10 @@ export function arrange() {
   klayLayout.run()
 }
 
-export function renderOptionals(optionals: Optional[]) {
+export function renderOptionals(optionals: Optional[] | undefined) {
   clearOptionals()
   optionals?.forEach(opt => {
-    opt.graphIds.forEach((elemId: string) => getElementById(elemId).data('optional', true))
+    opt.graphIds?.forEach((elemId: string) => getElementById(elemId)?.data('optional', true))
   })
 }
 
@@ -186,18 +193,23 @@ export function onElementClick(callback: (nodeId: string, iri: string) => void) 
  * @param i the index of the entity you want are interested to
  * @returns the data object for cytoscape's instanc of the graphElement
  */
-function getDataObj(graphElement: GraphElement, i = null) {
-  let data = Object.assign({}, graphElement.entities[i || 0] as any)
-  if (i !== null) {
-    data.parent = graphElement.id
-    data.id = `${graphElement.id}-${data.iri}`
-  } else {
-    data.id = graphElement.id
-  }
-  data.hasFilters = getFiltersOnVariable(graphElement.id)?.length > 0 ? true : false
-  data.displayed_name = getDisplayedName(data)
+function getDataObj(graphElement: GraphElement, i?: number) {
+  if (graphElement.entities && graphElement.id) {
+    let data = Object.assign({}, graphElement.entities[i || 0] as any)
+    if (i !== undefined && i !== null) {
+      data.parent = graphElement.id
+      data.id = `${graphElement.id}-${data.iri}`
+    } else {
+      data.id = graphElement.id
+    }
 
-  return data
+    console.log(getQueryBody().filters)
+    const filtersNumber = getFiltersOnVariable(graphElement.id)?.length
+    data.hasFilters = filtersNumber && filtersNumber > 0 ? true : false
+    data.displayed_name = getDisplayedName(data)
+    
+    return data
+  }
 }
 
 function getDisplayedName(data: object) {

@@ -8,20 +8,24 @@ export function addHasFilterIcon(node: SingularData) {
   const dummyDomElement = document.createElement('div')
   const icon = new UI.GscapeButton(filter, 'Has Filters Defined')
   icon.style.position = 'relative'
-  node['tippy'] = tippy(dummyDomElement, {
-    content: icon,
-    trigger: 'manuaul',
-    hideOnClick: false,
-    allowHTML: true,
-    getReferenceClientRect: (node as any).popperRef().getBoundingClientRect,
-    sticky: "reference",
-    appendTo: cy.container(),
-    placement: "right",
-    plugins: [ sticky ]
-  })
 
-  
-  node['tippy'].show()
+  const container = cy.container()
+  if (container) {
+    node['tippy'] = tippy(dummyDomElement, {
+      content: icon,
+      trigger: 'manuaul',
+      hideOnClick: false,
+      allowHTML: true,
+      getReferenceClientRect: (node as any).popperRef().getBoundingClientRect,
+      sticky: "reference",
+      appendTo: container,
+      placement: "right",
+      plugins: [ sticky ]
+    })
+
+    
+    node['tippy'].show()
+  }
 }
 
 export function removeHasFilterIcon(node: SingularData) {
@@ -34,6 +38,7 @@ export function shouldHaveFilterIcon(node: SingularData) {
 }
 
 export function addOrRemoveFilterIcon(node: SingularData) {
+  console.log(node.data().hasFilters)
   if (shouldHaveFilterIcon(node)) {
     addHasFilterIcon(node)
   } else if (!node?.data().hasFilters) {

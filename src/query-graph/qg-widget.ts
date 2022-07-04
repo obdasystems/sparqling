@@ -13,7 +13,7 @@ export default class QueryGraphWidget extends (GscapeWidget as any) {
   public draggable: boolean
   private bgpContainer: HTMLElement
   private _isBGPEmpty: boolean = true
-  private headSlottedWidgets: Element[]
+  private headSlottedWidgets?: Element[]
 
   static get properties() {
     const props = super.properties

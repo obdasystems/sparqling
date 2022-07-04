@@ -6,17 +6,19 @@ import FilterDialog from "../widgets/forms/filters/filter-dialog"
 
 
 export default function(element: HeadElement | GraphElement, formDialog: SparqlingFormDialog) {
-  let graphElement: GraphElement
-  let variableName: string
+  let graphElement: GraphElement | undefined
+  let variableName: string | undefined
 
-  if (isHeadElement(element)) {
+  if (isHeadElement(element) && element.graphElementId) {
     graphElement = GEUtility.getGraphElementByID(element.graphElementId)
     variableName = element.alias
   } else if (isGraphElement(element)) {
     graphElement = element
-  } else {
-    return
   }
+
+  if (!graphElement) return
+  const graphElementIri = GEUtility.getIri(graphElement)
+  if (!graphElementIri) return
 
   if (GEUtility.isClass(graphElement)) {
     formDialog.parametersType = VarOrConstantTypeEnum.Iri
@@ -27,15 +29,15 @@ export default function(element: HeadElement | GraphElement, formDialog: Sparqli
   formDialog.modality = Modality.DEFINE
 
   if (formDialog instanceof FilterDialog) {
-    formDialog._id = null // filterDialog's id is filter id, a filter has an ID only after adding it
+    formDialog._id = undefined // filterDialog's id is filter id, a filter has an ID only after adding it
   } else {
     formDialog._id = element.id
   }
   
-  formDialog.operator = null
+  formDialog.operator = undefined
   formDialog.parameters = [{
     type: VarOrConstantTypeEnum.Var,
-    constantType: guessDataType(GEUtility.getIri(graphElement)),
+    constantType: guessDataType(graphElementIri),
     value: graphElement.id
   }]
   

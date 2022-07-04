@@ -5,7 +5,7 @@ import { getElemWithOperatorStyle } from '../elem-with-operator-style'
 import { FilterWithID, getElemWithOperatorList } from '../elems-with-operator-list-template'
 
 export default class FilterListDialog extends (UI.GscapeDialog as any) {
-  public filterList: FilterWithID[] = []
+  public filterList?: FilterWithID[] = []
   public variable: string
   private editFilterCallback: (filterId: number) => void = () => {}
   private deleteFilterCallback: (filterId: number) => void = () => {}
@@ -57,7 +57,9 @@ export default class FilterListDialog extends (UI.GscapeDialog as any) {
     return html`
       <gscape-head title="Defined Filters for ${this.variable}" class="drag-handler"></gscape-head>
       <div class="dialog-body">
-        ${getElemWithOperatorList(this.filterList, this.editFilterCallback, this.deleteFilterCallback)}
+        ${this.filterList
+          ? getElemWithOperatorList(this.filterList, this.editFilterCallback, this.deleteFilterCallback)
+          : null}
       </div>
     `
   }

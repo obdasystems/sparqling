@@ -1,7 +1,7 @@
 import { GraphElement, HeadElement, QueryGraph } from "../api/swagger"
 
 let body: QueryGraph
-let selectedGraphElement: GraphElement
+let selectedGraphElement: GraphElement | undefined
 let standalone: boolean
 export const COUNT_STAR_ID = '?COUNT_STAR'
 
@@ -14,7 +14,7 @@ export function setQueryBody(newBody: QueryGraph) {
   return body
 }
 
-export function setSelectedGraphElement(newGraphElement: GraphElement) {
+export function setSelectedGraphElement(newGraphElement: GraphElement | undefined) {
   selectedGraphElement = newGraphElement
 }
 
@@ -37,7 +37,7 @@ export function getTempQueryBody(): QueryGraph {
   return JSON.parse(JSON.stringify(body))
 }
 
-export function getHeadElementByID(headElementId: string, queryBody = body): HeadElement {
+export function getHeadElementByID(headElementId: string, queryBody = body): HeadElement | undefined {
   return queryBody?.head?.find(headElement => headElement.id === headElementId)
 }
 
@@ -45,6 +45,6 @@ export function isCountStarActive(): boolean {
   return body?.head?.length === 1 && body?.head[0]?.graphElementId === null
 }
 
-export function getCountStarHeadElement(): HeadElement {
-  return isCountStarActive() ? body?.head[0] : null
+export function getCountStarHeadElement(): HeadElement | undefined {
+  return isCountStarActive() ? body?.head[0] : undefined
 }

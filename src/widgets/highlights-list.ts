@@ -5,7 +5,7 @@ import { lightbulbQuestion } from './assets/icons'
 
 export default class HighlightsList extends (UI.GscapeWidget as any) {
   class: string
-  highlights: Highlights
+  highlights?: Highlights
   collapsible = true
   private _onSuggestionSelection = (element: string) => { }
 
@@ -140,7 +140,11 @@ export default class HighlightsList extends (UI.GscapeWidget as any) {
 
   handleObjectPropertySelection(e: any) {
     e.preventDefault()
-    this._onSuggestionSelection(this.objectProperties[e.target.getAttribute('index') as number].objectPropertyIRI)
+
+    const index = e.target.getAttribute('index')
+    const objectPropertyIRI = this.objectProperties[index].objectPropertyIRI
+    if (objectPropertyIRI)
+      this._onSuggestionSelection(objectPropertyIRI)
   }
 
   handleDataPropertySelection(e: any) {
@@ -153,15 +157,20 @@ export default class HighlightsList extends (UI.GscapeWidget as any) {
   }
 
   private get objectProperties() {
-    return this.highlights?.objectProperties?.sort((a,b) => a.objectPropertyIRI.localeCompare(b.objectPropertyIRI)) || []
+    return this.highlights?.objectProperties?.sort((a,b) => {
+      if (a.objectPropertyIRI && b.objectPropertyIRI)
+        return a.objectPropertyIRI.localeCompare(b.objectPropertyIRI)
+      else
+        return 0
+    }) || []
   }
 
   private get classes() {
-    return this.highlights?.classes.sort((a,b) => a.localeCompare(b)) || []
+    return this.highlights?.classes?.sort((a,b) => a.localeCompare(b)) || []
   }
 
   private get dataProperties() {
-    return this.highlights?.dataProperties.sort((a,b) => a.localeCompare(b)) || []
+    return this.highlights?.dataProperties?.sort((a,b) => a.localeCompare(b)) || []
   }
 
   show() { super.show() }

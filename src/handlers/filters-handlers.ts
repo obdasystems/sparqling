@@ -67,11 +67,13 @@ export async function deleteFilter(filterId: number) {
 
 export function showFilterDialogEditingMode(filterId: number) {
   const filter = model.getFilterById(filterId)
-  filterDialog.modality = Modality.EDIT
-  filterDialog._id = filterId
-  filterDialog.operator = filter.expression?.operator
-  filterDialog.parameters = filter.expression?.parameters
-  filterDialog.parametersType = filter.expression?.parameters ? filter.expression.parameters[1].type : undefined
-  filterDialog.show()
-  filterListDialog.hide()
+  if (filter) {
+    filterDialog.modality = Modality.EDIT
+    filterDialog._id = filterId
+    filterDialog.operator = filter.expression?.operator
+    filterDialog.parameters = filter.expression?.parameters
+    filterDialog.parametersType = filter.expression?.parameters ? filter.expression.parameters[1].type : undefined
+    filterDialog.show()
+    filterListDialog.hide()
+  }
 }

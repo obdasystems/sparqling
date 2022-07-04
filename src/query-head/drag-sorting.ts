@@ -1,7 +1,6 @@
-import { HeadElement } from "../api/swagger"
 
 let sortChangedCallback: (headElementId: string, newIndex: number) => void
-let dragging: HTMLElement = null
+let dragging: HTMLElement
 const dropIndicator = document.createElement('hr')
 dropIndicator.style.width = '90%'
 dropIndicator.style.opacity = '0.5'
@@ -9,7 +8,7 @@ dropIndicator.style.opacity = '0.5'
 export function onDragStart(event: DragEvent) {
   dragging = getDraggedComponent(event.target)
   dragging.classList.add('dragged')
-  event.dataTransfer.setData('text/plain', null)
+  event.dataTransfer?.setData('text/plain', '')
 }
 
 export function onDragOver(event: DragEvent) {
@@ -25,7 +24,7 @@ export function onDragOver(event: DragEvent) {
 }
 
 export function onDragLeave(event: DragEvent) {
-  dropIndicator.parentNode?.removeChild(dropIndicator)
+  dropIndicator.remove()
 }
 
 export function onDragEnd(event: DragEvent) {
@@ -35,9 +34,11 @@ export function onDragEnd(event: DragEvent) {
   if (elemsWrapper) {
     elemsWrapper.replaceChild(dragging, dropIndicator)
     setTimeout(() => dragging.classList.remove('dragged'), 100)
-    sortChangedCallback((dragging as any)._id, getDraggedElemNewIndex())
+    const draggedElemNewIndex = getDraggedElemNewIndex()
+    if (draggedElemNewIndex)
+      sortChangedCallback((dragging as any)._id, draggedElemNewIndex)
   } else {
-    dropIndicator.parentNode?.removeChild(dropIndicator)
+    dropIndicator.remove()
   }
 }
 

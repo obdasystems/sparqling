@@ -1,13 +1,13 @@
 import { CollectionReturnValue } from "cytoscape"
 import { Type } from "grapholscape"
-import { GraphElement, QueryGraphBGPApiFactory, QueryGraph, Branch } from "../api/swagger"
+import { Branch, GraphElement, QueryGraph, QueryGraphBGPApiFactory } from "../api/swagger"
+import { handlePromise } from "../main/handle-promises"
+import onNewBody from "../main/on-new-body"
+import * as model from "../model"
 import * as ontologyGraph from "../ontology-graph"
 import getGscape from "../ontology-graph/get-gscape"
 import * as queryGraph from "../query-graph"
 import { getdiffNew, graphElementHasIri, isClass } from "../util/graph-element-utility"
-import * as model from "../model"
-import onNewBody from "../main/on-new-body"
-import { handlePromise } from "../main/handle-promises"
 
 
 const { CONCEPT, OBJECT_PROPERTY, DATA_PROPERTY } = Type
@@ -23,7 +23,7 @@ export async function handleEntitySelection(cyEntity: CollectionReturnValue) {
   let clickedIRI = cyEntity.data('iri').fullIri
   const selectedGraphElement = model.getSelectedGraphElement()
 
-  if (graphElementHasIri(selectedGraphElement, clickedIRI) && !lastObjProperty) {
+  if (selectedGraphElement && graphElementHasIri(selectedGraphElement, clickedIRI) && !lastObjProperty) {
     if (!ontologyGraph.isIriSelected(clickedIRI)) {
       ontologyGraph.resetHighlights()
       ontologyGraph.highlightSuggestions(clickedIRI)

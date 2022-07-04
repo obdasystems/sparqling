@@ -6,7 +6,8 @@ import getStylesheet from "./style"
 
 export function setDisplayedNameType(newDisplayedNameType: DisplayedNameType, newlanguage?: string) {
   setStateDisplayedNameType(newDisplayedNameType)
-  setLanguage(newlanguage)
+  if (newlanguage)
+    setLanguage(newlanguage)
   updateDisplayedNames()
 }
 

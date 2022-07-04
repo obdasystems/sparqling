@@ -316,15 +316,30 @@ export default class HeadElementComponent extends UI.GscapeWidget implements Hea
 
   set headElement(newElement: HeadElement) {
     if (this._id === newElement.id) return
-    this._id = newElement.id
-    this.alias = newElement.alias
-    this.graphElementId = newElement.graphElementId
+
+    if (newElement.id)
+      this._id = newElement.id
+
+    if (newElement.alias)
+      this.alias = newElement.alias
+
+    if (newElement.graphElementId)
+      this.graphElementId = newElement.graphElementId
+
     this.entityType = newElement['entityType']
     this.dataType = newElement['dataType'] || 'Type'
-    this.function = newElement.function
-    this.ordering = newElement.ordering
-    this.groupBy = newElement.groupBy
-    this.having = newElement.having
+
+    if (newElement.function)
+      this.function = newElement.function
+
+    if (newElement.ordering)
+     this.ordering = newElement.ordering
+
+    if (newElement.groupBy)
+      this.groupBy = newElement.groupBy
+
+    if (newElement.having)
+      this.having = newElement.having
 
     let types = {
       'class': 'concept',
@@ -333,7 +348,12 @@ export default class HeadElementComponent extends UI.GscapeWidget implements Hea
     }
     let self = this as any
     self.style.backgroundColor = `var(--theme-gscape-${types[this.entityType]})`
-    this.filters = getFiltersOnVariable(newElement.graphElementId)
+
+    if (newElement.graphElementId) {
+      const filtersOnVariable = getFiltersOnVariable(newElement.graphElementId)
+      if (filtersOnVariable)
+        this.filters = filtersOnVariable  
+    }
   }
 
   private getSelect(sectionName: string, name: string, defaultOpt: string, options: object) {

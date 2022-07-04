@@ -19,22 +19,29 @@ export function removeFilter(filterId: number) {
 
 export function getFilterById(filterId: number) {
   const body = getQueryBody()
-  return body.filters[filterId]
+
+  if (body.filters) {
+    return body.filters[filterId]
+  }
 }
 
 export function updateFilter(filterId: number, filter: Filter) {
   const body = getQueryBody()
-  body.filters[filterId] = filter
+
+  if (body.filters) {
+    body.filters[filterId] = filter
+  }
 }
 
 export function getFiltersOnVariable(variable: string) {
   const body = getQueryBody()
   let filters = body?.filters?.map((filter, index) => {
-    return { id: index, value: filter } 
+    return { id: index, value: filter }
   })
 
   return filters?.filter(f => {
-    return f.value.expression.parameters[0].type === VarOrConstantTypeEnum.Var &&
-      f.value.expression.parameters[0].value === variable
+    if (f.value.expression?.parameters)
+      return f.value.expression.parameters[0].type === VarOrConstantTypeEnum.Var &&
+        f.value.expression.parameters[0].value === variable
   })
 }

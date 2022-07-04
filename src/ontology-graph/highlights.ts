@@ -8,7 +8,7 @@ import { highlightsList } from "../widgets"
 import getGscape from "./get-gscape"
 import { handlePromise } from "../main/handle-promises"
 
-let actualHighlights: Highlights = null
+let actualHighlights: Highlights | undefined
 
 highlightsList.onSuggestionSelection(iri => focusNodeByIRI(iri))
 
@@ -25,7 +25,7 @@ export function highlightIRI(iri: string) {
 }
 
 export function highlightSuggestions(clickedIRI: string) {
-  if(!clickedIRI) return
+  if (!clickedIRI) return
   resetHighlights()
   const ogApi = new OntologyGraphApi()
   handlePromise(ogApi.highligths(clickedIRI)).then(newHighlights => {
@@ -47,32 +47,34 @@ export function resetHighlights() {
         .selectify()
     })
   })
-  actualHighlights = null
-  highlightsList.highlights = null
+  actualHighlights = undefined
+  highlightsList.highlights = undefined
 }
 
 export function isHighlighted(iri: string): boolean {
   // if ((actualHighlights as AxiosError).isAxiosError) return true
   return actualHighlights?.classes?.includes(iri) ||
     actualHighlights?.dataProperties?.includes(iri) ||
-    actualHighlights?.objectProperties?.map(obj => obj.objectPropertyIRI).includes(iri)
+    actualHighlights?.objectProperties?.map(obj => obj.objectPropertyIRI).includes(iri) || false
 }
 
 export function refreshHighlights() {
   let selectedGraphElem = model.getSelectedGraphElement()
   if (selectedGraphElem) {
-    performHighlights(getIri(selectedGraphElem))
+    const selectedGraphElemIri = getIri(selectedGraphElem)
+    if (selectedGraphElemIri)
+      performHighlights(selectedGraphElemIri)
   }
 }
 
 function performHighlights(clickedIRI: string) {
   const gscape = getGscape()
-  actualHighlights.classes?.forEach((iri: string) => highlightIRI(iri))
-  actualHighlights.dataProperties?.forEach((iri: string) => highlightIRI(iri))
-  actualHighlights.objectProperties?.forEach((o: any) => highlightIRI(o.objectPropertyIRI))
+  actualHighlights?.classes?.forEach((iri: string) => highlightIRI(iri))
+  actualHighlights?.dataProperties?.forEach((iri: string) => highlightIRI(iri))
+  actualHighlights?.objectProperties?.forEach((o: any) => highlightIRI(o.objectPropertyIRI))
 
   // select all nodes having iri = clickedIRI
-  for(const node of gscape.ontology.getEntityOccurrences(clickedIRI)) {
+  for (const node of gscape.ontology.getEntityOccurrences(clickedIRI)) {
     if (node.data('diagram_id') === gscape.actualDiagramID) {
       node.addClass('sparqling-selected')
       break
@@ -91,7 +93,7 @@ function transformHighlightsToPrefixedIRIs(): Highlights {
   transformedHighlights.classes = transformedHighlights.classes?.map(iri => getPrefixedIri(iri))
   transformedHighlights.dataProperties = transformedHighlights.dataProperties?.map(iri => getPrefixedIri(iri))
   transformedHighlights.objectProperties = transformedHighlights.objectProperties?.map(branch => {
-    branch.objectPropertyIRI = getPrefixedIri(branch.objectPropertyIRI)
+    branch.objectPropertyIRI = getPrefixedIri(branch.objectPropertyIRI || '')
     return branch
   })
   return transformedHighlights
@@ -99,7 +101,7 @@ function transformHighlightsToPrefixedIRIs(): Highlights {
 
   function getPrefixedIri(iri: string) {
     const destructuredIRI = ontology.destructureIri(iri)
-    if(destructuredIRI) {
+    if (destructuredIRI) {
       return destructuredIRI.prefixed
     } else {
       return iri

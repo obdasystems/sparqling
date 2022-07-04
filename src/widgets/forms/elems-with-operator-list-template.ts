@@ -12,7 +12,7 @@ export function getElemWithOperatorList(list: Filter[]): HTMLTemplateResult
 export function getElemWithOperatorList(list: GroupByElement[]): HTMLTemplateResult
 export function getElemWithOperatorList(list: Function[]): HTMLTemplateResult
 export function getElemWithOperatorList(list: FilterWithID[], editElemCallback, deleteElemCallback): HTMLTemplateResult
-export function getElemWithOperatorList(list: any, editElemCallback?, deleteElemCallback?): HTMLTemplateResult {
+export function getElemWithOperatorList(list?: any, editElemCallback?, deleteElemCallback?): HTMLTemplateResult {
   return html`
     ${list?.map((elemWithOperator: any) => {
       const elem = elemWithOperator.value || elemWithOperator

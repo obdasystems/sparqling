@@ -78,6 +78,7 @@ export default class AggregationDialog extends SparqlingFormDialog {
   }
 
   protected onValidSubmit(): void {
+    if (this._id && this.aggregateOperator && this.parameters)
     this.submitCallback(this._id, this.aggregateOperator, this.distinct, this.operator as FilterExpressionOperatorEnum, this.parameters)
   }
 
@@ -96,7 +97,7 @@ export default class AggregationDialog extends SparqlingFormDialog {
     this.definingHaving = false
     this.distinct = false
     this.distinctCheckboxElem.checked = this.distinct
-    this.aggregateOperator = null
+    this.aggregateOperator = undefined
   }
 
   private onAggregateOperatorChange(value: GroupByElementAggregateFunctionEnum) {
@@ -108,7 +109,7 @@ export default class AggregationDialog extends SparqlingFormDialog {
   }
 
   protected get isAggregateOperatorValid() {
-    return Object.values(GroupByElementAggregateFunctionEnum).includes(this.aggregateOperator)
+    return this.aggregateOperator && Object.values(GroupByElementAggregateFunctionEnum).includes(this.aggregateOperator)
   }
 
   protected get selectAggregateOperatorElem() {

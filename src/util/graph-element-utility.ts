@@ -1,12 +1,12 @@
 import { Entity, EntityTypeEnum, GraphElement } from "../api/swagger"
 import * as model from '../model/'
 
-export function getGraphElementByID(id: string | number) {
+export function getGraphElementByID(id: string | number): GraphElement | undefined {
   const graph = model.getQueryBody()?.graph
   return findGraphElement(graph, (elem) => elem.id === id)
 }
 
-export function getGraphElementByIRI(iri: string) {
+export function getGraphElementByIRI(iri: string): GraphElement | undefined {
   const graph = model.getQueryBody()?.graph
   return findGraphElement(graph, (elem) => graphElementHasIri(elem, iri))
 }
@@ -17,8 +17,8 @@ export function getGraphElementByIRI(iri: string) {
  * @param test boolean test function
  * @returns the first element satisfying the condition
  */
-export function findGraphElement(graph: GraphElement, test: (elem: GraphElement) => boolean): GraphElement {
-  if (!graph) return null
+export function findGraphElement(graph: GraphElement, test: (elem: GraphElement) => boolean): GraphElement | undefined {
+  if (!graph) return
 
   if (test(graph)) return graph
 
@@ -28,6 +28,8 @@ export function findGraphElement(graph: GraphElement, test: (elem: GraphElement)
       if (res) return res
     }
   }
+
+  return
 }
 
 /**
@@ -36,8 +38,9 @@ export function findGraphElement(graph: GraphElement, test: (elem: GraphElement)
  * @param i the entity index in the array, default first one
  * @returns 
  */
-export function getIri(elem: GraphElement, i = 0): string {
-  return elem?.entities[i]?.iri
+export function getIri(elem: GraphElement, i = 0): string | undefined {
+  if (elem?.entities)
+    return elem?.entities[i]?.iri
 }
 
 /**
@@ -46,18 +49,20 @@ export function getIri(elem: GraphElement, i = 0): string {
  * @param i the entity index in the array, default first one
  * @returns 
  */
- export function getPrefixedIri(elem: GraphElement, i = 0): string {
-  return elem?.entities[i]?.prefixedIri
+ export function getPrefixedIri(elem: GraphElement, i = 0): string | undefined {
+  if (elem?.entities)
+    return elem.entities[i].prefixedIri
 }
 
-export function getEntityType(elem: GraphElement): EntityTypeEnum {
-  return elem?.entities[0]?.type
+export function getEntityType(elem: GraphElement): EntityTypeEnum | undefined {
+  if (elem?.entities)
+    return elem.entities[0].type
 }
 
 export function graphElementHasIri(elem: GraphElement, iri: string) {
   return elem?.entities?.some((entity: Entity) => {
     return entity.iri === iri || entity.prefixedIri === iri
-  })
+  }) || false
 }
 
 export function canStartJoin(elem: GraphElement): boolean {
@@ -70,7 +75,8 @@ export function isJoinAllowed(targetElem: GraphElement, startElem: GraphElement)
   if (!targetElem || !startElem) return false
 
   const areBothClasses = isClass(startElem) && isClass(targetElem)
-  const doesTargetHasSameIri = graphElementHasIri(targetElem, getIri(startElem))
+  const startElemIri = getIri(startElem)
+  const doesTargetHasSameIri = startElemIri ? graphElementHasIri(targetElem, startElemIri) : false
   return areBothClasses && doesTargetHasSameIri
 }
 
@@ -95,7 +101,7 @@ export function isInverseObjectProperty(graphElement: GraphElement) {
  */
 export function getdiffNew(oldGraph: GraphElement, newGraph: GraphElement): GraphElement[] {
   if (!oldGraph) return [newGraph]
-  let result = []
+  let result: GraphElement[] = []
 
   let res = findGraphElement(oldGraph, e => areGraphElementsEqual(e, newGraph))
   if (!res) result.push(newGraph)
@@ -111,7 +117,9 @@ export function getdiffNew(oldGraph: GraphElement, newGraph: GraphElement): Grap
 }
 
 
-export function areGraphElementsEqual(ge1: GraphElement, ge2: GraphElement) {
+export function areGraphElementsEqual(ge1: GraphElement, ge2: GraphElement): boolean {
+  if (!ge1.id || !ge2.id) return false
+
   const hasSameId = ge1.id === ge2.id
   const hasSameFilters = model.getFiltersOnVariable(ge1.id) === model.getFiltersOnVariable(ge2.id)
   const hasSameEntities = JSON.stringify(ge1.entities) === JSON.stringify(ge2.entities)

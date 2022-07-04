@@ -20,7 +20,7 @@ export default class SparqlingFormDialog extends (UI.GscapeDialog as any) implem
   public _id?: FormID
   public modality: Modality = Modality.DEFINE
   public aggregateOperator?: GroupByElementAggregateFunctionEnum
-  public variableName: string
+  public variableName?: string
   protected deleteCallback = (filterId: any) => { }
 
   static get properties() {
@@ -153,7 +153,7 @@ export default class SparqlingFormDialog extends (UI.GscapeDialog as any) implem
       case FilterExpressionOperatorEnum.In:
       case FilterExpressionOperatorEnum.NotIn:
         // IN and NOT IN needs at least 2 constants, so at least 3 parameters, variable + 2 constants
-        if (this.parametersIriOrConstants.length < 2) {
+        if (this.parametersIriOrConstants && this.parametersIriOrConstants.length < 2) {
           this.addInputValue(2 - this.parametersIriOrConstants.length)
         }
         break
@@ -169,12 +169,12 @@ export default class SparqlingFormDialog extends (UI.GscapeDialog as any) implem
       case FunctionNameEnum.Seconds:
       case FunctionNameEnum.Lcase:
       case FunctionNameEnum.Ucase:
-        this.parameters.splice(1) // no parameters
+        this.parameters?.splice(1) // no parameters
         break;
 
       default:
-        this.parameters.splice(2)
-        if (this.parametersIriOrConstants.length <= 0) {
+        this.parameters?.splice(2)
+        if (this.parametersIriOrConstants && this.parametersIriOrConstants.length <= 0) {
           this.addInputValue()
         }
     }
@@ -185,10 +185,12 @@ export default class SparqlingFormDialog extends (UI.GscapeDialog as any) implem
   }
 
   private onInputChange(index: number, inputElem: HTMLInputElement) {
-    if (this.datatype === VarOrConstantConstantTypeEnum.DateTime) {
-      this.parameters[index].value = inputElem.valueAsDate.toISOString()
-    } else {
-      this.parameters[index].value = inputElem.value
+    if (this.parameters) {
+      if (this.datatype === VarOrConstantConstantTypeEnum.DateTime) {
+        this.parameters[index].value = inputElem.valueAsDate?.toISOString()
+      } else {
+        this.parameters[index].value = inputElem.value
+      }
     }
   }
 
@@ -200,7 +202,7 @@ export default class SparqlingFormDialog extends (UI.GscapeDialog as any) implem
 
   addInputValue(number = 1) {
     for (let i = 0; i < number; i++) {
-      this.parameters.push({
+      this.parameters?.push({
         type: this.parametersType,
         value: "",
         constantType: this.datatype
@@ -273,15 +275,16 @@ export default class SparqlingFormDialog extends (UI.GscapeDialog as any) implem
     return this.shadowRoot.querySelector('#message-tray')
   }
 
-  protected get variable(): VarOrConstant {
+  protected get variable(): VarOrConstant | undefined {
     return this.parameters?.find(p => p.type === VarOrConstantTypeEnum.Var)
   }
 
   public get datatype() { return this.variable?.constantType }
 
   protected set datatype(value) {
-    this.variable.constantType = value
-    this.parameters.map(p => p.constantType = value)
+    if (this.variable)
+      this.variable.constantType = value
+    this.parameters?.map(p => p.constantType = value)
     this.requestUpdate()
   }
 

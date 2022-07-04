@@ -8,7 +8,10 @@ export { onElementSortChange } from './drag-sorting'
 export { qhWidget as widget }
 
 export function onDelete(callback: (headElement: HeadElement) => void) {
-  qhWidget.onDelete( headElementId => callback(model.getHeadElementByID(headElementId)))
+  qhWidget.onDelete( headElementId => {
+    const headElement = model.getHeadElementByID(headElementId)
+    if (headElement) callback(headElement)
+  })
 }
 
 export function onRename(callback: (headElement: string, alias: string) => void) {
@@ -18,7 +21,10 @@ export function onRename(callback: (headElement: string, alias: string) => void)
 }
 
 export function onLocalize(callback: (headElement: HeadElement) => void) {
-  qhWidget.onLocalize( headElementId => callback(model.getHeadElementByID(headElementId)))
+  qhWidget.onLocalize( headElementId => {
+    const headElement = model.getHeadElementByID(headElementId) 
+    if (headElement) callback(headElement)
+  })
 }
 
 

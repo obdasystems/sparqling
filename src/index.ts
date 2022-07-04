@@ -19,7 +19,7 @@ export default function sparqling(gscape: Grapholscape, file: string | Blob, bas
   if (file && gscape) {
     let ontologyFile = new File([file], `${gscape.ontology.name}-from-string.graphol`)
 
-    model.setStandalone(basePath !== undefined)
+    model.setStandalone(basePath !== undefined || basePath !== null)
     model.setOntologyFile(ontologyFile)
     
     if (basePath) {

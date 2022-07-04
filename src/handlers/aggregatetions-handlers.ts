@@ -9,22 +9,24 @@ aggregationDialog.onSubmit((headElementId, aggregateOperator, distinct, havingOp
   const tempQueryBody = model.getTempQueryBody()
   
   const headElement = model.getHeadElementByID(headElementId as string, tempQueryBody)
-  headElement.groupBy = {
-    distinct: distinct,
-    aggregateFunction: aggregateOperator
-  }
+  if (headElement) {
+    headElement.groupBy = {
+      distinct: distinct,
+      aggregateFunction: aggregateOperator
+    }
 
-  if (havingOperator && havingParameters) {
-    headElement.having = [{
-      expression: {
-        operator: havingOperator,
-        parameters: havingParameters,
-      }
-    }]
+    if (havingOperator && havingParameters) {
+      headElement.having = [{
+        expression: {
+          operator: havingOperator,
+          parameters: havingParameters,
+        }
+      }]
+    }
+
+    handlePromise(qhApi.aggregationHeadTerm(headElementId as string, tempQueryBody)).then(newBody => {
+      onNewBody(newBody)
+      aggregationDialog.setAsCorrect()
+    })
   }
-  
-  handlePromise(qhApi.aggregationHeadTerm(headElementId as string, tempQueryBody)).then(newBody => {
-    onNewBody(newBody)
-    aggregationDialog.setAsCorrect()
-  })
 })
