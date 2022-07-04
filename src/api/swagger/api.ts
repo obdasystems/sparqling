@@ -2728,11 +2728,10 @@ export const QueryGraphOptionalApiAxiosParamCreator = function (configuration?: 
          * @summary Remove the graphElementId from the optional and move it back to the bgp.
          * @param {string} graphElementId The GraphElement that should be removed from the optional
          * @param {QueryGraph} queryGraph 
-         * @param {string} [classIRI] The IRI of the class that will be inserted in the optional.
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
-        removeOptionalGraphElementId: async (graphElementId: string, queryGraph: QueryGraph, classIRI?: string, options: AxiosRequestConfig = {}): Promise<RequestArgs> => {
+        removeOptionalGraphElementId: async (graphElementId: string, queryGraph: QueryGraph, options: AxiosRequestConfig = {}): Promise<RequestArgs> => {
             // verify required parameter 'graphElementId' is not null or undefined
             assertParamExists('removeOptionalGraphElementId', 'graphElementId', graphElementId)
             // verify required parameter 'queryGraph' is not null or undefined
@@ -2749,10 +2748,6 @@ export const QueryGraphOptionalApiAxiosParamCreator = function (configuration?: 
             const localVarRequestOptions = { method: 'PUT', ...baseOptions, ...options};
             const localVarHeaderParameter = {} as any;
             const localVarQueryParameter = {} as any;
-
-            if (classIRI !== undefined) {
-                localVarQueryParameter['classIRI'] = classIRI;
-            }
 
 
     
@@ -2806,12 +2801,11 @@ export const QueryGraphOptionalApiFp = function(configuration?: Configuration) {
          * @summary Remove the graphElementId from the optional and move it back to the bgp.
          * @param {string} graphElementId The GraphElement that should be removed from the optional
          * @param {QueryGraph} queryGraph 
-         * @param {string} [classIRI] The IRI of the class that will be inserted in the optional.
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
-        async removeOptionalGraphElementId(graphElementId: string, queryGraph: QueryGraph, classIRI?: string, options?: AxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<QueryGraph>> {
-            const localVarAxiosArgs = await localVarAxiosParamCreator.removeOptionalGraphElementId(graphElementId, queryGraph, classIRI, options);
+        async removeOptionalGraphElementId(graphElementId: string, queryGraph: QueryGraph, options?: AxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<QueryGraph>> {
+            const localVarAxiosArgs = await localVarAxiosParamCreator.removeOptionalGraphElementId(graphElementId, queryGraph, options);
             return createRequestFunction(localVarAxiosArgs, globalAxios, BASE_PATH, configuration);
         },
     }
@@ -2850,12 +2844,11 @@ export const QueryGraphOptionalApiFactory = function (configuration?: Configurat
          * @summary Remove the graphElementId from the optional and move it back to the bgp.
          * @param {string} graphElementId The GraphElement that should be removed from the optional
          * @param {QueryGraph} queryGraph 
-         * @param {string} [classIRI] The IRI of the class that will be inserted in the optional.
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
-        removeOptionalGraphElementId(graphElementId: string, queryGraph: QueryGraph, classIRI?: string, options?: any): AxiosPromise<QueryGraph> {
-            return localVarFp.removeOptionalGraphElementId(graphElementId, queryGraph, classIRI, options).then((request) => request(axios, basePath));
+        removeOptionalGraphElementId(graphElementId: string, queryGraph: QueryGraph, options?: any): AxiosPromise<QueryGraph> {
+            return localVarFp.removeOptionalGraphElementId(graphElementId, queryGraph, options).then((request) => request(axios, basePath));
         },
     };
 };
@@ -2897,13 +2890,12 @@ export class QueryGraphOptionalApi extends BaseAPI {
      * @summary Remove the graphElementId from the optional and move it back to the bgp.
      * @param {string} graphElementId The GraphElement that should be removed from the optional
      * @param {QueryGraph} queryGraph 
-     * @param {string} [classIRI] The IRI of the class that will be inserted in the optional.
      * @param {*} [options] Override http request option.
      * @throws {RequiredError}
      * @memberof QueryGraphOptionalApi
      */
-    public removeOptionalGraphElementId(graphElementId: string, queryGraph: QueryGraph, classIRI?: string, options?: AxiosRequestConfig) {
-        return QueryGraphOptionalApiFp(this.configuration).removeOptionalGraphElementId(graphElementId, queryGraph, classIRI, options).then((request) => request(this.axios, this.basePath));
+    public removeOptionalGraphElementId(graphElementId: string, queryGraph: QueryGraph, options?: AxiosRequestConfig) {
+        return QueryGraphOptionalApiFp(this.configuration).removeOptionalGraphElementId(graphElementId, queryGraph, options).then((request) => request(this.axios, this.basePath));
     }
 }
 
