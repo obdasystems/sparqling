@@ -1,7 +1,5 @@
 node_modules/**
 releases/**
-build/**
-dists/**
 coverage/**
 .*/
 .size-snapshot.json
