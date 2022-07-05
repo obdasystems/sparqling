@@ -203,7 +203,6 @@ function getDataObj(graphElement: GraphElement, i?: number) {
       data.id = graphElement.id
     }
 
-    console.log(getQueryBody().filters)
     const filtersNumber = getFiltersOnVariable(graphElement.id)?.length
     data.hasFilters = filtersNumber && filtersNumber > 0 ? true : false
     data.displayed_name = getDisplayedName(data)

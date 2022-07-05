@@ -14,7 +14,7 @@ queryGraph.onAddHead(async graphElement => {
   if (graphElement?.id) {
     const qgApi = QueryGraphHeadApiFactory(undefined, model.getBasePath())
     const body = model.getQueryBody()
-    handlePromise(qgApi.addHeadTerm(graphElement.id, body)).then(newBody => {
+    handlePromise(qgApi.addHeadTerm(graphElement.id, body, model.getRequestOptions())).then(newBody => {
       onNewBody(newBody)
     })
   }
@@ -31,7 +31,7 @@ queryGraph.onDelete((graphElement, iri) => {
   const gscape = getGscape()
 
   if (!iri) {
-    handlePromise(qgApi.deleteGraphElementId(graphElement.id, body)).then(newBody => {
+    handlePromise(qgApi.deleteGraphElementId(graphElement.id, body, model.getRequestOptions())).then(newBody => {
       if (newBody.graph && !GEUtility.findGraphElement(newBody.graph, ge => ge.id === selectedGraphElement?.id)) {
         // if we deleted selectedGraphElem, then select its parent
         let newSelectedGE = GEUtility.findGraphElement(body.graph, ge => {
@@ -62,7 +62,7 @@ queryGraph.onDelete((graphElement, iri) => {
       finalizeDelete(newBody)
     })
   } else { // deleted a children
-    handlePromise(qgApi.deleteGraphElementIdClass(graphElement.id, iri, body)).then(newBody => {
+    handlePromise(qgApi.deleteGraphElementIdClass(graphElement.id, iri, body, model.getRequestOptions())).then(newBody => {
       finalizeDelete(newBody)
     })
   }
@@ -80,7 +80,7 @@ queryGraph.onJoin(async (ge1, ge2) => {
     const qgApi = QueryGraphBGPApiFactory(undefined, model.getBasePath())
     const body = model.getQueryBody()
 
-    handlePromise(qgApi.putQueryGraphJoin(ge1.id, ge2.id, body)).then(newBody => {
+    handlePromise(qgApi.putQueryGraphJoin(ge1.id, ge2.id, body, model.getRequestOptions())).then(newBody => {
       model.setSelectedGraphElement(ge1)
       onNewBody(newBody)
     })
@@ -119,7 +119,7 @@ queryGraph.onMakeOptional(graphElement => {
   if (graphElement.id) {
     const qgOptionalApi = new QueryGraphOptionalApi()
     const body = model.getQueryBody()
-    handlePromise(qgOptionalApi.newOptionalGraphElementId(graphElement.id, body)).then(newBody => {
+    handlePromise(qgOptionalApi.newOptionalGraphElementId(graphElement.id, body, model.getRequestOptions())).then(newBody => {
       onNewBody(newBody)
     })
   }
@@ -129,7 +129,7 @@ queryGraph.onRemoveOptional(graphElement => {
   if (graphElement.id) {
     const qgOptionalApi = new QueryGraphOptionalApi()
     const body = model.getQueryBody()
-    handlePromise(qgOptionalApi.removeOptionalGraphElementId(graphElement.id, body)).then(newBody => {
+    handlePromise(qgOptionalApi.removeOptionalGraphElementId(graphElement.id, body, model.getRequestOptions())).then(newBody => {
       onNewBody(newBody)
     })
   }
@@ -168,7 +168,7 @@ clearQueryButton.onClick = () => {
   const queryBody = model.getQueryBody()
   if (queryBody?.graph?.id) {
     const qgApi = QueryGraphBGPApiFactory(undefined, model.getBasePath())
-    handlePromise(qgApi.deleteGraphElementId(queryBody?.graph?.id, queryBody)).then(newBody => {
+    handlePromise(qgApi.deleteGraphElementId(queryBody?.graph?.id, queryBody, model.getRequestOptions())).then(newBody => {
       onNewBody(newBody)
     })
   }

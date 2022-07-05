@@ -1,9 +1,9 @@
 export * from './query-body'
 export * from './filters'
+export * from './request-options'
 
 let file: File
 let isInitialised = false
-let basePath: string | undefined = undefined
 
 export function getOntologyFile() {
   return file
@@ -20,9 +20,3 @@ export function isSparqlingInitialised() {
 export function setInitialised(value: boolean) {
   isInitialised = value
 }
-
-export function setBasePath(newBasePath: string) {
-  basePath = newBasePath
-}
-
-export function getBasePath() { return basePath }

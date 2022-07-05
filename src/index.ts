@@ -7,24 +7,35 @@ import * as queryHead from './query-head'
 import { leftColumnContainer } from './util/get-container'
 import * as widgets from './widgets'
 import * as handlers from './handlers'
+import { SparqlingRequestOptions } from './model/request-options'
 
 /**
  * Initialise sparqling on a grapholscape instance
  * @param gscape the grapholscape instance (ontology graph)
  * @param file the ontology .graphol, in string or Blob representation
- * @param basePath basePath of the rest api, not needed for standalone usage
  * @returns a core object, see ./core.ts
  */
-export default function sparqling(gscape: Grapholscape, file: string | Blob, basePath?: string) {
+export function sparqlingStandalone(gscape: Grapholscape, file: string | Blob) {
+  return getCore(gscape, file)
+}
+
+export function sparqling(gscape: Grapholscape, file: string | Blob, connectionOptions: SparqlingRequestOptions) {
+  const sparqlingCore = getCore(gscape, file)
+  model.setRequestOptions(connectionOptions)
+  widgets.startRunButtons.runQueryButton.enabled = true
+  return sparqlingCore
+}
+
+function getCore(gscape: Grapholscape, file: string | Blob) {
   if (file && gscape) {
     let ontologyFile = new File([file], `${gscape.ontology.name}-from-string.graphol`)
 
-    model.setStandalone(basePath !== undefined || basePath !== null)
+    // model.setStandalone(basePath !== undefined || basePath !== null)
     model.setOntologyFile(ontologyFile)
     
-    if (basePath) {
-      model.setBasePath(basePath)
-    }
+    // if (basePath) {
+    //   model.setBasePath(basePath)
+    // }
 
     //sparqlingContainer.appendChild(gscapeContainer)
     //const gscape = await fullGrapholscape(file, gscapeContainer, { owl_translator: false })
@@ -49,10 +60,6 @@ export default function sparqling(gscape: Grapholscape, file: string | Blob, bas
   
     queryGraph.setDisplayedNameType(gscape.actualEntityNameType, gscape.languages.selected)
     queryGraph.setTheme(gscape.themesController.actualTheme)
-    
-    if (!model.isStandalone()) {
-      widgets.startRunButtons.runQueryButton.enabled = true
-    }
 
     handlers // hack, just mention the handlers to make the module be evaluated 
 

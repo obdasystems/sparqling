@@ -27,8 +27,8 @@ export function highlightIRI(iri: string) {
 export function highlightSuggestions(clickedIRI: string) {
   if (!clickedIRI) return
   resetHighlights()
-  const ogApi = new OntologyGraphApi()
-  handlePromise(ogApi.highligths(clickedIRI)).then(newHighlights => {
+  const ogApi = new OntologyGraphApi(undefined, model.getBasePath())
+  handlePromise(ogApi.highligths(clickedIRI, undefined, model.getRequestOptions())).then(newHighlights => {
     actualHighlights = newHighlights
     performHighlights(clickedIRI)
     highlightsList.highlights = transformHighlightsToPrefixedIRIs()

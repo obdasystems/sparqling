@@ -38,7 +38,6 @@ export function shouldHaveFilterIcon(node: SingularData) {
 }
 
 export function addOrRemoveFilterIcon(node: SingularData) {
-  console.log(node.data().hasFilters)
   if (shouldHaveFilterIcon(node)) {
     addHasFilterIcon(node)
   } else if (!node?.data().hasFilters) {

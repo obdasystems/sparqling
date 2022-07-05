@@ -25,14 +25,6 @@ export function getOriginGrapholNodes() {
   return originGrapholNodes
 }
 
-export function isStandalone() {
-  return standalone
-}
-
-export function setStandalone(value: boolean) {
-  standalone = value
-}
-
 export function getTempQueryBody(): QueryGraph {
   return JSON.parse(JSON.stringify(body))
 }

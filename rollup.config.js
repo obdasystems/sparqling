@@ -17,7 +17,7 @@ dependencies.splice(dependencies.indexOf('lit-element'), 1)
 dependencies.push('grapholscape')
 
 const input = './src/index.ts'
-const name = 'sparqling'
+const name = 'Sparqling'
 
 const envVariables = {
   preventAssignment: true,

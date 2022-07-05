@@ -111,7 +111,14 @@
 
       const grapholscape = await Grapholscape.fullGrapholscape(file, sparqlingContainer)
       grapholscape.showDiagram(0)
-      sparqling(grapholscape, file)
+      
+      // const sparqlingOptions = {
+      //   basePath: 'http://localhost:8989/mws/rest/mwsx/owlOntology/Books',
+      //   version: 'http://www.obdasystems.com/books/3.0',
+      //   headers: { "x-monolith-session-id": '...', 'Access-Control-Allow-Origin': '*', }
+      // }
+      // Sparqling.sparqling(grapholscape, file, sparqlingOptions)
+      Sparqling.sparqlingStandalone(grapholscape, file)
     }
 
     function fetchGrapholFromUrl(form) {

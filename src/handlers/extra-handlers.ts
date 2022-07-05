@@ -1,7 +1,7 @@
 import { QueryGraphExtraApi, QueryGraphHeadApi } from "../api/swagger";
 import { handlePromise } from "../main/handle-promises";
 import onNewBody from "../main/on-new-body";
-import { getBasePath, getQueryBody, isCountStarActive } from "../model";
+import { getBasePath, getQueryBody, getRequestOptions, isCountStarActive } from "../model";
 import { countStarToggle, distinctToggle, limit, offset } from "../widgets";
 import { validateInputElement } from "../widgets/forms/validate-form";
 
@@ -10,13 +10,13 @@ distinctToggle.onToggle = () => {
     setMainDistinct(distinctToggle.state)
   } else {
     const qExtraApi = new QueryGraphExtraApi(undefined, getBasePath())
-    handlePromise(qExtraApi.countStarQueryGraph(distinctToggle.state, getQueryBody())).then(newBody => onNewBody(newBody))
+    handlePromise(qExtraApi.countStarQueryGraph(distinctToggle.state, getQueryBody(), getRequestOptions())).then(newBody => onNewBody(newBody))
   }
 }
 
 export function setMainDistinct(value: boolean) {
   const qExtraApi = new QueryGraphExtraApi(undefined, getBasePath())
-  handlePromise(qExtraApi.distinctQueryGraph(value, getQueryBody())).then(newBody => {
+  handlePromise(qExtraApi.distinctQueryGraph(value, getQueryBody(), getRequestOptions())).then(newBody => {
     onNewBody(newBody)
   })
 }
@@ -47,7 +47,7 @@ countStarToggle.onToggle = () => {
     const countStarHeadElement = queryBody.head[0]
 
     if (countStarHeadElement?.id) {
-      handlePromise(qHeadApi.deleteHeadTerm(countStarHeadElement.id, queryBody)).then(newBody => {
+      handlePromise(qHeadApi.deleteHeadTerm(countStarHeadElement.id, queryBody, getRequestOptions())).then(newBody => {
         onNewBody(newBody)
         setMainDistinct(distinct)
       })
@@ -55,7 +55,7 @@ countStarToggle.onToggle = () => {
 
   } else {
     // add count star
-    handlePromise(qExtraApi.countStarQueryGraph(distinct, queryBody)).then(newBody => {
+    handlePromise(qExtraApi.countStarQueryGraph(distinct, queryBody, getRequestOptions())).then(newBody => {
       onNewBody(newBody)
       setMainDistinct(false)
     })
@@ -83,7 +83,7 @@ function handleOffsetChange() {
           return
         }
       }
-      handlePromise(qExtraApi.offsetQueryGraph(value, queryBody)).then(newBody => {
+      handlePromise(qExtraApi.offsetQueryGraph(value, queryBody, getRequestOptions())).then(newBody => {
         onNewBody(newBody)
       })
     } else {
@@ -114,7 +114,7 @@ function handleLimitChange() {
           return
         }
       }
-      handlePromise(qExtraApi.limitQueryGraph(value, queryBody)).then(newBody => {
+      handlePromise(qExtraApi.limitQueryGraph(value, queryBody, getRequestOptions())).then(newBody => {
         onNewBody(newBody)
       })
     } else {

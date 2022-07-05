@@ -26,7 +26,7 @@ export default function () {
         if (ontologyString.trim() === grapholFile.trim()) {
           startSparqling()
         } else {
-          handlePromise(new StandaloneApi().standaloneOntologyUploadPost(model.getOntologyFile())).then(_ => startSparqling())
+          handlePromise(standaloneApi.standaloneOntologyUploadPost(model.getOntologyFile())).then(_ => startSparqling())
         }
       })
     })

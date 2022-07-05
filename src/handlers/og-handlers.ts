@@ -1,6 +1,6 @@
 import { CollectionReturnValue } from "cytoscape"
 import { Type } from "grapholscape"
-import { Branch, GraphElement, QueryGraph, QueryGraphBGPApiFactory } from "../api/swagger"
+import { Branch, GraphElement, QueryGraph, QueryGraphBGPApi } from "../api/swagger"
 import { handlePromise } from "../main/handle-promises"
 import onNewBody from "../main/on-new-body"
 import * as model from "../model"
@@ -16,7 +16,7 @@ let lastObjProperty: Branch | null
 let isIriHighlighted: boolean
 let iriInQueryGraph: boolean
 let clickedIRI: string
-const qgApi = QueryGraphBGPApiFactory(undefined, model.getBasePath())
+const qgApi = new QueryGraphBGPApi(undefined, model.getBasePath())
 // const iriInQueryGraph = actualBody ? queryManager.getGraphElementByIRI(clickedIRI) : null
 
 export async function handleEntitySelection(cyEntity: CollectionReturnValue) {
@@ -105,17 +105,17 @@ async function handleConceptSelection(cyEntity: CollectionReturnValue): Promise<
     newQueryGraph = handlePromise(qgApi.putQueryGraphObjectProperty(
       selectedGraphElement.id, "", lastObjProperty.objectPropertyIRI, clickedIRI,
       lastObjProperty.direct || false,
-      actualBody
+      actualBody, model.getRequestOptions()
     ))
 
   } else if (actualBody?.graph && isIriHighlighted && selectedGraphElement?.id) {
     newQueryGraph = handlePromise(qgApi.putQueryGraphClass(
       selectedGraphElement.id, '',
       clickedIRI,
-      actualBody))
+      actualBody, model.getRequestOptions()))
   } else if (!actualBody?.graph) {
     // initial selection
-    newQueryGraph = handlePromise(qgApi.getQueryGraph(clickedIRI))
+    newQueryGraph = handlePromise(qgApi.getQueryGraph(clickedIRI, model.getRequestOptions()))
   }
   lastObjProperty = null
   return newQueryGraph
@@ -141,7 +141,7 @@ async function handleDataPropertySelection(cyEntity: CollectionReturnValue): Pro
 
   if (isClass(selectedGraphElement)) {
     newQueryGraph = handlePromise(qgApi.putQueryGraphDataProperty(
-      selectedGraphElement.id, '', clickedIRI, actualBody
+      selectedGraphElement.id, '', clickedIRI, actualBody, model.getRequestOptions()
     ))
   }
   lastObjProperty = null

@@ -16,7 +16,7 @@ queryHead.onDelete(async headElement => {
   const body = model.getQueryBody()
 
   if (headElement.id) {
-    handlePromise(qgApi.deleteHeadTerm(headElement.id, body)).then(newBody => {
+    handlePromise(qgApi.deleteHeadTerm(headElement.id, body, model.getRequestOptions())).then(newBody => {
       onNewBody(newBody)
     })
   }
@@ -29,7 +29,7 @@ queryHead.onRename(async (headElementId, alias) => {
 
   if (headElement?.id) {
     headElement.alias = alias
-    handlePromise(qgApi.renameHeadTerm(headElement.id, tempQueryBody)).then(newBody => {
+    handlePromise(qgApi.renameHeadTerm(headElement.id, tempQueryBody, model.getRequestOptions())).then(newBody => {
       onNewBody(newBody)
     })
   }
@@ -81,7 +81,7 @@ queryHead.onElementSortChange((headElementId, newIndex) => {
   tempHead.splice(tempHeadIds.indexOf(headElementId), 1) // remove headElement from its position
   tempHead.splice(tempHeadIds.indexOf(replacedHeadElement.id), 0, headElement) // put headElement in place of the element to replace
 
-  handlePromise(qhApi.reorderHeadTerms(tempQueryBody)).then(newBody => onNewBody(newBody))
+  handlePromise(qhApi.reorderHeadTerms(tempQueryBody, model.getRequestOptions())).then(newBody => onNewBody(newBody))
 })
 
 queryHead.onOrderByChange(headElementId => {
@@ -100,7 +100,7 @@ queryHead.onOrderByChange(headElementId => {
   // }
 
   const qhApi = QueryGraphHeadApiFactory(undefined, model.getBasePath())
-  handlePromise(qhApi.orderByHeadTerm(headElementId, tempQueryBody)).then(newBody => {
+  handlePromise(qhApi.orderByHeadTerm(headElementId, tempQueryBody, model.getRequestOptions())).then(newBody => {
     onNewBody(newBody)
   })
 })
