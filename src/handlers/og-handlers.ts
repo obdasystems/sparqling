@@ -16,7 +16,6 @@ let lastObjProperty: Branch | null
 let isIriHighlighted: boolean
 let iriInQueryGraph: boolean
 let clickedIRI: string
-const qgApi = new QueryGraphBGPApi(undefined, model.getBasePath())
 // const iriInQueryGraph = actualBody ? queryManager.getGraphElementByIRI(clickedIRI) : null
 
 export async function handleEntitySelection(cyEntity: CollectionReturnValue) {
@@ -82,7 +81,7 @@ ontologyGraph.onRelatedClassSelection((branch: Branch, relatedClass) => {
 })
 
 async function handleConceptSelection(cyEntity: CollectionReturnValue): Promise<QueryGraph | null> {
-
+  const qgBGPApi = new QueryGraphBGPApi(undefined, model.getBasePath())
   getInitialInfo(cyEntity)
   let newQueryGraph: Promise<QueryGraph | null> = new Promise((resolve) => { resolve(null) })
   let actualBody = model.getQueryBody()
@@ -102,20 +101,20 @@ async function handleConceptSelection(cyEntity: CollectionReturnValue): Promise<
 
   if (lastObjProperty && lastObjProperty.objectPropertyIRI && selectedGraphElement?.id) {
     // this comes after a selection of a object property
-    newQueryGraph = handlePromise(qgApi.putQueryGraphObjectProperty(
+    newQueryGraph = handlePromise(qgBGPApi.putQueryGraphObjectProperty(
       selectedGraphElement.id, "", lastObjProperty.objectPropertyIRI, clickedIRI,
       lastObjProperty.direct || false,
       actualBody, model.getRequestOptions()
     ))
 
   } else if (actualBody?.graph && isIriHighlighted && selectedGraphElement?.id) {
-    newQueryGraph = handlePromise(qgApi.putQueryGraphClass(
+    newQueryGraph = handlePromise(qgBGPApi.putQueryGraphClass(
       selectedGraphElement.id, '',
       clickedIRI,
       actualBody, model.getRequestOptions()))
   } else if (!actualBody?.graph) {
     // initial selection
-    newQueryGraph = handlePromise(qgApi.getQueryGraph(clickedIRI, model.getRequestOptions()))
+    newQueryGraph = handlePromise(qgBGPApi.getQueryGraph(clickedIRI, model.getRequestOptions()))
   }
   lastObjProperty = null
   return newQueryGraph
@@ -140,7 +139,8 @@ async function handleDataPropertySelection(cyEntity: CollectionReturnValue): Pro
   }
 
   if (isClass(selectedGraphElement)) {
-    newQueryGraph = handlePromise(qgApi.putQueryGraphDataProperty(
+    const qgBGPApi = new QueryGraphBGPApi(undefined, model.getBasePath())
+    newQueryGraph = handlePromise(qgBGPApi.putQueryGraphDataProperty(
       selectedGraphElement.id, '', clickedIRI, actualBody, model.getRequestOptions()
     ))
   }
