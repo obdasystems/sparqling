@@ -9575,21 +9575,22 @@ function addStylesheet(cy, stylesheet) {
     });
 }
 
-function getHeadElementWithDatatype(headElem) {
-    if (headElem.graphElementId) {
-        let relatedGraphElem = getGraphElementByID(headElem.graphElementId);
+function getHeadElementWithDatatype(headElement) {
+    const headElementCopy = JSON.parse(JSON.stringify(headElement));
+    if (headElementCopy.graphElementId) {
+        let relatedGraphElem = getGraphElementByID(headElementCopy.graphElementId);
         if (relatedGraphElem) {
             const relatedGraphElemIri = getIri(relatedGraphElem);
             if (relatedGraphElemIri) {
-                headElem['entityType'] = getEntityType(relatedGraphElem);
-                headElem['dataType'] = headElem['entityType'] === EntityTypeEnum.DataProperty
+                headElementCopy['entityType'] = getEntityType(relatedGraphElem);
+                headElementCopy['dataType'] = headElementCopy['entityType'] === EntityTypeEnum.DataProperty
                     ? guessDataType(relatedGraphElemIri)
                     : null;
-                return headElem;
+                return headElementCopy;
             }
         }
     }
-    return headElem;
+    return headElementCopy;
 }
 
 function onNewBody(newBody) {
