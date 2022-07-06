@@ -10450,8 +10450,6 @@ function sparqling(gscape, file, connectionOptions) {
     const sparqlingCore = getCore(gscape, file);
     setRequestOptions(connectionOptions);
     startRunButtons.runQueryButton.enabled = true;
-    console.log(getBasePath());
-    console.log(getRequestOptions());
     return sparqlingCore;
 }
 function getCore(gscape, file) {
