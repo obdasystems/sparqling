@@ -25,7 +25,7 @@ export default class SparqlDialog extends (UI.GscapeDialog as any) {
           white-space: pre;
           padding: 10px 20px;
           cursor: copy;
-          font-family: mono;
+          font-family: monospace;
         }
 
         #buttons-tray > * {
