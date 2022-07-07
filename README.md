@@ -3,7 +3,7 @@ Point and click SPARQL query builder based on [Grapholscape](https://github.com/
 Build SPARQL queries interacting directly with the ontology graphical specification.
 
 ## Standalone
-Check standalone releases in order to get the ready to use application:
+Check standalone releases in order to get the ready to use application: https://github.com/obdasystems/sparqling-standalone
 
 ## Installation
 Sparqling works on top of [Grapholscape]() that is a peer dependecy, hence you need to install it before proceding.\
@@ -48,7 +48,7 @@ const sparqlingCore = Sparqling.sparqlingStandalone(grapholscape, grapholFile)
 The Sparqling core object expose the following API:
   - `function` **`start(): void`**: initialise the UI components and activate sparqling's engine.
   - `property` **`onStart: () => void`**: onStart callback to perform actions every time sparqling is started.
-      > **Example**:
+      > Example:
       > ```js
       > sparqlingCore.onStart = function() {
       >   console.log('Sparqling has been started')
@@ -56,7 +56,7 @@ The Sparqling core object expose the following API:
       >```
   - `function` **`stop(): void`**: stop sparqling's engine and hide UI components.
   - `property` **`onStop: () => void`**: onStop callback to perform actions every time sparqling is stopped.
-      > **Example**:
+      > Example:
       > ```js
       > sparqlingCore.onStop = function() {
       >   console.log('Sparqling has been stopped')
@@ -64,7 +64,7 @@ The Sparqling core object expose the following API:
       >```
   - `function` **`getQueryBody(): QueryGraph`**: returns the actual QueryGraph
   - `property` **`onQueryRun: (sparqlQuery: string) => void`**: onQueryRun callback to perform actions every time the user click on the run query button.
-      > **Example**:
+      > Example:
       > ```js
       > sparqlingCore.onQueryRun = function(sparqlQuery) {
       >   console.log(`Please run this query: ${sparqlQuery}`)
