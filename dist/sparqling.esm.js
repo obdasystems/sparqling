@@ -2818,7 +2818,7 @@ const questionMarkDashed = y `<svg fill="currentColor" viewBox="0 0 24 24"><path
 // https://materialdesignicons.com/icon/content-copy
 const copyContent = y `<svg fill="currentColor" viewBox="0 0 24 24"><path d="M19,21H8V7H19M19,5H8A2,2 0 0,0 6,7V21A2,2 0 0,0 8,23H19A2,2 0 0,0 21,21V7A2,2 0 0,0 19,5M16,1H4A2,2 0 0,0 2,3V17H4V3H16V1Z" /></svg>`;
 // https://materialdesignicons.com/icon/alpha-s-circle
-const sparqlingIcon = y `<svg fill="currentColor" viewBox="0 0 24 24"><path d="M11,7A2,2 0 0,0 9,9V11A2,2 0 0,0 11,13H13V15H9V17H13A2,2 0 0,0 15,15V13A2,2 0 0,0 13,11H11V9H15V7H11M12,2A10,10 0 0,1 22,12A10,10 0 0,1 12,22A10,10 0 0,1 2,12A10,10 0 0,1 12,2Z" /></svg>`;
+//export const sparqlingIcon = svg`<svg fill="currentColor" viewBox="0 0 24 24"><path d="M11,7A2,2 0 0,0 9,9V11A2,2 0 0,0 11,13H13V15H9V17H13A2,2 0 0,0 15,15V13A2,2 0 0,0 13,11H11V9H15V7H11M12,2A10,10 0 0,1 22,12A10,10 0 0,1 12,22A10,10 0 0,1 2,12A10,10 0 0,1 12,2Z" /></svg>`
 // https://materialdesignicons.com/icon/play-circle-outline
 const playOutlined = y `<svg fill="currentColor" viewBox="0 0 24 24"><path d="M12,20C7.59,20 4,16.41 4,12C4,7.59 7.59,4 12,4C16.41,4 20,7.59 20,12C20,16.41 16.41,20 12,20M12,2A10,10 0 0,0 2,12A10,10 0 0,0 12,22A10,10 0 0,0 22,12A10,10 0 0,0 12,2M10,16.5L16,12L10,7.5V16.5Z" /></svg>`;
 // https://materialdesignicons.com/icon/refresh
@@ -3927,6 +3927,25 @@ class SparqlDialog extends UI.GscapeDialog {
     get text() { return this._text; }
 }
 customElements.define('sparqling-sparql-dialog', SparqlDialog);
+
+var sparqlingIcon = y `
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<svg
+   version="1.1"
+   viewBox="0 0 20 20"
+   xml:space="preserve"
+   fill="currentColor"
+   style="width: 20px; height:20px; padding: 2px"
+   xmlns="http://www.w3.org/2000/svg"
+   xmlns:svg="http://www.w3.org/2000/svg">
+<g
+   transform="translate(-268.25923,-224.085)"><path
+     style="display:inline;stroke-width:0.04"
+     class="st0"
+     d="m 278.25923,224.085 c -2.672,0 -5.18396,1.03997 -7.07195,2.92797 -1.888,1.888 -2.92805,4.40003 -2.92805,7.07203 0,2.672 1.04005,5.18396 2.92805,7.07195 1.88799,1.888 4.39995,2.92805 7.07195,2.92805 2.672,0 5.18403,-1.04005 7.07203,-2.92805 1.888,-1.88799 2.92797,-4.39995 2.92797,-7.07195 0,-2.672 -1.03997,-5.18403 -2.92797,-7.07203 -1.888,-1.888 -4.40003,-2.92797 -7.07203,-2.92797 z m 10e-4,1.94516 1.55563,1.55562 -0.77781,0.77781 -5.72532,5.72532 1.69391,1.69382 5.72703,-5.7271 a 1.10011,1.10011 0 0 1 1.55563,0 l 3.2489,3.24882 a 1.10011,1.10011 0 0 1 0,1.55563 l -6.50187,6.50187 -0.77781,0.77782 -1.55563,-1.55563 0.77781,-0.77781 5.72407,-5.72406 -1.69321,-1.69321 -5.72711,5.72711 a 1.10011,1.10011 0 0 1 -1.55562,8e-5 l -3.24953,-3.24945 a 1.10011,1.10011 0 0 1 0,-1.55571 l 6.50312,-6.50312 z" /></g>
+
+</svg>
+`;
 
 class SparqlingStartRunButtons extends UI.GscapeWidget {
     constructor() {
