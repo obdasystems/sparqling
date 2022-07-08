@@ -12,7 +12,7 @@ Once Grapholscape is ready and working you can proceed importing sparqling.
 ### HTML Environment
 If you are using a HTML Environment (without a building system) you can:
 
-- link `./build/sparqling.min.js` in a `<script>` tag in your `html` file:
+- link `./dist/sparqling.min.js` in a `<script>` tag in your `html` file:
 ```html
 <script src="./sparqling.min.js" type="text/javascript" ></script>
 ```
