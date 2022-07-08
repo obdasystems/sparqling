@@ -1,4 +1,5 @@
 import { QueryGraph, QueryGraphBGPApiFactory, QueryGraphHeadApiFactory, QueryGraphOptionalApi } from '../api/swagger'
+import { clearQuery } from '../main'
 import { handlePromise } from '../main/handle-promises'
 import onNewBody from '../main/on-new-body'
 import * as model from '../model'
@@ -164,12 +165,4 @@ sparqlButton.onClick = () => {
   sparqlDialog.isVisible ? sparqlDialog.hide() : sparqlDialog.show()
 }
 
-clearQueryButton.onClick = () => {
-  const queryBody = model.getQueryBody()
-  if (queryBody?.graph?.id) {
-    const qgApi = QueryGraphBGPApiFactory(undefined, model.getBasePath())
-    handlePromise(qgApi.deleteGraphElementId(queryBody?.graph?.id, queryBody, model.getRequestOptions())).then(newBody => {
-      onNewBody(newBody)
-    })
-  }
-}
+clearQueryButton.onClick = () => clearQuery()

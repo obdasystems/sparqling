@@ -3961,7 +3961,7 @@ class SparqlingStartRunButtons extends UI.GscapeWidget {
         this.startSparqlingButton.style.position = 'inherit';
         this.startSparqlingButton.classList.add('flat');
         this.startSparqlingButton.enabled = true;
-        this.runQueryButton = new UI.GscapeButton(playOutlined, 'Run Query');
+        this.runQueryButton = new UI.GscapeButton(playOutlined, 'Send query to SPARQL endpoint');
         this.runQueryButton.disbaled = true;
         this.runQueryButton.style.position = 'inherit';
         this.runQueryButton.classList.add('flat');
@@ -9934,6 +9934,17 @@ var core = {
     stop: stop,
 };
 
+function clearQuery () {
+    var _a, _b;
+    const queryBody = getQueryBody();
+    if ((_a = queryBody === null || queryBody === void 0 ? void 0 : queryBody.graph) === null || _a === void 0 ? void 0 : _a.id) {
+        const qgApi = QueryGraphBGPApiFactory(undefined, getBasePath());
+        handlePromise(qgApi.deleteGraphElementId((_b = queryBody === null || queryBody === void 0 ? void 0 : queryBody.graph) === null || _b === void 0 ? void 0 : _b.id, queryBody, getRequestOptions())).then(newBody => {
+            onNewBody(newBody);
+        });
+    }
+}
+
 function showFormDialog (element, formDialog) {
     let graphElement;
     let variableName;
@@ -10118,16 +10129,7 @@ onSeeFilters(graphElement => {
 sparqlButton.onClick = () => {
     sparqlDialog.isVisible ? sparqlDialog.hide() : sparqlDialog.show();
 };
-clearQueryButton.onClick = () => {
-    var _a, _b;
-    const queryBody = getQueryBody();
-    if ((_a = queryBody === null || queryBody === void 0 ? void 0 : queryBody.graph) === null || _a === void 0 ? void 0 : _a.id) {
-        const qgApi = QueryGraphBGPApiFactory(undefined, getBasePath());
-        handlePromise(qgApi.deleteGraphElementId((_b = queryBody === null || queryBody === void 0 ? void 0 : queryBody.graph) === null || _b === void 0 ? void 0 : _b.id, queryBody, getRequestOptions())).then(newBody => {
-            onNewBody(newBody);
-        });
-    }
-};
+clearQueryButton.onClick = () => clearQuery();
 
 filterListDialog.onEdit((filterId) => showFilterDialogEditingMode(filterId));
 filterListDialog.onDelete((filterId) => { deleteFilter(filterId); });
@@ -10466,10 +10468,19 @@ function getInputElement(elem) {
 function sparqlingStandalone(gscape, file) {
     return getCore(gscape, file);
 }
-function sparqling(gscape, file, connectionOptions) {
+function sparqling(gscape, file, requestOptions) {
     const sparqlingCore = getCore(gscape, file);
-    setRequestOptions(connectionOptions);
-    startRunButtons.runQueryButton.enabled = true;
+    if (sparqlingCore) {
+        const currentRequestOptions = getRequestOptions();
+        // if there's a new ontology, discard the current query and set current instance as not initialised
+        if (requestOptions.version !== currentRequestOptions.params.version || requestOptions.basePath !== getBasePath()) {
+            clearQuery();
+            sparqlingCore.stop();
+            setInitialised(false); // need to initialise everything again
+        }
+        setRequestOptions(requestOptions);
+        startRunButtons.runQueryButton.enabled = true;
+    }
     return sparqlingCore;
 }
 function getCore(gscape, file) {
