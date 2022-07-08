@@ -71,6 +71,25 @@ The Sparqling core object expose the following API:
       > }
       >```
 
+## Repository npm targets
+- **`start`**: build for development/debugging and serve the application at `localhost:8000` watching for changes
+- **`watch`**: watch for changes in development environment
+- **`build`**: build for production
+- **`serve`**: serve the `./public` folder at `localhost:8000`
+- **`apigen`**: generate api code from swagger
+- **`inject-grapholscape`**: copy `./node_modules/grapholscape/dist/grapholscape.min.js` build into `./public/js` for the web-app to work
+- **`clean`**: clean generated sparqling files in `./dist` and `./public/js`
+- **`version`**: build and tag a new release version
+
+
+## Release a new version
+1. Be sure to have a clean working tree (i.e. commit/stash your changes).
+2. Use standard `npm version` command to tag a new version: `npm version [new-version]`.\
+  this will generate a new git tag, update `package.json` and perform the builds.
+3. Then review the generated builds and test the app using: `npm run serve`.
+4. Push the new release: `git push && git push --tags"
+5. Publish to npm
+
 
 ## Swagger
 https://app.swaggerhub.com/apis/OBDASystems/swagger-sparqling_ws/1.0.0

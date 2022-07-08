@@ -5,12 +5,14 @@
   "main": "build/sparqling.esm.js",
   "module": "build/sparqling.esm.js",
   "scripts": {
-    "start": "run-p inject-grapholscape serve watch:build",
-    "build": "npm run inject-grapholscape && cross-env NODE_ENV=production rollup -c",
-    "watch:build": "cross-env NODE_ENV=development rollup -c -w",
-    "serve": "ws -d ./demo -o",
+    "start": "run-p inject-grapholscape serve watch",
+    "build": "npm run inject-grapholscape && npm run clean && cross-env NODE_ENV=production rollup -c",
+    "watch": "cross-env NODE_ENV=development rollup -c -w",
+    "serve": "ws -d ./public -o",
     "apigen": "openapi-generator-cli generate -g typescript-axios -o ./src/api/swagger -i https://api.swaggerhub.com/apis/OBDASystems/swagger-sparqling_ws/1.0.0",
-    "inject-grapholscape": "cpy ./node_modules/grapholscape/dist/grapholscape.min.js ./demo/js"
+    "inject-grapholscape": "cpy ./node_modules/grapholscape/dist/grapholscape.min.js ./public/js",
+    "clean": "rimraf ./dist ./public/js/sparqling*.js",
+    "version": "npm run build && git add -A"
   },
   "repository": {
     "type": "git",

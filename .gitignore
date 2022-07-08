@@ -3,8 +3,7 @@ releases/**
 coverage/**
 .*/
 .size-snapshot.json
-app/graphol/grapholscape.min.js
 sparqling.code-workspace
 openapitools.json
-demo/js/sparqling.js
-demo/js/grapholscape.min.js
+public/js/sparqling*.js
+public/js/grapholscape.min.js

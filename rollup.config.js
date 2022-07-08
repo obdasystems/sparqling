@@ -56,7 +56,7 @@ const licenseHeaderOptions = {
 const build_development = {
   input,
   output: {
-    file: 'demo/js/sparqling.js',
+    file: 'public/js/sparqling.js',
     format: 'iife',
     name,
     sourcemap: 'inline',
@@ -80,26 +80,26 @@ const build_development = {
 const build_production = [
   {
     input,
-    output: {
-      file: 'build/sparqling.js',
-      format: 'iife',
-      name,
-      sourcemap: false,
-      globals:{
-        axios: 'axios',
-        grapholscape: 'Grapholscape'
+    output: [
+      {
+        file: 'dist/sparqling.min.js',
+        format: 'iife',
+        name,
+        sourcemap: false,
+        globals:{
+          grapholscape: 'Grapholscape'
+        },
       },
-    },
-    output: {
-      file: 'demo/js/sparqling.js',
-      format: 'iife',
-      name,
-      sourcemap: false,
-      globals:{
-        axios: 'axios',
-        grapholscape: 'Grapholscape'
-      },
-    },
+      {
+        file: 'public/js/sparqling.js',
+        format: 'iife',
+        name,
+        sourcemap: false,
+        globals:{
+          grapholscape: 'Grapholscape'
+        },
+      }
+    ],
     plugins: [
       json(getJsonOptions()),
       nodeResolve({ browser: true }),
@@ -118,7 +118,7 @@ const build_production = [
   {
     input,
     output: {
-      file: 'build/sparqling.esm.js',
+      file: 'dist/sparqling.esm.js',
       format: 'es',
     },
     plugins: [
@@ -130,6 +130,26 @@ const build_production = [
         allowSyntheticDefaultImports: true,
         target: 'es6'
       }),
+      license(licenseHeaderOptions)
+    ],
+    external: dependencies,
+  },
+  {
+    input,
+    output: {
+      file: 'dist/sparqling.esm.min.js',
+      format: 'es',
+    },
+    plugins: [
+      json(getJsonOptions()),
+      nodeResolve({ browser: true }),
+      replace(envVariables),
+      commonjs({ include: '**/node_modules/**' }),
+      typescript({
+        allowSyntheticDefaultImports: true,
+        target: 'es6'
+      }),
+      terser(),
       license(licenseHeaderOptions)
     ],
     external: dependencies,
