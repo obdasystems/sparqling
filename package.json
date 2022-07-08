@@ -2,8 +2,8 @@
   "name": "sparqling",
   "version": "1.0.0-beta.0",
   "description": "",
-  "main": "build/sparqling.esm.js",
-  "module": "build/sparqling.esm.js",
+  "main": "dist/sparqling.esm.js",
+  "module": "dist/sparqling.esm.js",
   "scripts": {
     "start": "run-p inject-grapholscape serve watch",
     "build": "npm run inject-grapholscape && npm run clean && cross-env NODE_ENV=production rollup -c",
