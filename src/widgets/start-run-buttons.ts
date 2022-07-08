@@ -1,6 +1,7 @@
 import { html, css } from 'lit'
 import { UI } from 'grapholscape'
-import { playOutlined, sparqlingIcon } from './assets/icons'
+import { playOutlined } from './assets/icons'
+import sparqlingIcon from './assets/sparqling-icon'
 
 export default class SparqlingStartRunButtons extends (UI.GscapeWidget as any) {
   private isEnabled: boolean = true
