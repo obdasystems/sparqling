@@ -32,7 +32,7 @@ export function getCommandsForElement(elem: SingularElementReturnValue) {
     }
   }
 
-  if (elem.data().type !== EntityTypeEnum.ObjectProperty || elem.data().type === EntityTypeEnum.InverseObjectProperty) {
+  else {
     if (!elem.isChild()) {
 
       if (!getHeadElementByID('?' + elem.id()) && !isCountStarActive()) {
