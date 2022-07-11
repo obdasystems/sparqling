@@ -1,4 +1,4 @@
-import { QueryGraph, QueryGraphBGPApiFactory, QueryGraphHeadApiFactory, QueryGraphOptionalApi } from '../api/swagger'
+import { QueryGraph, QueryGraphBGPApiFactory, QueryGraphHeadApiFactory, QueryGraphOptionalApiFactory } from '../api/swagger'
 import { clearQuery } from '../main'
 import { handlePromise } from '../main/handle-promises'
 import onNewBody from '../main/on-new-body'
@@ -118,7 +118,7 @@ queryGraph.onElementClick((graphElement, iri) => {
 
 queryGraph.onMakeOptional(graphElement => {
   if (graphElement.id) {
-    const qgOptionalApi = new QueryGraphOptionalApi()
+    const qgOptionalApi = QueryGraphOptionalApiFactory(undefined, model.getBasePath())
     const body = model.getQueryBody()
     handlePromise(qgOptionalApi.newOptionalGraphElementId(graphElement.id, body, model.getRequestOptions())).then(newBody => {
       onNewBody(newBody)
@@ -128,7 +128,7 @@ queryGraph.onMakeOptional(graphElement => {
 
 queryGraph.onRemoveOptional(graphElement => {
   if (graphElement.id) {
-    const qgOptionalApi = new QueryGraphOptionalApi()
+    const qgOptionalApi = QueryGraphOptionalApiFactory(undefined, model.getBasePath())
     const body = model.getQueryBody()
     handlePromise(qgOptionalApi.removeOptionalGraphElementId(graphElement.id, body, model.getRequestOptions())).then(newBody => {
       onNewBody(newBody)
