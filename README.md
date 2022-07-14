@@ -87,7 +87,7 @@ The Sparqling core object expose the following API:
 2. Use standard `npm version` command to tag a new version: `npm version [new-version]`.\
   this will generate a new git tag, update `package.json` and perform the builds.
 3. Then review the generated builds and test the app using: `npm run serve`.
-4. Push the new release: `git push && git push --tags"
+4. Push the new release: `git push && git push --tags"`
 5. Publish to npm
 
 
