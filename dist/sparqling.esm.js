@@ -2299,48 +2299,46 @@ const QueryGraphOptionalApiFp = function (configuration) {
     };
 };
 /**
- * QueryGraphOptionalApi - object-oriented interface
+ * QueryGraphOptionalApi - factory interface
  * @export
- * @class QueryGraphOptionalApi
- * @extends {BaseAPI}
  */
-class QueryGraphOptionalApi extends BaseAPI {
-    /**
-     * Create a new optional in the query and add the triple pattern(s) identified by the GraphElementId. - If it is a class the query parameter should be used and the triple pattern `?graphElementId rdf:type <classIRI>` will be moved from the bgp to the new optional. - If it is a data property the tp `?graphElementIdVar1 <graphElementIdDataPropertyIRI> ?graphElementIdVar2` will be added to the new optional. - If it is a object property the tps `?graphElementIdVar1 <graphElementIdDataPropertyIRI> ?graphElementIdVar2. ?graphElementIdVar2 rdf:type <classIRI>` till the leaves will be moved to the new optional.
-     * @summary Add the `graphElementId` to a new optional.
-     * @param {string} graphElementId The GraphElement that should be added to the optional
-     * @param {QueryGraph} queryGraph
-     * @param {*} [options] Override http request option.
-     * @throws {RequiredError}
-     * @memberof QueryGraphOptionalApi
-     */
-    newOptionalGraphElementId(graphElementId, queryGraph, options) {
-        return QueryGraphOptionalApiFp(this.configuration).newOptionalGraphElementId(graphElementId, queryGraph, options).then((request) => request(this.axios, this.basePath));
-    }
-    /**
-     *
-     * @summary Remove the optionals and move them back to the bgp.
-     * @param {QueryGraph} queryGraph
-     * @param {*} [options] Override http request option.
-     * @throws {RequiredError}
-     * @memberof QueryGraphOptionalApi
-     */
-    removeAllOptional(queryGraph, options) {
-        return QueryGraphOptionalApiFp(this.configuration).removeAllOptional(queryGraph, options).then((request) => request(this.axios, this.basePath));
-    }
-    /**
-     * Remove the triple pattern(s) identified by the `graphElementId` from all the optional that contains the graphElementId. - If it is a class the query parameter should be used and the triple pattern `?graphElementId rdf:type <classIRI>` will be moved from the optional to the bgp. - If it is a data property the tp `?graphElementIdVar1 <graphElementIdDataPropertyIRI> ?graphElementIdVar2` will be moved from the optional to the bgp. - If it is a object property the tps `?graphElementIdVar1 <graphElementIdDataPropertyIRI> ?graphElementIdVar2. ?graphElementIdVar2 rdf:type <classIRI>` will be moved from the optional to the bgp.
-     * @summary Remove the graphElementId from the optional and move it back to the bgp.
-     * @param {string} graphElementId The GraphElement that should be removed from the optional
-     * @param {QueryGraph} queryGraph
-     * @param {*} [options] Override http request option.
-     * @throws {RequiredError}
-     * @memberof QueryGraphOptionalApi
-     */
-    removeOptionalGraphElementId(graphElementId, queryGraph, options) {
-        return QueryGraphOptionalApiFp(this.configuration).removeOptionalGraphElementId(graphElementId, queryGraph, options).then((request) => request(this.axios, this.basePath));
-    }
-}
+const QueryGraphOptionalApiFactory = function (configuration, basePath, axios) {
+    const localVarFp = QueryGraphOptionalApiFp(configuration);
+    return {
+        /**
+         * Create a new optional in the query and add the triple pattern(s) identified by the GraphElementId. - If it is a class the query parameter should be used and the triple pattern `?graphElementId rdf:type <classIRI>` will be moved from the bgp to the new optional. - If it is a data property the tp `?graphElementIdVar1 <graphElementIdDataPropertyIRI> ?graphElementIdVar2` will be added to the new optional. - If it is a object property the tps `?graphElementIdVar1 <graphElementIdDataPropertyIRI> ?graphElementIdVar2. ?graphElementIdVar2 rdf:type <classIRI>` till the leaves will be moved to the new optional.
+         * @summary Add the `graphElementId` to a new optional.
+         * @param {string} graphElementId The GraphElement that should be added to the optional
+         * @param {QueryGraph} queryGraph
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        newOptionalGraphElementId(graphElementId, queryGraph, options) {
+            return localVarFp.newOptionalGraphElementId(graphElementId, queryGraph, options).then((request) => request(axios, basePath));
+        },
+        /**
+         *
+         * @summary Remove the optionals and move them back to the bgp.
+         * @param {QueryGraph} queryGraph
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        removeAllOptional(queryGraph, options) {
+            return localVarFp.removeAllOptional(queryGraph, options).then((request) => request(axios, basePath));
+        },
+        /**
+         * Remove the triple pattern(s) identified by the `graphElementId` from all the optional that contains the graphElementId. - If it is a class the query parameter should be used and the triple pattern `?graphElementId rdf:type <classIRI>` will be moved from the optional to the bgp. - If it is a data property the tp `?graphElementIdVar1 <graphElementIdDataPropertyIRI> ?graphElementIdVar2` will be moved from the optional to the bgp. - If it is a object property the tps `?graphElementIdVar1 <graphElementIdDataPropertyIRI> ?graphElementIdVar2. ?graphElementIdVar2 rdf:type <classIRI>` will be moved from the optional to the bgp.
+         * @summary Remove the graphElementId from the optional and move it back to the bgp.
+         * @param {string} graphElementId The GraphElement that should be removed from the optional
+         * @param {QueryGraph} queryGraph
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        removeOptionalGraphElementId(graphElementId, queryGraph, options) {
+            return localVarFp.removeOptionalGraphElementId(graphElementId, queryGraph, options).then((request) => request(axios, basePath));
+        },
+    };
+};
 /**
  * StandaloneApi - axios parameter creator
  * @export
@@ -2539,8 +2537,20 @@ function isStandalone() {
     return _requestOptions.basePath ? false : true;
 }
 
+let numberLoadingProcesses = 0;
+function increaseLoadingProcesses() {
+    numberLoadingProcesses += 1;
+}
+function decreaseLoadingProcesses() {
+    numberLoadingProcesses -= 1;
+}
+function getNumberLoadingProcesses() {
+    return numberLoadingProcesses;
+}
+
 let file;
 let isInitialised = false;
+let isRunning = false;
 function getOntologyFile() {
     return file;
 }
@@ -2552,6 +2562,12 @@ function isSparqlingInitialised() {
 }
 function setInitialised(value) {
     isInitialised = value;
+}
+function isSparqlingRunning() {
+    return isRunning;
+}
+function setSparqlingRunning(value) {
+    isRunning = value;
 }
 
 function getGraphElementByID(id) {
@@ -3952,7 +3968,7 @@ class SparqlingStartRunButtons extends UI.GscapeWidget {
         super();
         this.isEnabled = true;
         this.isLoading = false;
-        this.isSparqlingRunning = false;
+        this.canQueryRun = false;
         this._onSparqlingStartCallback = () => { };
         this._onSparqlingStopCallback = () => { };
         this._onQueryRunCallback = () => { };
@@ -3962,17 +3978,15 @@ class SparqlingStartRunButtons extends UI.GscapeWidget {
         this.startSparqlingButton.classList.add('flat');
         this.startSparqlingButton.enabled = true;
         this.runQueryButton = new UI.GscapeButton(playOutlined, 'Send query to SPARQL endpoint');
-        this.runQueryButton.disbaled = true;
         this.runQueryButton.style.position = 'inherit';
         this.runQueryButton.classList.add('flat');
         this.runQueryButton.onClick = () => this._onQueryRunCallback();
-        this.runQueryButton.enabled = false;
     }
     static get properties() {
         const superProps = super.properties;
         const newProps = {
-            isSparqlingRunning: { type: Boolean, attribute: false },
-            isLoading: { type: Boolean }
+            canQueryRun: { type: Boolean, attribute: false },
+            isLoading: { type: Boolean, attribute: false }
         };
         Object.assign(superProps, newProps);
         return superProps;
@@ -4033,10 +4047,14 @@ class SparqlingStartRunButtons extends UI.GscapeWidget {
         ];
     }
     render() {
-        this.startSparqlingButton.highlighted = this.isSparqlingRunning;
         return $ `
-      ${this.runQueryButton}
-      <div id="hr"></div>
+      ${this.canQueryRun
+            ? $ `
+          ${this.runQueryButton}
+          <div id="hr"></div>
+        `
+            : null}
+      
       ${this.isLoading
             ? $ `<div class="lds-ripple"><div></div><div></div></div>`
             : this.startSparqlingButton}
@@ -4056,7 +4074,7 @@ class SparqlingStartRunButtons extends UI.GscapeWidget {
         this._onQueryRunCallback = callback;
     }
     handleStartButtonCLick() {
-        this.isSparqlingRunning ? this._onSparqlingStopCallback() : this._onSparqlingStartCallback();
+        isSparqlingRunning() ? this._onSparqlingStopCallback() : this._onSparqlingStartCallback();
     }
     startLoadingAnimation() {
         this.isLoading = true;
@@ -8361,7 +8379,7 @@ function getCommandsForElement(elem) {
             commands.push(makeOptional);
         }
     }
-    if (elem.data().type !== EntityTypeEnum.ObjectProperty || elem.data().type === EntityTypeEnum.InverseObjectProperty) {
+    else {
         if (!elem.isChild()) {
             if (!getHeadElementByID('?' + elem.id()) && !isCountStarActive()) {
                 commands.push(addHead);
@@ -9316,18 +9334,6 @@ var queryHead = /*#__PURE__*/Object.freeze({
     onElementSortChange: onElementSortChange
 });
 
-let numberLoadingProcesses = 0;
-function startLoading() {
-    numberLoadingProcesses += 1;
-    startRunButtons.startLoadingAnimation();
-}
-function stopLoading() {
-    numberLoadingProcesses -= 1;
-    if (numberLoadingProcesses === 0) {
-        startRunButtons.stopLoadingAnimation();
-    }
-}
-
 function isResponseError(response) {
     return !response || (response === null || response === void 0 ? void 0 : response.code) === 1 || (response === null || response === void 0 ? void 0 : response.type) === 'error';
 }
@@ -9356,6 +9362,16 @@ function handlePromise(promise, showError = true) {
             }
         })
             .finally(() => stopLoading());
+    }
+}
+function startLoading() {
+    increaseLoadingProcesses();
+    startRunButtons.startLoadingAnimation();
+}
+function stopLoading() {
+    decreaseLoadingProcesses();
+    if (getNumberLoadingProcesses() === 0) {
+        startRunButtons.stopLoadingAnimation();
     }
 }
 
@@ -9519,15 +9535,19 @@ function showRelatedClassesWidget(objProperty, position) {
     //   objPropertyFromApi: undefined,
     //   connectedClass: undefined
     // }
-    let objPropertyFromApi = (_a = actualHighlights.objectProperties) === null || _a === void 0 ? void 0 : _a.find((o) => gscape.ontology.checkEntityIri(objProperty, o.objectPropertyIRI));
+    let objPropertyFromApi = (_a = actualHighlights.objectProperties) === null || _a === void 0 ? void 0 : _a.find((o) => {
+        if (o === null || o === void 0 ? void 0 : o.objectPropertyIRI)
+            return gscape.ontology.checkEntityIri(objProperty, o.objectPropertyIRI);
+    });
     if (!objPropertyFromApi || !objPropertyFromApi.relatedClasses || objPropertyFromApi.relatedClasses.length <= 0) {
         return;
     }
     //listSelectionDialog.title = classSelectDialogTitle()
     // Use prefixed iri if possible, full iri as fallback
     relatedClassDialog.list = objPropertyFromApi.relatedClasses.map((iri) => {
+        var _a;
         return gscape.ontology.destructureIri(iri)
-            ? gscape.ontology.destructureIri(iri).prefixed
+            ? (_a = gscape.ontology.destructureIri(iri)) === null || _a === void 0 ? void 0 : _a.prefixed
             : iri;
     });
     const selectedGraphElement = getSelectedGraphElement$1();
@@ -9629,6 +9649,7 @@ function onNewBody(newBody) {
         if (offsetInputElement)
             offsetInputElement.value = '';
     }
+    startRunButtons.canQueryRun = newBody.graph && !isStandalone() && core.onQueryRun !== undefined;
     let body = setQueryBody(newBody);
     widget.isBGPEmpty = body.graph === null || body.graph === undefined;
     render$1(body.graph);
@@ -9855,10 +9876,13 @@ function start () {
         startSparqling();
     }
     function startSparqling() {
+        var _a;
         init();
         getGscape().widgets.OWL_VISUALIZER.disable();
         showUI();
-        startRunButtons.isSparqlingRunning = true;
+        setSparqlingRunning(true);
+        startRunButtons.startSparqlingButton.highlighted = true;
+        startRunButtons.canQueryRun = ((_a = getQueryBody()) === null || _a === void 0 ? void 0 : _a.graph) && !isStandalone() && core.onQueryRun !== undefined;
         const selectedGraphElement = getSelectedGraphElement$1();
         if (selectedGraphElement) {
             const selectedGraphElementIri = getIri(selectedGraphElement);
@@ -9899,26 +9923,30 @@ function setHandlers(cy) {
     // avoid fake nodes (for inverse/nonInverse functional obj properties)
     const objPropertiesSelector = `[displayed_name][type = "${Type.OBJECT_PROPERTY}"]`;
     cy.on('mouseover', objPropertiesSelector, e => {
-        if (startRunButtons.isSparqlingRunning)
+        if (isSparqlingRunning())
             showRelatedClassesWidget(e.target, e.renderedPosition);
     });
     cy.on('mouseout', objPropertiesSelector, e => {
-        if (startRunButtons.isSparqlingRunning)
+        if (isSparqlingRunning())
             hideRelatedClassesWidget();
     });
     cy.on('dblclick', `[displayed_name].predicate`, e => {
-        if (startRunButtons.isSparqlingRunning)
+        if (isSparqlingRunning())
             handleEntitySelection(e.target);
     });
 }
 
 function stop () {
-    hideUI();
-    clearSelected();
-    resetHighlights();
-    getGscape().widgets.ENTITY_DETAILS.hide();
-    startRunButtons.isSparqlingRunning = false;
-    core.onStop();
+    if (isSparqlingRunning()) {
+        hideUI();
+        clearSelected();
+        resetHighlights();
+        getGscape().widgets.ENTITY_DETAILS.hide();
+        setSparqlingRunning(false);
+        startRunButtons.startSparqlingButton.highlighted = false;
+        startRunButtons.canQueryRun = false;
+        core.onStop();
+    }
 }
 
 var core = {
@@ -9927,7 +9955,7 @@ var core = {
     getQueryBody: getQueryBody,
     startStopButton: startRunButtons.startSparqlingButton,
     runQueryButton: startRunButtons.runQueryButton,
-    onQueryRun: (sparqlQuery) => { },
+    onQueryRun: undefined,
     onStop: () => { },
     onStart: () => { },
     start: start,
@@ -10089,7 +10117,7 @@ onElementClick((graphElement, iri) => {
 });
 onMakeOptional(graphElement => {
     if (graphElement.id) {
-        const qgOptionalApi = new QueryGraphOptionalApi();
+        const qgOptionalApi = QueryGraphOptionalApiFactory(undefined, getBasePath());
         const body = getQueryBody();
         handlePromise(qgOptionalApi.newOptionalGraphElementId(graphElement.id, body, getRequestOptions())).then(newBody => {
             onNewBody(newBody);
@@ -10098,7 +10126,7 @@ onMakeOptional(graphElement => {
 });
 onRemoveOptional(graphElement => {
     if (graphElement.id) {
-        const qgOptionalApi = new QueryGraphOptionalApi();
+        const qgOptionalApi = QueryGraphOptionalApiFactory(undefined, getBasePath());
         const body = getQueryBody();
         handlePromise(qgOptionalApi.removeOptionalGraphElementId(graphElement.id, body, getRequestOptions())).then(newBody => {
             onNewBody(newBody);
@@ -10479,7 +10507,6 @@ function sparqling(gscape, file, requestOptions) {
             setInitialised(false); // need to initialise everything again
         }
         setRequestOptions(requestOptions);
-        startRunButtons.runQueryButton.enabled = true;
     }
     return sparqlingCore;
 }
@@ -10493,6 +10520,9 @@ function getCore(gscape, file) {
         // }
         //sparqlingContainer.appendChild(gscapeContainer)
         //const gscape = await fullGrapholscape(file, gscapeContainer, { owl_translator: false })
+        const actualGrapholscape = getGscape();
+        if (actualGrapholscape !== gscape)
+            setInitialised(false);
         setGrapholscapeInstance(gscape);
         leftColumnContainer.appendChild(highlightsList);
         leftColumnContainer.appendChild(qhWidget);

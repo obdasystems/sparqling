@@ -1,6 +1,6 @@
 {
   "name": "sparqling",
-  "version": "1.0.0-beta.0",
+  "version": "1.0.0",
   "description": "",
   "main": "dist/sparqling.esm.js",
   "module": "dist/sparqling.esm.js",
