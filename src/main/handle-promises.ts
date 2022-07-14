@@ -1,7 +1,7 @@
 import { AxiosPromise, AxiosResponse } from "axios"
 import { Highlights, QueryGraph } from "../api/swagger"
-import { errorsDialog } from "../widgets"
-import { startLoading, stopLoading } from "./loading-state"
+import { setLoading, increaseLoadingProcesses, decreaseLoadingProcesses, getNumberLoadingProcesses } from "../model"
+import { errorsDialog, startRunButtons } from "../widgets"
 
 function isResponseError(response) {
   return !response || response?.code === 1 || response?.type === 'error'
@@ -37,5 +37,20 @@ export function handlePromise(promise: AxiosPromise<any>, showError = true): Pro
         }
       })
       .finally(() => stopLoading())
+  }
+}
+
+export function startLoading() {
+  setLoading(true)
+  increaseLoadingProcesses()
+  startRunButtons.startLoadingAnimation()
+}
+
+export function stopLoading() {
+  decreaseLoadingProcesses()
+
+  if (getNumberLoadingProcesses() === 0) {
+    setLoading(false)
+    startRunButtons.stopLoadingAnimation()
   }
 }

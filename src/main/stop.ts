@@ -1,15 +1,20 @@
 import { hideUI } from "../util/show-hide-ui"
 import * as ontologyGraph from '../ontology-graph'
 import getGscape from "../ontology-graph/get-gscape"
-import { startRunButtons } from "../widgets"
+import * as model from "../model"
 import core from "../core"
+import { startRunButtons } from "../widgets"
 
 export default function () {
-  hideUI()
-  ontologyGraph.clearSelected()
-  ontologyGraph.resetHighlights()
-  getGscape().widgets.ENTITY_DETAILS.hide()
-  startRunButtons.isSparqlingRunning = false
-  core.onStop()
+  if (model.isSparqlingRunning()) {
+    hideUI()
+    ontologyGraph.clearSelected()
+    ontologyGraph.resetHighlights()
+    getGscape().widgets.ENTITY_DETAILS.hide()
+    model.setSparqlingRunning(false)
+    startRunButtons.startSparqlingButton.highlighted = false
+    startRunButtons.canQueryRun = false
+    core.onStop()
+  }
 }
 

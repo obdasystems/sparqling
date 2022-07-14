@@ -1,11 +1,12 @@
 import { HeadElement, QueryGraph } from "../api/swagger"
+import core from "../core"
 import * as model from "../model"
 import * as ontologyGraph from "../ontology-graph"
 import getGscape from "../ontology-graph/get-gscape"
 import * as queryGraph from "../query-graph"
 import * as queryHead from "../query-head"
 import { getHeadElementWithDatatype } from "../util/head-element-utility"
-import { countStarToggle, distinctToggle, filterListDialog, limit, offset, sparqlDialog } from "../widgets"
+import { countStarToggle, distinctToggle, filterListDialog, limit, offset, sparqlDialog, startRunButtons } from "../widgets"
 import { emptyQueryMsg } from "../widgets/assets/texts"
 
 export default function onNewBody(newBody: QueryGraph) {
@@ -27,6 +28,7 @@ export default function onNewBody(newBody: QueryGraph) {
     if (offsetInputElement)
       offsetInputElement.value = ''
   }
+  startRunButtons.canQueryRun = newBody.graph && !model.isStandalone() && core.onQueryRun !== undefined
 
   let body = model.setQueryBody(newBody)
   queryGraph.widget.isBGPEmpty = body.graph === null || body.graph === undefined

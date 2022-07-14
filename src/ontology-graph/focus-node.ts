@@ -9,7 +9,7 @@ import getGscape from "./get-gscape"
   const gscape = getGscape()
   let occurrences = gscape.ontology.getEntityOccurrences(iri)
   // find the first one in the actual diagram
-  let node: CollectionReturnValue = occurrences.find((occ: any) => occ.data('diagram_id') === gscape.actualDiagramID)
+  let node = occurrences.find((occ: any) => occ.data('diagram_id') === gscape.actualDiagramID)
   if (!node) node = occurrences[0]
   focusNode(node)
 }

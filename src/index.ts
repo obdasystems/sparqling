@@ -33,7 +33,6 @@ export function sparqling(gscape: Grapholscape, file: string | Blob, requestOpti
       model.setInitialised(false) // need to initialise everything again
     }
     model.setRequestOptions(requestOptions)
-    widgets.startRunButtons.runQueryButton.enabled = true
   }
   return sparqlingCore
 }
@@ -51,7 +50,12 @@ function getCore(gscape: Grapholscape, file: string | Blob) {
 
     //sparqlingContainer.appendChild(gscapeContainer)
     //const gscape = await fullGrapholscape(file, gscapeContainer, { owl_translator: false })
-    ontologyGraph.setGrapholscapeInstance(gscape)
+
+    const actualGrapholscape = ontologyGraph.getGscape()
+    if (actualGrapholscape !== gscape)
+      model.setInitialised(false)
+    
+      ontologyGraph.setGrapholscapeInstance(gscape)
 
     leftColumnContainer.appendChild(widgets.highlightsList as any)
     leftColumnContainer.appendChild(queryHead.widget as any)

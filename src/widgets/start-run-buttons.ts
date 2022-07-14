@@ -2,6 +2,7 @@ import { html, css } from 'lit'
 import { UI } from 'grapholscape'
 import { playOutlined } from './assets/icons'
 import sparqlingIcon from './assets/sparqling-icon'
+import * as model from '../model'
 
 export default class SparqlingStartRunButtons extends (UI.GscapeWidget as any) {
   private isEnabled: boolean = true
@@ -10,7 +11,7 @@ export default class SparqlingStartRunButtons extends (UI.GscapeWidget as any) {
 
   public startSparqlingButton: any
   public runQueryButton: any
-  public isSparqlingRunning: boolean = false
+  public canQueryRun: boolean = false
 
   private _onSparqlingStartCallback = () => { }
   private _onSparqlingStopCallback = () => { }
@@ -20,8 +21,8 @@ export default class SparqlingStartRunButtons extends (UI.GscapeWidget as any) {
     const superProps = super.properties
     
     const newProps = {
-      isSparqlingRunning: { type: Boolean, attribute: false },
-      isLoading: { type: Boolean }
+      canQueryRun: { type: Boolean, attribute: false },
+      isLoading: { type: Boolean, attribute: false }
     }
 
     Object.assign(superProps, newProps)
@@ -95,18 +96,21 @@ export default class SparqlingStartRunButtons extends (UI.GscapeWidget as any) {
     this.startSparqlingButton.enabled = true
 
     this.runQueryButton = new UI.GscapeButton(playOutlined, 'Send query to SPARQL endpoint')
-    this.runQueryButton.disbaled = true
     this.runQueryButton.style.position = 'inherit'
     this.runQueryButton.classList.add('flat')
     this.runQueryButton.onClick = () => this._onQueryRunCallback()
-    this.runQueryButton.enabled = false
   }
 
   render() {
-    this.startSparqlingButton.highlighted = this.isSparqlingRunning
     return html`
-      ${this.runQueryButton}
-      <div id="hr"></div>
+      ${this.canQueryRun
+        ? html`
+          ${this.runQueryButton}
+          <div id="hr"></div>
+        `
+        : null
+      }
+      
       ${this.isLoading 
         ? html`<div class="lds-ripple"><div></div><div></div></div>` 
         : this.startSparqlingButton
@@ -131,7 +135,7 @@ export default class SparqlingStartRunButtons extends (UI.GscapeWidget as any) {
   }
 
   private handleStartButtonCLick() {
-    this.isSparqlingRunning ? this._onSparqlingStopCallback() : this._onSparqlingStartCallback()
+    model.isSparqlingRunning() ? this._onSparqlingStopCallback() : this._onSparqlingStartCallback()
   }
 
   startLoadingAnimation() {

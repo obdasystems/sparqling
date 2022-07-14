@@ -2,7 +2,6 @@ import { GraphElement, HeadElement, QueryGraph } from "../api/swagger"
 
 let body: QueryGraph
 let selectedGraphElement: GraphElement | undefined
-let standalone: boolean
 export const COUNT_STAR_ID = '?COUNT_STAR'
 
 // map GraphElementId+IRI -> OriginGrapholNodeID

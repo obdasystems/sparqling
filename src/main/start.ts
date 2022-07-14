@@ -14,6 +14,7 @@ import { getIri } from '../util/graph-element-utility'
 import { showUI } from '../util/show-hide-ui'
 import { startRunButtons } from '../widgets'
 import { handlePromise } from './handle-promises'
+import onNewBody from './on-new-body'
 
 export default function () {
   if (model.isStandalone()) {
@@ -38,8 +39,9 @@ export default function () {
     init()
     getGscape().widgets.OWL_VISUALIZER.disable()
     showUI()
-    startRunButtons.isSparqlingRunning = true
-
+    model.setSparqlingRunning(true)
+    startRunButtons.startSparqlingButton.highlighted = true
+    startRunButtons.canQueryRun = model.getQueryBody()?.graph && !model.isStandalone() && core.onQueryRun !== undefined
     const selectedGraphElement = model.getSelectedGraphElement()
     if (selectedGraphElement) {
       const selectedGraphElementIri = getIri(selectedGraphElement)
@@ -88,16 +90,16 @@ function setHandlers(cy: Core) {
   // avoid fake nodes (for inverse/nonInverse functional obj properties)
   const objPropertiesSelector = `[displayed_name][type = "${Type.OBJECT_PROPERTY}"]`
   cy.on('mouseover', objPropertiesSelector, e => {
-    if (startRunButtons.isSparqlingRunning)
+    if (model.isSparqlingRunning())
       ontologyGraph.showRelatedClassesWidget(e.target, e.renderedPosition)
   })
   cy.on('mouseout', objPropertiesSelector, e => {
-    if (startRunButtons.isSparqlingRunning)
+    if (model.isSparqlingRunning())
       ontologyGraph.hideRelatedClassesWidget()
   })
 
   cy.on('dblclick', `[displayed_name].predicate`, e => {
-    if (startRunButtons.isSparqlingRunning)
+    if (model.isSparqlingRunning())
       OntologyGraphHandlers.handleEntitySelection(e.target)
   })
 }

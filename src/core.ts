@@ -11,7 +11,7 @@ export default {
   getQueryBody: model.getQueryBody,
   startStopButton: startRunButtons.startSparqlingButton,
   runQueryButton: startRunButtons.runQueryButton,
-  onQueryRun: (sparqlQuery: string) => { },
+  onQueryRun: undefined,
   onStop: () => { },
   onStart: () => { },
   start: start,

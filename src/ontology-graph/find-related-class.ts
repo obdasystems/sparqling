@@ -22,9 +22,10 @@ export function findNextClassFromObjProperty(objProperty: CollectionReturnValue)
     connectedClass: undefined
   }
 
-  result.objPropertyFromApi = actualHighlights.objectProperties?.find((o: Branch) =>
-    gscape.ontology.checkEntityIri(objProperty, o.objectPropertyIRI)
-  )
+  result.objPropertyFromApi = actualHighlights.objectProperties?.find((o: Branch) => {
+    if (o?.objectPropertyIRI)
+      gscape.ontology.checkEntityIri(objProperty, o.objectPropertyIRI)
+  })
 
   return new Promise((resolve, reject) => {
     if (!result.objPropertyFromApi?.relatedClasses) reject()
@@ -40,7 +41,7 @@ export function findNextClassFromObjProperty(objProperty: CollectionReturnValue)
       // Use prefixed iri if possible, full iri as fallback
       listSelectionDialog.list = result.objPropertyFromApi?.relatedClasses?.map((iri: string) => {
         return gscape.ontology.destructureIri(iri)
-          ? gscape.ontology.destructureIri(iri).prefixed
+          ? gscape.ontology.destructureIri(iri)?.prefixed
           : iri
       })
       //listSelectionDialog.show()
@@ -65,9 +66,10 @@ export function showRelatedClassesWidget(objProperty: CollectionReturnValue, pos
   //   connectedClass: undefined
   // }
 
-  let objPropertyFromApi = actualHighlights.objectProperties?.find((o: Branch) =>
-    gscape.ontology.checkEntityIri(objProperty, o.objectPropertyIRI)
-  )
+  let objPropertyFromApi = actualHighlights.objectProperties?.find((o: Branch) => {
+    if (o?.objectPropertyIRI)
+      return gscape.ontology.checkEntityIri(objProperty, o.objectPropertyIRI)
+  })
 
   if (!objPropertyFromApi || !objPropertyFromApi.relatedClasses || objPropertyFromApi.relatedClasses.length <= 0) {
     return
@@ -77,14 +79,14 @@ export function showRelatedClassesWidget(objProperty: CollectionReturnValue, pos
   // Use prefixed iri if possible, full iri as fallback
   relatedClassDialog.list = objPropertyFromApi.relatedClasses.map((iri: string) => {
     return gscape.ontology.destructureIri(iri)
-      ? gscape.ontology.destructureIri(iri).prefixed
+      ? gscape.ontology.destructureIri(iri)?.prefixed
       : iri
   })
 
   const selectedGraphElement = getSelectedGraphElement()
   if (selectedGraphElement) {
     relatedClassDialog.class = GEUtility.getPrefixedIri(selectedGraphElement) || GEUtility.getIri(selectedGraphElement)
-  
+
     relatedClassDialog.objProperty = objProperty.data('iri').prefixed
     relatedClassDialog.reverseArrow = !objPropertyFromApi.direct
     relatedClassDialog.show(position)
