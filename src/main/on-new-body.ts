@@ -10,47 +10,47 @@ import { countStarToggle, distinctToggle, filterListDialog, limit, offset, sparq
 import { emptyQueryMsg } from "../widgets/assets/texts"
 
 export default function onNewBody(newBody: QueryGraph) {
-  const limitInputElement = limit.querySelector('input')
-  const offsetInputElement = offset.querySelector('input')
+  // const limitInputElement = limit.querySelector('input')
+  // const offsetInputElement = offset.querySelector('input')
 
-  // empty query
-  if (!newBody.graph) {
-    model.setSelectedGraphElement(undefined)
-    model.getOriginGrapholNodes().clear()
-    ontologyGraph.resetHighlights()
-    getGscape().unselectEntity()
-    distinctToggle.state = false
-    countStarToggle.state = false
+  // // empty query
+  // if (!newBody.graph) {
+  //   model.setSelectedGraphElement(undefined)
+  //   model.getOriginGrapholNodes().clear()
+  //   ontologyGraph.resetHighlights()
+  //   getGscape().unselect()
+  //   distinctToggle.state = false
+  //   countStarToggle.state = false
 
-    if (limitInputElement)
-      limitInputElement.value = ''
+  //   if (limitInputElement)
+  //     limitInputElement.value = ''
 
-    if (offsetInputElement)
-      offsetInputElement.value = ''
-  }
-  startRunButtons.canQueryRun = newBody.graph && !model.isStandalone() && core.onQueryRun !== undefined
+  //   if (offsetInputElement)
+  //     offsetInputElement.value = ''
+  // }
+  // startRunButtons.canQueryRun = newBody.graph && !model.isStandalone() && core.onQueryRun !== undefined
 
-  let body = model.setQueryBody(newBody)
-  queryGraph.widget.isBGPEmpty = body.graph === null || body.graph === undefined
-  queryGraph.render(body.graph)
-  const deletedNodeIds = queryGraph.removeNodesNotInQuery()
-  deletedNodeIds.forEach(id => model.getOriginGrapholNodes().delete(id))
-  queryGraph.renderOptionals(body.optionals)
+  // let body = model.setQueryBody(newBody)
+  // queryGraph.widget.isBGPEmpty = body.graph === null || body.graph === undefined
+  // queryGraph.render(body.graph)
+  // const deletedNodeIds = queryGraph.removeNodesNotInQuery()
+  // deletedNodeIds.forEach(id => model.getOriginGrapholNodes().delete(id))
+  // queryGraph.renderOptionals(body.optionals)
 
-  queryHead.render(body.head?.map((headElem: HeadElement) =>
-    getHeadElementWithDatatype(headElem)
-  ))
+  // queryHead.render(body.head?.map((headElem: HeadElement) =>
+  //   getHeadElementWithDatatype(headElem)
+  // ))
 
-  filterListDialog.filterList = model.getFiltersOnVariable(filterListDialog.variable)
+  // filterListDialog.filterList = model.getFiltersOnVariable(filterListDialog.variable)
 
-  sparqlDialog.text = body?.sparql ? body.sparql : emptyQueryMsg()
+  // sparqlDialog.text = body?.sparql ? body.sparql : emptyQueryMsg()
 
-  if (limitInputElement && offsetInputElement) {
-    distinctToggle.disabled =
-      countStarToggle.disabled =
-      limitInputElement.disabled =
-      offsetInputElement.disabled =
-      newBody?.graph ? false : true
-  }
+  // if (limitInputElement && offsetInputElement) {
+  //   distinctToggle.disabled =
+  //     countStarToggle.disabled =
+  //     limitInputElement.disabled =
+  //     offsetInputElement.disabled =
+  //     newBody?.graph ? false : true
+  // }
 
 }

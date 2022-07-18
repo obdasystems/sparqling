@@ -1,5 +1,5 @@
 import { GraphElement, HeadElement, VarOrConstantTypeEnum } from "../api/swagger"
-import { guessDataType } from "../ontology-graph"
+// import { guessDataType } from "../ontology-graph"
 import * as GEUtility from "../util/graph-element-utility"
 import SparqlingFormDialog, { Modality } from "../widgets/forms/base-form-dialog"
 import FilterDialog from "../widgets/forms/filters/filter-dialog"
@@ -37,7 +37,7 @@ export default function(element: HeadElement | GraphElement, formDialog: Sparqli
   formDialog.operator = undefined
   formDialog.parameters = [{
     type: VarOrConstantTypeEnum.Var,
-    constantType: guessDataType(graphElementIri),
+    // constantType: guessDataType(graphElementIri),
     value: graphElement.id
   }]
   

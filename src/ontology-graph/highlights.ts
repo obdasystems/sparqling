@@ -1,25 +1,29 @@
-import { CollectionReturnValue, Core } from "cytoscape"
-import { focusNodeByIRI } from "./focus-node"
+import cytoscape from "cytoscape"
 import { OntologyGraphApi } from "../api/swagger"
 import { Highlights } from "../api/swagger"
 import * as model from "../model"
 import { getIri } from "../util/graph-element-utility"
-import { highlightsList } from "../widgets"
+// import { highlightsList } from "../widgets"
 import getGscape from "./get-gscape"
 import { handlePromise } from "../main/handle-promises"
+import { Iri } from "grapholscape"
 
 let actualHighlights: Highlights | undefined
+export const HIGHLIGHT_CLASS = 'highlighted'
+export const FADED_ClASS = 'faded'
+export const SPARQLING_SELECTED = 'sparqling-selected'
 
-highlightsList.onSuggestionSelection(iri => focusNodeByIRI(iri))
+// highlightsList.onSuggestionSelection(iri => getGscape().centerOnEntity(iri))
 
 export const getActualHighlights = () => actualHighlights
 
 export function highlightIRI(iri: string) {
   const gscape = getGscape()
-  let nodes = gscape.ontology.getEntityOccurrences(iri)
-  if (nodes) {
-    nodes.forEach((n: CollectionReturnValue) => {
-      n.addClass('highlighted')
+  let iriOccurrences = gscape.ontology.getEntityOccurrences(iri)?.get(gscape.renderState)
+  if (iriOccurrences) {
+    iriOccurrences.forEach(occurrence => {
+      if (occurrence.diagramId === gscape.diagramId)
+      gscape.renderer.cy?.$id(occurrence.elementId).addClass(HIGHLIGHT_CLASS)
     })
   }
 }
@@ -31,24 +35,22 @@ export function highlightSuggestions(clickedIRI: string) {
   handlePromise(ogApi.highligths(clickedIRI, undefined, model.getRequestOptions())).then(newHighlights => {
     actualHighlights = newHighlights
     performHighlights(clickedIRI)
-    highlightsList.highlights = transformHighlightsToPrefixedIRIs()
+    // highlightsList.highlights = transformHighlightsToPrefixedIRIs()
   })
 }
 
 export function resetHighlights() {
   const gscape = getGscape()
-  Object.values(gscape.ontologies).forEach((ontology: any) => {
-    ontology?.diagrams?.forEach((diagram: any) => {
-      let cy: Core = diagram?.cy
-      cy.$('.sparqling-selected').removeClass('sparqling-selected')
-      cy.$('.highlighted').removeClass('highlighted')
-      cy.$('.faded')
-        .removeClass('faded')
-        .selectify()
-    })
+
+  gscape.ontology.diagrams.forEach(diagram => {
+    for (let [_, diagramRepresentation] of diagram.representations) {
+      diagramRepresentation.cy.$(`.${SPARQLING_SELECTED}`).removeClass(SPARQLING_SELECTED)
+      diagramRepresentation.cy.$(`.${HIGHLIGHT_CLASS}`).removeClass(HIGHLIGHT_CLASS)
+      diagramRepresentation.cy.$(`.${FADED_ClASS}`).removeClass(FADED_ClASS).selectify()
+    }
   })
   actualHighlights = undefined
-  highlightsList.highlights = undefined
+  // highlightsList.highlights = undefined
 }
 
 export function isHighlighted(iri: string): boolean {
@@ -73,17 +75,19 @@ function performHighlights(clickedIRI: string) {
   actualHighlights?.dataProperties?.forEach((iri: string) => highlightIRI(iri))
   actualHighlights?.objectProperties?.forEach((o: any) => highlightIRI(o.objectPropertyIRI))
 
-  // select all nodes having iri = clickedIRI
-  for (const node of gscape.ontology.getEntityOccurrences(clickedIRI)) {
-    if (node.data('diagram_id') === gscape.actualDiagramID) {
-      node.addClass('sparqling-selected')
-      break
+  const iriOccurrences = gscape.ontology.getEntityOccurrences(clickedIRI)?.get(gscape.renderState)
+  if (iriOccurrences) {
+    // select all nodes having iri = clickedIRI
+    for (const occurrence of iriOccurrences) {
+      const diagram = gscape.ontology.getDiagram(occurrence.diagramId)
+      const occurrenceCyElement = diagram?.representations.get(gscape.renderState)?.cy.$id(occurrence.elementId)
+      occurrenceCyElement?.addClass(SPARQLING_SELECTED)
     }
-  }
 
-  const highlightedElems = gscape.renderer.cy.$('.highlighted, .sparqling-selected')
-  const fadedElems = gscape.renderer.cy.elements().difference(highlightedElems)
-  fadedElems.addClass('faded')
+    const highlightedElems = gscape.renderer.cy?.$('.highlighted, .sparqling-selected') || cytoscape().collection()
+    const fadedElems = gscape.renderer.cy?.elements().difference(highlightedElems)
+    fadedElems?.addClass(FADED_ClASS)
+  }
   //fadedElems.unselectify()
 }
 
@@ -99,12 +103,8 @@ function transformHighlightsToPrefixedIRIs(): Highlights {
   return transformedHighlights
 
 
-  function getPrefixedIri(iri: string) {
-    const destructuredIRI = ontology.destructureIri(iri)
-    if (destructuredIRI) {
-      return destructuredIRI.prefixed
-    } else {
-      return iri
-    }
+  function getPrefixedIri(iriValue: string) {
+    const iri = new Iri(iriValue, getGscape().ontology.namespaces)
+    return iri.prefixed || iriValue
   }
 }

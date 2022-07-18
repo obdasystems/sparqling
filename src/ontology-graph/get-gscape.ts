@@ -1,5 +1,4 @@
-import { Grapholscape, Type } from 'grapholscape'
-import { CollectionReturnValue, Core } from 'cytoscape'
+import { Grapholscape } from "grapholscape"
 
 let gscape: Grapholscape
 
@@ -10,14 +9,16 @@ export function setGrapholscapeInstance(grapholscape: Grapholscape) {
 }
 
 export function clearSelected() {
-  gscape.ontology.diagrams.forEach((diagram: any) => {
-    diagram.unselectAll()
-  })
+  for (const diagram of gscape.ontology.diagrams) {
+    for (const [_, diagramRepresentation] of diagram.representations) {
+      diagramRepresentation.cy.elements().unselect()
+    }
+  }
 }
 
 export function isIriSelected(iri: string) {
-  let sparqlingSelectedNode: CollectionReturnValue = gscape.renderer.cy.$('.sparqling-selected')
-  if (sparqlingSelectedNode.empty())
+  let sparqlingSelectedNode = gscape.renderer?.cy?.$('.sparqling-selected')
+  if (!sparqlingSelectedNode || sparqlingSelectedNode?.empty())
     return false
   else {
     const sparqlingSelectedIri = sparqlingSelectedNode.first().data().iri

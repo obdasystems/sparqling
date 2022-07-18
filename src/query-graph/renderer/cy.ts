@@ -4,6 +4,7 @@ import klay from 'cytoscape-klay'
 import compoundDragAndDrop from 'cytoscape-compound-drag-and-drop'
 import popper from 'cytoscape-popper'
 import { bgpContainer } from "../../util/get-container"
+import { EntityNameType } from "grapholscape"
 
 cytoscape.use(klay)
 cytoscape.use(compoundDragAndDrop)
@@ -32,12 +33,12 @@ cy.on('render', () => {
 })
 
 let menu: any
-let displayedNameType: DisplayedNameType
+let displayedNameType: EntityNameType
 let language: string
 
 export default cy
 
-export function setStateDisplayedNameType(newDisplayNameType: DisplayedNameType) {
+export function setStateDisplayedNameType(newDisplayNameType: EntityNameType) {
   displayedNameType = newDisplayNameType || displayedNameType
 }
 

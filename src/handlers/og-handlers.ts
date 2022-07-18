@@ -1,16 +1,15 @@
 import { CollectionReturnValue } from "cytoscape"
-import { Type } from "grapholscape"
+import { GrapholTypesEnum } from "grapholscape"
 import { Branch, GraphElement, QueryGraph, QueryGraphBGPApi } from "../api/swagger"
 import { handlePromise } from "../main/handle-promises"
 import onNewBody from "../main/on-new-body"
 import * as model from "../model"
 import * as ontologyGraph from "../ontology-graph"
 import getGscape from "../ontology-graph/get-gscape"
-import * as queryGraph from "../query-graph"
+// import * as queryGraph from "../query-graph"
 import { getdiffNew, graphElementHasIri, isClass } from "../util/graph-element-utility"
 
 
-const { CONCEPT, OBJECT_PROPERTY, DATA_PROPERTY } = Type
 let lastObjProperty: Branch | null
 //let selectedGraphElement: GraphElement
 let isIriHighlighted: boolean
@@ -19,7 +18,7 @@ let clickedIRI: string
 // const iriInQueryGraph = actualBody ? queryManager.getGraphElementByIRI(clickedIRI) : null
 
 export async function handleEntitySelection(cyEntity: CollectionReturnValue) {
-  let clickedIRI = cyEntity.data('iri').fullIri
+  let clickedIRI = cyEntity.data('iri')
   const selectedGraphElement = model.getSelectedGraphElement()
 
   if (selectedGraphElement && graphElementHasIri(selectedGraphElement, clickedIRI) && !lastObjProperty) {
@@ -32,14 +31,14 @@ export async function handleEntitySelection(cyEntity: CollectionReturnValue) {
 
   const gscape = getGscape()
   switch (cyEntity.data('type')) {
-    case OBJECT_PROPERTY: {
+    case GrapholTypesEnum.OBJECT_PROPERTY: {
       // let result = await handleObjectPropertySelection(cyEntity)
       // if (result && result.connectedClass) {
       //   gscape.centerOnNode(result.connectedClass.id(), 1.8)
       // }
       break
     }
-    case CONCEPT: {
+    case GrapholTypesEnum.CLASS: {
       handleConceptSelection(cyEntity)?.then(newBody => {
         if (!newBody) return
 
@@ -53,12 +52,12 @@ export async function handleEntitySelection(cyEntity: CollectionReturnValue) {
         // after onNewBody because we need to select the element after rendering phase
         if (newSelectedGraphElement && newSelectedGraphElement.id) {
           // The node to select is the one having the clickedIri among the new nodes
-          model.setSelectedGraphElement(queryGraph.selectElement(newSelectedGraphElement.id))
+          // model.setSelectedGraphElement(queryGraph.selectElement(newSelectedGraphElement.id))
         }
       })
       break
     }
-    case DATA_PROPERTY: {
+    case GrapholTypesEnum.DATA_PROPERTY: {
       handleDataPropertySelection(cyEntity)?.then(newBody => {
         if (!newBody) return
 
@@ -70,13 +69,13 @@ export async function handleEntitySelection(cyEntity: CollectionReturnValue) {
     }
   }
 
-  gscape.unselectEntity()
+  gscape.unselect()
 }
 
 ontologyGraph.onRelatedClassSelection((branch: Branch, relatedClass) => {
   const gscape = getGscape()
   lastObjProperty = branch
-  gscape.centerOnNode(relatedClass.id())
+  gscape.centerOnElement(relatedClass.id())
   handleEntitySelection(relatedClass)
 })
 
@@ -149,10 +148,10 @@ async function handleDataPropertySelection(cyEntity: CollectionReturnValue): Pro
 }
 
 function getInitialInfo(cyEntity: CollectionReturnValue) {
-  clickedIRI = cyEntity.data('iri').fullIri
+  clickedIRI = cyEntity.data('iri')
   //selectedGraphElement = queryGraph.getSelectedGraphElement()
   isIriHighlighted = ontologyGraph.isHighlighted(clickedIRI)
-  iriInQueryGraph = queryGraph.isIriInQueryGraph(clickedIRI)
+  // iriInQueryGraph = queryGraph.isIriInQueryGraph(clickedIRI)
 }
 
 /**

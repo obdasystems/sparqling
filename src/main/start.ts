@@ -1,5 +1,5 @@
 import { Core } from 'cytoscape'
-import { Theme, Type } from 'grapholscape'
+import { GrapholTypesEnum, LifecycleEvent, ui, EntityNameType, GrapholscapeTheme } from 'grapholscape'
 import { StandaloneApi } from '../api/swagger'
 import core from '../core'
 import * as OntologyGraphHandlers from '../handlers/og-handlers'
@@ -8,13 +8,11 @@ import * as ontologyGraph from '../ontology-graph'
 import { refreshHighlights } from '../ontology-graph'
 import getGscape from '../ontology-graph/get-gscape'
 import sparqlingStyle from '../ontology-graph/style'
-import * as queryGraph from '../query-graph'
-import { DisplayedNameType } from '../query-graph/displayed-name-type'
+// import * as queryGraph from '../query-graph'
 import { getIri } from '../util/graph-element-utility'
 import { showUI } from '../util/show-hide-ui'
 import { startRunButtons } from '../widgets'
 import { handlePromise } from './handle-promises'
-import onNewBody from './on-new-body'
 
 export default function () {
   if (model.isStandalone()) {
@@ -36,12 +34,12 @@ export default function () {
   }
 
   function startSparqling() {
-    init()
-    getGscape().widgets.OWL_VISUALIZER.disable()
+    init();
+    (getGscape().widgets.get(ui.WidgetEnum.OWL_VISUALIZER) as any).disable()
     showUI()
     model.setSparqlingRunning(true)
-    startRunButtons.startSparqlingButton.highlighted = true
     startRunButtons.canQueryRun = model.getQueryBody()?.graph && !model.isStandalone() && core.onQueryRun !== undefined
+    startRunButtons.requestUpdate()
     const selectedGraphElement = model.getSelectedGraphElement()
     if (selectedGraphElement) {
       const selectedGraphElementIri = getIri(selectedGraphElement)
@@ -59,26 +57,29 @@ function init() {
   const gscape = getGscape()
   ontologyGraph.addStylesheet(gscape.renderer.cy, sparqlingStyle)
 
-  setHandlers(gscape.renderer.cy)
-
-  gscape.onLanguageChange((newLanguage: string) => queryGraph.setLanguage(newLanguage))
-  gscape.onEntityNameTypeChange((newNameType: DisplayedNameType) => {
-    queryGraph.setDisplayedNameType(newNameType, gscape.languages.selected)
-  })
-  gscape.onThemeChange((newTheme: Theme) => {
-    queryGraph.setTheme(newTheme)
-    ontologyGraph.addStylesheet(gscape.renderer.cy, sparqlingStyle)
-  })
-
-  gscape.onDiagramChange(() => {
+  if (gscape.renderer.cy)
     setHandlers(gscape.renderer.cy)
+
+  // gscape.on(LifecycleEvent.LanguageChange, (newLanguage: string) => queryGraph.setLanguage(newLanguage))
+  gscape.on(LifecycleEvent.EntityNameTypeChange, (newNameType: EntityNameType) => {
+    // queryGraph.setDisplayedNameType(newNameType, gscape.language)
+  })
+
+  gscape.on(LifecycleEvent.ThemeChange, (newTheme: GrapholscapeTheme) => {
+    // queryGraph.setTheme(newTheme)
     ontologyGraph.addStylesheet(gscape.renderer.cy, sparqlingStyle)
+  })
+
+  gscape.on(LifecycleEvent.DiagramChange, () => {
+    if (gscape.renderer.cy) {
+      setHandlers(gscape.renderer.cy)
+      ontologyGraph.addStylesheet(gscape.renderer.cy, sparqlingStyle)
+    }
     refreshHighlights()
   })
 
-  gscape.onRendererChange(async () => {
+  gscape.on(LifecycleEvent.RendererChange, () => {
     ontologyGraph.addStylesheet(gscape.renderer.cy, sparqlingStyle)
-    await gscape.SimplifiedOntologyPromise
     refreshHighlights()
   })
 
@@ -88,17 +89,17 @@ function init() {
 function setHandlers(cy: Core) {
   // [diplayed_name] select only nodes with a defined displayed name, 
   // avoid fake nodes (for inverse/nonInverse functional obj properties)
-  const objPropertiesSelector = `[displayed_name][type = "${Type.OBJECT_PROPERTY}"]`
+  const objPropertiesSelector = `[displayed_name][type = "${GrapholTypesEnum.OBJECT_PROPERTY}"]`
   cy.on('mouseover', objPropertiesSelector, e => {
     if (model.isSparqlingRunning())
-      ontologyGraph.showRelatedClassesWidget(e.target, e.renderedPosition)
+      ontologyGraph.showRelatedClassesWidget(e.target.data('iri'), e.renderedPosition)
   })
   cy.on('mouseout', objPropertiesSelector, e => {
     if (model.isSparqlingRunning())
       ontologyGraph.hideRelatedClassesWidget()
   })
 
-  cy.on('dblclick', `[displayed_name].predicate`, e => {
+  cy.on('dblclick', `[iri]`, e => {
     if (model.isSparqlingRunning())
       OntologyGraphHandlers.handleEntitySelection(e.target)
   })

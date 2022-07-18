@@ -7,7 +7,7 @@ export default svg`
    viewBox="0 0 20 20"
    xml:space="preserve"
    fill="currentColor"
-   style="width: 20px; height:20px; padding: 2px"
+   style="width: 20px; height:20px; padding: 2px; box-sizing: border-box;"
    xmlns="http://www.w3.org/2000/svg"
    xmlns:svg="http://www.w3.org/2000/svg">
 <g

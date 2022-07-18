@@ -2,8 +2,8 @@ import { Grapholscape } from 'grapholscape'
 import core from './core'
 import * as model from './model'
 import * as ontologyGraph from './ontology-graph'
-import * as queryGraph from './query-graph'
-import * as queryHead from './query-head'
+// import * as queryGraph from './query-graph'
+// import * as queryHead from './query-head'
 import { leftColumnContainer } from './util/get-container'
 import * as widgets from './widgets'
 import * as handlers from './handlers'
@@ -57,25 +57,25 @@ function getCore(gscape: Grapholscape, file: string | Blob) {
     
       ontologyGraph.setGrapholscapeInstance(gscape)
 
-    leftColumnContainer.appendChild(widgets.highlightsList as any)
-    leftColumnContainer.appendChild(queryHead.widget as any)
+    // leftColumnContainer.appendChild(widgets.highlightsList as any)
+    // leftColumnContainer.appendChild(queryHead.widget as any)
 
     // Add query graph and query head widgets to grapholscape instance
-    const uiContainer = gscape.container.querySelector('#gscape-ui')
-    uiContainer.insertBefore(queryGraph.widget, uiContainer.firstChild)
-    uiContainer.insertBefore(leftColumnContainer, uiContainer.firstChild)
-    uiContainer.appendChild(widgets.relatedClassDialog)
-    uiContainer.appendChild(widgets.sparqlDialog)
-    uiContainer.appendChild(widgets.filterDialog)
-    uiContainer.appendChild(widgets.filterListDialog)
-    uiContainer.appendChild(widgets.functionDialog)
-    uiContainer.appendChild(widgets.errorsDialog)
-    uiContainer.appendChild(widgets.aggregationDialog)
+    const uiContainer = gscape.container.querySelector('.gscape-ui')
+    // uiContainer.insertBefore(queryGraph.widget, uiContainer.firstChild)
+    // uiContainer.insertBefore(leftColumnContainer, uiContainer.firstChild)
+    // uiContainer.appendChild(widgets.relatedClassDialog)
+    // uiContainer.appendChild(widgets.sparqlDialog)
+    // uiContainer.appendChild(widgets.filterDialog)
+    // uiContainer.appendChild(widgets.filterListDialog)
+    // uiContainer.appendChild(widgets.functionDialog)
+    // uiContainer.appendChild(widgets.errorsDialog)
+    // uiContainer.appendChild(widgets.aggregationDialog)
 
-    gscape.container.querySelector('#gscape-ui-bottom-container').appendChild(widgets.startRunButtons)
+    uiContainer?.querySelector('.gscape-ui-buttons-tray')?.appendChild(widgets.startRunButtons)
 
-    queryGraph.setDisplayedNameType(gscape.actualEntityNameType, gscape.languages.selected)
-    queryGraph.setTheme(gscape.themesController.actualTheme)
+    // queryGraph.setDisplayedNameType(gscape.actualEntityNameType, gscape.languages.selected)
+    // queryGraph.setTheme(gscape.themesController.actualTheme)
 
     handlers // hack, just mention the handlers to make the module be evaluated 
 
