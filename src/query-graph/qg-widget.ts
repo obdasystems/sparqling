@@ -1,6 +1,6 @@
 import { ui } from 'grapholscape'
-import { html, css, LitElement } from 'lit'
-import { dbClick, rdfLogo } from '../widgets/assets/icons'
+import { html, css, LitElement, SVGTemplateResult } from 'lit'
+import { code, dbClick, rdfLogo, refresh } from '../widgets/assets/icons'
 import { emptyGraphMsg, emptyGraphTipMsg, tipWhatIsQueryGraph } from '../widgets/assets/texts'
 import cy from './renderer/cy'
 
@@ -10,6 +10,9 @@ import cy from './renderer/cy'
 export default class QueryGraphWidget extends ui.BaseMixin(ui.DropPanelMixin(LitElement)) {
   private bgpContainer: HTMLElement
   private _isBGPEmpty: boolean = true
+  
+  onQueryClear = () => { }
+  onSparqlButtonClick = () => { }
   title = 'Query Graph'
 
   static properties = {
@@ -64,7 +67,6 @@ export default class QueryGraphWidget extends ui.BaseMixin(ui.DropPanelMixin(Lit
         display: flex;
         align-items: center;
         justify-content: end;
-        gap:10px;
         flex-grow: 3;
         padding: 0 10px;
       }
@@ -91,15 +93,15 @@ export default class QueryGraphWidget extends ui.BaseMixin(ui.DropPanelMixin(Lit
         flex-direction: row;
         line-height: 1;
         position: absolute;
-        top: 1px;
-        right: 1px;
+        top: 0;
+        right: 0;
         z-index: 2;
         
         align-items: center;
         justify-content: space-between;
         gap: 4px;
         box-sizing: border-box;
-        width: calc(100% - 2px);
+        width: 100%;
         border-top-left-radius: var(--gscape-border-radius);
         border-top-right-radius: var(--gscape-border-radius);
         border-bottom-left-radius: 0px;
@@ -126,53 +128,77 @@ export default class QueryGraphWidget extends ui.BaseMixin(ui.DropPanelMixin(Lit
     `
   ]
 
-  constructor(bgpContainer: HTMLElement, headSlottedWidgets?: Element[]) {
+  constructor(bgpContainer: HTMLElement) {
     super()
     this.bgpContainer = bgpContainer
-    //super.makeDraggable()
   }
 
   render() {
     return html`
-      <div class="top-bar ${this.isPanelClosed() ? 'traslated-down' : null }">
-        ${!this.isPanelClosed()
-          ? html`
-            <div id="widget-header" class="bold-text">
-              ${rdfLogo}
-              <span>${this.title}</span>
-            </div>
-          `
-          : null
-        }
-        <gscape-button 
-          id="toggle-panel-button"
-          size="${this.isPanelClosed() ? 'm' : 's'}" 
-          type="${this.isPanelClosed() ? '' : 'subtle'}"
-          @click=${this.togglePanel}
-          label = "${this.isPanelClosed() ? this.title : ''}"
-        > 
-          ${this.isPanelClosed()
-            ? html`
-                <span slot="icon">${rdfLogo}</span>
-                <span slot="trailing-icon">${ui.icons.plus}</span>
-              `
-            : html`<span slot="icon">${ui.icons.minus}</span>`
-          }
-        </gscape-button>
-      </div>
-
-
-      <div class="gscape-panel" id="drop-panel">
-        ${this.isBGPEmpty
+      ${this.isPanelClosed()
         ? html`
-            <div class="blank-slate">
-              ${dbClick}
-              <div class="header">${emptyGraphMsg()}</div>
-              <div class="tip description" title="${emptyGraphTipMsg()}">${tipWhatIsQueryGraph()}</div>
+          <div class="top-bar traslated-down">
+            <gscape-button 
+              id="toggle-panel-button"
+              @click=${this.togglePanel}
+              label=${this.title}
+            > 
+              <span slot="icon">${rdfLogo}</span>
+              <span slot="trailing-icon">${ui.icons.plus}</span>
+            </gscape-button>
+          </div>
+        `
+        : html`
+          <div class="gscape-panel" id="drop-panel">
+            <div class="top-bar">
+              <div id="widget-header" class="bold-text">
+                ${rdfLogo}
+                <span>${this.title}</span>
+              </div>
+
+              <div id="buttons-tray">
+                ${this.getTrayButtonTemplate('Sparql', code, 'sparql-code-btn', this.onSparqlButtonClick)}
+                ${this.getTrayButtonTemplate('Clear Query', refresh, 'clear-query-btn', this.onQueryClear)}
+              </div>
+
+              <gscape-button 
+                id="toggle-panel-button"
+                size="s" 
+                type="subtle"
+                @click=${this.togglePanel}
+              > 
+                <span slot="icon">${ui.icons.minus}</span>
+              </gscape-button>
             </div>
-          `
-        : this.bgpContainer}
-      </div>
+
+
+            ${this.isBGPEmpty
+            ? html`
+                <div class="blank-slate">
+                  ${dbClick}
+                  <div class="header">${emptyGraphMsg()}</div>
+                  <div class="tip description" title="${emptyGraphTipMsg()}">${tipWhatIsQueryGraph()}</div>
+                </div>
+              `
+            : this.bgpContainer}
+          </div>
+
+        `
+      }
+    `
+  }
+
+  private getTrayButtonTemplate(title: string, icon: SVGTemplateResult, id: string, clickHandler: () => void) {
+    return html`
+      <gscape-button
+        id=${id}
+        size="s"
+        type="subtle"
+        title=${title}
+        @click=${clickHandler}
+      >
+        <span slot="icon">${icon}</span>
+      </gscape-button>
     `
   }
 
@@ -180,6 +206,11 @@ export default class QueryGraphWidget extends ui.BaseMixin(ui.DropPanelMixin(Lit
     super.togglePanel()
 
     this.requestUpdate()
+    if (this.isPanelClosed()) {
+      this.style.height = 'fit-content'
+    } else {
+      this.style.height = '30%'
+    }
   }
 
   firstUpdated() {
@@ -219,12 +250,8 @@ export default class QueryGraphWidget extends ui.BaseMixin(ui.DropPanelMixin(Lit
     return this._isBGPEmpty
   }
 
-  set graphContainerHeight(value: number) {
-    this.bgpContainer.style.height = `${value + 40}px`
-  }
-
-  set graphContainerWidth(value: number) {
-    this.bgpContainer.style.width = `${value + 40}px`
+  get clearQueryButton() {
+    return this.shadowRoot?.querySelector('#clear-query-btn') as ui.GscapeButton
   }
 
   //createRenderRoot() { return this as any }

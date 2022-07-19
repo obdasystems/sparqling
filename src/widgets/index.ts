@@ -27,7 +27,7 @@ export const startRunButtons = new SparqlingStartRunButtons()
 // export { default as offset } from './offset'
 
 // export const sparqlButton = new UI.GscapeButton(code, 'SPARQL')
-// export const clearQueryButton = new UI.GscapeButton(refresh, 'Clear Query')
+// export const clearQueryButton = new ui.GscapeButton()
 // export const distinctToggle = new UI.GscapeToggle('distinct', false, true, 'Duplicates', null, true)
 // distinctToggle.style.marginRight = '5px'
 // export const countStarToggle = new UI.GscapeToggle('count-star', false, true, 'Count Results')

@@ -111,7 +111,7 @@ queryGraph.onElementClick((graphElement, iri) => {
   const entityDetailsWidget = gscape.widgets.get(ui.WidgetEnum.ENTITY_DETAILS) as any
   if (entityDetailsWidget)
     entityDetailsWidget.grapholEntity = gscape.ontology.getEntity(iri)
-  
+
   // keep focus on selected class
   const selectedGraphElem = model.getSelectedGraphElement()
   if (selectedGraphElem?.id)
@@ -167,4 +167,4 @@ queryGraph.onElementClick((graphElement, iri) => {
 //   sparqlDialog.isVisible ? sparqlDialog.hide() : sparqlDialog.show()
 // }
 
-// clearQueryButton.onClick = () => clearQuery()
+queryGraph.widget.onQueryClear = () => { clearQuery() }
