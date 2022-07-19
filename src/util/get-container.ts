@@ -14,7 +14,7 @@ function getBGPContainer(): HTMLDivElement {
   let container: HTMLDivElement = document.createElement('div')
   container.setAttribute('id', 'sparqling-query-graph')
   container.style.position = 'relative'
-  container.style.height = '300px'
+  container.style.height = '100%'
   container.style.width = '100%'
   return container
 }

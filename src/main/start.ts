@@ -8,7 +8,7 @@ import * as ontologyGraph from '../ontology-graph'
 import { refreshHighlights } from '../ontology-graph'
 import getGscape from '../ontology-graph/get-gscape'
 import sparqlingStyle from '../ontology-graph/style'
-// import * as queryGraph from '../query-graph'
+import * as queryGraph from '../query-graph'
 import { getIri } from '../util/graph-element-utility'
 import { showUI } from '../util/show-hide-ui'
 import { startRunButtons } from '../widgets'
@@ -66,7 +66,7 @@ function init() {
   })
 
   gscape.on(LifecycleEvent.ThemeChange, (newTheme: GrapholscapeTheme) => {
-    // queryGraph.setTheme(newTheme)
+    queryGraph.setTheme(newTheme)
     ontologyGraph.addStylesheet(gscape.renderer.cy, sparqlingStyle)
   })
 

@@ -6,7 +6,7 @@ import onNewBody from "../main/on-new-body"
 import * as model from "../model"
 import * as ontologyGraph from "../ontology-graph"
 import getGscape from "../ontology-graph/get-gscape"
-// import * as queryGraph from "../query-graph"
+import * as queryGraph from "../query-graph"
 import { getdiffNew, graphElementHasIri, isClass } from "../util/graph-element-utility"
 
 
@@ -52,7 +52,7 @@ export async function handleEntitySelection(cyEntity: CollectionReturnValue) {
         // after onNewBody because we need to select the element after rendering phase
         if (newSelectedGraphElement && newSelectedGraphElement.id) {
           // The node to select is the one having the clickedIri among the new nodes
-          // model.setSelectedGraphElement(queryGraph.selectElement(newSelectedGraphElement.id))
+          model.setSelectedGraphElement(queryGraph.selectElement(newSelectedGraphElement.id))
         }
       })
       break
@@ -149,9 +149,9 @@ async function handleDataPropertySelection(cyEntity: CollectionReturnValue): Pro
 
 function getInitialInfo(cyEntity: CollectionReturnValue) {
   clickedIRI = cyEntity.data('iri')
-  //selectedGraphElement = queryGraph.getSelectedGraphElement()
+  // selectedGraphElement = queryGraph.getSelectedGraphElement()
   isIriHighlighted = ontologyGraph.isHighlighted(clickedIRI)
-  // iriInQueryGraph = queryGraph.isIriInQueryGraph(clickedIRI)
+  iriInQueryGraph = queryGraph.isIriInQueryGraph(clickedIRI)
 }
 
 /**
@@ -163,7 +163,7 @@ function getInitialInfo(cyEntity: CollectionReturnValue) {
 function setOriginNode(cyEntity: CollectionReturnValue, graphElements: GraphElement[]) {
   let graphElement = graphElements?.find(ge => graphElementHasIri(ge, clickedIRI))
   if (graphElement) {
-    model.getOriginGrapholNodes().set(graphElement.id + clickedIRI, cyEntity.id())
+    model.getOriginGrapholNodes().set(graphElement.id + clickedIRI, { elementId: cyEntity.id(), diagramId: getGscape().diagramId })
   }
 
   return graphElement

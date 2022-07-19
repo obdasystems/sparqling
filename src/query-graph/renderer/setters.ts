@@ -1,5 +1,4 @@
-import { EntityNameType, GrapholscapeTheme, Theme } from "grapholscape"
-import { DisplayedNameType } from "../displayed-name-type"
+import { EntityNameType, GrapholscapeTheme } from "grapholscape"
 import cy, { setStateDisplayedNameType, setLanguage } from "./cy"
 import { updateDisplayedNames } from "./graph-manipulation"
 import getStylesheet from "./style"

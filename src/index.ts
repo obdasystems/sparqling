@@ -2,7 +2,7 @@ import { Grapholscape } from 'grapholscape'
 import core from './core'
 import * as model from './model'
 import * as ontologyGraph from './ontology-graph'
-// import * as queryGraph from './query-graph'
+import * as queryGraph from './query-graph'
 // import * as queryHead from './query-head'
 import { leftColumnContainer } from './util/get-container'
 import * as widgets from './widgets'
@@ -62,7 +62,7 @@ function getCore(gscape: Grapholscape, file: string | Blob) {
 
     // Add query graph and query head widgets to grapholscape instance
     const uiContainer = gscape.container.querySelector('.gscape-ui')
-    // uiContainer.insertBefore(queryGraph.widget, uiContainer.firstChild)
+    uiContainer?.insertBefore(queryGraph.widget, uiContainer.firstChild)
     // uiContainer.insertBefore(leftColumnContainer, uiContainer.firstChild)
     // uiContainer.appendChild(widgets.relatedClassDialog)
     // uiContainer.appendChild(widgets.sparqlDialog)
@@ -74,8 +74,8 @@ function getCore(gscape: Grapholscape, file: string | Blob) {
 
     uiContainer?.querySelector('.gscape-ui-buttons-tray')?.appendChild(widgets.startRunButtons)
 
-    // queryGraph.setDisplayedNameType(gscape.actualEntityNameType, gscape.languages.selected)
-    // queryGraph.setTheme(gscape.themesController.actualTheme)
+    queryGraph.setDisplayedNameType(gscape.entityNameType, gscape.language)
+    queryGraph.setTheme(gscape.theme)
 
     handlers // hack, just mention the handlers to make the module be evaluated 
 

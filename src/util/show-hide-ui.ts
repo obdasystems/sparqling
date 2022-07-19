@@ -1,12 +1,13 @@
+import { widget as queryGraphWidget } from "../query-graph"
 
 export function showUI() {
-  // queryGraphWidget.show()
+  queryGraphWidget.show()
   // queryHeadWidget.show()
   // highlightsList.show()
 }
 
 export function hideUI() {
-  // queryGraphWidget.hide()
+  queryGraphWidget.hide()
   // queryHeadWidget.hide()
   // highlightsList.hide()
   // sparqlDialog.hide()

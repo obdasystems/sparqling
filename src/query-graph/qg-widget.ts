@@ -1,149 +1,192 @@
-import { UI } from 'grapholscape'
-import { html, css } from 'lit'
+import { ui } from 'grapholscape'
+import { html, css, LitElement } from 'lit'
 import { dbClick, rdfLogo } from '../widgets/assets/icons'
 import { emptyGraphMsg, emptyGraphTipMsg, tipWhatIsQueryGraph } from '../widgets/assets/texts'
 import cy from './renderer/cy'
 
-const { GscapeWidget, GscapeHeader } = UI
 /**
  * Widget extending base grapholscape widget which uses Lit-element inside
  */
-export default class QueryGraphWidget extends (GscapeWidget as any) {
-  public collapsible : boolean
-  public draggable: boolean
+export default class QueryGraphWidget extends ui.BaseMixin(ui.DropPanelMixin(LitElement)) {
   private bgpContainer: HTMLElement
   private _isBGPEmpty: boolean = true
-  private headSlottedWidgets?: Element[]
+  title = 'Query Graph'
 
-  static get properties() {
-    const props = super.properties
-
-    props._isBGPEmpty = { attribute: false, type: Boolean }
-
-    return props
+  static properties = {
+    _isBGPEmpty: { attribute: false, type: Boolean }
   }
 
-  static get styles() {
-    let super_styles = super.styles as any
-    let colors = super_styles[1]
+  static styles = [
+    ui.baseStyle,
+    css`
+      :host {
+        width: calc(50%);
+        height: 30%;
+        position: absolute;
+        left: 50%;
+        top: 100%;
+        transform: translate(-50%, calc(-100% - 10px));
+      }
 
-    return [
-      super_styles[0],
-      css`
-        :host {
-          width: calc(50%);
-          position: absolute;
-          left: 50%;
-          top: 100%;
-          transform: translate(-50%, calc(-100% - 10px));
-        }
+      .gscape-panel {
+        width: unset;
+        max-width: unset;
+        height: 100%;
+        box-sizing: border-box;
+        overflow: unset;
+        padding-top: 27px;
+      }
 
-        .widget-body {
-          min-height: 50px;
-          margin:0;
-          border-top: none;
-          border-radius: inherit;
-          border-bottom-left-radius:0;
-          border-bottom-right-radius:0;
-        }
+      .blank-slate {
+        position: absolute;
+        top: 50%;
+        left: 50%;
+        transform: translate(-50%, -50%);
+        max-width: unset;
+        width: 100%;
+        box-sizing: border-box;
+      }
+      
+      .tip {
+        border-bottom: dotted 2px;
+        cursor: help;
+      }
 
-        #empty-graph {
-          padding: 20px;
-          display: flex;
-          flex-direction: column;
-          align-items: center;
-          gap: 20px;
-          text-align: center;
-        }
+      .tip: hover {
+        color:inherit;
+      }
 
-        #empty-graph > .icon {
-          --gscape-icon-size: 60px;
-        }
+      #buttons-tray > * {
+        position: initial;
+      }
 
-        #empty-graph-msg {
-          font-weight: bold;
-        }
+      #buttons-tray {
+        display: flex;
+        align-items: center;
+        justify-content: end;
+        gap:10px;
+        flex-grow: 3;
+        padding: 0 10px;
+      }
 
-        .tip {
-          font-size: 90%;
-          color: var(--theme-gscape-shadows, ${colors.shadows});
-          border-bottom: dotted 2px;
-          cursor: help;
-        }
+      #buttons-tray > gscape-button {
+        --gscape-icon-size: 20px;
+      }
 
-        .tip: hover {
-          color:inherit;
-        }
+      #buttons-tray > input {
+        max-width:50px;
+      }
 
-        #buttons-tray > * {
-          position: initial;
-        }
+      .input-elem {
+        color: inherit;
+        padding: 5px;
+        border: none;
+        border-bottom: solid 1px var(--gscape-color-border-default);
+        max-width: 50px;
+      }
 
-        #buttons-tray {
-          display: flex;
-          align-items: center;
-          justify-content: end;
-          gap:10px;
-          flex-grow: 3;
-          padding: 0 10px;
-        }
+      .top-bar {
+        font-size: 12px;
+        display: flex;
+        flex-direction: row;
+        line-height: 1;
+        position: absolute;
+        top: 1px;
+        right: 1px;
+        z-index: 2;
+        
+        align-items: center;
+        justify-content: space-between;
+        gap: 4px;
+        box-sizing: border-box;
+        width: calc(100% - 2px);
+        border-top-left-radius: var(--gscape-border-radius);
+        border-top-right-radius: var(--gscape-border-radius);
+        border-bottom-left-radius: 0px;
+        border-bottom-right-radius: 0px;
+        background: var(--gscape-color-bg-inset);
+      }
 
-        #buttons-tray > gscape-button {
-          --gscape-icon-size: 20px;
-        }
+      .top-bar.traslated-down {
+        top: unset;
+        right: unset;
+        bottom: 0;
+        left: 50%;
+        transform: translate(-50%);
+        width: fit-content;
+        height: fit-content;
+      }
 
-        #buttons-tray > input {
-          max-width:50px;
-        }
-
-        .input-elem {
-          color: inherit;
-          padding: 5px;
-          border: none;
-          border-bottom: solid 1px var(--theme-gscape-borders, ${colors.borders});
-          max-width: 50px;
-          background: var(--theme-gscape-primary, ${colors.primary});
-        }
-      `
-    ]
-  }
+      #widget-header {
+        margin-left: 8px;
+        display: flex;
+        align-items: center;
+        gap: 8px;
+      }
+    `
+  ]
 
   constructor(bgpContainer: HTMLElement, headSlottedWidgets?: Element[]) {
     super()
     this.bgpContainer = bgpContainer
-    this.collapsible = true
-    this.draggable = true
-    this.headSlottedWidgets = headSlottedWidgets
     //super.makeDraggable()
   }
 
   render() {
     return html`
-      <div class="widget-body">
-        ${this.isBGPEmpty
+      <div class="top-bar ${this.isPanelClosed() ? 'traslated-down' : null }">
+        ${!this.isPanelClosed()
           ? html`
-            <div id="empty-graph">
-              <div class="icon">${dbClick}</div>
-              <div id="empty-graph-msg">${emptyGraphMsg()}</div>
-              <div class="tip" title="${emptyGraphTipMsg()}">${tipWhatIsQueryGraph()}</div>
+            <div id="widget-header" class="bold-text">
+              ${rdfLogo}
+              <span>${this.title}</span>
             </div>
           `
-          : this.bgpContainer}
+          : null
+        }
+        <gscape-button 
+          id="toggle-panel-button"
+          size="${this.isPanelClosed() ? 'm' : 's'}" 
+          type="${this.isPanelClosed() ? '' : 'subtle'}"
+          @click=${this.togglePanel}
+          label = "${this.isPanelClosed() ? this.title : ''}"
+        > 
+          ${this.isPanelClosed()
+            ? html`
+                <span slot="icon">${rdfLogo}</span>
+                <span slot="trailing-icon">${ui.icons.plus}</span>
+              `
+            : html`<span slot="icon">${ui.icons.minus}</span>`
+          }
+        </gscape-button>
       </div>
 
-      <gscape-head title="Query Graph">
-        <div id="buttons-tray">
-          ${this.headSlottedWidgets}
-        </div>
-      </gscape-head>
+
+      <div class="gscape-panel" id="drop-panel">
+        ${this.isBGPEmpty
+        ? html`
+            <div class="blank-slate">
+              ${dbClick}
+              <div class="header">${emptyGraphMsg()}</div>
+              <div class="tip description" title="${emptyGraphTipMsg()}">${tipWhatIsQueryGraph()}</div>
+            </div>
+          `
+        : this.bgpContainer}
+      </div>
     `
   }
 
+  togglePanel = () => {
+    super.togglePanel()
+
+    this.requestUpdate()
+  }
+
   firstUpdated() {
-    super.firstUpdated()
-    this.header.left_icon = rdfLogo
-    this.header.invertIcons()
-    super.makeDraggableHeadTitle()
+  //   super.firstUpdated()
+  //   this.header.left_icon = rdfLogo
+  //   this.header.invertIcons()
+  //   super.makeDraggableHeadTitle()
     this.hide()
   }
 
@@ -161,12 +204,12 @@ export default class QueryGraphWidget extends (GscapeWidget as any) {
        */
       try {
         (cy as any).renderer().hoverData.capture = true
-      } catch {}
+      } catch { }
     })
     return root
   }
 
-  blur() {}
+  blur() { }
 
   set isBGPEmpty(value: boolean) {
     this._isBGPEmpty = value

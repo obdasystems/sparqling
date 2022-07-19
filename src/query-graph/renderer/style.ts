@@ -1,15 +1,15 @@
 import { Stylesheet } from "cytoscape"
-import { Theme } from "grapholscape"
+import { GrapholscapeTheme } from "grapholscape"
 import { EntityTypeEnum } from "../../api/swagger"
 
 const { DataProperty, Class, ObjectProperty, InverseObjectProperty } = EntityTypeEnum
 
-export default (theme: Theme) => {
+export default (theme: GrapholscapeTheme) => {
   return [
     {
       selector: '*',
       style: {
-        'color': theme.label_color,
+        'color': theme.colours.label,
         'border-width': '1px',
       }
     },
@@ -17,8 +17,8 @@ export default (theme: Theme) => {
       selector: `node[type = "${Class}"]`,
       style: {
         'shape': 'round-rectangle',
-        'background-color': theme.concept,
-        'border-color': theme.concept_dark,
+        'background-color': theme.colours.class,
+        'border-color': theme.colours["class-contrast"],
         'text-halign': 'center',
         'text-valign': 'center',
         'width': '60px',
@@ -53,7 +53,7 @@ export default (theme: Theme) => {
       style: {
         'curve-style': 'straight',
         'target-arrow-shape': 'none',
-        'line-color': theme.attribute_dark,
+        'line-color': theme.colours["data-property"],
       },
     },
 
@@ -63,17 +63,17 @@ export default (theme: Theme) => {
         'shape': 'ellipse',
         'height': 10,
         'width': 10,
-        'background-color': theme.attribute,
-        'border-color': theme.attribute_dark,
+        'background-color': theme.colours["data-property"],
+        'border-color': theme.colours["data-property-contrast"],
       },
     },
 
     {
       selector: `edge[type = "${ObjectProperty}"], edge[type = "${InverseObjectProperty}"]`,
       style: {
-        'line-color': theme.role_dark,
-        'target-arrow-color': theme.role_dark,
-        'source-arrow-color': theme.role_dark,
+        'line-color': theme.colours["object-property-contrast"],
+        'target-arrow-color': theme.colours["object-property-contrast"],
+        'source-arrow-color': theme.colours["object-property-contrast"],
         'text-max-width': '60px'
       }
     },
@@ -90,9 +90,9 @@ export default (theme: Theme) => {
     {
       selector: '.cdnd-drop-target',
       style: {
-        'background-color': theme.primary_dark,
+        'background-color': theme.colours["bg-inset"],
         'border-style': 'dashed',
-        'border-color': theme.secondary,
+        'border-color': theme.colours["accent-muted"],
         'shape': 'round-rectangle',
         'label': 'Release to join these classes',
         'font-size': '12px',

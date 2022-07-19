@@ -1,3 +1,4 @@
+import { ui } from 'grapholscape'
 import { QueryGraph, QueryGraphBGPApiFactory, QueryGraphHeadApiFactory, QueryGraphOptionalApiFactory } from '../api/swagger'
 import { clearQuery } from '../main'
 import { handlePromise } from '../main/handle-promises'
@@ -6,20 +7,20 @@ import * as model from '../model'
 import * as ontologyGraph from '../ontology-graph'
 import getGscape from '../ontology-graph/get-gscape'
 import * as queryGraph from '../query-graph'
-import * as queryHead from '../query-head'
+// import * as queryHead from '../query-head'
 import * as GEUtility from '../util/graph-element-utility'
-import { clearQueryButton, filterDialog, filterListDialog, sparqlButton, sparqlDialog } from '../widgets'
+// import { clearQueryButton, filterDialog, filterListDialog, sparqlButton, sparqlDialog } from '../widgets'
 import showFormDialog from './show-form-dialog'
 
-queryGraph.onAddHead(async graphElement => {
-  if (graphElement?.id) {
-    const qgApi = QueryGraphHeadApiFactory(undefined, model.getBasePath())
-    const body = model.getQueryBody()
-    handlePromise(qgApi.addHeadTerm(graphElement.id, body, model.getRequestOptions())).then(newBody => {
-      onNewBody(newBody)
-    })
-  }
-})
+// queryGraph.onAddHead(async graphElement => {
+//   if (graphElement?.id) {
+//     const qgApi = QueryGraphHeadApiFactory(undefined, model.getBasePath())
+//     const body = model.getQueryBody()
+//     handlePromise(qgApi.addHeadTerm(graphElement.id, body, model.getRequestOptions())).then(newBody => {
+//       onNewBody(newBody)
+//     })
+//   }
+// })
 
 queryGraph.onDelete((graphElement, iri) => {
   if (!graphElement.id) {
@@ -41,25 +42,24 @@ queryGraph.onDelete((graphElement, iri) => {
               return true
           }) || false
         })
-        
-  
+
         model.setSelectedGraphElement(newSelectedGE)
         ontologyGraph.resetHighlights()
-        gscape.unselectEntity()
+        gscape.unselect()
 
         if (newSelectedGE) {
           const newSelectedGEIri = GEUtility.getIri(newSelectedGE)
           if (newSelectedGEIri) {
-            ontologyGraph.focusNodeByIRI(newSelectedGEIri)
+            gscape.centerOnEntity(newSelectedGEIri)
             ontologyGraph.highlightSuggestions(newSelectedGEIri)
           }
         }
-        
+
         if (newSelectedGE?.id) {
           queryGraph.selectElement(newSelectedGE.id) // force selecting a new class
         }
       }
-      
+
       finalizeDelete(newBody)
     })
   } else { // deleted a children
@@ -76,27 +76,27 @@ queryGraph.onDelete((graphElement, iri) => {
   }
 })
 
-queryGraph.onJoin(async (ge1, ge2) => {
-  if (ge1.id && ge2.id) {
-    const qgApi = QueryGraphBGPApiFactory(undefined, model.getBasePath())
-    const body = model.getQueryBody()
+// queryGraph.onJoin(async (ge1, ge2) => {
+//   if (ge1.id && ge2.id) {
+//     const qgApi = QueryGraphBGPApiFactory(undefined, model.getBasePath())
+//     const body = model.getQueryBody()
 
-    handlePromise(qgApi.putQueryGraphJoin(ge1.id, ge2.id, body, model.getRequestOptions())).then(newBody => {
-      model.setSelectedGraphElement(ge1)
-      onNewBody(newBody)
-    })
-  }
-})
+//     handlePromise(qgApi.putQueryGraphJoin(ge1.id, ge2.id, body, model.getRequestOptions())).then(newBody => {
+//       model.setSelectedGraphElement(ge1)
+//       onNewBody(newBody)
+//     })
+//   }
+// })
 
 queryGraph.onElementClick((graphElement, iri) => {
   const gscape = getGscape()
 
   // move ontology graph to show origin graphol node or any other iri occurrence
-  const originGrapholNodeId = model.getOriginGrapholNodes().get(graphElement.id + iri)
-  if (originGrapholNodeId) {
-    ontologyGraph.focusNodeByIdAndDiagram(originGrapholNodeId)
+  const originGrapholNodeOccurrence = model.getOriginGrapholNodes().get(graphElement.id + iri)
+  if (originGrapholNodeOccurrence) {
+    gscape.centerOnElement(originGrapholNodeOccurrence.elementId, originGrapholNodeOccurrence.diagramId)
   } else {
-    ontologyGraph.focusNodeByIRI(iri)
+    gscape.centerOnEntity(iri)
   }
 
   if (GEUtility.isClass(graphElement)) {
@@ -108,61 +108,63 @@ queryGraph.onElementClick((graphElement, iri) => {
       ontologyGraph.highlightSuggestions(iri)
     }
   }
-
-  gscape.widgets.ENTITY_DETAILS.setEntity(gscape.ontology.getEntityOccurrences(iri)[0])
+  const entityDetailsWidget = gscape.widgets.get(ui.WidgetEnum.ENTITY_DETAILS) as any
+  if (entityDetailsWidget)
+    entityDetailsWidget.grapholEntity = gscape.ontology.getEntity(iri)
+  
   // keep focus on selected class
   const selectedGraphElem = model.getSelectedGraphElement()
   if (selectedGraphElem?.id)
     queryGraph.selectElement(selectedGraphElem.id)
 })
 
-queryGraph.onMakeOptional(graphElement => {
-  if (graphElement.id) {
-    const qgOptionalApi = QueryGraphOptionalApiFactory(undefined, model.getBasePath())
-    const body = model.getQueryBody()
-    handlePromise(qgOptionalApi.newOptionalGraphElementId(graphElement.id, body, model.getRequestOptions())).then(newBody => {
-      onNewBody(newBody)
-    })
-  }
-})
+// queryGraph.onMakeOptional(graphElement => {
+//   if (graphElement.id) {
+//     const qgOptionalApi = QueryGraphOptionalApiFactory(undefined, model.getBasePath())
+//     const body = model.getQueryBody()
+//     handlePromise(qgOptionalApi.newOptionalGraphElementId(graphElement.id, body, model.getRequestOptions())).then(newBody => {
+//       onNewBody(newBody)
+//     })
+//   }
+// })
 
-queryGraph.onRemoveOptional(graphElement => {
-  if (graphElement.id) {
-    const qgOptionalApi = QueryGraphOptionalApiFactory(undefined, model.getBasePath())
-    const body = model.getQueryBody()
-    handlePromise(qgOptionalApi.removeOptionalGraphElementId(graphElement.id, body, model.getRequestOptions())).then(newBody => {
-      onNewBody(newBody)
-    })
-  }
-})
+// queryGraph.onRemoveOptional(graphElement => {
+//   if (graphElement.id) {
+//     const qgOptionalApi = QueryGraphOptionalApiFactory(undefined, model.getBasePath())
+//     const body = model.getQueryBody()
+//     handlePromise(qgOptionalApi.removeOptionalGraphElementId(graphElement.id, body, model.getRequestOptions())).then(newBody => {
+//       onNewBody(newBody)
+//     })
+//   }
+// })
 
-queryGraph.onAddFilter(graphElement => {
-  showFormDialog(graphElement, filterDialog)
-})
+// queryGraph.onAddFilter(graphElement => {
+//   showFormDialog(graphElement, filterDialog)
+// })
 
-queryGraph.onSeeFilters(graphElement => {
-  if (graphElement.id) {
-    for (const headElementComponent of queryHead.widget.shadowRoot.querySelectorAll('head-element')) {
-      if (headElementComponent.graphElementId === graphElement.id) {
-        headElementComponent.focus()
-        headElementComponent.showBody()
-        headElementComponent.scrollIntoView({ behavior: 'smooth' })
-        return
-      }
-    }
+// queryGraph.onSeeFilters(graphElement => {
+//   if (graphElement.id) {
+//     for (const headElementComponent of queryHead.widget.shadowRoot.querySelectorAll('head-element')) {
+//       if (headElementComponent.graphElementId === graphElement.id) {
+//         headElementComponent.focus()
+//         headElementComponent.showBody()
+//         headElementComponent.scrollIntoView({ behavior: 'smooth' })
+//         return
+//       }
+//     }
 
-    // if not in query head, show dialog
-    const filtersOnVariable = model.getFiltersOnVariable(graphElement.id)
-    if (filtersOnVariable)
-      filterListDialog.filterList = filtersOnVariable
+//     // if not in query head, show dialog
+//     const filtersOnVariable = model.getFiltersOnVariable(graphElement.id)
+//     if (filtersOnVariable)
+//       filterListDialog.filterList = filtersOnVariable
 
-    filterListDialog.variable = graphElement.id
-    filterListDialog.show()
-  }
-})
+//     filterListDialog.variable = graphElement.id
+//     filterListDialog.show()
+//   }
+// })
 
-sparqlButton.onClick = () => {
-  sparqlDialog.isVisible ? sparqlDialog.hide() : sparqlDialog.show()
-}
+// sparqlButton.onClick = () => {
+//   sparqlDialog.isVisible ? sparqlDialog.hide() : sparqlDialog.show()
+// }
 
-clearQueryButton.onClick = () => clearQuery()
+// clearQueryButton.onClick = () => clearQuery()

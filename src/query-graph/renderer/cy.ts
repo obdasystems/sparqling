@@ -1,5 +1,4 @@
 import cytoscape, { Stylesheet } from "cytoscape"
-import { DisplayedNameType } from "../displayed-name-type"
 import klay from 'cytoscape-klay'
 import compoundDragAndDrop from 'cytoscape-compound-drag-and-drop'
 import popper from 'cytoscape-popper'
@@ -30,6 +29,18 @@ cy.on('render', () => {
   try {
     (cy as any).renderer().hoverData.capture = true
   } catch {}
+})
+
+cy.on('mouseover', '[iri]', () => {
+  const container = cy.container()
+  if (container)
+    container.style.cursor = 'pointer'
+})
+
+cy.on('mouseout', () => {
+  const container = cy.container()
+  if (container)
+    container.style.cursor = 'unset'
 })
 
 let menu: any
