@@ -22,18 +22,18 @@ queryHead.onDelete(async headElement => {
   }
 })
 
-// queryHead.onRename(async (headElementId, alias) => {
-//   const qgApi = QueryGraphHeadApiFactory(undefined, model.getBasePath())
-//   const tempQueryBody = model.getTempQueryBody()
-//   const headElement = model.getHeadElementByID(headElementId, tempQueryBody)
+queryHead.onRename(async (headElementId, alias) => {
+  const qgApi = QueryGraphHeadApiFactory(undefined, model.getBasePath())
+  const tempQueryBody = model.getTempQueryBody()
+  const headElement = model.getHeadElementByID(headElementId, tempQueryBody)
 
-//   if (headElement?.id) {
-//     headElement.alias = alias
-//     handlePromise(qgApi.renameHeadTerm(headElement.id, tempQueryBody, model.getRequestOptions())).then(newBody => {
-//       onNewBody(newBody)
-//     })
-//   }
-// })
+  if (headElement?.id) {
+    headElement.alias = alias
+    handlePromise(qgApi.renameHeadTerm(headElement.id, tempQueryBody, model.getRequestOptions())).then(newBody => {
+      onNewBody(newBody)
+    })
+  }
+})
 
 // queryHead.onLocalize(headElement => {
 //   if (headElement.graphElementId) {

@@ -7,20 +7,20 @@ import { asterisk, counter, tableEye } from '../widgets/assets/icons'
 import { countStarMsg, emptyHeadMsg, emptyHeadTipMsg, tipWhy } from '../widgets/assets/texts'
 import sparqlingWidgetStyle from '../widgets/sparqling-widget-style'
 import { allowDrop } from './drag-sorting'
-import HeadElementComponent, { HeadElementCallback } from './qh-element-component'
+import HeadElementComponent, { HeadElementCallback, HeadElementRenameCallback } from './qh-element-component'
 
 export default class QueryHeadWidget extends ui.BaseMixin(ui.DropPanelMixin(LitElement)) {
   title = 'Query Results'
   public headElements: HeadElement[] = []
-  private deleteElementCallback: (headElementId: string) => void
-  private renameElementCallback: (headElemntId: string, alias: string) => void
-  private localizeElementCallback: (headElementId: string) => void
-  private addFilterCallback: (headElementId: string) => void
+  private deleteElementCallback: HeadElementCallback
+  private renameElementCallback: HeadElementRenameCallback
+  private localizeElementCallback: HeadElementCallback
+  private addFilterCallback: HeadElementCallback
   private editFilterCallback: (filterId: number) => void
   private deleteFilterCallback: (filterId: number) => void
-  private addFunctionCallback: (headElementId: string) => void
-  private orderByChangeCallback: (headElementId: string) => void
-  private addAggregationCallback: (headElementId: string) => void
+  private addFunctionCallback: HeadElementCallback
+  private orderByChangeCallback: HeadElementCallback
+  private addAggregationCallback: HeadElementCallback
   
   static properties = {
     headElements: { type: Object, attribute: false }
@@ -133,7 +133,7 @@ export default class QueryHeadWidget extends ui.BaseMixin(ui.DropPanelMixin(LitE
     this.shadowRoot?.querySelectorAll('head-element').forEach((element: Element) => {
       const headElementComponent = element as HeadElementComponent
       headElementComponent.onDelete = this.deleteElementCallback
-      headElementComponent.onRename(this.renameElementCallback)
+      headElementComponent.onRename = this.renameElementCallback
       headElementComponent.onLocalize(this.localizeElementCallback)
       headElementComponent.onAddFilter(this.addFilterCallback)
       headElementComponent.onEditFilter(this.editFilterCallback)
@@ -161,7 +161,7 @@ export default class QueryHeadWidget extends ui.BaseMixin(ui.DropPanelMixin(LitE
    * Register callback to execute on rename of a HeadElement (Set alias)
    * @param callback callback receiving the ID of the headElement to rename
    */
-  onRename(callback: (headElemId: string, alias: string) => void) {
+  onRename(callback: HeadElementRenameCallback) {
     this.renameElementCallback = callback
   }
 
@@ -173,7 +173,7 @@ export default class QueryHeadWidget extends ui.BaseMixin(ui.DropPanelMixin(LitE
     this.localizeElementCallback = callback
   }
 
-  onAddFilter(callback: (headElementId: string) => void) {
+  onAddFilter(callback: HeadElementCallback) {
     this.addFilterCallback = callback
   }
 
@@ -185,15 +185,15 @@ export default class QueryHeadWidget extends ui.BaseMixin(ui.DropPanelMixin(LitE
     this.deleteFilterCallback = callback
   }
 
-  onAddFunction(callback: (headElementId: string) => void) {
+  onAddFunction(callback: HeadElementCallback) {
     this.addFunctionCallback = callback
   }
 
-  onOrderByChange(callback: (headElementId: string) => void) {
+  onOrderByChange(callback: HeadElementCallback) {
     this.orderByChangeCallback = callback
   }
 
-  onAddAggregation(callback: (headElementId: string) => void) {
+  onAddAggregation(callback: HeadElementCallback) {
     this.addAggregationCallback = callback
   }
 

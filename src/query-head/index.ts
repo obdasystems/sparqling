@@ -14,11 +14,11 @@ export function onDelete(callback: (headElement: HeadElement) => void) {
   })
 }
 
-// export function onRename(callback: (headElement: string, alias: string) => void) {
-//   qhWidget.onRename( (headElementId: string, alias:string) => {
-//     callback(headElementId, alias)
-//   })
-// }
+export function onRename(callback: (headElement: string, alias: string) => void) {
+  qhWidget.onRename( (headElementId: string, alias:string) => {
+    callback(headElementId, alias)
+  })
+}
 
 // export function onLocalize(callback: (headElement: HeadElement) => void) {
 //   qhWidget.onLocalize( headElementId => {

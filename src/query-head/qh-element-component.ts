@@ -12,6 +12,7 @@ import { onDragEnd, onDragOver, onDragStart } from './drag-sorting';
 const ALIAS_INPUT_ID = 'alias'
 
 export type HeadElementCallback = (headElementId: string) => void
+export type HeadElementRenameCallback = (headElementId: string, alias: string) => void
 
 export default class HeadElementComponent extends ui.BaseMixin(ui.DropPanelMixin(LitElement)) implements HeadElement {
   public _id: string
@@ -35,6 +36,7 @@ export default class HeadElementComponent extends ui.BaseMixin(ui.DropPanelMixin
 
   showCxtMenu = () => { }
   onDelete: HeadElementCallback = () => { }
+  onRename: HeadElementRenameCallback = () => { }
 
   static properties = {
     alias: { attribute: false },
@@ -333,14 +335,11 @@ export default class HeadElementComponent extends ui.BaseMixin(ui.DropPanelMixin
   handleInputChange(evt: FocusEvent) {
     let target = evt.currentTarget as HTMLInputElement
     if (this.alias !== target.value && target.value.length > 0 && target.value !== this.graphElementId) {
-      this.renameCallback(this._id, target.value)
+      this.onRename(this._id, target.value)
     } else {
       target.value = this.alias || this.graphElementId
     }
   }
-
-  private renameCallback = (headElemntID: string, alias: string) => { }
-  public onRename(callback: (headElemntID: string, alias: string) => void) { this.renameCallback = callback }
 
   private localizeCallback = (headElementId: string) => { }
   public onLocalize(callback: (headElementId: string) => void) { this.localizeCallback = callback }
