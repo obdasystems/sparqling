@@ -1,5 +1,6 @@
 import { HeadElement } from "../api/swagger"
 import * as model from '../model'
+import { HeadElementCallback, HeadElementRenameCallback } from "./qh-element-component"
 import QueryHeadWidget from "./qh-widget"
 
 const qhWidget = new QueryHeadWidget()
@@ -14,7 +15,7 @@ export function onDelete(callback: (headElement: HeadElement) => void) {
   })
 }
 
-export function onRename(callback: (headElement: string, alias: string) => void) {
+export function onRename(callback: HeadElementRenameCallback) {
   qhWidget.onRename( (headElementId: string, alias:string) => {
     callback(headElementId, alias)
   })
@@ -54,9 +55,9 @@ export function render(newHead: HeadElement[]) {
 //   qhWidget.onAddFunction(headElementId => callback(headElementId))
 // }
 
-// export function onOrderByChange(callback: (headElementId: string) => void) {
-//   qhWidget.onOrderByChange(headElementId => callback(headElementId))
-// }
+export function onOrderByChange(callback: HeadElementCallback) {
+  qhWidget.onOrderByChange(headElementId => callback(headElementId))
+}
 
 // export function onAddAggregation(callback: (headElementId: string) => void) {
 //   qhWidget.onAddAggregation(headElementId => callback(headElementId))

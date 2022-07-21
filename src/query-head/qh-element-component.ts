@@ -38,6 +38,7 @@ export default class HeadElementComponent extends ui.BaseMixin(ui.DropPanelMixin
   onDelete: HeadElementCallback = () => { }
   onRename: HeadElementRenameCallback = () => { }
   onLocalize: HeadElementCallback = () => { }
+  onOrderBy: HeadElementCallback = () => { }
 
   static properties = {
     alias: { attribute: false },
@@ -209,7 +210,7 @@ export default class HeadElementComponent extends ui.BaseMixin(ui.DropPanelMixin
           </div>
           <div id="actions">
             ${getTrayButtonTemplate('Show in graphs', crosshair, undefined, 'localize-action', () => this.onLocalize(this._id))}
-            ${getTrayButtonTemplate('Order results ascending/descending', this.orderIcon, undefined, 'sort-action', () => this.orderByCallback(this._id))}
+            ${getTrayButtonTemplate('Order results ascending/descending', this.orderIcon, undefined, 'sort-action', () => this.onOrderBy(this._id))}
             ${getTrayButtonTemplate('More actions', kebab, undefined, 'cxt-menu-action', () => this.showCxtMenu())}
           </div>
           ${this.hasAnythingInBody || this.ordering !== 0
@@ -362,11 +363,6 @@ export default class HeadElementComponent extends ui.BaseMixin(ui.DropPanelMixin
   private addFunctionCallback = (headElementId: string) => { }
   public onAddFunction(callback: (headElementId: string) => void) {
     this.addFunctionCallback = callback
-  }
-
-  private orderByCallback = (headElementId: string) => { }
-  public onOrderByChange(callback: (headElementId: string) => void) {
-    this.orderByCallback = callback
   }
 
   private addAggregationCallback = (headElementId: string) => { }

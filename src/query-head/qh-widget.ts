@@ -139,7 +139,7 @@ export default class QueryHeadWidget extends ui.BaseMixin(ui.DropPanelMixin(LitE
       headElementComponent.onEditFilter(this.editFilterCallback)
       headElementComponent.onDeleteFilter(this.deleteFilterCallback)
       headElementComponent.onAddFunction(this.addFunctionCallback)
-      headElementComponent.onOrderByChange(this.orderByChangeCallback)
+      headElementComponent.onOrderBy = this.orderByChangeCallback
       headElementComponent.onAddAggregation(this.addAggregationCallback)
       headElementComponent.showCxtMenu = () => {
         if (headElementComponent.moreActionsButton) {

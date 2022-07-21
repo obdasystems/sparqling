@@ -84,26 +84,26 @@ queryHead.onElementSortChange((headElementId, newIndex) => {
   handlePromise(qhApi.reorderHeadTerms(tempQueryBody, model.getRequestOptions())).then(newBody => onNewBody(newBody))
 })
 
-// queryHead.onOrderByChange(headElementId => {
-//   const tempQueryBody = getTempQueryBody()
-//   const headElement = tempQueryBody.head.find(he => he.id === headElementId)
+queryHead.onOrderByChange(headElementId => {
+  const tempQueryBody = getTempQueryBody()
+  const headElement = tempQueryBody.head.find(he => he.id === headElementId)
 
-//   if (headElement) {
-//     headElement.ordering = (headElement.ordering || 0) + 1
-//     if (headElement.ordering >= 2) {
-//       headElement.ordering = -1
-//     }
-//   }
+  if (headElement) {
+    headElement.ordering = (headElement.ordering || 0) + 1
+    if (headElement.ordering >= 2) {
+      headElement.ordering = -1
+    }
+  }
 
-//   // if (headElement.ordering === 0) {
-//   //   headElement.ordering = null
-//   // }
+  // if (headElement.ordering === 0) {
+  //   headElement.ordering = null
+  // }
 
-//   const qhApi = QueryGraphHeadApiFactory(undefined, model.getBasePath())
-//   handlePromise(qhApi.orderByHeadTerm(headElementId, tempQueryBody, model.getRequestOptions())).then(newBody => {
-//     onNewBody(newBody)
-//   })
-// })
+  const qhApi = QueryGraphHeadApiFactory(undefined, model.getBasePath())
+  handlePromise(qhApi.orderByHeadTerm(headElementId, tempQueryBody, model.getRequestOptions())).then(newBody => {
+    onNewBody(newBody)
+  })
+})
 
 // queryHead.onAddAggregation(headElementId => {
 //   const headElement = model.getHeadElementByID(headElementId)
