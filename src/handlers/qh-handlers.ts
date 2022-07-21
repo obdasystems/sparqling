@@ -35,18 +35,18 @@ queryHead.onRename(async (headElementId, alias) => {
   }
 })
 
-// queryHead.onLocalize(headElement => {
-//   if (headElement.graphElementId) {
-//     let graphElement = getGraphElementByID(headElement.graphElementId)
-//     if (graphElement) {
-//       const geIri = getIri(graphElement)
-//       if (geIri) {
-//         queryGraph.centerOnElem(graphElement)
-//         ontologyGraph.focusNodeByIRI(geIri)
-//       }
-//     }
-//   }
-// })
+queryHead.onLocalize(headElement => {
+  if (headElement.graphElementId) {
+    let graphElement = getGraphElementByID(headElement.graphElementId)
+    if (graphElement) {
+      const geIri = getIri(graphElement)
+      if (geIri) {
+        queryGraph.centerOnElem(graphElement)
+        ontologyGraph.getGscape().centerOnEntity(geIri)
+      }
+    }
+  }
+})
 
 // queryHead.onAddFilter(headElementId => {
 //   const headElement = model.getHeadElementByID(headElementId)

@@ -37,6 +37,7 @@ export default class HeadElementComponent extends ui.BaseMixin(ui.DropPanelMixin
   showCxtMenu = () => { }
   onDelete: HeadElementCallback = () => { }
   onRename: HeadElementRenameCallback = () => { }
+  onLocalize: HeadElementCallback = () => { }
 
   static properties = {
     alias: { attribute: false },
@@ -207,7 +208,7 @@ export default class HeadElementComponent extends ui.BaseMixin(ui.DropPanelMixin
             />
           </div>
           <div id="actions">
-            ${getTrayButtonTemplate('Show in graphs', crosshair, undefined, 'localize-action', () => this.localizeCallback(this._id))}
+            ${getTrayButtonTemplate('Show in graphs', crosshair, undefined, 'localize-action', () => this.onLocalize(this._id))}
             ${getTrayButtonTemplate('Order results ascending/descending', this.orderIcon, undefined, 'sort-action', () => this.orderByCallback(this._id))}
             ${getTrayButtonTemplate('More actions', kebab, undefined, 'cxt-menu-action', () => this.showCxtMenu())}
           </div>
@@ -340,9 +341,6 @@ export default class HeadElementComponent extends ui.BaseMixin(ui.DropPanelMixin
       target.value = this.alias || this.graphElementId
     }
   }
-
-  private localizeCallback = (headElementId: string) => { }
-  public onLocalize(callback: (headElementId: string) => void) { this.localizeCallback = callback }
 
   public onFunctionSet(callback: (fun: Function) => void) { }
 

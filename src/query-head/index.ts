@@ -20,12 +20,12 @@ export function onRename(callback: (headElement: string, alias: string) => void)
   })
 }
 
-// export function onLocalize(callback: (headElement: HeadElement) => void) {
-//   qhWidget.onLocalize( headElementId => {
-//     const headElement = model.getHeadElementByID(headElementId) 
-//     if (headElement) callback(headElement)
-//   })
-// }
+export function onLocalize(callback: (headElement: HeadElement) => void) {
+  qhWidget.onLocalize( headElementId => {
+    const headElement = model.getHeadElementByID(headElementId) 
+    if (headElement) callback(headElement)
+  })
+}
 
 
 

@@ -134,7 +134,7 @@ export default class QueryHeadWidget extends ui.BaseMixin(ui.DropPanelMixin(LitE
       const headElementComponent = element as HeadElementComponent
       headElementComponent.onDelete = this.deleteElementCallback
       headElementComponent.onRename = this.renameElementCallback
-      headElementComponent.onLocalize(this.localizeElementCallback)
+      headElementComponent.onLocalize = this.localizeElementCallback
       headElementComponent.onAddFilter(this.addFilterCallback)
       headElementComponent.onEditFilter(this.editFilterCallback)
       headElementComponent.onDeleteFilter(this.deleteFilterCallback)
@@ -169,7 +169,7 @@ export default class QueryHeadWidget extends ui.BaseMixin(ui.DropPanelMixin(LitE
    * Register callback to execute on localization of a HeadElement
    * @param callback callback receiving the ID of the HeadElement to localize
    */
-  onLocalize(callback: (headElemId: string) => void) {
+  onLocalize(callback: HeadElementCallback) {
     this.localizeElementCallback = callback
   }
 
