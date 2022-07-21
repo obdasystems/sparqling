@@ -35,7 +35,7 @@ export function onDragEnd(event: DragEvent) {
     elemsWrapper.replaceChild(dragging, dropIndicator)
     setTimeout(() => dragging.classList.remove('dragged'), 100)
     const draggedElemNewIndex = getDraggedElemNewIndex()
-    if (draggedElemNewIndex)
+    if (draggedElemNewIndex || draggedElemNewIndex === 0)
       sortChangedCallback((dragging as any)._id, draggedElemNewIndex)
   } else {
     dropIndicator.remove()

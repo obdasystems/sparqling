@@ -68,21 +68,21 @@ queryHead.onLocalize(headElement => {
 //     showFormDialog(headElement, functionDialog)
 // })
 
-// queryHead.onElementSortChange((headElementId, newIndex) => {
-//   const headElement = model.getHeadElementByID(headElementId)
-//   if (!headElement) return
+queryHead.onElementSortChange((headElementId, newIndex) => {
+  const headElement = model.getHeadElementByID(headElementId)
+  if (!headElement) return
 
-//   const qhApi = QueryGraphHeadApiFactory(undefined, model.getBasePath())
-//   const tempQueryBody = model.getTempQueryBody()
-//   const tempHead = tempQueryBody.head
-//   const replacedHeadElement = tempHead[newIndex] // get the element to be "replaced", its index will change
-//   const tempHeadIds = tempHead.map(he => he.id) // use array of id to find index of elements
+  const qhApi = QueryGraphHeadApiFactory(undefined, model.getBasePath())
+  const tempQueryBody = model.getTempQueryBody()
+  const tempHead = tempQueryBody.head
+  const replacedHeadElement = tempHead[newIndex] // get the element to be "replaced", its index will change
+  const tempHeadIds = tempHead.map(he => he.id) // use array of id to find index of elements
 
-//   tempHead.splice(tempHeadIds.indexOf(headElementId), 1) // remove headElement from its position
-//   tempHead.splice(tempHeadIds.indexOf(replacedHeadElement.id), 0, headElement) // put headElement in place of the element to replace
+  tempHead.splice(tempHeadIds.indexOf(headElementId), 1) // remove headElement from its position
+  tempHead.splice(tempHeadIds.indexOf(replacedHeadElement.id), 0, headElement) // put headElement in place of the element to replace
 
-//   handlePromise(qhApi.reorderHeadTerms(tempQueryBody, model.getRequestOptions())).then(newBody => onNewBody(newBody))
-// })
+  handlePromise(qhApi.reorderHeadTerms(tempQueryBody, model.getRequestOptions())).then(newBody => onNewBody(newBody))
+})
 
 // queryHead.onOrderByChange(headElementId => {
 //   const tempQueryBody = getTempQueryBody()
