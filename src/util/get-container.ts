@@ -24,14 +24,16 @@ function getLeftColumnContainer(): HTMLDivElement {
   container.setAttribute('id', 'sparqling-left-column')
   container.style.position = 'absolute'
   container.style.left = '10px'
-  container.style.top = '100%'
-  container.style.transform = 'translate(0, calc(-100% - 10px))'
+  container.style.bottom = '0'
   container.style.display = 'flex'
-  container.style.flexDirection = 'column'
+  container.style.flexDirection = 'column-reverse'
   container.style.justifyContent = 'space-between'
   container.style.gap = '30px'
-  container.style.height = 'calc(-80px + 100%)'
+  container.style.height = '100%'
+  container.style.boxSizing = 'border-box'
+  container.style.marginTop = '70px'
   container.style.pointerEvents = 'none'
+  container.style.width = '20%'
 
   return container
 }

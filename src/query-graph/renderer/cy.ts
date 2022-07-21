@@ -4,6 +4,10 @@ import compoundDragAndDrop from 'cytoscape-compound-drag-and-drop'
 import popper from 'cytoscape-popper'
 import { bgpContainer } from "../../util/get-container"
 import { EntityNameType } from "grapholscape"
+import { EntityTypeEnum } from "../../api/swagger"
+import { attachCxtMenuTo, cxtMenuWidget, getCxtMenuProps } from "../../widgets"
+import { getCommandsForElement } from "./cxt-menu-commands"
+import tippy from "tippy.js"
 
 cytoscape.use(klay)
 cytoscape.use(compoundDragAndDrop)
@@ -43,7 +47,10 @@ cy.on('mouseout', () => {
     container.style.cursor = 'unset'
 })
 
-let menu: any
+cy.on('cxttap', `node, edge[type = "${EntityTypeEnum.ObjectProperty}"], edge[type = "${EntityTypeEnum.InverseObjectProperty}"]`, e => {
+  attachCxtMenuTo(e.target.popperRef(), getCommandsForElement(e.target))
+})
+
 let displayedNameType: EntityNameType
 let language: string
 

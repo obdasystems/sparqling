@@ -3,7 +3,7 @@ import core from './core'
 import * as model from './model'
 import * as ontologyGraph from './ontology-graph'
 import * as queryGraph from './query-graph'
-// import * as queryHead from './query-head'
+import * as queryHead from './query-head'
 import { leftColumnContainer } from './util/get-container'
 import * as widgets from './widgets'
 import * as handlers from './handlers'
@@ -58,12 +58,12 @@ function getCore(gscape: Grapholscape, file: string | Blob) {
       ontologyGraph.setGrapholscapeInstance(gscape)
 
     // leftColumnContainer.appendChild(widgets.highlightsList as any)
-    // leftColumnContainer.appendChild(queryHead.widget as any)
+    leftColumnContainer.appendChild(queryHead.widget)
 
     // Add query graph and query head widgets to grapholscape instance
     const uiContainer = gscape.container.querySelector('.gscape-ui')
     uiContainer?.insertBefore(queryGraph.widget, uiContainer.firstChild)
-    // uiContainer.insertBefore(leftColumnContainer, uiContainer.firstChild)
+    uiContainer?.insertBefore(leftColumnContainer, uiContainer.firstChild)
     // uiContainer.appendChild(widgets.relatedClassDialog)
     // uiContainer.appendChild(widgets.sparqlDialog)
     // uiContainer.appendChild(widgets.filterDialog)

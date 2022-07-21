@@ -2,6 +2,8 @@ import { ui } from 'grapholscape'
 import { html, css, LitElement, SVGTemplateResult } from 'lit'
 import { code, dbClick, rdfLogo, refresh } from '../widgets/assets/icons'
 import { emptyGraphMsg, emptyGraphTipMsg, tipWhatIsQueryGraph } from '../widgets/assets/texts'
+import sparqlignWidgetStyle from '../widgets/sparqling-widget-style'
+import getTrayButtonTemplate from '../widgets/tray-button-template'
 import cy from './renderer/cy'
 
 /**
@@ -21,6 +23,7 @@ export default class QueryGraphWidget extends ui.BaseMixin(ui.DropPanelMixin(Lit
 
   static styles = [
     ui.baseStyle,
+    sparqlignWidgetStyle,
     css`
       :host {
         width: calc(50%);
@@ -29,25 +32,6 @@ export default class QueryGraphWidget extends ui.BaseMixin(ui.DropPanelMixin(Lit
         left: 50%;
         top: 100%;
         transform: translate(-50%, calc(-100% - 10px));
-      }
-
-      .gscape-panel {
-        width: unset;
-        max-width: unset;
-        height: 100%;
-        box-sizing: border-box;
-        overflow: unset;
-        padding-top: 27px;
-      }
-
-      .blank-slate {
-        position: absolute;
-        top: 50%;
-        left: 50%;
-        transform: translate(-50%, -50%);
-        max-width: unset;
-        width: 100%;
-        box-sizing: border-box;
       }
       
       .tip {
@@ -86,45 +70,6 @@ export default class QueryGraphWidget extends ui.BaseMixin(ui.DropPanelMixin(Lit
         border-bottom: solid 1px var(--gscape-color-border-default);
         max-width: 50px;
       }
-
-      .top-bar {
-        font-size: 12px;
-        display: flex;
-        flex-direction: row;
-        line-height: 1;
-        position: absolute;
-        top: 0;
-        right: 0;
-        z-index: 2;
-        
-        align-items: center;
-        justify-content: space-between;
-        gap: 4px;
-        box-sizing: border-box;
-        width: 100%;
-        border-top-left-radius: var(--gscape-border-radius);
-        border-top-right-radius: var(--gscape-border-radius);
-        border-bottom-left-radius: 0px;
-        border-bottom-right-radius: 0px;
-        background: var(--gscape-color-bg-inset);
-      }
-
-      .top-bar.traslated-down {
-        top: unset;
-        right: unset;
-        bottom: 0;
-        left: 50%;
-        transform: translate(-50%);
-        width: fit-content;
-        height: fit-content;
-      }
-
-      #widget-header {
-        margin-left: 8px;
-        display: flex;
-        align-items: center;
-        gap: 8px;
-      }
     `
   ]
 
@@ -157,8 +102,8 @@ export default class QueryGraphWidget extends ui.BaseMixin(ui.DropPanelMixin(Lit
               </div>
 
               <div id="buttons-tray">
-                ${this.getTrayButtonTemplate('Sparql', code, 'sparql-code-btn', this.onSparqlButtonClick)}
-                ${this.getTrayButtonTemplate('Clear Query', refresh, 'clear-query-btn', this.onQueryClear)}
+                ${getTrayButtonTemplate('Sparql', code, undefined, 'sparql-code-btn', this.onSparqlButtonClick)}
+                ${getTrayButtonTemplate('Clear Query', refresh, undefined, 'clear-query-btn', this.onQueryClear)}
               </div>
 
               <gscape-button 
@@ -185,20 +130,6 @@ export default class QueryGraphWidget extends ui.BaseMixin(ui.DropPanelMixin(Lit
 
         `
       }
-    `
-  }
-
-  private getTrayButtonTemplate(title: string, icon: SVGTemplateResult, id: string, clickHandler: () => void) {
-    return html`
-      <gscape-button
-        id=${id}
-        size="s"
-        type="subtle"
-        title=${title}
-        @click=${clickHandler}
-      >
-        <span slot="icon">${icon}</span>
-      </gscape-button>
     `
   }
 

@@ -1,17 +1,17 @@
-import { UI } from 'grapholscape';
-import { css, html } from 'lit';
+import { ui } from 'grapholscape';
+import { css, html, LitElement } from 'lit';
 import { Filter, Function, GroupByElement, HeadElement, VarOrConstantConstantTypeEnum } from '../api/swagger';
 import { getFiltersOnVariable } from '../model';
-import { addFilter, crosshair, dragHandler, filter as filterIcon, functionIcon, rubbishBin, sigma, sortAscendingIcon, sortDescendingIcon, sortIcon } from '../widgets/assets/icons';
+import { addFilter, crosshair, dragHandler, expandLess, expandMore, filter as filterIcon, functionIcon, kebab, rubbishBin, sigma, sortAscendingIcon, sortDescendingIcon, sortIcon } from '../widgets/assets/icons';
+import { Command } from '../widgets/cxt-menu/cxt-menu-widget';
 import { getElemWithOperatorStyle } from '../widgets/forms/elem-with-operator-style';
 import { getElemWithOperatorList } from '../widgets/forms/elems-with-operator-list-template';
+import getTrayButtonTemplate from '../widgets/tray-button-template';
 import { onDragEnd, onDragOver, onDragStart } from './drag-sorting';
 
 const ALIAS_INPUT_ID = 'alias'
 
-export default class HeadElementComponent extends UI.GscapeWidget implements HeadElement {
-  private collapsible = true;
-
+export default class HeadElementComponent extends ui.BaseMixin(ui.DropPanelMixin(LitElement)) implements HeadElement {
   public _id: string
   graphElementId: string
   alias: string
@@ -20,194 +20,153 @@ export default class HeadElementComponent extends UI.GscapeWidget implements Hea
   entityType: string
   dataType: VarOrConstantConstantTypeEnum
   ordering: number
-  public deleteButton: UI.GscapeWidget
-  private toggleBodyButton: UI.GscapeButton
-  public localizeButton: UI.GscapeButton
-  public addFilterButton: UI.GscapeButton
+  public deleteButton: ui.GscapeButton
+  private toggleBodyButton: ui.GscapeButton
+  public localizeButton: ui.GscapeButton
+  public addFilterButton: ui.GscapeButton
   public addFunctionButton: any
   public orderByButton: any
   public addAggregationButton: any
   filters: { id: number, value: Filter }[]
   groupBy: GroupByElement
   having: Filter[]
+  showCxtMenu = () => { }
   
-  private ondragstart: (evt: any) => void
-  private ondragover: (evt: any) => void
-  private ondragleave: (evt: any) => void
-  private ondragend: (evt: any) => void
-  private ondrop: (evt: any) => any
+  static properties = {
+    alias: { attribute: false },
+    graphElementId: { attribute: false },
+    function: { attribute: false },
+    _entityType: { type: String },
+}
 
-  static get properties() {
-    let props = super.properties
+  static styles = [
+    ui.baseStyle,
+    getElemWithOperatorStyle(),
+    css`
+      :host {
+        display:block;
+        height: fit-content;
+        margin:5px 0;
+        padding-left: 20px;
+        position: relative;
+        opacity:1;
+        border: none;
+        transition: all 0.5s;
+        border-left: solid 2px;
+      }
 
-    let new_props = {
-      alias: { attribute: false },
-      graphElementId: { attribute: false },
-      function: { attribute: false },
-      _entityType: { type: String },
-    }
+      :host(.dragged) {
+        opacity: 0.2;
+        border: solid 2px var(--gscape-color-accent);
+      }
 
-    Object.assign(props, new_props)
-    return props
-  }
+      #alias-input {
+        flex-grow: 2;
+      }
 
-  static get styles() {
-    let super_styles = super.styles as any
-    let colors = super_styles[1]
+      #field-head{
+        display: flex;
+        align-items: center;
+        gap: 2px;
+      }
 
-    return [
-      super_styles[0],
-      css`
-        :host {
-          display:block;
-          height: fit-content;
-          margin:5px 2.5px 5px 0;
-          padding: 5px;
-          position: relative;
-          opacity:1;
-          border: none;
-          transition: all 0.5s;
-        }
+      #drag-handler {
+        cursor: grab;
+        display: none;
+        line-height: 0;
+        position: absolute;
+        left: 0;
+      }
 
-        :host(.dragged) {
-          opacity: 0.2;
-          border: solid 2px var(--theme-gscape-secondary, ${colors.secondary});
-        }
+      :host(:hover) #drag-handler {
+        display: inline-block;
+      }
 
-        input {
-          font-size: inherit;
-          text-align: center;
-          padding:2px;
-          border-radius: 4px;
-          border: solid 1px var(--theme-gscape-shadows, ${colors.shadows});
-          color: inherit;
-          font-weight: bold;
-          width:100%;
-          box-sizing: border-box;
-          background-color: var(--theme-gscape-primary, ${colors.primary});
-        }
+      #field-head:hover > #actions {
+        display: flex;
+      }
 
-        .input-wrapper, select {
-          margin:5px 0;
-        }
+      #field-head:hover > #state-tray {
+        display: none;
+      }
 
-        #drag-handler {
-          display: none;
-          cursor: grab;
-        }
+      #field-head-input-action-wrapper:hover > #state-tray {
+        display: none;
+      }
+      #field-head-input-action-wrapper > input:focus {
+        background-color: blue;
+      }
 
-        #field-head, #field-head-input-action-wrapper {
-          display: flex;
-          align-items: center;
-          gap: 10px;
-        }
+      #actions {
+        align-items: center;
+        display: none;
+      }
 
-        #field-head-input-action-wrapper {
-          flex-direction: column;
-          flex-grow:2;
-        }
+      #actions > * {
+        line-height: 0;
+      }
 
-        #field-head-input-action-wrapper > input {
-          margin: 0;
-          background-color: inherit;
-          border: none;
-        }
+      .danger:hover {
+        color: var(--gscape-color-error);
+      }
 
-        #field-head-input-action-wrapper > input:hover {
-          border: solid 1px var(--theme-gscape-shadows, ${colors.shadows});
-        }
+      .filters-function-list {
+        display:flex;
+        flex-direction: column;
+        gap: 20px;
+        padding: 10px 5px;
+      }
 
-        #field-head-input-action-wrapper:hover > #actions {
-          display: flex;
-        }
+      .section {
+        padding: 5px;
+        margin: 10px 0;
+      }
 
-        #field-head-input-action-wrapper:hover > #state-tray {
-          display: none;
-        }
+      .section > .title {
+        font-weight: bold;
+      }
 
-        #field-head:hover > #drag-handler {
-          display: block;
-        }
+      #state-tray {
+        color: var(--gscape-color-accent);
+        line-height: 0;
+      }
 
-        #field-head-input-action-wrapper > input:focus {
-          background-color: var(--theme-gscape-primary, ${colors.primary});
-        }
+      #state-tray > svg {
+        height: 15px;
+        width: 15px;
+      }
 
-        gscape-button {
-          position:initial;
-          width: fit-content;
-          --gscape-icon-size: 20px;
-          background: inherit;
-        }
-
-        #actions {
-          display: none;
-          align-items: center;
-          gap: 10px;
-        }
-
-        .danger:hover {
-          color: var(--theme-gscape-error, ${colors.error});
-        }
-
-        .filters-function-list {
-          display:flex;
-          flex-direction: column;
-          gap: 20px;
-          padding: 10px 5px;
-        }
-
-        .section {
-          padding: 5px;
-          margin: 10px 0;
-        }
-
-        .section > .title {
-          font-weight: bold;
-        }
-
-        #drag-handler {
-          height: 20px;
-          width: 20px;
-        }
-
-        #state-tray {
-          display: flex;
-        }
-        #state-tray > svg {
-          height: calc(var(--gscape-icon-size) - 6px);
-          width: calc(var(--gscape-icon-size) - 6px);
-        }
-      `,
-      getElemWithOperatorStyle(),
-    ]
-  }
+      summary {
+        list-style: none
+      }
+    `,
+  ]
 
   constructor(headElement: HeadElement) {
     super()
 
     this.headElement = headElement
-    this.deleteButton = new UI.GscapeButton(rubbishBin, 'Delete Field')
-    this.deleteButton.onClick = () => { }
-    this.deleteButton.classList.add('danger')
-    this.toggleBodyButton = new UI.GscapeButton(UI.icons.triangle_down, 'Show More', UI.icons.triangle_up)
-    this.toggleBodyButton.onClick = () => (this as any).toggleBody()
-    this.toggleBodyButton.style.boxShadow = 'none'
+    // this.deleteButton = new UI.GscapeButton(rubbishBin, 'Delete Field')
+    // this.deleteButton.onClick = () => { }
+    // this.deleteButton.classList.add('danger')
+    // this.toggleBodyButton = new UI.GscapeButton(UI.icons.triangle_down, 'Show More', UI.icons.triangle_up)
+    // this.toggleBodyButton.onClick = () => (this as any).toggleBody()
+    // this.toggleBodyButton.style.boxShadow = 'none'
 
-    this.localizeButton = new UI.GscapeButton(crosshair, 'Find in Query Graph')
-    this.localizeButton.onClick = () => this.localizeCallback(this._id)
+    // this.localizeButton = new UI.GscapeButton(crosshair, 'Find in Query Graph')
+    // this.localizeButton.onClick = () => this.localizeCallback(this._id)
 
-    this.addFilterButton = new UI.GscapeButton(addFilter, 'Add Filter')
-    this.addFilterButton.onClick = () => this.addFilterCallback(this._id)
+    // this.addFilterButton = new UI.GscapeButton(addFilter, 'Add Filter')
+    // this.addFilterButton.onClick = () => this.addFilterCallback(this._id)
 
-    this.addFunctionButton = new UI.GscapeButton(functionIcon, 'Add Function')
-    this.addFunctionButton.onClick = () => this.addFunctionCallback(this._id)
+    // this.addFunctionButton = new UI.GscapeButton(functionIcon, 'Add Function')
+    // this.addFunctionButton.onClick = () => this.addFunctionCallback(this._id)
 
-    this.orderByButton = new UI.GscapeButton(null, 'Order By')
-    this.orderByButton.onClick = () => this.orderByCallback(this._id)
+    // this.orderByButton = new UI.GscapeButton(null, 'Order By')
+    // this.orderByButton.onClick = () => this.orderByCallback(this._id)
 
-    this.addAggregationButton = new UI.GscapeButton(sigma, 'Add Aggregation Function')
-    this.addAggregationButton.onClick = () => this.addAggregationCallback(this._id)
+    // this.addAggregationButton = new UI.GscapeButton(sigma, 'Add Aggregation Function')
+    // this.addAggregationButton.onClick = () => this.addAggregationCallback(this._id)
 
     this.ondragstart = (evt) => onDragStart(evt)
     this.ondragover = (evt) => onDragOver(evt)
@@ -216,26 +175,23 @@ export default class HeadElementComponent extends UI.GscapeWidget implements Hea
   }
 
   render() {
-    if (this.ordering > 0) {
-      this.orderByButton.icon = sortAscendingIcon
-      this.orderByButton.highlighted = true
-    } else if (this.ordering < 0) {
-      this.orderByButton.icon = sortDescendingIcon
-      this.orderByButton.highlighted = true
-    } else {
-      this.orderByButton.icon = sortIcon
-      this.orderByButton.highlighted = false
-    }
+    // if (this.ordering > 0) {
+    //   this.orderByButton.icon = sortAscendingIcon
+    //   this.orderByButton.highlighted = true
+    // } else if (this.ordering < 0) {
+    //   this.orderByButton.icon = sortDescendingIcon
+    //   this.orderByButton.highlighted = true
+    // } else {
+    //   this.orderByButton.icon = sortIcon
+    //   this.orderByButton.highlighted = false
+    // }
     return html`
       <div>
         <div id="field-head">
-          <div
-            id="drag-handler"
-            draggable="true"
-          >
+          <div id="drag-handler" draggable="true">
             ${dragHandler}
           </div>
-          <div id="field-head-input-action-wrapper">
+          <div id="alias-input">
             <input
               id="${ALIAS_INPUT_ID}"
               @focusout="${this.handleInputChange}"
@@ -243,28 +199,31 @@ export default class HeadElementComponent extends UI.GscapeWidget implements Hea
               value="${this.alias || this.graphElementId}"
               title="Rename Field"
             />
-            ${this.hasAnythingInBody || this.ordering
-              ? html`
-                <div id="state-tray">
-                  ${this.filters?.length > 0 ? filterIcon : null}
-                  ${this.function ? functionIcon : null}
-                  ${this.ordering > 0 ? sortAscendingIcon : null}
-                  ${this.ordering < 0 ? sortDescendingIcon : null}
-                  ${this.groupBy ? sigma : null}
-                </div>
-              `
-              : null
-            }
-            <div id="actions">
-              ${this.localizeButton}
-              ${this.deleteButton}
-              ${this.addFilterButton}
-              ${!this.function ? this.addFunctionButton : null}
-              ${this.orderByButton}
-              ${!this.groupBy ? this.addAggregationButton : null}
-            </div>
           </div>
-          ${this.hasAnythingInBody ? this.toggleBodyButton : null}
+          <div id="actions">
+            ${getTrayButtonTemplate('Show in graphs', crosshair, undefined, 'localize-action', () => this.localizeCallback(this._id))}
+            ${getTrayButtonTemplate('Order results ascending/descending', this.orderIcon, undefined, 'sort-action', () => this.orderByCallback(this._id))}
+            ${getTrayButtonTemplate('More actions', kebab, undefined, 'cxt-menu-action', () => this.showCxtMenu())}
+          </div>
+          ${this.hasAnythingInBody || this.ordering !== 0
+            ? html`
+              <div id="state-tray">
+                ${this.function ? functionIcon : null}
+                ${this.ordering && this.ordering !== 0 ? this.orderIcon : null}
+                ${this.filters?.length > 0 ? filterIcon : null}
+                ${this.groupBy ? sigma : null}
+              </div>
+            `
+            : null
+          }
+          ${this.hasAnythingInBody
+            ? html`
+              <div id="toggle-panel">
+                ${getTrayButtonTemplate('Expand', expandMore, expandLess, 'expand-action', () => this.togglePanel())}
+              </div>
+            `
+            : null
+          }
         </div>
         <div id="field-body" class="widget-body hide">
           ${this.groupBy
@@ -305,10 +264,6 @@ export default class HeadElementComponent extends UI.GscapeWidget implements Hea
               </div>
             `
             : null}
-          <!-- ******************  SORT  ****************** -->
-          <div class="section" style="text-align: center; margin-bottom:0">
-            ${this.getSelect('sort', 'sort-select', 'sort', { asc: 'Ascending', desc: 'Descending' })}
-          </div>
         </div>
       </div>
     `
@@ -342,12 +297,12 @@ export default class HeadElementComponent extends UI.GscapeWidget implements Hea
       this.having = newElement.having
 
     let types = {
-      'class': 'concept',
-      'objectProperty': 'role',
-      'dataProperty': 'attribute'
+      'class': 'class',
+      'objectProperty': 'object-property',
+      'dataProperty': 'data-property'
     }
-    let self = this as any
-    self.style.backgroundColor = `var(--theme-gscape-${types[this.entityType]})`
+
+    this.style.borderColor = `var(--gscape-color-${types[this.entityType]}-contrast)`
 
     if (newElement.graphElementId) {
       const filtersOnVariable = getFiltersOnVariable(newElement.graphElementId)
@@ -424,6 +379,54 @@ export default class HeadElementComponent extends UI.GscapeWidget implements Hea
 
   private get hasAnythingInBody() {
     return this.filters?.length > 0 || this.function || this.groupBy
+  }
+
+  private get orderIcon() {
+    if (this.ordering > 0) {
+      return sortAscendingIcon
+    } else if (this.ordering < 0) {
+      return sortDescendingIcon
+    } else {
+      return sortIcon
+    }
+  }
+
+  get moreActionsButton() {
+    return this.shadowRoot?.querySelector('#cxt-menu-action') as HTMLElement
+  }
+
+  get cxtMenuCommands() {
+    const result: Command[] = []
+
+    result.push({
+      content: 'Add Filter',
+      icon: addFilter,
+      select: () => this.addFilterCallback(this._id)
+    })
+
+    if (!this.function) {
+      result.push({
+        content: 'Add Function',
+        icon: functionIcon,
+        select: () => this.addFunctionCallback(this._id)
+      })
+    }
+
+    if (!this.groupBy) {
+      result.push({
+        content: 'Add aggregation function',
+        icon: sigma,
+        select: () => this.addAggregationCallback(this._id)
+      })
+    }
+
+    result.push({
+      content: 'Delete field',
+      icon: rubbishBin,
+      select: () => { }
+    })
+
+    return result
   }
 }
 

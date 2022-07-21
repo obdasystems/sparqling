@@ -1,11 +1,11 @@
-// import { HeadElement } from "../api/swagger"
-// import * as model from '../model'
-// import QueryHeadWidget from "./qh-widget"
+import { HeadElement } from "../api/swagger"
+import * as model from '../model'
+import QueryHeadWidget from "./qh-widget"
 
-// const qhWidget = new QueryHeadWidget()
+const qhWidget = new QueryHeadWidget()
 
-// export { onElementSortChange } from './drag-sorting'
-// export { qhWidget as widget }
+export { onElementSortChange } from './drag-sorting'
+export { qhWidget as widget }
 
 // export function onDelete(callback: (headElement: HeadElement) => void) {
 //   qhWidget.onDelete( headElementId => {
@@ -29,11 +29,11 @@
 
 
 
-// export function render(newHead: HeadElement[]) {
-//   if (!newHead) return
+export function render(newHead: HeadElement[]) {
+  if (!newHead) return
 
-//   qhWidget.headElements = newHead
-// }
+  qhWidget.headElements = newHead
+}
 
 
 // export function onAddFilter(callback: (headElementId: string) => void) {

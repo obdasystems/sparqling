@@ -9,6 +9,7 @@ import { ui } from 'grapholscape'
 import FunctionDialog from "./forms/functions/function-dialog"
 import AggregationDialog from "./forms/aggregation-functions/aggregation-functions-dialog"
 import { code, refresh } from "./assets/icons"
+import ContextMenuWidget from "./cxt-menu/cxt-menu-widget"
 
 // export const sparqlDialog = new SparqlDialog()
 
@@ -31,3 +32,5 @@ export const startRunButtons = new SparqlingStartRunButtons()
 // export const distinctToggle = new UI.GscapeToggle('distinct', false, true, 'Duplicates', null, true)
 // distinctToggle.style.marginRight = '5px'
 // export const countStarToggle = new UI.GscapeToggle('count-star', false, true, 'Count Results')
+
+export * from './cxt-menu'

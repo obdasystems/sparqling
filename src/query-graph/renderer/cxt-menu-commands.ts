@@ -1,15 +1,9 @@
 import { SingularElementReturnValue } from "cytoscape"
-import { EntityTypeEnum } from "../../../api/swagger"
-import { getHeadElementByID, isCountStarActive } from "../../../model"
-import { addFilter as addFilterIcon, editList, dashedCross, questionMarkDashed, rubbishBin, tableColumnPlus } from "../../../widgets/assets/icons"
-import { commandAddFilterText, commandAddHeadText, commandDeleteText, commandMakeOptionalText, commandRemoveOptionalText } from "../../../widgets/assets/texts"
-
-
-export interface Command {
-  content: string,
-  icon?: any,
-  select: () => void,
-}
+import { EntityTypeEnum } from "../../api/swagger"
+import { getHeadElementByID, isCountStarActive } from "../../model"
+import { addFilter as addFilterIcon, editList, dashedCross, questionMarkDashed, rubbishBin, tableColumnPlus } from "../../widgets/assets/icons"
+import { commandAddFilterText, commandAddHeadText, commandDeleteText, commandMakeOptionalText, commandRemoveOptionalText } from "../../widgets/assets/texts"
+import { Command } from "../../widgets/cxt-menu/cxt-menu-widget"
 
 let addHeadCallback: (elemId: string) => void
 let deleteCallback: (elemId: string, elemIri?: string) => void

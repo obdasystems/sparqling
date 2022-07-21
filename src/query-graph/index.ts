@@ -5,7 +5,6 @@ import * as GEUtility from "../util/graph-element-utility"
 // import { clearQueryButton, countStarToggle, distinctToggle, limit, offset, sparqlButton } from "../widgets"
 import QueryGraphWidget from "./qg-widget"
 import * as bgp from "./renderer"
-import { cxtMenu } from "./renderer"
 
 // export * from './optionals'
 export { renderOptionals, setLanguage } from './renderer'
@@ -102,7 +101,6 @@ export function onDelete(callback: (graphElement: GraphElement, iri?: string) =>
     const graphElement = GEUtility.getGraphElementByID(id) || GEUtility.getParentFromChildId(id)
     if (graphElement)
       callback(graphElement, iri)
-    cxtMenu.hide()
   })
 }
 

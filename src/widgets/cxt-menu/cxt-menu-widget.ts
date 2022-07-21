@@ -1,10 +1,16 @@
 import { ui } from "grapholscape"
-import { css, html, LitElement } from "lit"
-import { Command } from "./commands"
+import { css, html, LitElement, SVGTemplateResult } from "lit"
+
+export interface Command {
+  content: string,
+  icon?: SVGTemplateResult,
+  select: () => void,
+}
+
 
 export default class ContextMenuWidget extends ui.BaseMixin(LitElement) {
   commands: Command[] = []
-  onCommandRun: () => void
+  onCommandRun = () => { }
 
   static properties = {
     commands: { attribute: false }

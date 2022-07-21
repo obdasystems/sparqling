@@ -1,19 +1,16 @@
-import { UI } from 'grapholscape'
-import { css, html } from 'lit'
+import { ui } from 'grapholscape'
+import { css, html, LitElement } from 'lit'
 import { HeadElement } from '../api/swagger'
 import { isCountStarActive } from '../model'
+import { attachCxtMenuTo } from '../widgets'
 import { asterisk, counter, tableEye } from '../widgets/assets/icons'
 import { countStarMsg, emptyHeadMsg, emptyHeadTipMsg, tipWhy } from '../widgets/assets/texts'
+import sparqlingWidgetStyle from '../widgets/sparqling-widget-style'
 import { allowDrop } from './drag-sorting'
 import HeadElementComponent from './qh-element-component'
 
-const { GscapeWidget } = UI
-/**
- * Widget extending base grapholscape widget which uses Lit-element inside
- */
-export default class QueryHeadWidget extends GscapeWidget {
-  public collapsible: boolean
-  private headSlottedWidgets: Element[]
+export default class QueryHeadWidget extends ui.BaseMixin(ui.DropPanelMixin(LitElement)) {
+  title = 'Query Results'
   public headElements: HeadElement[] = []
   private deleteElementCallback: (headElementId: string) => void
   private renameElementCallback: (headElemntId: string, alias: string) => void
@@ -24,170 +21,132 @@ export default class QueryHeadWidget extends GscapeWidget {
   private addFunctionCallback: (headElementId: string) => void
   private orderByChangeCallback: (headElementId: string) => void
   private addAggregationCallback: (headElementId: string) => void
-
-  static get properties() {
-
-    let result = super.properties
-    result.headElements = { attribute: false }
-    return result
+  
+  static properties = {
+    headElements: { type: Object, attribute: false }
   }
 
-  shadowRoot: any
+  static styles = [
+    ui.baseStyle,
+    sparqlingWidgetStyle,
+    css`
+      :host {
+        position:initial;
+        min-height: 30%;
+        margin-bottom: 10px;
+        background: transparent;
+        box-shadow: none;
+        pointer-events:initial;
+      }
 
-  static get styles() {
-    let super_styles = super.styles as any
-    let colors = super_styles[1]
+      #elems-wrapper {
+        display: flex;
+        height:inherit;
+        flex-direction: column;
+        overflow: hidden scroll;
+        scrollbar-width: inherit;
+        padding: 4px 12px;
+      }
 
-    return [
-      super_styles[0],
-      css`
-        :host {
-          position:initial;
-          width: 300px;
-          background: transparent;
-          box-shadow: none;
-          pointer-events:initial;
-        }
+      .blank-slate {
+        max-width: unset;
+      }
 
-        :host(:hover){
-          box-shadow: none;
-        }
+      .tip {
+        font-size: 90%;
+        border-bottom: dotted 2px;
+        cursor: help;
+      }
 
-        gscape-head {
-          --title-text-align: 'left';
-          border-radius: 8px;
-        }
+      .tip: hover {
+        color:inherit;
+      }
+    `
+  ]
 
-        gscape-head, #empty-head {
-          background-color: var(--theme-gscape-primary, ${colors.primary});
-          box-shadow: 0 2px 4px 0 var(--theme-gscape-shadows, ${colors.shadows});
-        }
-
-        .widget-body {
-          margin:0;
-          border-top: none;
-          border-radius: inherit;
-          border-bottom-left-radius:0;
-          border-bottom-right-radius:0;
-          max-height:350px;
-        }
-
-        #elems-wrapper {
-          display: flex;
-          flex-direction: column;
-        }
-
-        #buttons-tray > * {
-          position: initial;
-        }
-
-        #buttons-tray {
-          display: flex;
-          align-items: center;
-          justify-content: end;
-          gap:10px;
-          flex-grow: 3;
-          padding: 0 10px;
-        }
-
-        #buttons-tray > gscape-button {
-          --gscape-icon-size: 20px;
-        }
-
-        #empty-head {
-          padding: 20px;
-          display: flex;
-          flex-direction: column;
-          align-items: center;
-          gap: 20px;
-          text-align: center;
-        }
-
-        #empty-head > .icon {
-          --gscape-icon-size: 60px;
-        }
-
-        #empty-head-msg {
-          font-weight: bold;
-        }
-
-        .tip {
-          font-size: 90%;
-          color: var(--theme-gscape-shadows, ${colors.shadows});
-          border-bottom: dotted 2px;
-          cursor: help;
-        }
-
-        .tip: hover {
-          color:inherit;
-        }
-      `
-    ]
-  }
-
-  constructor(headSlottedWidget?: Element[]) {
+  constructor() {
     super()
-    this.collapsible = true
-    if (headSlottedWidget)
-      this.headSlottedWidgets = headSlottedWidget
   }
 
   render() {
     return html`
-      <div class="widget-body">
-      ${isCountStarActive()
+      ${this.isPanelClosed()
         ? html`
-          <div id="empty-head">
-            <div class="icon">${counter}</div>
-            <div id="empty-head-msg">${countStarMsg()}</div>
+          <div class="top-bar traslated-down">
+            <gscape-button 
+              id="toggle-panel-button"
+              @click=${this.togglePanel}
+              label=${this.title}
+            > 
+              <span slot="icon">${tableEye}</span>
+              <span slot="trailing-icon">${ui.icons.plus}</span>
+            </gscape-button>
           </div>
         `
-        : this.headElements.length === 0
-          ? html`
-            <div id="empty-head">
-              <div class="icon">${asterisk}</div>
-              <div id="empty-head-msg">${emptyHeadMsg()}</div>
-              <div class="tip" title="${emptyHeadTipMsg()}">${tipWhy()}</div>
-            </div>
-            `
-          : html`
-            <div style="overflow-y:scroll; max-height:inherit; scrollbar-width: inherit;">
-              <div id="elems-wrapper" @dragover=${allowDrop} @drop=${allowDrop}>
-                ${this.headElements.map(headElement => new HeadElementComponent(headElement))}
+        : html`
+          <div class="gscape-panel" id="drop-panel" style="width: 100%; overflow-y:hidden">
+            <div class="top-bar">
+              <div id="widget-header" class="bold-text">
+                ${tableEye}
+                <span>${this.title}</span>
               </div>
+
+              <gscape-button 
+                id="toggle-panel-button"
+                size="s" 
+                type="subtle"
+                @click=${this.togglePanel}
+              > 
+                <span slot="icon">${ui.icons.minus}</span>
+              </gscape-button>
             </div>
+
+          ${isCountStarActive()
+            ? html`
+              <div id="empty-head">
+                <div class="icon">${counter}</div>
+                <div id="empty-head-msg">${countStarMsg()}</div>
+              </div>
             `
+            : this.headElements.length === 0
+              ? html`
+                <div class="blank-slate">
+                  ${asterisk}
+                  <div class="header">${emptyHeadMsg()}</div>
+                  <div class="tip description" title="${emptyHeadTipMsg()}">${tipWhy()}</div>
+                </div>
+              `
+              : html`
+                <div id="elems-wrapper" @dragover=${allowDrop} @drop=${allowDrop}>
+                  ${this.headElements.map(headElement => new HeadElementComponent(headElement))}
+                </div>
+              `
+          }
+          </div>
+        `
       }
-      </div>
-      <gscape-head title="Query Results">
-        <div id="buttons-tray">
-          ${this.headSlottedWidgets}
-        </div>
-      </gscape-head>
     `
   }
 
   updated() {
     // register callbacks for all head elements
-    this.shadowRoot.querySelectorAll('head-element').forEach((element: HeadElementComponent) => {
-      element.deleteButton.onClick = () => this.deleteElementCallback(element._id)
-      element.onRename(this.renameElementCallback)
-      element.onLocalize(this.localizeElementCallback)
-      element.onAddFilter(this.addFilterCallback)
-      element.onEditFilter(this.editFilterCallback)
-      element.onDeleteFilter(this.deleteFilterCallback)
-      element.onAddFunction(this.addFunctionCallback)
-      element.onOrderByChange(this.orderByChangeCallback)
-      element.onAddAggregation(this.addAggregationCallback)
+    this.shadowRoot?.querySelectorAll('head-element').forEach((element: Element) => {
+      const headElementComponent = element as HeadElementComponent
+      // headElementComponent.deleteButton.onclick = () => this.deleteElementCallback(headElementComponent._id)
+      headElementComponent.onRename(this.renameElementCallback)
+      headElementComponent.onLocalize(this.localizeElementCallback)
+      headElementComponent.onAddFilter(this.addFilterCallback)
+      headElementComponent.onEditFilter(this.editFilterCallback)
+      headElementComponent.onDeleteFilter(this.deleteFilterCallback)
+      headElementComponent.onAddFunction(this.addFunctionCallback)
+      headElementComponent.onOrderByChange(this.orderByChangeCallback)
+      headElementComponent.onAddAggregation(this.addAggregationCallback)
+      headElementComponent.showCxtMenu = () => {
+        if (headElementComponent.moreActionsButton) {
+          attachCxtMenuTo(headElementComponent.moreActionsButton, headElementComponent.cxtMenuCommands)
+        }
+      }
     });
-  }
-
-  firstUpdated() {
-    super.firstUpdated()
-
-    let self = this as any
-    self.header.left_icon = tableEye
-    this.hide()
   }
 
   /**
@@ -244,17 +203,19 @@ export default class QueryHeadWidget extends GscapeWidget {
     // This because each click on cytoscape background calls document.activeElement.blur(), 
     // so if any input field has focus, query-head will be the activeElement and will be
     // blurred at each tap. this way we only blur the input elements.
-    this.shadowRoot.querySelectorAll('head-element').forEach(headElementComponent => {
-      headElementComponent.shadowRoot.querySelectorAll('input').forEach(inputElement => inputElement.blur())
+    this.shadowRoot?.querySelectorAll('head-element').forEach(headElementComponent => {
+      headElementComponent.shadowRoot?.querySelectorAll('input').forEach(inputElement => inputElement.blur())
     })
   }
 
-  hide() {
-    super.hide()
+  togglePanel = () => {
+    super.togglePanel()
+
+    this.requestUpdate()
   }
 
-  show() {
-    super.show()
+  protected firstUpdated() {
+    this.hide()
   }
 
   //createRenderRoot() { return this as any }
