@@ -11,6 +11,8 @@ import { onDragEnd, onDragOver, onDragStart } from './drag-sorting';
 
 const ALIAS_INPUT_ID = 'alias'
 
+export type HeadElementCallback = (headElementId: string) => void
+
 export default class HeadElementComponent extends ui.BaseMixin(ui.DropPanelMixin(LitElement)) implements HeadElement {
   public _id: string
   graphElementId: string
@@ -30,8 +32,10 @@ export default class HeadElementComponent extends ui.BaseMixin(ui.DropPanelMixin
   filters: { id: number, value: Filter }[]
   groupBy: GroupByElement
   having: Filter[]
+
   showCxtMenu = () => { }
-  
+  onDelete: HeadElementCallback = () => { }
+
   static properties = {
     alias: { attribute: false },
     graphElementId: { attribute: false },
@@ -423,7 +427,7 @@ export default class HeadElementComponent extends ui.BaseMixin(ui.DropPanelMixin
     result.push({
       content: 'Delete field',
       icon: rubbishBin,
-      select: () => { }
+      select: () => this.onDelete(this._id)
     })
 
     return result

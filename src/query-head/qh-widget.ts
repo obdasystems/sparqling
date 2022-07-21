@@ -7,7 +7,7 @@ import { asterisk, counter, tableEye } from '../widgets/assets/icons'
 import { countStarMsg, emptyHeadMsg, emptyHeadTipMsg, tipWhy } from '../widgets/assets/texts'
 import sparqlingWidgetStyle from '../widgets/sparqling-widget-style'
 import { allowDrop } from './drag-sorting'
-import HeadElementComponent from './qh-element-component'
+import HeadElementComponent, { HeadElementCallback } from './qh-element-component'
 
 export default class QueryHeadWidget extends ui.BaseMixin(ui.DropPanelMixin(LitElement)) {
   title = 'Query Results'
@@ -132,7 +132,7 @@ export default class QueryHeadWidget extends ui.BaseMixin(ui.DropPanelMixin(LitE
     // register callbacks for all head elements
     this.shadowRoot?.querySelectorAll('head-element').forEach((element: Element) => {
       const headElementComponent = element as HeadElementComponent
-      // headElementComponent.deleteButton.onclick = () => this.deleteElementCallback(headElementComponent._id)
+      headElementComponent.onDelete = this.deleteElementCallback
       headElementComponent.onRename(this.renameElementCallback)
       headElementComponent.onLocalize(this.localizeElementCallback)
       headElementComponent.onAddFilter(this.addFilterCallback)
@@ -153,7 +153,7 @@ export default class QueryHeadWidget extends ui.BaseMixin(ui.DropPanelMixin(LitE
    * Register callback to execute on delete of a HeadElement
    * @param callback callback receiving the ID of the HeadElement to delete
    */
-  onDelete(callback: (headElemId: string) => void) {
+  onDelete(callback: HeadElementCallback) {
     this.deleteElementCallback = callback
   }
 
