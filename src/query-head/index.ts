@@ -37,19 +37,19 @@ export function render(newHead: HeadElement[]) {
 }
 
 
-// export function onAddFilter(callback: (headElementId: string) => void) {
-//   qhWidget.onAddFilter((headElementId) => {
-//     callback(headElementId)
-//   })
-// }
+export function onAddFilter(callback: (headElementId: string) => void) {
+  qhWidget.onAddFilter((headElementId) => {
+    callback(headElementId)
+  })
+}
 
-// export function onEditFilter(callback: (filterId: number) => void) {
-//   qhWidget.onEditFilter(filterId => callback(filterId))
-// }
+export function onEditFilter(callback: (filterId: number) => void) {
+  qhWidget.onEditFilter(filterId => callback(filterId))
+}
 
-// export function onDeleteFilter(callback: (filterId: number) => void) {
-//   qhWidget.onDeleteFilter(filterId => callback(filterId))
-// }
+export function onDeleteFilter(callback: (filterId: number) => void) {
+  qhWidget.onDeleteFilter(filterId => callback(filterId))
+}
 
 // export function onAddFunction(callback: (headElementId: string) => void) {
 //   qhWidget.onAddFunction(headElementId => callback(headElementId))

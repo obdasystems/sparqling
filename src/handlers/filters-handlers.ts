@@ -2,11 +2,11 @@ import { FilterExpressionOperatorEnum, QueryGraph, QueryGraphFilterApi } from ".
 import { handlePromise } from "../main/handle-promises"
 import onNewBody from "../main/on-new-body"
 import * as model from '../model'
-import { filterDialog, filterListDialog } from "../widgets"
+import { filterDialog } from "../widgets"
 import { Modality } from "../widgets/forms/base-form-dialog"
 
-filterListDialog.onEdit((filterId: number) => showFilterDialogEditingMode(filterId))
-filterListDialog.onDelete((filterId: number) => { deleteFilter(filterId) })
+// filterListDialog.onEdit((filterId: number) => showFilterDialogEditingMode(filterId))
+// filterListDialog.onDelete((filterId: number) => { deleteFilter(filterId) })
 
 filterDialog.onSubmit(async (id, op, params) => {
   const filterApi = new QueryGraphFilterApi(undefined, model.getBasePath())
@@ -24,7 +24,10 @@ filterDialog.onSubmit(async (id, op, params) => {
 
   if (id === undefined || id === null) {
     // add filter
-    if (!tempQueryBody.filters) tempQueryBody.filters = []
+    if (!tempQueryBody.filters) {
+      tempQueryBody.filters = []
+    }
+    
     id = tempQueryBody.filters.push(newFilter) - 1
     handlePromise(filterApi.newFilter(id, tempQueryBody, model.getRequestOptions())).then(newBody => {
       filterDialog._id = id
@@ -74,6 +77,6 @@ export function showFilterDialogEditingMode(filterId: number) {
     filterDialog.parameters = filter.expression?.parameters
     filterDialog.parametersType = filter.expression?.parameters ? filter.expression.parameters[1].type : undefined
     filterDialog.show()
-    filterListDialog.hide()
+    // filterListDialog.hide()
   }
 }

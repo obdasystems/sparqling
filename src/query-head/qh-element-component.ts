@@ -55,7 +55,6 @@ export default class HeadElementComponent extends ui.BaseMixin(ui.DropPanelMixin
         display:block;
         height: fit-content;
         margin:5px 0;
-        padding-left: 20px;
         position: relative;
         opacity:1;
         border: none;
@@ -76,6 +75,7 @@ export default class HeadElementComponent extends ui.BaseMixin(ui.DropPanelMixin
         display: flex;
         align-items: center;
         gap: 2px;
+        padding-left: 20px;
       }
 
       #drag-handler {
@@ -122,16 +122,6 @@ export default class HeadElementComponent extends ui.BaseMixin(ui.DropPanelMixin
         display:flex;
         flex-direction: column;
         gap: 20px;
-        padding: 10px 5px;
-      }
-
-      .section {
-        padding: 5px;
-        margin: 10px 0;
-      }
-
-      .section > .title {
-        font-weight: bold;
       }
 
       #state-tray {
@@ -146,6 +136,15 @@ export default class HeadElementComponent extends ui.BaseMixin(ui.DropPanelMixin
 
       summary {
         list-style: none
+      }
+
+      #drop-panel {
+        padding: 8px;
+        padding-right: 0;
+      }
+
+      .section {
+        margin: 8px 0;
       }
     `,
   ]
@@ -227,17 +226,17 @@ export default class HeadElementComponent extends ui.BaseMixin(ui.DropPanelMixin
           ${this.hasAnythingInBody
             ? html`
               <div id="toggle-panel">
-                ${getTrayButtonTemplate('Expand', expandMore, expandLess, 'expand-action', () => this.togglePanel())}
+                ${getTrayButtonTemplate('Expand', expandMore, expandLess, 'expand-action', this.togglePanel)}
               </div>
             `
             : null
           }
         </div>
-        <div id="field-body" class="widget-body hide">
+        <div id="drop-panel" class="hide">
           ${this.groupBy
             ? html`
               <div class="section">
-                <div class="section-header">Aggregation</div>
+                <div class="section-header bold-text">Aggregation</div>
                 <div class="filters-function-list">
                   ${getElemWithOperatorList([this.groupBy])}
                 </div>
@@ -253,7 +252,7 @@ export default class HeadElementComponent extends ui.BaseMixin(ui.DropPanelMixin
           ${this.function 
             ? html`
               <div class="section">
-                <div class="section-header">Function</div>
+                <div class="section-header bold-text">Function</div>
                 <div class="filters-function-list">
                   ${getElemWithOperatorList([this.function])}
                 </div>
@@ -265,7 +264,7 @@ export default class HeadElementComponent extends ui.BaseMixin(ui.DropPanelMixin
           ${this.filters?.length > 0
             ? html`
               <div class="section">
-                <div class="section-header">Filters</div>
+                <div class="section-header bold-text">Filters</div>
                 <div class="filters-function-list">
                   ${getElemWithOperatorList(this.filters, this.editFilterCallback, this.deleteFilterCallback)}
                 </div>

@@ -45,7 +45,7 @@ export default class QueryHeadWidget extends ui.BaseMixin(ui.DropPanelMixin(LitE
         flex-direction: column;
         overflow: hidden scroll;
         scrollbar-width: inherit;
-        padding: 4px 12px;
+        padding: 4px 8px;
       }
 
       .blank-slate {

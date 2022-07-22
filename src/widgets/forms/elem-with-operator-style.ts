@@ -7,10 +7,7 @@ export function getElemWithOperatorStyle() {
       gap: 10px;
       align-items:center;
       justify-content: center;
-    }
-
-    .elem-with-operator > gscape-button {
-      --gscape-icon-size: 20px;
+      padding-left: 8px;
     }
 
     .parameters {
@@ -23,18 +20,13 @@ export function getElemWithOperatorStyle() {
       overflow: hidden;
     }
 
-    .operator {
-      font-weight:bold;
-      font-size:110%;
-    }
-
-    .operator, .parameter {
-      padding: 4px 6px;
-      padding-bottom: 2px;
-      border-radius: 6px;
-      background-color: var(--theme-gscape-primary);
-      color: var(--theme-gscape-on-primary);
-      line-height: 1;
+    .parameter {
+      background: var(--gscape-color-neutral-subtle);
+      padding: 4px;
+      padding-bottom: 4px;
+      padding-bottom: 1px;
+      border-radius: var(--gscape-border-radius);
+      border: solid 1px var(--gscape-color-border-subtle);
     }
   `
 }

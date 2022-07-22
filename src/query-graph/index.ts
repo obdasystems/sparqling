@@ -104,13 +104,13 @@ export function onDelete(callback: (graphElement: GraphElement, iri?: string) =>
   })
 }
 
-// export function onAddFilter(callback: (graphElem: GraphElement) => void) {
-//   bgp.onAddFilter(id => {
-//     const graphElement = GEUtility.getGraphElementByID(id)
-//     if (graphElement)
-//       callback(graphElement)
-//   })
-// }
+export function onAddFilter(callback: (graphElem: GraphElement) => void) {
+  bgp.onAddFilter(id => {
+    const graphElement = GEUtility.getGraphElementByID(id)
+    if (graphElement)
+      callback(graphElement)
+  })
+}
 
 // export function onSeeFilters(callback: (graphElem: GraphElement) => void) {
 //   bgp.onSeeFilters(id => {

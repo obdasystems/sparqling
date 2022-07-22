@@ -1,7 +1,8 @@
 import { html, css, HTMLTemplateResult } from 'lit'
-import { UI } from 'grapholscape'
+import { ui } from 'grapholscape'
 import { Filter, FilterExpressionOperatorEnum, FunctionNameEnum, GroupByElement, Function, GroupByElementAggregateFunctionEnum, VarOrConstantConstantTypeEnum, VarOrConstant } from '../../api/swagger'
 import { edit, rubbishBin } from '../assets/icons'
+import trayButtonTemplate from '../tray-button-template'
 
 export interface FilterWithID {
   id: number,
@@ -26,21 +27,21 @@ export function getElemWithOperatorList(list?: any, editElemCallback?, deleteEle
         || Object.keys(FunctionNameEnum).find(k => FunctionNameEnum[k] === elem.name)
         || Object.keys(GroupByElementAggregateFunctionEnum).find(k => GroupByElementAggregateFunctionEnum[k] === elem.aggregateFunction)
       
-      const editButton = new UI.GscapeButton(edit, 'Edit Filter')
-      const deleteButton = new UI.GscapeButton(rubbishBin, 'Delete Filter')
-      if (editElemCallback) {
-        editButton.onClick = () => editElemCallback(elemWithOperator.id)
-      }
+      // const editButton = new UI.GscapeButton(edit, 'Edit Filter')
+      // const deleteButton = new UI.GscapeButton(rubbishBin, 'Delete Filter')
+      // if (editElemCallback) {
+      //   editButton.onClick = () => editElemCallback(elemWithOperator.id)
+      // }
 
-      if (deleteElemCallback) {
-        deleteButton.onClick = () => deleteElemCallback(elemWithOperator.id)
-        deleteButton.classList.add('danger')
-      }
+      // if (deleteElemCallback) {
+      //   deleteButton.onClick = () => deleteElemCallback(elemWithOperator.id)
+      //   deleteButton.classList.add('danger')
+      // }
 
       return html`
         <div class="elem-with-operator">
           <div
-            class="operator"
+            class="chip"
             title="${operatorFullName}"
           >
             ${operator}</div>
@@ -55,7 +56,7 @@ export function getElemWithOperatorList(list?: any, editElemCallback?, deleteEle
                     value = value?.split('T')[0] || value // Take only date from ISO format 2022-01-01T00:00:....
                   }
                   return html`
-                    <div class="parameter">
+                    <div class="parameter ellipsed">
                       ${value}
                     </div>
                   `
@@ -64,8 +65,11 @@ export function getElemWithOperatorList(list?: any, editElemCallback?, deleteEle
             `
             : null
           }
-          ${editElemCallback ? editButton : null}
-          ${deleteElemCallback ? deleteButton : null}
+
+          <div>
+            ${trayButtonTemplate('Edit', edit, undefined, `edit-${elemWithOperator.id}`, () => editElemCallback(elemWithOperator.id))}
+            ${trayButtonTemplate('Delete', rubbishBin, undefined, `delete-${elemWithOperator.id}`, () => deleteElemCallback(elemWithOperator.id))}
+          </div>
         </div>
       `
     })}

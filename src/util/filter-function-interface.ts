@@ -7,5 +7,5 @@ export interface FormWidget {
   _id?: FormID,
   operator?: FormOperator,
   parameters?: VarOrConstant[],
-  aggregateOperator?: GroupByElementAggregateFunctionEnum,
+  // aggregateOperator?: GroupByElementAggregateFunctionEnum,
 }

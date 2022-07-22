@@ -62,18 +62,19 @@ function getCore(gscape: Grapholscape, file: string | Blob) {
 
     // Add query graph and query head widgets to grapholscape instance
     const uiContainer = gscape.container.querySelector('.gscape-ui')
-    uiContainer?.insertBefore(queryGraph.widget, uiContainer.firstChild)
-    uiContainer?.insertBefore(leftColumnContainer, uiContainer.firstChild)
-    // uiContainer.appendChild(widgets.relatedClassDialog)
-    // uiContainer.appendChild(widgets.sparqlDialog)
-    // uiContainer.appendChild(widgets.filterDialog)
-    // uiContainer.appendChild(widgets.filterListDialog)
-    // uiContainer.appendChild(widgets.functionDialog)
-    // uiContainer.appendChild(widgets.errorsDialog)
-    // uiContainer.appendChild(widgets.aggregationDialog)
+    if (uiContainer) {
+      uiContainer.insertBefore(queryGraph.widget, uiContainer.firstChild)
+      uiContainer.insertBefore(leftColumnContainer, uiContainer.firstChild)
+      // uiContainer.appendChild(widgets.relatedClassDialog)
+      // uiContainer.appendChild(widgets.sparqlDialog)
+      uiContainer.appendChild(widgets.filterDialog)
+      // uiContainer.appendChild(widgets.filterListDialog)
+      // uiContainer.appendChild(widgets.functionDialog)
+      // uiContainer.appendChild(widgets.errorsDialog)
+      // uiContainer.appendChild(widgets.aggregationDialog)
 
-    uiContainer?.querySelector('.gscape-ui-buttons-tray')?.appendChild(widgets.startRunButtons)
-
+      uiContainer?.querySelector('.gscape-ui-buttons-tray')?.appendChild(widgets.startRunButtons)
+    }
     queryGraph.setDisplayedNameType(gscape.entityNameType, gscape.language)
     queryGraph.setTheme(gscape.theme)
 

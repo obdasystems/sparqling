@@ -7,7 +7,7 @@ import * as ontologyGraph from '../ontology-graph'
 import * as queryGraph from '../query-graph'
 import * as queryHead from '../query-head'
 import { getGraphElementByID, getIri } from '../util/graph-element-utility'
-// import { aggregationDialog, filterDialog, functionDialog } from '../widgets'
+import { filterDialog } from '../widgets'
 import { deleteFilter, showFilterDialogEditingMode } from './filters-handlers'
 import showFormDialog from './show-form-dialog'
 
@@ -48,19 +48,19 @@ queryHead.onLocalize(headElement => {
   }
 })
 
-// queryHead.onAddFilter(headElementId => {
-//   const headElement = model.getHeadElementByID(headElementId)
-//   if (headElement)
-//     showFormDialog(headElement, filterDialog)
-// })
+queryHead.onAddFilter(headElementId => {
+  const headElement = model.getHeadElementByID(headElementId)
+  if (headElement)
+    showFormDialog(headElement, filterDialog)
+})
 
-// queryHead.onEditFilter((filterId) => {
-//   showFilterDialogEditingMode(filterId)
-// })
+queryHead.onEditFilter((filterId) => {
+  showFilterDialogEditingMode(filterId)
+})
 
-// queryHead.onDeleteFilter((filterId) => {
-//   deleteFilter(filterId)
-// })
+queryHead.onDeleteFilter((filterId) => {
+  deleteFilter(filterId)
+})
 
 // queryHead.onAddFunction(headElementId => {
 //   const headElement = model.getHeadElementByID(headElementId)
