@@ -65,7 +65,7 @@ function getCore(gscape: Grapholscape, file: string | Blob) {
     if (uiContainer) {
       uiContainer.insertBefore(queryGraph.widget, uiContainer.firstChild)
       uiContainer.insertBefore(leftColumnContainer, uiContainer.firstChild)
-      // uiContainer.appendChild(widgets.relatedClassDialog)
+      uiContainer.appendChild(widgets.relatedClassDialog)
       // uiContainer.appendChild(widgets.sparqlDialog)
       uiContainer.appendChild(widgets.filterDialog)
       // uiContainer.appendChild(widgets.filterListDialog)

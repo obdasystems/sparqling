@@ -1,161 +1,180 @@
-import { html, css } from 'lit'
+import { ui } from 'grapholscape'
+import { html, css, LitElement } from 'lit'
+import EventPosition from '../util/event-position'
 import ListSelectionDialog from './list-selection-dialog'
 
-export default class RelatedClassSelection extends ListSelectionDialog {
+export default class RelatedClassSelection extends ui.BaseMixin(LitElement) {
   objProperty: string
   class?: string
   reverseArrow = false
+  list: string[]
+  onSelection = (listItem: string) => { }
 
-  static get properties() {
-    let props = super.properties
-    props.class = { attribute: false }
-    props.objProperty = { attribute: false }
-
-    return props
+  static properties = {
+    class:{ attribute: false },
+    objProperty:{ attribute: false },
   }
 
 
-  static get styles() {
-    let super_styles = super.styles
-    let colors: any = super_styles[1]
-    return [
-      super_styles[0],
-      css`
-        :host {
-          min-width:100px;
-          transform: translate(-100%, -50%);
-        }
+  static styles = [
+    ui.baseStyle,
+    css`
+      :host {
+        position: absolute;
+        min-width: 100px;
+        transform: translate(-100%, -50%);
+      }
 
-        .widget-body {
-          padding:0;
-          display:flex;
-        }
+      .gscape-panel-body {
+        display: flex;
+        padding: 0px 0px 8px 8px;
+      }
 
-        #left-panel {
-          display:flex;
-          align-items:center;
-          padding:10px;
-        }
+      .gscape-panel {
+        max-width: unset;
+        max-height: unset;
+        padding:0
+      }
 
-        .class {
-          padding: 10px 20px;
-          border-radius: 6px;
-          background-color: var(--theme-gscape-concept, ${colors.concept});
-          border: solid 2px var(--theme-gscape-concept-dark, ${colors.concept_dark});
-        }
+      .header {
+        text-align:center;
+      }
 
-        .arrow {
-          margin: 10px;
-          display: flex;
-          align-items: center;
-        }
+      #left-panel {
+        display:flex;
+        align-items:center;
+      }
 
-        .arrow-reverse {
-          margin: 10px;
-          display: flex;
-          align-items: center;
-          flex-direction: row-reverse;
-        }
+      .class {
+        padding: 10px 20px;
+        border-radius: 6px;
+        background-color: var(--gscape-color-class);
+        border: solid 2px var(--gscape-color-class-contrast);
+      }
 
-        .arrow-tail, .arrow-body {
-          height:8px;
-          background-color: var(--theme-gscape-role-dark, ${colors.role_dark});
-        }
+      .arrow {
+        margin: 10px;
+        display: flex;
+        align-items: center;
+      }
 
-        .arrow-tail {
-          width: 20px;
-          border-top-left-radius: 3px;
-          border-bottom-left-radius: 3px;
-          border-top-right-radius: 0px;
-          border-bottom-right-radius:0px;
-        }
+      .arrow-reverse {
+        margin: 10px;
+        display: flex;
+        align-items: center;
+        flex-direction: row-reverse;
+      }
 
-        .arrow-reverse > .arrow-tail {
-          border-top-right-radius: 3px;
-          border-bottom-right-radius: 3px;
-          border-top-left-radius: 0px;
-          border-bottom-left-radius:0px;
-        }
+      .arrow-tail, .arrow-body {
+        height:8px;
+        background-color: var(--gscape-color-object-property-contrast);
+      }
 
-        .arrow-body {
-          width: 15px;
-        }
+      .arrow-tail {
+        width: 20px;
+        border-top-left-radius: 3px;
+        border-bottom-left-radius: 3px;
+        border-top-right-radius: 0px;
+        border-bottom-right-radius:0px;
+      }
 
-        .arrow-head {
+      .arrow-reverse > .arrow-tail {
+        border-top-right-radius: 3px;
+        border-bottom-right-radius: 3px;
+        border-top-left-radius: 0px;
+        border-bottom-left-radius:0px;
+      }
+
+      .arrow-body {
+        width: 15px;
+      }
+
+      .arrow-head {
+        width: 0; 
           width: 0; 
+        width: 0; 
+          width: 0; 
+        width: 0; 
+        height: 0; 
           height: 0; 
-          border-top: 15px solid transparent;
-          border-bottom: 15px solid transparent;
-          background-color: initial;
-        }
+        height: 0; 
+          height: 0; 
+        height: 0; 
+        border-top: 15px solid transparent;
+        border-bottom: 15px solid transparent;
+        background-color: initial;
+      }
 
-        .arrow > .arrow-head {
-          border-left: 15px solid var(--theme-gscape-role-dark, ${colors.role_dark});
-          border-right: 0;
-        }
+      .arrow > .arrow-head {
+        border-left: 15px solid var(--gscape-color-object-property-contrast);
+        border-right: 0;
+      }
 
-        .arrow-reverse > .arrow-head {
-          border-right: 15px solid var(--theme-gscape-role-dark, ${colors.role_dark});
-          border-left: 0;
-        }
+      .arrow-reverse > .arrow-head {
+        border-right: 15px solid var(--gscape-color-object-property-contrast);
+        border-left: 0;
+      }
 
-        .obj-property {
-          padding: 5px;
-        }
+      .obj-property {
+        padding: 5px;
+      }
 
-        .list {
-          display:flex;
-          flex-direction: column;
-          justify-content: center;
-          max-height: 100px;
-          overflow: auto;
-          overflow-x: hidden;
-        }
+      .list {
+        display: flex;
+        flex-direction: column;
+        max-height: 200px;
+        overflow: hidden auto;
+        padding-right: 8px;
+      }
 
-        .list-item {
-          cursor:pointer;
-          padding:5px 20px;
-        }
-
-        .list-item:last-of-type {
-          border-radius: inherit;
-        }
-
-        .gscape-panel-title {
-          padding-top:10px;
-        }
-        .
-      `
-    ]
-  }
-
-  constructor(buildItemString?: (item: any) => string) {
-    super(buildItemString)
-
-    this.class = ''
-    this.objProperty = ''
-  }
+      .gscape-panel-title {
+        padding-top:10px;
+      }
+    `
+  ]
 
   render() {
     return html`
-    <div class="gscape-panel-title">Add Object Property</div>
-    <div class="widget-body">
-      <div id="left-panel">
-        <span class="text class">${this.class}</span>
-        <span class="arrow${this.reverse}">
-          <span class="arrow-tail"></span>
-          <span class="text obj-property">${this.objProperty}</span>
-          <span class="arrow-body"></span>
-          <span class="arrow-head"></span>
-        </span>
+      <div class="gscape-panel">
+        <div class="header">Add Object Property</div>
+        <div class="gscape-panel-body">
+          <div id="left-panel">
+            <span class="text class">${this.class}</span>
+            <span class="arrow${this.reverse}">
+              <span class="arrow-tail"></span>
+              <span class="text obj-property">${this.objProperty}</span>
+              <span class="arrow-body"></span>
+              <span class="arrow-head"></span>
+            </span>
+          </div>
+          <div id="right-panel" class="list">
+            ${this.list?.map((classItem, i) => {
+              return html`<span class="actionable" index="${i}" @click=${this.handleSelection}>${classItem}</span>`
+            })}
+          </div>
+        </div>
       </div>
-      <div id="right-panel" class="list">
-        ${this.list?.map((classItem, i) => {
-          return html`<span index="${i}" @click=${this.handleSelection} class="list-item highlight">${this.buildItemString(classItem)}</span>`
-        })}
-      </div>
-    </div>
     `
+  }
+
+  private handleSelection(e: MouseEvent) {
+    e.preventDefault()
+    if (this.list) {
+      const index = (e.currentTarget as HTMLElement).getAttribute('index')
+
+      if (index !== null) {
+        let listItem = this.list[index]
+        this.onSelection(listItem)
+      }
+    }
+  }
+
+  showInPosition(position?: EventPosition) {
+    this.show()
+    if(position) {
+      this.style.top = position.y + "px"
+      this.style.left = position.x + "px"
+    }
   }
 
   private get reverse() {

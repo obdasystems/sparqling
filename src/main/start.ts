@@ -89,7 +89,7 @@ function init() {
 function setHandlers(cy: Core) {
   // [diplayed_name] select only nodes with a defined displayed name, 
   // avoid fake nodes (for inverse/nonInverse functional obj properties)
-  const objPropertiesSelector = `[displayed_name][type = "${GrapholTypesEnum.OBJECT_PROPERTY}"]`
+  const objPropertiesSelector = `[iri][type = "${GrapholTypesEnum.OBJECT_PROPERTY}"]`
   cy.on('mouseover', objPropertiesSelector, e => {
     if (model.isSparqlingRunning())
       ontologyGraph.showRelatedClassesWidget(e.target.data('iri'), e.renderedPosition)

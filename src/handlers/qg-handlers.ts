@@ -13,15 +13,15 @@ import { filterDialog } from '../widgets'
 // import { clearQueryButton, filterDialog, filterListDialog, sparqlButton, sparqlDialog } from '../widgets'
 import showFormDialog from './show-form-dialog'
 
-// queryGraph.onAddHead(async graphElement => {
-//   if (graphElement?.id) {
-//     const qgApi = QueryGraphHeadApiFactory(undefined, model.getBasePath())
-//     const body = model.getQueryBody()
-//     handlePromise(qgApi.addHeadTerm(graphElement.id, body, model.getRequestOptions())).then(newBody => {
-//       onNewBody(newBody)
-//     })
-//   }
-// })
+queryGraph.onAddHead(async graphElement => {
+  if (graphElement?.id) {
+    const qgApi = QueryGraphHeadApiFactory(undefined, model.getBasePath())
+    const body = model.getQueryBody()
+    handlePromise(qgApi.addHeadTerm(graphElement.id, body, model.getRequestOptions())).then(newBody => {
+      onNewBody(newBody)
+    })
+  }
+})
 
 queryGraph.onDelete((graphElement, iri) => {
   if (!graphElement.id) {
@@ -77,17 +77,17 @@ queryGraph.onDelete((graphElement, iri) => {
   }
 })
 
-// queryGraph.onJoin(async (ge1, ge2) => {
-//   if (ge1.id && ge2.id) {
-//     const qgApi = QueryGraphBGPApiFactory(undefined, model.getBasePath())
-//     const body = model.getQueryBody()
+queryGraph.onJoin(async (ge1, ge2) => {
+  if (ge1.id && ge2.id) {
+    const qgApi = QueryGraphBGPApiFactory(undefined, model.getBasePath())
+    const body = model.getQueryBody()
 
-//     handlePromise(qgApi.putQueryGraphJoin(ge1.id, ge2.id, body, model.getRequestOptions())).then(newBody => {
-//       model.setSelectedGraphElement(ge1)
-//       onNewBody(newBody)
-//     })
-//   }
-// })
+    handlePromise(qgApi.putQueryGraphJoin(ge1.id, ge2.id, body, model.getRequestOptions())).then(newBody => {
+      model.setSelectedGraphElement(ge1)
+      onNewBody(newBody)
+    })
+  }
+})
 
 queryGraph.onElementClick((graphElement, iri) => {
   const gscape = getGscape()

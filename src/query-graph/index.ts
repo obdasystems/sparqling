@@ -13,15 +13,15 @@ export * from './renderer/setters'
 export const widget = new QueryGraphWidget(bgpContainer)
 
 // // inject tests for allowing joins into renderer, keep renderer logic agnostic
-// bgp.setJoinStartCondition((nodeID: string) => {
-//   const graphElement = GEUtility.getGraphElementByID(nodeID)
-//   return graphElement ? GEUtility.canStartJoin(graphElement) : false
-// })
-// bgp.setJoinAllowedCondition((node1ID, node2ID) => {
-//   let ge1 = GEUtility.getGraphElementByID(node1ID)
-//   let ge2 = GEUtility.getGraphElementByID(node2ID)
-//   return ge1 && ge2 ? GEUtility.isJoinAllowed(ge1, ge2) : false
-// })
+bgp.setJoinStartCondition((nodeID: string) => {
+  const graphElement = GEUtility.getGraphElementByID(nodeID)
+  return graphElement ? GEUtility.canStartJoin(graphElement) : false
+})
+bgp.setJoinAllowedCondition((node1ID, node2ID) => {
+  let ge1 = GEUtility.getGraphElementByID(node1ID)
+  let ge2 = GEUtility.getGraphElementByID(node2ID)
+  return ge1 && ge2 ? GEUtility.isJoinAllowed(ge1, ge2) : false
+})
 
 
 export function selectElement(nodeIDorIRI: string): GraphElement | undefined {
@@ -88,13 +88,13 @@ export function getSelectedGraphElement() {
 }
 
 // // ******************************* GRAPH INTERACTION CALLBACKS ******************************* //
-// export function onAddHead(callback: (graphElem: GraphElement) => void) {
-//   bgp.onAddHead(id => {
-//     const graphElement = GEUtility.getGraphElementByID(id)
-//     if (graphElement)
-//       callback(graphElement)
-//   })
-// }
+export function onAddHead(callback: (graphElem: GraphElement) => void) {
+  bgp.onAddHead(id => {
+    const graphElement = GEUtility.getGraphElementByID(id)
+    if (graphElement)
+      callback(graphElement)
+  })
+}
 
 export function onDelete(callback: (graphElement: GraphElement, iri?: string) => void) {
   bgp.onDelete((id, iri) => {
@@ -120,14 +120,14 @@ export function onAddFilter(callback: (graphElem: GraphElement) => void) {
 //   })
 // }
 
-// export function onJoin(callback: (graphElem1: GraphElement, graphElem2: GraphElement) => void) {
-//   bgp.onJoin((node1ID, node2ID) => {
-//     let graphElem1 = GEUtility.getGraphElementByID(node1ID)
-//     let graphElem2 = GEUtility.getGraphElementByID(node2ID)
-//     if (graphElem1 && graphElem2)
-//       callback(graphElem1, graphElem2)
-//   })
-// }
+export function onJoin(callback: (graphElem1: GraphElement, graphElem2: GraphElement) => void) {
+  bgp.onJoin((node1ID, node2ID) => {
+    let graphElem1 = GEUtility.getGraphElementByID(node1ID)
+    let graphElem2 = GEUtility.getGraphElementByID(node2ID)
+    if (graphElem1 && graphElem2)
+      callback(graphElem1, graphElem2)
+  })
+}
 
 export function onElementClick(callback: (graphElem: GraphElement, iri: string) => void) {
   bgp.onElementClick((id, iri) => {

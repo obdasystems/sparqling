@@ -14,7 +14,7 @@ import ContextMenuWidget from "./cxt-menu/cxt-menu-widget"
 // export const sparqlDialog = new SparqlDialog()
 
 // export const listSelectionDialog = new ListSelectionDialog()
-// export const relatedClassDialog = new RelatedClassSelection()
+export const relatedClassDialog = new RelatedClassSelection()
 // export const highlightsList = new HighlightsList()
 export const filterDialog = new FilterDialog()
 // export const filterListDialog = new FilterListDialog()
