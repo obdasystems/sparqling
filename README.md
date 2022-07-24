@@ -30,9 +30,9 @@ If you want to install it via npm: `npm install sparqling`.
 ## Initialisation
 Sparqling offers two intialising functions:
 - **`sparqlingStandalone`**: for the standalone version
-- **`sparqling`**: meant to be used within other Obda Systems' products.
+- **`sparqling`**: meant to be used within other OBDA Systems' products.
 
-You need to pass the it the grapholscape instance and the Graphol ontology file which can be a `string` or a `Blob`.
+You need to pass it the grapholscape instance and the Graphol ontology file which can be a `string` or a `Blob`.
 The initialising function will return the core object, check the [API]().
 ```js
 import * as Sparqling from 'sparqling'
