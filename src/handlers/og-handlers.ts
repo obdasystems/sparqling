@@ -1,5 +1,5 @@
 import { CollectionReturnValue } from "cytoscape"
-import { GrapholTypesEnum } from "grapholscape"
+import { EntityOccurrence, GrapholTypesEnum } from "grapholscape"
 import { Branch, GraphElement, QueryGraph, QueryGraphBGPApi } from "../api/swagger"
 import { handlePromise } from "../main/handle-promises"
 import onNewBody from "../main/on-new-body"
@@ -72,11 +72,18 @@ export async function handleEntitySelection(cyEntity: CollectionReturnValue) {
   gscape.unselect()
 }
 
-ontologyGraph.onRelatedClassSelection((branch: Branch, relatedClass) => {
+ontologyGraph.onRelatedClassSelection((branch: Branch, relatedClassEntityOccurrence: EntityOccurrence) => {
   const gscape = getGscape()
   lastObjProperty = branch
-  gscape.centerOnElement(relatedClass.id())
-  handleEntitySelection(relatedClass)
+  gscape.centerOnElement(relatedClassEntityOccurrence.elementId, relatedClassEntityOccurrence.diagramId)
+  
+  const relatedClassCyElement = gscape.ontology
+    .getDiagram(relatedClassEntityOccurrence.diagramId)
+    ?.representations.get(gscape.renderState)
+    ?.cy.$id(relatedClassEntityOccurrence.elementId)
+  
+  if (relatedClassCyElement)
+    handleEntitySelection(relatedClassCyElement)
 })
 
 async function handleConceptSelection(cyEntity: CollectionReturnValue): Promise<QueryGraph | null> {

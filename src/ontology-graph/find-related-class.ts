@@ -1,4 +1,3 @@
-import { CollectionReturnValue } from "cytoscape"
 import { getActualHighlights } from "./highlights"
 import { Branch } from "../api/swagger"
 import getGscape from "./get-gscape"
@@ -8,9 +7,9 @@ import EventPosition from "../util/event-position"
 import { getSelectedGraphElement } from "../model"
 import * as GEUtility from "../util/graph-element-utility"
 import { isHighlighted } from "./highlights"
-import { Iri } from "grapholscape"
+import { EntityOccurrence, Iri } from "grapholscape"
 
-let _onRelatedClassSelection = (objectProperty: Branch, relatedClass: CollectionReturnValue) => { }
+let _onRelatedClassSelection = (objectProperty: Branch, relatedClass: EntityOccurrence) => { }
 
 // export function findNextClassFromObjProperty(objProperty: CollectionReturnValue):
 //   Promise<{ objPropertyFromApi?: Branch, connectedClass?: CollectionReturnValue } | undefined> {
@@ -98,18 +97,10 @@ export function showRelatedClassesWidget(objPropertyIri: string, position: Event
           if (selectedClassOccurrences) {
             const connectedClass = 
               selectedClassOccurrences?.find(occurrence => occurrence.diagramId === gscape.diagramId) ||
-              selectedClassOccurrences[0]
-
-            const connectedClassCyElement = gscape.ontology
-              .getDiagram(connectedClass.diagramId)
-              ?.representations.get(gscape.renderState)
-              ?.cy.$id(connectedClass.elementId)
-              
+              selectedClassOccurrences[0]              
               
             relatedClassDialog.hide()
-
-            if (connectedClassCyElement)
-              _onRelatedClassSelection(objPropertyFromApi, connectedClassCyElement)
+            _onRelatedClassSelection(objPropertyFromApi, connectedClass)
           }
         }
       } catch (e) { console.error(e) }
@@ -122,6 +113,6 @@ export function hideRelatedClassesWidget() {
   relatedClassDialog.hide()
 }
 
-export function onRelatedClassSelection(callback: (objectProperty: Branch, relatedClass: CollectionReturnValue) => void) {
+export function onRelatedClassSelection(callback: (objectProperty: Branch, relatedClass: EntityOccurrence) => void) {
   _onRelatedClassSelection = callback
 }
