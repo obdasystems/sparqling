@@ -51,9 +51,9 @@ export function onDeleteFilter(callback: (filterId: number) => void) {
   qhWidget.onDeleteFilter(filterId => callback(filterId))
 }
 
-// export function onAddFunction(callback: (headElementId: string) => void) {
-//   qhWidget.onAddFunction(headElementId => callback(headElementId))
-// }
+export function onAddFunction(callback: (headElementId: string) => void) {
+  qhWidget.onAddFunction(headElementId => callback(headElementId))
+}
 
 export function onOrderByChange(callback: HeadElementCallback) {
   qhWidget.onOrderByChange(headElementId => callback(headElementId))

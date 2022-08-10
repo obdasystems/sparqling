@@ -7,7 +7,7 @@ import * as ontologyGraph from '../ontology-graph'
 import * as queryGraph from '../query-graph'
 import * as queryHead from '../query-head'
 import { getGraphElementByID, getIri } from '../util/graph-element-utility'
-import { filterDialog } from '../widgets'
+import { filterDialog, functionDialog } from '../widgets'
 import { deleteFilter, showFilterDialogEditingMode } from './filters-handlers'
 import showFormDialog from './show-form-dialog'
 
@@ -62,11 +62,11 @@ queryHead.onDeleteFilter((filterId) => {
   deleteFilter(filterId)
 })
 
-// queryHead.onAddFunction(headElementId => {
-//   const headElement = model.getHeadElementByID(headElementId)
-//   if (headElement)
-//     showFormDialog(headElement, functionDialog)
-// })
+queryHead.onAddFunction(headElementId => {
+  const headElement = model.getHeadElementByID(headElementId)
+  if (headElement)
+    showFormDialog(headElement, functionDialog)
+})
 
 queryHead.onElementSortChange((headElementId, newIndex) => {
   const headElement = model.getHeadElementByID(headElementId)
