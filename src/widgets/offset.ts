@@ -1,16 +1,15 @@
-const offset = document.createElement('div')
-const label = document.createElement('label')
-const input = document.createElement('input')
+import { handleOffsetChange } from "../handlers/extra-handlers"
 
-label.innerHTML = 'Offset'
-input.type = 'number'
-input.classList.add('input-elem')
-input.id = 'offset-input'
-input.min = '1'
-input.disabled = true
+const offsetInput = document.createElement('input')
 
+offsetInput.placeholder = 'Offset'
+offsetInput.type = 'number'
+offsetInput.id = 'offset-input'
+offsetInput.min = '1'
+offsetInput.disabled = true
 
-offset.appendChild(label)
-offset.appendChild(input)
+offsetInput.onchange = handleOffsetChange
+offsetInput.addEventListener('focusout', handleOffsetChange)
+offsetInput.onsubmit = handleOffsetChange
 
-export default offset
+export default offsetInput

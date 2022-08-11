@@ -57,7 +57,9 @@ export default css`
   }
 
   #buttons-tray > input {
-    max-width:50px;
+    max-width: 80px;
+    margin: 0 5px;
+    padding-right: 2px;
   }
 
   .gscape-panel {
@@ -78,5 +80,9 @@ export default css`
     max-width: unset;
     width: 100%;
     box-sizing: border-box;
+  }
+
+  [disabled] {
+    cursor: not-allowed;
   }
 `

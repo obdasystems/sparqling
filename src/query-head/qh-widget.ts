@@ -103,9 +103,9 @@ export default class QueryHeadWidget extends ui.BaseMixin(ui.DropPanelMixin(LitE
 
           ${isCountStarActive()
             ? html`
-              <div id="empty-head">
-                <div class="icon">${counter}</div>
-                <div id="empty-head-msg">${countStarMsg()}</div>
+              <div class="blank-slate">
+                ${counter}
+                <div class="header">${countStarMsg()}</div>
               </div>
             `
             : this.headElements.length === 0

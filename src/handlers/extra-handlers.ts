@@ -2,15 +2,15 @@ import { QueryGraphExtraApi, QueryGraphHeadApi } from "../api/swagger";
 import { handlePromise } from "../main/handle-promises";
 import onNewBody from "../main/on-new-body";
 import { getBasePath, getQueryBody, getRequestOptions, isCountStarActive } from "../model";
-import { countStarToggle, distinctToggle, limit, offset } from "../widgets";
+import { distinctToggle } from "../widgets";
 import { validateInputElement } from "../widgets/forms/validate-form";
 
-distinctToggle.onToggle = () => {
+export function handleDistinctChange() {
   if (!isCountStarActive()) {
-    setMainDistinct(distinctToggle.state)
+    setMainDistinct(!distinctToggle.checked)
   } else {
     const qExtraApi = new QueryGraphExtraApi(undefined, getBasePath())
-    handlePromise(qExtraApi.countStarQueryGraph(distinctToggle.state, getQueryBody(), getRequestOptions())).then(newBody => onNewBody(newBody))
+    handlePromise(qExtraApi.countStarQueryGraph(!distinctToggle.checked, getQueryBody(), getRequestOptions())).then(newBody => onNewBody(newBody))
   }
 }
 
@@ -21,25 +21,10 @@ export function setMainDistinct(value: boolean) {
   })
 }
 
-const limitInputElement = getInputElement(limit)
-if (limitInputElement) {
-  limitInputElement.onchange = handleLimitChange
-  limitInputElement.addEventListener('focusout', handleLimitChange)
-  limitInputElement.onsubmit = handleOffsetChange
-}
-
-const offsetInputElement = getInputElement(offset)
-if (offsetInputElement) {
-  offsetInputElement.onchange = handleOffsetChange
-  offsetInputElement.addEventListener('focusout', handleOffsetChange)
-  offsetInputElement.onsubmit = handleOffsetChange
-}
-
-
-countStarToggle.onToggle = () => {
+export function handleCountStarChange() {
   const queryBody = getQueryBody()
   const qExtraApi = new QueryGraphExtraApi(undefined, getBasePath())
-  const distinct = distinctToggle.state
+  const distinct = !distinctToggle.checked
 
   if (isCountStarActive()) {
     // remove headElement associated to count star
@@ -62,14 +47,13 @@ countStarToggle.onToggle = () => {
   }
 }
 
-function handleOffsetChange() {
+export function handleOffsetChange(evt: Event) {
   const queryBody = getQueryBody()
   if (!queryBody?.graph) return
 
-  const input = getInputElement(offset)
+  const input = evt.currentTarget as HTMLInputElement
 
   if (input) {
-
     let value = input.valueAsNumber
     const qExtraApi = new QueryGraphExtraApi(undefined, getBasePath())
 
@@ -94,11 +78,11 @@ function handleOffsetChange() {
   }
 }
 
-function handleLimitChange() {
+export function handleLimitChange(evt: Event) {
   const queryBody = getQueryBody()
   if (!queryBody?.graph) return
 
-  const input = getInputElement(limit)
+  const input = evt.currentTarget as HTMLInputElement
 
   if (input) {
     let value = input.valueAsNumber
@@ -121,8 +105,4 @@ function handleLimitChange() {
       input.value = queryBody.limit && queryBody.limit > 0 ? queryBody.limit.toString() : ''
     }
   }
-}
-
-function getInputElement(elem: HTMLDivElement) {
-  return elem.querySelector('input')
 }

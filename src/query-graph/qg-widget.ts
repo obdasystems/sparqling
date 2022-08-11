@@ -1,7 +1,11 @@
 import { ui } from 'grapholscape'
 import { html, css, LitElement, SVGTemplateResult } from 'lit'
+import { countStarToggle } from '../widgets'
 import { code, dbClick, rdfLogo, refresh } from '../widgets/assets/icons'
 import { emptyGraphMsg, emptyGraphTipMsg, tipWhatIsQueryGraph } from '../widgets/assets/texts'
+import distinctToggle from '../widgets/distinct-toggle'
+import limitInput from '../widgets/limit'
+import offsetInput from '../widgets/offset'
 import sparqlignWidgetStyle from '../widgets/sparqling-widget-style'
 import getTrayButtonTemplate from '../widgets/tray-button-template'
 import cy from './renderer/cy'
@@ -82,6 +86,12 @@ export default class QueryGraphWidget extends ui.BaseMixin(ui.DropPanelMixin(Lit
               </div>
 
               <div id="buttons-tray">
+
+                ${limitInput}
+                ${offsetInput}
+                ${distinctToggle}
+                ${countStarToggle}
+
                 ${getTrayButtonTemplate('Sparql', code, undefined, 'sparql-code-btn', this.onSparqlButtonClick)}
                 ${getTrayButtonTemplate('Clear Query', refresh, undefined, 'clear-query-btn', this.onQueryClear)}
               </div>

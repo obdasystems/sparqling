@@ -6,12 +6,10 @@ import getGscape from "../ontology-graph/get-gscape"
 import * as queryGraph from "../query-graph"
 import * as queryHead from "../query-head"
 import { getHeadElementWithDatatype } from "../util/head-element-utility"
-import { sparqlDialog, startRunButtons } from "../widgets"
+import { countStarToggle, distinctToggle, limitInput, offsetInput, sparqlDialog, startRunButtons } from "../widgets"
 import { emptyQueryMsg } from "../widgets/assets/texts"
 
 export default function onNewBody(newBody: QueryGraph) {
-  // const limitInputElement = limit.querySelector('input')
-  // const offsetInputElement = offset.querySelector('input')
 
   // empty query
   if (!newBody.graph) {
@@ -19,14 +17,13 @@ export default function onNewBody(newBody: QueryGraph) {
     model.getOriginGrapholNodes().clear()
     ontologyGraph.resetHighlights()
     getGscape().unselect()
-    // distinctToggle.state = false
-    // countStarToggle.state = false
+    distinctToggle.checked = true
+    distinctToggle.classList.remove('actionable')
+    countStarToggle.checked = false
+    countStarToggle.classList.remove('actionable')
 
-    // if (limitInputElement)
-    //   limitInputElement.value = ''
-
-    // if (offsetInputElement)
-    //   offsetInputElement.value = ''
+    limitInput.value = ''
+    offsetInput.value = ''
   }
   startRunButtons.canQueryRun = newBody.graph && !model.isStandalone() && core.onQueryRun !== undefined
 
@@ -45,12 +42,15 @@ export default function onNewBody(newBody: QueryGraph) {
 
   sparqlDialog.text = body?.sparql ? body.sparql : emptyQueryMsg()
 
-  // if (limitInputElement && offsetInputElement) {
-  //   distinctToggle.disabled =
-  //     countStarToggle.disabled =
-  //     limitInputElement.disabled =
-  //     offsetInputElement.disabled =
-  //     newBody?.graph ? false : true
-  // }
+    distinctToggle.disabled =
+      countStarToggle.disabled =
+      limitInput.disabled =
+      offsetInput.disabled =
+        newBody?.graph ? false : true
 
+    if (!distinctToggle.disabled)
+      distinctToggle.classList.add('actionable')
+
+    if (!countStarToggle.disabled)
+      countStarToggle.classList.add('actionable')
 }
