@@ -55,7 +55,7 @@ export default function () {
 function init() {
   if (model.isSparqlingInitialised()) return
   const gscape = getGscape()
-  ontologyGraph.addStylesheet(gscape.renderer.cy, sparqlingStyle)
+  ontologyGraph.addStylesheet(gscape.renderer.cy, sparqlingStyle(gscape.theme))
 
   if (gscape.renderer.cy)
     setHandlers(gscape.renderer.cy)
@@ -67,19 +67,19 @@ function init() {
 
   gscape.on(LifecycleEvent.ThemeChange, (newTheme: GrapholscapeTheme) => {
     queryGraph.setTheme(newTheme)
-    ontologyGraph.addStylesheet(gscape.renderer.cy, sparqlingStyle)
+    ontologyGraph.addStylesheet(gscape.renderer.cy, sparqlingStyle(newTheme))
   })
 
   gscape.on(LifecycleEvent.DiagramChange, () => {
     if (gscape.renderer.cy) {
       setHandlers(gscape.renderer.cy)
-      ontologyGraph.addStylesheet(gscape.renderer.cy, sparqlingStyle)
+      ontologyGraph.addStylesheet(gscape.renderer.cy, sparqlingStyle(gscape.theme))
     }
     refreshHighlights()
   })
 
   gscape.on(LifecycleEvent.RendererChange, () => {
-    ontologyGraph.addStylesheet(gscape.renderer.cy, sparqlingStyle)
+    ontologyGraph.addStylesheet(gscape.renderer.cy, sparqlingStyle(gscape.theme))
     refreshHighlights()
   })
 

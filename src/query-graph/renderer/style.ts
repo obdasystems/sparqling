@@ -1,5 +1,5 @@
 import { Stylesheet } from "cytoscape"
-import { GrapholscapeTheme } from "grapholscape"
+import { ColoursNames, GrapholscapeTheme } from "grapholscape"
 import { EntityTypeEnum } from "../../api/swagger"
 
 const { DataProperty, Class, ObjectProperty, InverseObjectProperty } = EntityTypeEnum
@@ -132,9 +132,9 @@ export default (theme: GrapholscapeTheme) => {
     {
       selector: '.sparqling-selected',
       style: {
-        'underlay-color': 'green',
-        'underlay-padding': '10px',
-        'underlay-opacity': 0.5,
+        'underlay-color': theme.getColour(ColoursNames.accent),
+        'underlay-padding': '2.5px',
+        'underlay-opacity': 1,
       }
     },
   ] as Stylesheet[]

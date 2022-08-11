@@ -1,6 +1,7 @@
 import { StylesheetStyle } from "cytoscape"
+import { ColoursNames, GrapholscapeTheme } from "grapholscape"
 
-export default [
+export default (theme: GrapholscapeTheme) => [
   {
     selector: 'node[shape = "ellipse"], .bubble',
     style: { 'underlay-shape': 'ellipse' }
@@ -8,17 +9,19 @@ export default [
   {
     selector: '.sparqling-selected',
     style: {
-      'underlay-color': 'green',
-      'underlay-padding': '10px',
-      'underlay-opacity': 0.5,
+      'underlay-color': theme.getColour(ColoursNames.accent),
+      'underlay-padding': '4px',
+      'underlay-opacity': 1,
     }
   },
   {
     selector: '.highlighted',
     style: {
-      'underlay-color': 'red',
-      'underlay-padding': '10px',
-      'underlay-opacity': 0.2,
+      'underlay-color': theme.getColour(ColoursNames.success_muted),
+      'underlay-padding': '8px',
+      'underlay-opacity': 1,
+      'border-color': theme.getColour(ColoursNames.success),
+      'border-opacity': 1,
     }
   },
   {
