@@ -25,6 +25,7 @@ export default class SparqlingFormDialog extends ui.BaseMixin(LitElement) implem
   public variableName?: string
   protected deleteCallback = (filterId: any) => { }
   protected submitCallback: any
+  public formTitle?: string
 
   static properties = {
     operator: { attribute: false },

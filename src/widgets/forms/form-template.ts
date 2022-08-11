@@ -3,21 +3,6 @@ import { html } from 'lit'
 import SparqlingFormDialog from "./base-form-dialog"
 import { ui } from "grapholscape"
 
-// export function getfilterFormTemplate(
-//   operator: FilterExpressionOperatorEnum,
-//   parameters: VarOrConstant[],
-//   datatype: VarOrConstantConstantTypeEnum) {
-//   return getFormTemplate(operator, parameters, FilterExpressionOperatorEnum, datatype)
-// }
-
-// export function getFunctionFormTemplate(
-//   operator: FilterExpressionOperatorEnum,
-//   parameters: VarOrConstant[],
-//   datatype: VarOrConstantConstantTypeEnum) {
-//   return getFormTemplate(operator, parameters, FunctionNameEnum, datatype)
-// }
-
-
 export function getFormTemplate(formComponent: SparqlingFormDialog, operators: string[]) {
 
   const op: string = formComponent.operator || "Operator"
@@ -27,7 +12,7 @@ export function getFormTemplate(formComponent: SparqlingFormDialog, operators: s
 
   return html`
     <div class="section">
-      ${formComponent.title ? null : null}
+      ${formComponent.formTitle ? html`<div class="header">${formComponent.formTitle}</div>` : null}
       <form id="form-dialog" class="form" action="javascript:void(0)" onsubmit="this.handleSubmit">
         <div class="selects-wrapper">
           <div id="select-operator">

@@ -59,7 +59,7 @@ export function onOrderByChange(callback: HeadElementCallback) {
   qhWidget.onOrderByChange(headElementId => callback(headElementId))
 }
 
-// export function onAddAggregation(callback: (headElementId: string) => void) {
-//   qhWidget.onAddAggregation(headElementId => callback(headElementId))
-// }
+export function onAddAggregation(callback: (headElementId: string) => void) {
+  qhWidget.onAddAggregation(headElementId => callback(headElementId))
+}
 

@@ -7,7 +7,7 @@ import * as ontologyGraph from '../ontology-graph'
 import * as queryGraph from '../query-graph'
 import * as queryHead from '../query-head'
 import { getGraphElementByID, getIri } from '../util/graph-element-utility'
-import { filterDialog, functionDialog } from '../widgets'
+import { aggregationDialog, filterDialog, functionDialog } from '../widgets'
 import { deleteFilter, showFilterDialogEditingMode } from './filters-handlers'
 import showFormDialog from './show-form-dialog'
 
@@ -105,8 +105,14 @@ queryHead.onOrderByChange(headElementId => {
   })
 })
 
-// queryHead.onAddAggregation(headElementId => {
-//   const headElement = model.getHeadElementByID(headElementId)
-//   if (headElement)
-//     showFormDialog(headElement, aggregationDialog)
-// })
+queryHead.onAddAggregation(headElementId => {
+  const headElement = model.getHeadElementByID(headElementId)
+  if (headElement) {
+    showFormDialog(headElement, aggregationDialog)
+    aggregationDialog.aggregateOperator = undefined
+    aggregationDialog.definingHaving = false
+    aggregationDialog.distinct = false
+    if (aggregationDialog.distinctCheckboxElem)
+      (aggregationDialog.distinctCheckboxElem as HTMLInputElement).checked = false
+  }
+})
