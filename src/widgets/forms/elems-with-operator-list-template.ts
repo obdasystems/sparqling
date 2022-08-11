@@ -40,11 +40,7 @@ export function getElemWithOperatorList(list?: any, editElemCallback?, deleteEle
 
       return html`
         <div class="elem-with-operator">
-          <div
-            class="chip"
-            title="${operatorFullName}"
-          >
-            ${operator}</div>
+          <div class="chip" title="${operatorFullName}">${operator}</div>
 
           ${parameters
             ? html`
@@ -67,8 +63,14 @@ export function getElemWithOperatorList(list?: any, editElemCallback?, deleteEle
           }
 
           <div>
-            ${trayButtonTemplate('Edit', edit, undefined, `edit-${elemWithOperator.id}`, () => editElemCallback(elemWithOperator.id))}
-            ${trayButtonTemplate('Delete', rubbishBin, undefined, `delete-${elemWithOperator.id}`, () => deleteElemCallback(elemWithOperator.id))}
+            ${editElemCallback 
+              ? trayButtonTemplate('Edit', edit, undefined, `edit-${elemWithOperator.id}`, () => editElemCallback(elemWithOperator.id))
+              : null
+            }
+            ${deleteElemCallback
+              ? trayButtonTemplate('Delete', rubbishBin, undefined, `delete-${elemWithOperator.id}`, () => deleteElemCallback(elemWithOperator.id))
+              : null
+            }
           </div>
         </div>
       `

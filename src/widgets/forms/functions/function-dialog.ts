@@ -1,4 +1,4 @@
-import SparqlingFormDialog, { Modality } from "../base-form-dialog"
+import SparqlingFormDialog from "../base-form-dialog"
 import { getFormTemplate } from "../form-template"
 import { html } from 'lit'
 import { FunctionNameEnum, VarOrConstant, VarOrConstantConstantTypeEnum } from "../../../api/swagger"
@@ -46,6 +46,11 @@ export default class FunctionDialog extends SparqlingFormDialog {
 
   onSubmit(callback: (headElementId: FormID, functionOperator: FunctionNameEnum, parameters: VarOrConstant[]) => void) {
     this.submitCallback = callback
+  }
+
+  setAsCorrect(customText?: string): void {
+    super.setAsCorrect(customText)
+    this.shadowRoot?.querySelector('gscape-button[type = "primary"]')?.remove()
   }
 
   protected get operators() {
