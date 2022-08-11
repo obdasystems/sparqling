@@ -43,26 +43,6 @@ export default class QueryGraphWidget extends ui.BaseMixin(ui.DropPanelMixin(Lit
         color:inherit;
       }
 
-      #buttons-tray > * {
-        position: initial;
-      }
-
-      #buttons-tray {
-        display: flex;
-        align-items: center;
-        justify-content: end;
-        flex-grow: 3;
-        padding: 0 10px;
-      }
-
-      #buttons-tray > gscape-button {
-        --gscape-icon-size: 20px;
-      }
-
-      #buttons-tray > input {
-        max-width:50px;
-      }
-
       .input-elem {
         color: inherit;
         padding: 5px;

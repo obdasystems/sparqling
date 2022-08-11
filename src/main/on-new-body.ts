@@ -6,7 +6,7 @@ import getGscape from "../ontology-graph/get-gscape"
 import * as queryGraph from "../query-graph"
 import * as queryHead from "../query-head"
 import { getHeadElementWithDatatype } from "../util/head-element-utility"
-import { startRunButtons } from "../widgets"
+import { sparqlDialog, startRunButtons } from "../widgets"
 import { emptyQueryMsg } from "../widgets/assets/texts"
 
 export default function onNewBody(newBody: QueryGraph) {
@@ -43,7 +43,7 @@ export default function onNewBody(newBody: QueryGraph) {
 
   // filterListDialog.filterList = model.getFiltersOnVariable(filterListDialog.variable)
 
-  // sparqlDialog.text = body?.sparql ? body.sparql : emptyQueryMsg()
+  sparqlDialog.text = body?.sparql ? body.sparql : emptyQueryMsg()
 
   // if (limitInputElement && offsetInputElement) {
   //   distinctToggle.disabled =

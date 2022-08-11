@@ -9,7 +9,7 @@ import getGscape from '../ontology-graph/get-gscape'
 import * as queryGraph from '../query-graph'
 // import * as queryHead from '../query-head'
 import * as GEUtility from '../util/graph-element-utility'
-import { filterDialog } from '../widgets'
+import { filterDialog, sparqlDialog } from '../widgets'
 // import { clearQueryButton, filterDialog, filterListDialog, sparqlButton, sparqlDialog } from '../widgets'
 import showFormDialog from './show-form-dialog'
 
@@ -164,8 +164,6 @@ queryGraph.onAddFilter(graphElement => {
 //   }
 // })
 
-// sparqlButton.onClick = () => {
-//   sparqlDialog.isVisible ? sparqlDialog.hide() : sparqlDialog.show()
-// }
+queryGraph.widget.onSparqlButtonClick = () => sparqlDialog.isVisible ? sparqlDialog.hide() : sparqlDialog.show()
 
 queryGraph.widget.onQueryClear = () => { clearQuery() }

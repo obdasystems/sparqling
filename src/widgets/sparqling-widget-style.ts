@@ -40,6 +40,26 @@ export default css`
     gap: 8px;
   }
 
+  #buttons-tray > * {
+    position: initial;
+  }
+
+  #buttons-tray {
+    display: flex;
+    align-items: center;
+    justify-content: end;
+    flex-grow: 3;
+    padding: 0 10px;
+  }
+
+  #buttons-tray > gscape-button {
+    --gscape-icon-size: 20px;
+  }
+
+  #buttons-tray > input {
+    max-width:50px;
+  }
+
   .gscape-panel {
     width: unset;
     max-width: unset;

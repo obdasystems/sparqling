@@ -11,7 +11,7 @@ import AggregationDialog from "./forms/aggregation-functions/aggregation-functio
 import { code, refresh } from "./assets/icons"
 import ContextMenuWidget from "./cxt-menu/cxt-menu-widget"
 
-// export const sparqlDialog = new SparqlDialog()
+export const sparqlDialog = new SparqlDialog()
 
 // export const listSelectionDialog = new ListSelectionDialog()
 export const relatedClassDialog = new RelatedClassSelection()
