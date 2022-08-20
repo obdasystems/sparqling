@@ -61,6 +61,10 @@ export default class QueryHeadWidget extends ui.BaseMixin(ui.DropPanelMixin(LitE
       .tip: hover {
         color:inherit;
       }
+
+      .top-bar.traslated-down {
+        bottom: 10px;
+      }
     `
   ]
 
