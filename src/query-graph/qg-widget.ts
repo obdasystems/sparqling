@@ -109,7 +109,7 @@ export default class QueryGraphWidget extends ui.BaseMixin(ui.DropPanelMixin(Lit
 
             ${this.isBGPEmpty
             ? html`
-                <div class="blank-slate">
+                <div class="blank-slate sparqling-blank-slate">
                   ${dbClick}
                   <div class="header">${emptyGraphMsg()}</div>
                   <div class="tip description" title="${emptyGraphTipMsg()}">${tipWhatIsQueryGraph()}</div>

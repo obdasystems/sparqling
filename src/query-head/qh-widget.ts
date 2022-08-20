@@ -103,14 +103,14 @@ export default class QueryHeadWidget extends ui.BaseMixin(ui.DropPanelMixin(LitE
 
           ${isCountStarActive()
             ? html`
-              <div class="blank-slate">
+              <div class="blank-slate sparqling-blank-slate">
                 ${counter}
                 <div class="header">${countStarMsg()}</div>
               </div>
             `
             : this.headElements.length === 0
               ? html`
-                <div class="blank-slate">
+                <div class="blank-slate sparqling-blank-slate">
                   ${asterisk}
                   <div class="header">${emptyHeadMsg()}</div>
                   <div class="tip description" title="${emptyHeadTipMsg()}">${tipWhy()}</div>

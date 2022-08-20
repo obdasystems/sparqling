@@ -72,7 +72,7 @@ export default css`
     padding-top: 27px;
   }
 
-  .blank-slate {
+  .sparqling-blank-slate {
     position: absolute;
     top: 50%;
     left: 50%;

@@ -5,7 +5,7 @@ export default function getTrayButtonTemplate(
   icon: SVGTemplateResult,
   alternateIcon?: SVGTemplateResult,
   id?: string,
-  clickHandler = () => { }
+  clickHandler = (e: MouseEvent) => { }
 ) {
   return html`
     <gscape-button

@@ -8,6 +8,7 @@ import { getSelectedGraphElement } from "../model"
 import * as GEUtility from "../util/graph-element-utility"
 import { isHighlighted } from "./highlights"
 import { EntityOccurrence, Iri } from "grapholscape"
+import { getEntityOccurrence } from "./util"
 
 let _onRelatedClassSelection = (objectProperty: Branch, relatedClass: EntityOccurrence) => { }
 
@@ -91,17 +92,10 @@ export function showRelatedClassesWidget(objPropertyIri: string, position: Event
     relatedClassDialog.onSelection = (selectedClassIri: string) => {
       try {
         if (objPropertyFromApi) {
-          // Prefer instance in actual diagram, first one as fallback
-          const selectedClassEntity = gscape.ontology.getEntity(selectedClassIri)
-          const selectedClassOccurrences = selectedClassEntity.occurrences.get(gscape.renderState)
-          if (selectedClassOccurrences) {
-            const connectedClass = 
-              selectedClassOccurrences?.find(occurrence => occurrence.diagramId === gscape.diagramId) ||
-              selectedClassOccurrences[0]              
-              
-            relatedClassDialog.hide()
-            _onRelatedClassSelection(objPropertyFromApi, connectedClass)
-          }
+          const relatedClassOccurrence = getEntityOccurrence(selectedClassIri)
+
+          if (relatedClassOccurrence)
+            _onRelatedClassSelection(objPropertyFromApi, relatedClassOccurrence)
         }
       } catch (e) { console.error(e) }
     }

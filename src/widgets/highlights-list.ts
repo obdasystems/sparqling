@@ -1,159 +1,239 @@
-import { html, css } from 'lit'
-import { Highlights } from '../api/swagger'
-import { UI } from 'grapholscape'
-import { lightbulbQuestion } from './assets/icons'
+import { ui } from 'grapholscape'
+import { html, css, LitElement, PropertyValueMap } from 'lit'
+import { Branch, Entity, EntityTypeEnum, Highlights } from '../api/swagger'
+// import { UI } from 'grapholscape'
+import { crosshair, lightbulb, placeItem } from './assets/icons'
+import sparqlingWidgetStyle from './sparqling-widget-style'
+import getTrayButtonTemplate from './tray-button-template'
 
-export default class HighlightsList extends (UI.GscapeWidget as any) {
+export default class HighlightsList extends ui.BaseMixin(ui.DropPanelMixin(LitElement)) {
   class: string
   highlights?: Highlights
-  collapsible = true
-  private _onSuggestionSelection = (element: string) => { }
+  title = 'Suggestions'
+  private _onSuggestionLocalization = (element: string) => { }
+  private _onSuggestionAddToQuery = (entityIri: string, entityType: EntityTypeEnum, relatedClassIri?: string) => { }
 
 
-  static get properties() {
-    let props = super.properties
-    props.class = { attribute: false }
-    props.highlights = { attribute: false }
-
-    return props
+  static properties = {
+    class: { type: String, attribute: false},
+    highlights: { type: Object, attribute: false }
   }
 
 
-  static get styles() {
-    let super_styles = super.styles
-    let colors: any = super_styles[1]
-    return [
-      super_styles[0],
-      css`
-        :host {
-          position:initial;
-          pointer-events:initial;
-        }
+  static styles = [
+    ui.baseStyle,
+    ui.entityListItemStyle,
+    sparqlingWidgetStyle,
+    css`
+      :host {
+        position:initial;
+        pointer-events:initial;
+        margin-top: 60px;
+        max-height: 55%;
+      }
 
-        .widget-body {
-          max-height: 400px;
-        }
+      .gscape-panel {
+        max-height: unset;
+        overflow-y: hidden;
+      }
 
-        .gscape-panel-title {
-          padding-top:10px;
-        }
+      .list {
+        overflow: hidden auto;
+        scrollbar-width: inherit;
+        max-height: 100%;
+        padding: 8px;
+        position: relative;
+        box-sizing: border-box;
+      }
 
-        .list {
-          display:flex;
-          flex-direction:column;
-        }
+      details.entity-list-item > .summary-body {
+        padding: 4px 8px;
+      }
 
-        .list-item {
-          padding:5px 10px;
-          cursor: pointer;
-        }
+      details {
+        white-space: nowrap;
+      }
 
-        details {
-          margin: 5px;
-          padding: 5px;
-          border-radius: 6px;
-        }
+      div.entity-list-item {
+        display: flex;
+        align-items: center;
+        gap: 2px;
+        padding: 0 8px;
+      }
 
-        summary {
-          font-weight: bold;
-          margin: 5px;
-          cursor:pointer;
-        }
+      div.entity-list-item > .entity-name {
+        flex-grow: 2;
+      }
 
-        #classes-panel {
-          background-color: var(--theme-gscape-concept, ${colors.concept});
-        }
+      div.entity-list-item > .entity-icon {
+        line-height: 0;
+      }
 
-        #object-properties-panel {
-          background-color: var(--theme-gscape-role, ${colors.role});
-        }
+      div.entity-list-item > .actions {
+        display: none;
+      }
 
-        #data-properties-panel {
-          background-color: var(--theme-gscape-attribute, ${colors.attribute});
-        }
-      `
-    ]
-  }
+      div.entity-list-item:hover > .actions {
+        display: unset;
+      }
 
-  constructor() {
-    super()
+      .blank-slate {
+        margin: 0 auto;
+      }
 
-    this.class = ''
-  }
+      .ellipsed .actions, .ellipsed .entity-icon {
+        overflow-x: unset
+      }
+    `
+  ]
 
   render() {
     return html`
-    <gscape-head title="Suggestions"></gscape-head>
-    <div class="widget-body">
-      <details id="object-properties-panel" open>
-        <summary>Object Properties</summary>
-        <div class="list">
-          ${this.objectProperties.map((objectProperty, i) => {
-            return html`
-              <span index="${i}" @click=${this.handleObjectPropertySelection} class="list-item highlight">
-                ${objectProperty.objectPropertyIRI}
-              </span>`
-          })}
-        </div>
-      </details>
-      
-      <details id="data-properties-panel" open>
-        <summary>Data Properties</summary>
-        <div id="data-properties-panel" class="list">
-          ${this.dataProperties.map((dataProperty, i) => {
-            return html`
-              <span index="${i}" @click=${this.handleDataPropertySelection} class="list-item highlight">
-                ${dataProperty}
-              </span>`
-          })}
-        </div>
-      </details>
+      ${this.isPanelClosed()
+        ? html`
+          <div>
+            <gscape-button 
+              id="toggle-panel-button"
+              @click=${this.togglePanel}
+              label=${this.title}
+            > 
+              <span slot="icon">${lightbulb}</span>
+              <span slot="trailing-icon">${ui.icons.plus}</span>
+            </gscape-button>
+          </div>
+        `
+        : html`
+          <div class="gscape-panel" id="drop-panel">
+            <div class="top-bar">
+              <div id="widget-header" class="bold-text">
+                ${lightbulb}
+                <span>${this.title}</span>
+              </div>
 
-      <details id="classes-panel" open>
-        <summary>Classes</summary>
-        <div class="list">
-          ${this.classes.map((classItem, i) => {
-            return html`
-              <span index="${i}" @click=${this.handleClassSelection} class="list-item highlight">
-                ${classItem}
-              </span>`
-          })}
-        </div>
-      </details>
-    </div>
+              <gscape-button 
+                id="toggle-panel-button"
+                size="s" 
+                type="subtle"
+                @click=${this.togglePanel}
+              > 
+                <span slot="icon">${ui.icons.minus}</span>
+              </gscape-button>
+            </div>
+            <div class="list">
+              ${this.highlights
+                ? html`
+                  ${this.dataProperties.map((dataPropertyIri) => this.getEntitySuggestionTemplate(dataPropertyIri, EntityTypeEnum.DataProperty))}
+                  ${this.objectProperties.map(objectPropertyHighlight => this.getObjectPropertySuggestionTemplate(objectPropertyHighlight))}
+                  ${this.classes.map((classIri) => this.getEntitySuggestionTemplate(classIri, EntityTypeEnum.Class))}
+                `
+                : html`
+                  <div class="blank-slate">
+                    ${ui.icons.searchOff}
+                    <div class="header">No suggestions available</div>
+                    <div class="description">Add elements to the query and we will provide you next steps suggestions</div>
+                  </div>
+                `
+              }
+              
+            </div>
+          </div>
+        `
+      }
     `
   }
 
-  firstUpdated() {
-    super.firstUpdated()
+  private getObjectPropertySuggestionTemplate(objectPropertyHighlight: Branch) {
+    return html`
+      <details class="ellipsed entity-list-item" iri=${objectPropertyHighlight.objectPropertyIRI} title=${objectPropertyHighlight.objectPropertyIRI}>
+        <summary class="actionable">
+          <span class="entity-icon">${ui.objectPropertyIcon}</span>
+          <span @click=${this.handleEntityNameClick} class="entity-name">
+            ${objectPropertyHighlight.objectPropertyIRI}
+          </span>
+        </summary>
 
-    let self = this as any
-    self.header.left_icon = lightbulbQuestion
-    self.header.invertIcons()
+        <div class="summary-body">
+          ${objectPropertyHighlight.relatedClasses?.map((relatedClass) => this.getEntitySuggestionTemplate(relatedClass, EntityTypeEnum.Class, objectPropertyHighlight.objectPropertyIRI))}
+        </div>
+      </details>
+    `
+  }
+
+  private getEntitySuggestionTemplate(entityIri: string, entityType: EntityTypeEnum, objectPropertyIri?: string) {
+    let entityIcon: { _$litType$: 2; strings: TemplateStringsArray; values: unknown[] }
+
+    switch(entityType) {
+      case EntityTypeEnum.Class:
+        entityIcon = ui.classIcon
+        break
+
+      case EntityTypeEnum.DataProperty:
+        entityIcon = ui.dataPropertyIcon
+        break
+
+      case EntityTypeEnum.ObjectProperty:
+      case EntityTypeEnum.InverseObjectProperty:
+        entityIcon = ui.objectPropertyIcon
+        break
+    }
+    
+    return html`
+      <div iri=${entityIri} entity-type="${entityType}" class="ellipsed entity-list-item">
+        <span class="entity-icon">${entityIcon}</span>
+        <span class="entity-name actionable" @click=${this.handleEntityNameClick}>${entityIri}</span>
+        <span class="actions">
+          ${getTrayButtonTemplate('Add to query', placeItem, undefined, 'add-to-query-action', (e) => {
+            this.handleAddToQueryClick(e, objectPropertyIri)
+          })}
+        </span>
+      </div>
+    `
+  }
+
+  protected firstUpdated(_changedProperties: PropertyValueMap<any> | Map<PropertyKey, unknown>): void {
+    super.firstUpdated(_changedProperties)
+
+    // let self = this as any
+    // self.header.left_icon = lightbulbQuestion
+    // self.header.invertIcons()
     this.hide()
   }
 
-  handleClassSelection(e: any) {
+  private handleEntityNameClick(e: MouseEvent) {
     e.preventDefault()
-    this._onSuggestionSelection(this.classes[e.target.getAttribute('index') as number])
+    const entityIri = (e.target as HTMLElement).parentElement?.getAttribute('iri')
+    if (entityIri)
+      this._onSuggestionLocalization(entityIri)
   }
 
-  handleObjectPropertySelection(e: any) {
+  private handleAddToQueryClick(e: MouseEvent, objectPropertyIri?: string) {
     e.preventDefault()
 
-    const index = e.target.getAttribute('index')
-    const objectPropertyIRI = this.objectProperties[index].objectPropertyIRI
-    if (objectPropertyIRI)
-      this._onSuggestionSelection(objectPropertyIRI)
+    const entityIri = (e.currentTarget as HTMLElement).parentElement?.parentElement?.getAttribute('iri')
+    const entityType = (e.currentTarget as HTMLElement).parentElement?.parentElement?.getAttribute('entity-type') as EntityTypeEnum
+
+    if (entityIri && entityType) {
+      if (objectPropertyIri) { // if it's from object property, then the entityIri is the relatedClass iri
+        this._onSuggestionAddToQuery(objectPropertyIri, EntityTypeEnum.ObjectProperty, entityIri)
+      } else {
+        this._onSuggestionAddToQuery(entityIri, entityType)
+      }
+
+    }
   }
 
-  handleDataPropertySelection(e: any) {
-    e.preventDefault()
-    this._onSuggestionSelection(this.dataProperties[e.target.getAttribute('index') as number])
+  togglePanel = () => {
+    super.togglePanel()
+
+    this.requestUpdate()
   }
 
-  onSuggestionSelection(callback: (iri: string ) => void) {
-    this._onSuggestionSelection = callback
+  onSuggestionLocalization(callback: (iri: string ) => void) {
+    this._onSuggestionLocalization = callback
+  }
+
+  onSuggestionAddToQuery(callback: (entityIri:string, entityType: EntityTypeEnum, relatedClass?: string) => void) {
+    this._onSuggestionAddToQuery = callback
   }
 
   private get objectProperties() {
@@ -172,13 +252,6 @@ export default class HighlightsList extends (UI.GscapeWidget as any) {
   private get dataProperties() {
     return this.highlights?.dataProperties?.sort((a,b) => a.localeCompare(b)) || []
   }
-
-  show() { super.show() }
-  hide() { super.hide() }
-  toggleBody() { super.toggleBody() }
-  showBody() { super.showBody() }
-  collapseBody() { super.collapseBody() }
-  blur() { }
 }
 
-customElements.define('sparqling-highlights-list', HighlightsList as any)
+customElements.define('sparqling-highlights-list', HighlightsList)

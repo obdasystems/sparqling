@@ -3,17 +3,18 @@ import { OntologyGraphApi } from "../api/swagger"
 import { Highlights } from "../api/swagger"
 import * as model from "../model"
 import { getIri } from "../util/graph-element-utility"
-// import { highlightsList } from "../widgets"
+import { highlightsList } from "../widgets"
 import getGscape from "./get-gscape"
 import { handlePromise } from "../main/handle-promises"
 import { Iri } from "grapholscape"
+import getPrefixedIri from "../util/get-prefixed-iri"
 
 let actualHighlights: Highlights | undefined
 export const HIGHLIGHT_CLASS = 'highlighted'
 export const FADED_ClASS = 'faded'
 export const SPARQLING_SELECTED = 'sparqling-selected'
 
-// highlightsList.onSuggestionSelection(iri => getGscape().centerOnEntity(iri))
+// highlightsList.onSuggestionLocalization(iri => getGscape().centerOnEntity(iri))
 
 export const getActualHighlights = () => actualHighlights
 
@@ -35,7 +36,7 @@ export function highlightSuggestions(clickedIRI: string) {
   handlePromise(ogApi.highligths(clickedIRI, undefined, model.getRequestOptions())).then(newHighlights => {
     actualHighlights = newHighlights
     performHighlights(clickedIRI)
-    // highlightsList.highlights = transformHighlightsToPrefixedIRIs()
+    highlightsList.highlights = transformHighlightsToPrefixedIRIs()
   })
 }
 
@@ -50,7 +51,7 @@ export function resetHighlights() {
     }
   })
   actualHighlights = undefined
-  // highlightsList.highlights = undefined
+  highlightsList.highlights = undefined
 }
 
 export function isHighlighted(iri: string): boolean {
@@ -93,18 +94,12 @@ function performHighlights(clickedIRI: string) {
 
 function transformHighlightsToPrefixedIRIs(): Highlights {
   let transformedHighlights: Highlights = JSON.parse(JSON.stringify(actualHighlights))
-  const ontology = getGscape().ontology
   transformedHighlights.classes = transformedHighlights.classes?.map(iri => getPrefixedIri(iri))
   transformedHighlights.dataProperties = transformedHighlights.dataProperties?.map(iri => getPrefixedIri(iri))
   transformedHighlights.objectProperties = transformedHighlights.objectProperties?.map(branch => {
     branch.objectPropertyIRI = getPrefixedIri(branch.objectPropertyIRI || '')
+    branch.relatedClasses = branch.relatedClasses?.map(iri => getPrefixedIri(iri))
     return branch
   })
   return transformedHighlights
-
-
-  function getPrefixedIri(iriValue: string) {
-    const iri = new Iri(iriValue, getGscape().ontology.namespaces)
-    return iri.prefixed || iriValue
-  }
 }

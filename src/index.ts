@@ -54,11 +54,11 @@ function getCore(gscape: Grapholscape, file: string | Blob) {
     const actualGrapholscape = ontologyGraph.getGscape()
     if (actualGrapholscape !== gscape)
       model.setInitialised(false)
-    
-      ontologyGraph.setGrapholscapeInstance(gscape)
 
-    // leftColumnContainer.appendChild(widgets.highlightsList as any)
+    ontologyGraph.setGrapholscapeInstance(gscape)
+
     leftColumnContainer.appendChild(queryHead.widget)
+    leftColumnContainer.appendChild(widgets.highlightsList)
 
     // Add query graph and query head widgets to grapholscape instance
     const uiContainer = gscape.container.querySelector('.gscape-ui')
