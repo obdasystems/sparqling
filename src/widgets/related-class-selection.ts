@@ -1,7 +1,6 @@
 import { ui } from 'grapholscape'
-import { html, css, LitElement } from 'lit'
+import { css, html, LitElement, PropertyValueMap } from 'lit'
 import EventPosition from '../util/event-position'
-import ListSelectionDialog from './list-selection-dialog'
 
 export default class RelatedClassSelection extends ui.BaseMixin(LitElement) {
   objProperty: string
@@ -179,6 +178,12 @@ export default class RelatedClassSelection extends ui.BaseMixin(LitElement) {
 
   private get reverse() {
     return this.reverseArrow ? '-reverse' : null
+  }
+
+  protected firstUpdated(_changedProperties: PropertyValueMap<any> | Map<PropertyKey, unknown>): void {
+    super.firstUpdated(_changedProperties)
+
+    this.hide()
   }
 }
 
