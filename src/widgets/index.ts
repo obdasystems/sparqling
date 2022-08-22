@@ -10,7 +10,6 @@ import ErrorsDialog from "./errors-dialog"
 
 export const sparqlDialog = new SparqlDialog()
 
-// export const listSelectionDialog = new ListSelectionDialog()
 export const relatedClassDialog = new RelatedClassSelection()
 export const highlightsList = new HighlightsList()
 export const filterDialog = new FilterDialog()
@@ -19,16 +18,10 @@ export const functionDialog = new FunctionDialog()
 export const aggregationDialog = new AggregationDialog()
 export const startRunButtons = new SparqlingStartRunButtons()
 export const errorsDialog = new ErrorsDialog()
-// errorsDialog.title = 'Error'
 
 export { default as limitInput } from './limit'
 export { default as offsetInput } from './offset'
 export { default as distinctToggle } from "./distinct-toggle"
 export { default as countStarToggle } from './count-star-toggle'
-
-// export const sparqlButton = new UI.GscapeButton(code, 'SPARQL')
-// export const clearQueryButton = new ui.GscapeButton()
-// distinctToggle.style.marginRight = '5px'
-// export const countStarToggle = new UI.GscapeToggle('count-star', false, true, 'Count Results')
 
 export * from './cxt-menu'

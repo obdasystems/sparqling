@@ -1,4 +1,4 @@
-import tippy, { Instance, Props } from "tippy.js"
+import tippy, { Props } from "tippy.js"
 import ContextMenuWidget, { Command } from "./cxt-menu-widget"
 
 export const cxtMenuWidget = new ContextMenuWidget()

@@ -6,7 +6,6 @@ import { getIri } from "../util/graph-element-utility"
 import { highlightsList } from "../widgets"
 import getGscape from "./get-gscape"
 import { handlePromise } from "../main/handle-promises"
-import { Iri } from "grapholscape"
 import getPrefixedIri from "../util/get-prefixed-iri"
 
 let actualHighlights: Highlights | undefined

@@ -1,7 +1,7 @@
 import { CollectionReturnValue } from "cytoscape"
 import { EntityNameType } from "grapholscape"
 import { Entity, EntityTypeEnum, GraphElement, Optional } from "../../api/swagger"
-import { getFiltersOnVariable, getQueryBody } from "../../model"
+import { getFiltersOnVariable } from "../../model"
 import cy, { getDisplayedNameType, getLanguage } from './cy'
 import { getElementById, getElements } from "./getters"
 import { addOrRemoveFilterIcon, removeHasFilterIcon } from "./has-filter-icon"

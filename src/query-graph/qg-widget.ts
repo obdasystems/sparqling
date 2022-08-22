@@ -1,5 +1,5 @@
 import { ui } from 'grapholscape'
-import { html, css, LitElement, SVGTemplateResult } from 'lit'
+import { css, html, LitElement } from 'lit'
 import { countStarToggle } from '../widgets'
 import { code, dbClick, rdfLogo, refresh } from '../widgets/assets/icons'
 import { emptyGraphMsg, emptyGraphTipMsg, tipWhatIsQueryGraph } from '../widgets/assets/texts'

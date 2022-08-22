@@ -1,6 +1,6 @@
 import { CollectionReturnValue } from "cytoscape"
 import { EntityOccurrence, GrapholTypesEnum } from "grapholscape"
-import { Branch, Entity, GraphElement, QueryGraph, QueryGraphBGPApi } from "../api/swagger"
+import { Branch, GraphElement, QueryGraph, QueryGraphBGPApi } from "../api/swagger"
 import { handlePromise } from "../main/handle-promises"
 import onNewBody from "../main/on-new-body"
 import * as model from "../model"
@@ -11,11 +11,6 @@ import { getdiffNew, graphElementHasIri, isClass } from "../util/graph-element-u
 
 
 let lastObjProperty: Branch | null
-//let selectedGraphElement: GraphElement
-// let isIriHighlighted: boolean
-// let isIriInQueryGraph: boolean
-// let clickedIRI: string
-// const iriInQueryGraph = actualBody ? queryManager.getGraphElementByIRI(clickedIRI) : null
 
 export async function handleEntitySelection(entityIri: string, entityType: GrapholTypesEnum, entityOccurrence: EntityOccurrence) {
   const selectedGraphElement = model.getSelectedGraphElement()
@@ -154,13 +149,6 @@ export async function handleDataPropertySelection(cyEntity: string | CollectionR
   lastObjProperty = null
   return newQueryGraph
 }
-
-// function getInitialInfo(cyEntity: CollectionReturnValue) {
-//   clickedIRI = cyEntity.data('iri')
-//   // selectedGraphElement = queryGraph.getSelectedGraphElement()
-//   isIriHighlighted = ontologyGraph.isHighlighted(clickedIRI)
-//   isIriInQueryGraph = queryGraph.isIriInQueryGraph(clickedIRI)
-// }
 
 /**
  * Find the GraphElement corresponding to the clicked entity and set entity as its origin Graphol node

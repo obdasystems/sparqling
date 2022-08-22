@@ -11,7 +11,6 @@ import * as queryHead from '../query-head'
 import HeadElementComponent from '../query-head/qh-element-component'
 import * as GEUtility from '../util/graph-element-utility'
 import { filterDialog, filterListDialog, sparqlDialog } from '../widgets'
-// import { clearQueryButton, filterDialog, filterListDialog, sparqlButton, sparqlDialog } from '../widgets'
 import showFormDialog from './show-form-dialog'
 
 queryGraph.onAddHead(async graphElement => {

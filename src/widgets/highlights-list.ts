@@ -1,8 +1,7 @@
 import { GrapholTypesEnum, ui } from 'grapholscape'
-import { html, css, LitElement, PropertyValueMap } from 'lit'
-import { Branch, Entity, EntityTypeEnum, Highlights } from '../api/swagger'
-// import { UI } from 'grapholscape'
-import { crosshair, lightbulb, placeItem } from './assets/icons'
+import { css, html, LitElement, PropertyValueMap } from 'lit'
+import { Branch, EntityTypeEnum, Highlights } from '../api/swagger'
+import { lightbulb, placeItem } from './assets/icons'
 import sparqlingWidgetStyle from './sparqling-widget-style'
 import getTrayButtonTemplate from './tray-button-template'
 

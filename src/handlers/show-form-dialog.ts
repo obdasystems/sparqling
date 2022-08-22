@@ -1,6 +1,5 @@
 import { GraphElement, HeadElement, VarOrConstantConstantTypeEnum, VarOrConstantTypeEnum } from "../api/swagger"
 import { getGscape } from "../ontology-graph"
-// import { guessDataType } from "../ontology-graph"
 import * as GEUtility from "../util/graph-element-utility"
 import SparqlingFormDialog, { Modality } from "../widgets/forms/base-form-dialog"
 import FilterDialog from "../widgets/forms/filters/filter-dialog"
