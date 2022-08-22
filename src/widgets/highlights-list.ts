@@ -228,6 +228,8 @@ export default class HighlightsList extends ui.BaseMixin(ui.DropPanelMixin(LitEl
 
   protected firstUpdated(_changedProperties: PropertyValueMap<any> | Map<PropertyKey, unknown>): void {
     super.firstUpdated(_changedProperties)
+    this.closePanel()
+    this.requestUpdate()
     this.hide()
   }
 
