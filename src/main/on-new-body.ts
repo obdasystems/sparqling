@@ -18,9 +18,7 @@ export default function onNewBody(newBody: QueryGraph) {
     ontologyGraph.resetHighlights()
     getGscape().unselect()
     distinctToggle.checked = true
-    distinctToggle.classList.remove('actionable')
     countStarToggle.checked = false
-    countStarToggle.classList.remove('actionable')
 
     limitInput.value = ''
     offsetInput.value = ''

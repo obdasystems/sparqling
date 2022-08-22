@@ -5,7 +5,6 @@ export default css`
     font-size: 12px;
     display: flex;
     flex-direction: row;
-    line-height: 1;
     position: absolute;
     top: 0;
     right: 0;
