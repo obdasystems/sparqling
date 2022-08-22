@@ -120,25 +120,25 @@ queryGraph.onElementClick((graphElement, iri) => {
     queryGraph.selectElement(selectedGraphElem.id)
 })
 
-// queryGraph.onMakeOptional(graphElement => {
-//   if (graphElement.id) {
-//     const qgOptionalApi = QueryGraphOptionalApiFactory(undefined, model.getBasePath())
-//     const body = model.getQueryBody()
-//     handlePromise(qgOptionalApi.newOptionalGraphElementId(graphElement.id, body, model.getRequestOptions())).then(newBody => {
-//       onNewBody(newBody)
-//     })
-//   }
-// })
+queryGraph.onMakeOptional(graphElement => {
+  if (graphElement.id) {
+    const qgOptionalApi = QueryGraphOptionalApiFactory(undefined, model.getBasePath())
+    const body = model.getQueryBody()
+    handlePromise(qgOptionalApi.newOptionalGraphElementId(graphElement.id, body, model.getRequestOptions())).then(newBody => {
+      onNewBody(newBody)
+    })
+  }
+})
 
-// queryGraph.onRemoveOptional(graphElement => {
-//   if (graphElement.id) {
-//     const qgOptionalApi = QueryGraphOptionalApiFactory(undefined, model.getBasePath())
-//     const body = model.getQueryBody()
-//     handlePromise(qgOptionalApi.removeOptionalGraphElementId(graphElement.id, body, model.getRequestOptions())).then(newBody => {
-//       onNewBody(newBody)
-//     })
-//   }
-// })
+queryGraph.onRemoveOptional(graphElement => {
+  if (graphElement.id) {
+    const qgOptionalApi = QueryGraphOptionalApiFactory(undefined, model.getBasePath())
+    const body = model.getQueryBody()
+    handlePromise(qgOptionalApi.removeOptionalGraphElementId(graphElement.id, body, model.getRequestOptions())).then(newBody => {
+      onNewBody(newBody)
+    })
+  }
+})
 
 queryGraph.onAddFilter(graphElement => {
   showFormDialog(graphElement, filterDialog)

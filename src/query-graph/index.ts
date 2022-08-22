@@ -6,7 +6,7 @@ import * as GEUtility from "../util/graph-element-utility"
 import QueryGraphWidget from "./qg-widget"
 import * as bgp from "./renderer"
 
-// export * from './optionals'
+export * from './optionals'
 export { renderOptionals, setLanguage } from './renderer'
 export * from './renderer/setters'
 
