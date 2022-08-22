@@ -112,13 +112,13 @@ export function onAddFilter(callback: (graphElem: GraphElement) => void) {
   })
 }
 
-// export function onSeeFilters(callback: (graphElem: GraphElement) => void) {
-//   bgp.onSeeFilters(id => {
-//     const graphElement = GEUtility.getGraphElementByID(id)
-//     if (graphElement)
-//       callback(graphElement)
-//   })
-// }
+export function onSeeFilters(callback: (graphElem: GraphElement) => void) {
+  bgp.onSeeFilters(id => {
+    const graphElement = GEUtility.getGraphElementByID(id)
+    if (graphElement)
+      callback(graphElement)
+  })
+}
 
 export function onJoin(callback: (graphElem1: GraphElement, graphElem2: GraphElement) => void) {
   bgp.onJoin((node1ID, node2ID) => {

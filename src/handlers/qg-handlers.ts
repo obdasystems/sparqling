@@ -7,9 +7,10 @@ import * as model from '../model'
 import * as ontologyGraph from '../ontology-graph'
 import getGscape from '../ontology-graph/get-gscape'
 import * as queryGraph from '../query-graph'
-// import * as queryHead from '../query-head'
+import * as queryHead from '../query-head'
+import HeadElementComponent from '../query-head/qh-element-component'
 import * as GEUtility from '../util/graph-element-utility'
-import { filterDialog, sparqlDialog } from '../widgets'
+import { filterDialog, filterListDialog, sparqlDialog } from '../widgets'
 // import { clearQueryButton, filterDialog, filterListDialog, sparqlButton, sparqlDialog } from '../widgets'
 import showFormDialog from './show-form-dialog'
 
@@ -143,26 +144,27 @@ queryGraph.onAddFilter(graphElement => {
   showFormDialog(graphElement, filterDialog)
 })
 
-// queryGraph.onSeeFilters(graphElement => {
-//   if (graphElement.id) {
-//     for (const headElementComponent of queryHead.widget.shadowRoot.querySelectorAll('head-element')) {
-//       if (headElementComponent.graphElementId === graphElement.id) {
-//         headElementComponent.focus()
-//         headElementComponent.showBody()
-//         headElementComponent.scrollIntoView({ behavior: 'smooth' })
-//         return
-//       }
-//     }
+queryGraph.onSeeFilters(graphElement => {
+  if (graphElement.id && queryHead.widget.shadowRoot) {
+    for (const headElementComponent of queryHead.widget.shadowRoot.querySelectorAll('head-element')) {
+      const headElemC = headElementComponent as HeadElementComponent
+      if (headElemC.graphElementId === graphElement.id) {
+        headElemC.focus()
+        headElemC.openPanel()
+        headElemC.scrollIntoView({ behavior: 'smooth' })
+        return
+      }
+    }
 
-//     // if not in query head, show dialog
-//     const filtersOnVariable = model.getFiltersOnVariable(graphElement.id)
-//     if (filtersOnVariable)
-//       filterListDialog.filterList = filtersOnVariable
+    // if not in query head, show dialog
+    const filtersOnVariable = model.getFiltersOnVariable(graphElement.id)
+    if (filtersOnVariable)
+      filterListDialog.filterList = filtersOnVariable
 
-//     filterListDialog.variable = graphElement.id
-//     filterListDialog.show()
-//   }
-// })
+    filterListDialog.variable = graphElement.id
+    filterListDialog.show()
+  }
+})
 
 queryGraph.widget.onSparqlButtonClick = () => sparqlDialog.isVisible ? sparqlDialog.hide() : sparqlDialog.show()
 
