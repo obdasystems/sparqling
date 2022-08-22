@@ -1,4 +1,4 @@
-import { ui } from 'grapholscape'
+import { GrapholTypesEnum, ui } from 'grapholscape'
 import { html, css, LitElement, PropertyValueMap } from 'lit'
 import { Branch, Entity, EntityTypeEnum, Highlights } from '../api/swagger'
 // import { UI } from 'grapholscape'
@@ -8,17 +8,19 @@ import getTrayButtonTemplate from './tray-button-template'
 
 export default class HighlightsList extends ui.BaseMixin(ui.DropPanelMixin(LitElement)) {
   class: string
-  highlights?: Highlights
+  private _allHighlights?: Highlights
+  private highlights?: Highlights
   title = 'Suggestions'
+
+  searchEntityComponent = new ui.GscapeEntitySearch()
+
   private _onSuggestionLocalization = (element: string) => { }
   private _onSuggestionAddToQuery = (entityIri: string, entityType: EntityTypeEnum, relatedClassIri?: string) => { }
-
 
   static properties = {
     class: { type: String, attribute: false},
     highlights: { type: Object, attribute: false }
   }
-
 
   static styles = [
     ui.baseStyle,
@@ -41,7 +43,7 @@ export default class HighlightsList extends ui.BaseMixin(ui.DropPanelMixin(LitEl
         overflow: hidden auto;
         scrollbar-width: inherit;
         max-height: 100%;
-        padding: 8px;
+        padding: 0 8px 8px 8px;
         position: relative;
         box-sizing: border-box;
       }
@@ -87,6 +89,39 @@ export default class HighlightsList extends ui.BaseMixin(ui.DropPanelMixin(LitEl
     `
   ]
 
+  constructor() {
+    super()
+
+    this.searchEntityComponent.onSearch(e => {
+      const inputElement = e.target as HTMLInputElement
+      if (e.key === 'Escape') {
+        inputElement.value = ''
+        inputElement.blur()
+        this.setHighlights()
+      } else {
+        if (this.allHighlights && this.highlights && inputElement.value?.length > 2) {
+          const isAmatch = (value1: string, value2: string) => value1.toLowerCase().includes(value2.toLowerCase())
+
+          this.highlights.classes = this.highlights.classes?.filter(classIri => 
+            isAmatch(classIri, inputElement.value)
+          )
+          this.highlights.dataProperties = this.highlights.dataProperties?.filter(dataPropertyIri => 
+            isAmatch(dataPropertyIri, inputElement.value)
+          )
+          this.highlights.objectProperties = this.highlights.objectProperties?.filter(branch => 
+            branch.objectPropertyIRI ? isAmatch(branch.objectPropertyIRI, inputElement.value) : false 
+          )
+          
+          this.requestUpdate()
+        } else {
+          this.setHighlights()
+        }
+      }
+    })
+
+    this.searchEntityComponent.onEntityFilterToggle(() => this.setHighlights())
+  }
+
   render() {
     return html`
       ${this.isPanelClosed()
@@ -119,6 +154,7 @@ export default class HighlightsList extends ui.BaseMixin(ui.DropPanelMixin(LitEl
                 <span slot="icon">${ui.icons.minus}</span>
               </gscape-button>
             </div>
+            ${this.searchEntityComponent}
             <div class="list">
               ${this.highlights
                 ? html`
@@ -146,7 +182,7 @@ export default class HighlightsList extends ui.BaseMixin(ui.DropPanelMixin(LitEl
     return html`
       <details class="ellipsed entity-list-item" iri=${objectPropertyHighlight.objectPropertyIRI} title=${objectPropertyHighlight.objectPropertyIRI}>
         <summary class="actionable">
-          <span class="entity-icon">${ui.objectPropertyIcon}</span>
+          <span class="entity-icon">${ui.icons.objectPropertyIcon}</span>
           <span @click=${this.handleEntityNameClick} class="entity-name">
             ${objectPropertyHighlight.objectPropertyIRI}
           </span>
@@ -164,16 +200,16 @@ export default class HighlightsList extends ui.BaseMixin(ui.DropPanelMixin(LitEl
 
     switch(entityType) {
       case EntityTypeEnum.Class:
-        entityIcon = ui.classIcon
+        entityIcon = ui.icons.classIcon
         break
 
       case EntityTypeEnum.DataProperty:
-        entityIcon = ui.dataPropertyIcon
+        entityIcon = ui.icons.dataPropertyIcon
         break
 
       case EntityTypeEnum.ObjectProperty:
       case EntityTypeEnum.InverseObjectProperty:
-        entityIcon = ui.objectPropertyIcon
+        entityIcon = ui.icons.objectPropertyIcon
         break
     }
     
@@ -192,10 +228,6 @@ export default class HighlightsList extends ui.BaseMixin(ui.DropPanelMixin(LitEl
 
   protected firstUpdated(_changedProperties: PropertyValueMap<any> | Map<PropertyKey, unknown>): void {
     super.firstUpdated(_changedProperties)
-
-    // let self = this as any
-    // self.header.left_icon = lightbulbQuestion
-    // self.header.invertIcons()
     this.hide()
   }
 
@@ -251,6 +283,54 @@ export default class HighlightsList extends ui.BaseMixin(ui.DropPanelMixin(LitEl
 
   private get dataProperties() {
     return this.highlights?.dataProperties?.sort((a,b) => a.localeCompare(b)) || []
+  }
+
+  set allHighlights(highlights: Highlights | undefined) {
+    this._allHighlights = highlights
+    this.setHighlights()
+  }
+
+  get allHighlights() {
+    return this._allHighlights
+  }
+
+  private setHighlights() {
+    if (this.allHighlights)
+      this.highlights = JSON.parse(JSON.stringify(this.allHighlights))
+    else 
+      this.highlights = this.allHighlights
+
+
+    if (this.highlights) {
+      let count = 0
+      if (this.searchEntityComponent[GrapholTypesEnum.CLASS] !== true) {
+        this.highlights.classes = []
+        count += 1
+      }
+
+      if (this.searchEntityComponent[GrapholTypesEnum.OBJECT_PROPERTY] !== true) {
+        this.highlights.objectProperties = []
+        count += 1
+      }
+
+      if (this.searchEntityComponent[GrapholTypesEnum.DATA_PROPERTY] !== true) {
+        this.highlights.dataProperties = []
+        count += 1
+      }
+
+      // if count = 3 then highlights empty, this will show the blank-slate
+      if (count === 3) {
+        this.highlights = undefined
+      }
+    }
+  }
+
+  blur() {
+    // do not call super.blur() cause it will collapse highlights suggestions body.
+    // This because each click on cytoscape background calls document.activeElement.blur(), 
+    // so if any input field has focus, query-head will be the activeElement and will be
+    // blurred at each tap. this way we only blur the input elements.
+    this.shadowRoot?.querySelectorAll('input').forEach(inputElement => inputElement.blur())
   }
 }
 

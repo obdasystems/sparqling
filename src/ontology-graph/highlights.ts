@@ -36,7 +36,7 @@ export function highlightSuggestions(clickedIRI: string) {
   handlePromise(ogApi.highligths(clickedIRI, undefined, model.getRequestOptions())).then(newHighlights => {
     actualHighlights = newHighlights
     performHighlights(clickedIRI)
-    highlightsList.highlights = transformHighlightsToPrefixedIRIs()
+    highlightsList.allHighlights = transformHighlightsToPrefixedIRIs()
   })
 }
 
@@ -51,7 +51,7 @@ export function resetHighlights() {
     }
   })
   actualHighlights = undefined
-  highlightsList.highlights = undefined
+  highlightsList.allHighlights = undefined
 }
 
 export function isHighlighted(iri: string): boolean {
