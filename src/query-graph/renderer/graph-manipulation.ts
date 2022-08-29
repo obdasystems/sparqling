@@ -211,13 +211,13 @@ function getDataObj(graphElement: GraphElement, i?: number) {
   }
 }
 
-function getDisplayedName(data: object) {
-  let labels = data[EntityNameType.LABEL]
+function getDisplayedName(data: Entity) {
+  let labels = data.labels
   const displayedNameType = getDisplayedNameType()
 
   if (displayedNameType === EntityNameType.LABEL && labels)
     // use first language found if the actual one is not available
     return labels[getLanguage()] || labels[Object.keys(labels)[0]]
   else
-    return data[displayedNameType] || data['iri']
+    return data[displayedNameType] || data.iri
 }
