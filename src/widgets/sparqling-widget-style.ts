@@ -56,7 +56,7 @@ export default css`
   }
 
   #buttons-tray > input {
-    max-width: 80px;
+    max-width: 130px;
     margin: 0 5px;
     padding-right: 2px;
   }
