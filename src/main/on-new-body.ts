@@ -13,7 +13,7 @@ export default function onNewBody(newBody: QueryGraph) {
 
   // empty query
   if (!newBody.graph) {
-    model.setSelectedGraphElement(undefined)
+    model.setActiveElement(undefined)
     model.getOriginGrapholNodes().clear()
     ontologyGraph.resetHighlights()
     getGscape().unselect()

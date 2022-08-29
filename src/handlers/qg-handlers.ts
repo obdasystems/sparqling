@@ -1,4 +1,4 @@
-import { ui } from 'grapholscape'
+import { Iri, ui } from 'grapholscape'
 import { QueryGraph, QueryGraphBGPApiFactory, QueryGraphHeadApiFactory, QueryGraphOptionalApiFactory } from '../api/swagger'
 import { clearQuery } from '../main'
 import { handlePromise } from '../main/handle-promises'
@@ -30,7 +30,7 @@ queryGraph.onDelete((graphElement, iri) => {
 
   const qgApi = QueryGraphBGPApiFactory(undefined, model.getBasePath())
   const body = model.getQueryBody()
-  const selectedGraphElement = model.getSelectedGraphElement()
+  const selectedGraphElement = model.getActiveElement()?.graphElement
   const gscape = getGscape()
 
   if (!iri) {
@@ -44,16 +44,23 @@ queryGraph.onDelete((graphElement, iri) => {
           }) || false
         })
 
-        model.setSelectedGraphElement(newSelectedGE)
+        let newSelectedGEIri: string | undefined
+        if (newSelectedGE) {
+          newSelectedGEIri = GEUtility.getIri(newSelectedGE)
+          if (newSelectedGEIri) {
+            model.setActiveElement({
+              graphElement: newSelectedGE,
+              iri: new Iri(newSelectedGEIri, gscape.ontology.namespaces)
+            })
+          }
+        }
+        
         ontologyGraph.resetHighlights()
         gscape.unselect()
 
-        if (newSelectedGE) {
-          const newSelectedGEIri = GEUtility.getIri(newSelectedGE)
-          if (newSelectedGEIri) {
-            gscape.centerOnEntity(newSelectedGEIri)
-            ontologyGraph.highlightSuggestions(newSelectedGEIri)
-          }
+        if (newSelectedGEIri) {
+          gscape.centerOnEntity(newSelectedGEIri)
+          ontologyGraph.highlightSuggestions(newSelectedGEIri)
         }
 
         if (newSelectedGE?.id) {
@@ -83,8 +90,15 @@ queryGraph.onJoin(async (ge1, ge2) => {
     const body = model.getQueryBody()
 
     handlePromise(qgApi.putQueryGraphJoin(ge1.id, ge2.id, body, model.getRequestOptions())).then(newBody => {
-      model.setSelectedGraphElement(ge1)
-      onNewBody(newBody)
+      const ge1Iri = GEUtility.getIri(ge1)
+
+      if (ge1Iri) {
+        model.setActiveElement({
+          graphElement: ge1,
+          iri: new Iri(ge1Iri, getGscape().ontology.namespaces)
+        })
+        onNewBody(newBody)
+      }
     })
   }
 })
@@ -102,8 +116,11 @@ queryGraph.onElementClick((graphElement, iri) => {
 
   if (GEUtility.isClass(graphElement)) {
     // if the new graphElement is different from the current selected one the select it
-    if (model.getSelectedGraphElement() !== graphElement) {
-      model.setSelectedGraphElement(graphElement)
+    if (model.getActiveElement()?.graphElement !== graphElement) {
+      model.setActiveElement({
+        graphElement: graphElement,
+        iri: new Iri(iri, gscape.ontology.namespaces)
+      })
 
       // Highlight suggestions for the actual clicked iri (might be a child node)
       ontologyGraph.highlightSuggestions(iri)
@@ -114,9 +131,9 @@ queryGraph.onElementClick((graphElement, iri) => {
     entityDetailsWidget.grapholEntity = gscape.ontology.getEntity(iri)
 
   // keep focus on selected class
-  const selectedGraphElem = model.getSelectedGraphElement()
-  if (selectedGraphElem?.id)
-    queryGraph.selectElement(selectedGraphElem.id)
+  const activeElement = model.getActiveElement()
+  if (activeElement?.graphElement.id)
+    queryGraph.selectElement(activeElement.graphElement.id)
 })
 
 queryGraph.onMakeOptional(graphElement => {

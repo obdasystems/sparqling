@@ -1,8 +1,14 @@
 import { GraphElement, HeadElement, QueryGraph } from "../api/swagger"
-import { EntityOccurrence } from 'grapholscape'
+import { EntityOccurrence, Iri } from 'grapholscape'
 
 let body: QueryGraph
-let selectedGraphElement: GraphElement | undefined
+
+export type ActiveElement = {
+  graphElement: GraphElement,
+  iri: Iri,
+}
+let activeElement: ActiveElement | undefined
+
 export const COUNT_STAR_ID = '?COUNT_STAR'
 
 // map GraphElementId+IRI -> EntityOccurrence: { OriginGrapholNodeID, diagramId }
@@ -14,12 +20,13 @@ export function setQueryBody(newBody: QueryGraph) {
   return body
 }
 
-export function setSelectedGraphElement(newGraphElement: GraphElement | undefined) {
-  selectedGraphElement = newGraphElement
+export function setActiveElement(newActiveElement: ActiveElement | undefined) {
+  activeElement = newActiveElement
 }
 
+export function getActiveElement() { return activeElement }
+
 export function getQueryBody() { return body }
-export function getSelectedGraphElement() { return selectedGraphElement }
 
 export function getOriginGrapholNodes() {
   return originGrapholNodes

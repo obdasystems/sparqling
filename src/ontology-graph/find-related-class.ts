@@ -3,11 +3,10 @@ import { Branch } from "../api/swagger"
 import getGscape from "./get-gscape"
 import { relatedClassDialog } from "../widgets"
 import EventPosition from "../util/event-position"
-import { getSelectedGraphElement } from "../model"
-import * as GEUtility from "../util/graph-element-utility"
 import { isHighlighted } from "./highlights"
 import { EntityOccurrence, Iri } from "grapholscape"
 import { getEntityOccurrence } from "./util"
+import { getActiveElement } from "../model"
 
 let _onRelatedClassSelection = (objectProperty: Branch, relatedClass: EntityOccurrence) => { }
 
@@ -34,9 +33,9 @@ export function showRelatedClassesWidget(objPropertyIri: string, position: Event
     return iri.prefixed
   })
 
-  const selectedGraphElement = getSelectedGraphElement()
-  if (selectedGraphElement) {
-    relatedClassDialog.class = GEUtility.getPrefixedIri(selectedGraphElement) || GEUtility.getIri(selectedGraphElement)
+  const activeElement = getActiveElement()
+  if (activeElement) {
+    relatedClassDialog.class = activeElement.iri.prefixed || activeElement.iri.fullIri
 
     relatedClassDialog.objProperty = objPropertyEntity.iri.prefixed
     relatedClassDialog.reverseArrow = !objPropertyFromApi.direct

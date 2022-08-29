@@ -1,5 +1,5 @@
 import { Core } from 'cytoscape'
-import { GrapholTypesEnum, LifecycleEvent, ui, EntityNameType, GrapholscapeTheme } from 'grapholscape'
+import { GrapholTypesEnum, LifecycleEvent, ui, EntityNameType, GrapholscapeTheme, Grapholscape } from 'grapholscape'
 import { StandaloneApi } from '../api/swagger'
 import core from '../core'
 import * as OntologyGraphHandlers from '../handlers/og-handlers'
@@ -40,7 +40,7 @@ export default function () {
     model.setSparqlingRunning(true)
     startRunButtons.canQueryRun = model.getQueryBody()?.graph && !model.isStandalone() && core.onQueryRun !== undefined
     startRunButtons.requestUpdate()
-    const selectedGraphElement = model.getSelectedGraphElement()
+    const selectedGraphElement = model.getActiveElement()?.graphElement
     if (selectedGraphElement) {
       const selectedGraphElementIri = getIri(selectedGraphElement)
 
@@ -60,9 +60,9 @@ function init() {
   if (gscape.renderer.cy)
     setHandlers(gscape.renderer.cy)
 
-  // gscape.on(LifecycleEvent.LanguageChange, (newLanguage: string) => queryGraph.setLanguage(newLanguage))
+  gscape.on(LifecycleEvent.LanguageChange, (newLanguage: string) => queryGraph.setLanguage(newLanguage))
   gscape.on(LifecycleEvent.EntityNameTypeChange, (newNameType: EntityNameType) => {
-    // queryGraph.setDisplayedNameType(newNameType, gscape.language)
+    queryGraph.setDisplayedNameType(newNameType, gscape.language)
   })
 
   gscape.on(LifecycleEvent.ThemeChange, (newTheme: GrapholscapeTheme) => {
@@ -70,20 +70,19 @@ function init() {
     ontologyGraph.addStylesheet(gscape.renderer.cy, sparqlingStyle(newTheme))
   })
 
-  gscape.on(LifecycleEvent.DiagramChange, () => {
-    if (gscape.renderer.cy) {
-      setHandlers(gscape.renderer.cy)
-      ontologyGraph.addStylesheet(gscape.renderer.cy, sparqlingStyle(gscape.theme))
-    }
-    refreshHighlights()
-  })
+  gscape.on(LifecycleEvent.DiagramChange, () => onChangeDiagramOrRenderer(gscape))
 
-  gscape.on(LifecycleEvent.RendererChange, () => {
-    ontologyGraph.addStylesheet(gscape.renderer.cy, sparqlingStyle(gscape.theme))
-    refreshHighlights()
-  })
+  gscape.on(LifecycleEvent.RendererChange, () => onChangeDiagramOrRenderer(gscape))
 
   model.setInitialised(true)
+}
+
+function onChangeDiagramOrRenderer(gscape: Grapholscape) {
+  if (gscape.renderer.cy) {
+    setHandlers(gscape.renderer.cy)
+    ontologyGraph.addStylesheet(gscape.renderer.cy, sparqlingStyle(gscape.theme))
+  }
+  refreshHighlights()
 }
 
 function setHandlers(cy: Core) {

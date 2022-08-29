@@ -7,6 +7,7 @@ import { highlightsList } from "../widgets"
 import getGscape from "./get-gscape"
 import { handlePromise } from "../main/handle-promises"
 import getPrefixedIri from "../util/get-prefixed-iri"
+import { RendererStatesEnum } from "grapholscape"
 
 let actualHighlights: Highlights | undefined
 export const HIGHLIGHT_CLASS = 'highlighted'
@@ -19,7 +20,14 @@ export const getActualHighlights = () => actualHighlights
 
 export function highlightIRI(iri: string) {
   const gscape = getGscape()
-  let iriOccurrences = gscape.ontology.getEntityOccurrences(iri)?.get(gscape.renderState)
+  
+  const iriOccurrences = gscape.ontology.getEntityOccurrences(iri)?.get(RendererStatesEnum.GRAPHOL)
+  if (gscape.renderState !== RendererStatesEnum.GRAPHOL) {
+    const occurrencesInActualRendererState = gscape.ontology.getEntityOccurrences(iri)?.get(gscape.renderState)
+    if (occurrencesInActualRendererState)
+      iriOccurrences?.push(...occurrencesInActualRendererState)
+  }
+
   if (iriOccurrences) {
     iriOccurrences.forEach(occurrence => {
       if (occurrence.diagramId === gscape.diagramId)
@@ -61,11 +69,9 @@ export function isHighlighted(iri: string): boolean {
 }
 
 export function refreshHighlights() {
-  let selectedGraphElem = model.getSelectedGraphElement()
-  if (selectedGraphElem) {
-    const selectedGraphElemIri = getIri(selectedGraphElem)
-    if (selectedGraphElemIri)
-      performHighlights(selectedGraphElemIri)
+  let activeElement = model.getActiveElement()
+  if (activeElement) {
+    performHighlights(activeElement.iri.fullIri)
   }
 }
 
@@ -75,7 +81,12 @@ function performHighlights(clickedIRI: string) {
   actualHighlights?.dataProperties?.forEach((iri: string) => highlightIRI(iri))
   actualHighlights?.objectProperties?.forEach((o: any) => highlightIRI(o.objectPropertyIRI))
 
-  const iriOccurrences = gscape.ontology.getEntityOccurrences(clickedIRI)?.get(gscape.renderState)
+  const iriOccurrences = gscape.ontology.getEntityOccurrences(clickedIRI)?.get(RendererStatesEnum.GRAPHOL)
+  if (gscape.renderState !== RendererStatesEnum.GRAPHOL) {
+    const occurrencesInActualRendererState = gscape.ontology.getEntityOccurrences(clickedIRI)?.get(gscape.renderState)
+    if (occurrencesInActualRendererState)
+      iriOccurrences?.push(...occurrencesInActualRendererState)
+  }
   if (iriOccurrences) {
     // select all nodes having iri = clickedIRI
     for (const occurrence of iriOccurrences) {

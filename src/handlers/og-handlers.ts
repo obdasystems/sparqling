@@ -1,5 +1,5 @@
 import { CollectionReturnValue } from "cytoscape"
-import { EntityOccurrence, GrapholTypesEnum } from "grapholscape"
+import { EntityOccurrence, GrapholTypesEnum, Iri } from "grapholscape"
 import { Branch, GraphElement, QueryGraph, QueryGraphBGPApi } from "../api/swagger"
 import { handlePromise } from "../main/handle-promises"
 import onNewBody from "../main/on-new-body"
@@ -12,18 +12,19 @@ import { getdiffNew, graphElementHasIri, isClass } from "../util/graph-element-u
 
 let lastObjProperty: Branch | null
 
-export async function handleEntitySelection(entityIri: string, entityType: GrapholTypesEnum, entityOccurrence: EntityOccurrence) {
-  const selectedGraphElement = model.getSelectedGraphElement()
+export async function handleEntitySelection(entityIriString: string, entityType: GrapholTypesEnum, entityOccurrence: EntityOccurrence) {
+  const gscape = getGscape()
+  const entityIri = new Iri(entityIriString, gscape.ontology.namespaces)
+  const activeElement = model.getActiveElement()
 
-  if (selectedGraphElement && graphElementHasIri(selectedGraphElement, entityIri) && !lastObjProperty) {
+  if (activeElement && graphElementHasIri(activeElement.graphElement, entityIriString) && !lastObjProperty) {
     if (!ontologyGraph.isIriSelected(entityIri)) {
       ontologyGraph.resetHighlights()
-      ontologyGraph.highlightSuggestions(entityIri)
+      ontologyGraph.highlightSuggestions(entityIriString)
     }
     return
   }
 
-  const gscape = getGscape()
   switch (entityType) {
     case GrapholTypesEnum.OBJECT_PROPERTY: {
       // let result = await handleObjectPropertySelection(cyEntity)
@@ -33,30 +34,34 @@ export async function handleEntitySelection(entityIri: string, entityType: Graph
       break
     }
     case GrapholTypesEnum.CLASS: {
-      handleConceptSelection(entityIri)?.then(newBody => {
+      handleConceptSelection(entityIriString)?.then(newBody => {
         if (!newBody) return
 
         // Get nodes not present in the old graph
         const newGraphElements = getdiffNew(model.getQueryBody()?.graph, newBody.graph)
-        const newSelectedGraphElement = setOriginNode(entityOccurrence, newGraphElements, entityIri)
+        const newSelectedGraphElement = setOriginNode(entityOccurrence, newGraphElements, entityIriString)
         ontologyGraph.resetHighlights()
-        ontologyGraph.highlightSuggestions(entityIri)
+        ontologyGraph.highlightSuggestions(entityIriString)
         onNewBody(newBody)
 
         // after onNewBody because we need to select the element after rendering phase
         if (newSelectedGraphElement && newSelectedGraphElement.id) {
           // The node to select is the one having the clickedIri among the new nodes
-          model.setSelectedGraphElement(queryGraph.selectElement(newSelectedGraphElement.id))
+          queryGraph.selectElement(newSelectedGraphElement.id)
+          model.setActiveElement({
+            graphElement: newSelectedGraphElement,
+            iri: entityIri,
+          })
         }
       })
       break
     }
     case GrapholTypesEnum.DATA_PROPERTY: {
-      handleDataPropertySelection(entityIri)?.then(newBody => {
+      handleDataPropertySelection(entityIriString)?.then(newBody => {
         if (!newBody) return
 
         const newGraphElements = getdiffNew(model.getQueryBody()?.graph, newBody.graph)
-        setOriginNode(entityOccurrence, newGraphElements, entityIri)
+        setOriginNode(entityOccurrence, newGraphElements, entityIriString)
         onNewBody(newBody)
       })
       break
@@ -99,19 +104,19 @@ export async function handleConceptSelection(cyEntity: CollectionReturnValue | s
     return newQueryGraph // empty promise
   }
 
-  let selectedGraphElement = model.getSelectedGraphElement()
+  let activeElement = model.getActiveElement()
 
-  if (lastObjProperty && lastObjProperty.objectPropertyIRI && selectedGraphElement?.id) {
+  if (lastObjProperty && lastObjProperty.objectPropertyIRI && activeElement?.graphElement.id) {
     // this comes after a selection of a object property
     newQueryGraph = handlePromise(qgBGPApi.putQueryGraphObjectProperty(
-      selectedGraphElement.id, "", lastObjProperty.objectPropertyIRI, clickedIRI,
+      activeElement.graphElement.id, "", lastObjProperty.objectPropertyIRI, clickedIRI,
       lastObjProperty.direct || false,
       actualBody, model.getRequestOptions()
     ))
 
-  } else if (actualBody?.graph && isIriHighlighted(clickedIRI) && selectedGraphElement?.id) {
+  } else if (actualBody?.graph && isIriHighlighted(clickedIRI) && activeElement?.graphElement.id) {
     newQueryGraph = handlePromise(qgBGPApi.putQueryGraphClass(
-      selectedGraphElement.id, '',
+      activeElement.graphElement.id, '',
       clickedIRI,
       actualBody, model.getRequestOptions()))
   } else if (!actualBody?.graph) {
@@ -134,16 +139,16 @@ export async function handleDataPropertySelection(cyEntity: string | CollectionR
   }
 
   const actualBody = model.getQueryBody()
-  const selectedGraphElement = model.getSelectedGraphElement()
+  const activeElement = model.getActiveElement()
 
-  if (!selectedGraphElement?.id) {
+  if (!activeElement?.graphElement.id) {
     return newQueryGraph // empty promise
   }
 
-  if (isClass(selectedGraphElement)) {
+  if (isClass(activeElement.graphElement)) {
     const qgBGPApi = new QueryGraphBGPApi(undefined, model.getBasePath())
     newQueryGraph = handlePromise(qgBGPApi.putQueryGraphDataProperty(
-      selectedGraphElement.id, '', clickedIRI, actualBody, model.getRequestOptions()
+      activeElement.graphElement.id, '', clickedIRI, actualBody, model.getRequestOptions()
     ))
   }
   lastObjProperty = null

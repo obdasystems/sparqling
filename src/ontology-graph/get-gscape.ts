@@ -1,4 +1,4 @@
-import { Grapholscape } from "grapholscape"
+import { Grapholscape, Iri } from "grapholscape"
 
 let gscape: Grapholscape
 
@@ -16,12 +16,11 @@ export function clearSelected() {
   }
 }
 
-export function isIriSelected(iri: string) {
+export function isIriSelected(iriToCheck: Iri) {
   let sparqlingSelectedNode = gscape.renderer?.cy?.$('.sparqling-selected')
   if (!sparqlingSelectedNode || sparqlingSelectedNode?.empty())
     return false
   else {
-    const sparqlingSelectedIri = sparqlingSelectedNode.first().data().iri
-    return sparqlingSelectedIri.full === iri || sparqlingSelectedIri.prefixed === iri
+    return iriToCheck.equals(sparqlingSelectedNode.first().data().iri)
   }
 }
