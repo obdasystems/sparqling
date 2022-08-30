@@ -30,7 +30,7 @@ export default function onNewBody(newBody: QueryGraph) {
   queryGraph.render(body.graph)
   const deletedNodeIds = queryGraph.removeNodesNotInQuery()
   deletedNodeIds.forEach(id => model.getOriginGrapholNodes().delete(id))
-  // queryGraph.renderOptionals(body.optionals)
+  queryGraph.renderOptionals(body.optionals)
 
   queryHead.render(body.head?.map((headElem: HeadElement) =>
     getHeadElementWithDatatype(headElem)
