@@ -30,7 +30,6 @@ export default class ContextMenuWidget extends ui.BaseMixin(LitElement) {
         white-space: nowrap;
         cursor: pointer;
         padding: 5px 10px;
-
         display: flex;
         gap: 10px;
         align-items: center;
@@ -44,6 +43,10 @@ export default class ContextMenuWidget extends ui.BaseMixin(LitElement) {
       .command-text {
         position: relative;
         top: 2px;
+      }
+
+      .gscape-panel {
+        overflow: unset;
       }
     `
   ]
