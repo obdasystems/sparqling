@@ -35,7 +35,7 @@ export default class HighlightsList extends ui.BaseMixin(ui.DropPanelMixin(LitEl
 
       .gscape-panel {
         max-height: unset;
-        overflow-y: hidden;
+        overflow-y: clip;
       }
 
       .list {

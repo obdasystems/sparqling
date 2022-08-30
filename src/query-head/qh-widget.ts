@@ -88,7 +88,7 @@ export default class QueryHeadWidget extends ui.BaseMixin(ui.DropPanelMixin(LitE
           </div>
         `
         : html`
-          <div class="gscape-panel" id="drop-panel" style="width: 100%; overflow-y:hidden">
+          <div class="gscape-panel" id="drop-panel" style="width: 100%; overflow-y:clip">
             <div class="top-bar">
               <div id="widget-header" class="bold-text">
                 ${tableEye}
