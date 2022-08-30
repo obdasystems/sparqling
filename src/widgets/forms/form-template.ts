@@ -1,7 +1,7 @@
-import { FilterExpressionOperatorEnum, FunctionNameEnum, GroupByElementAggregateFunctionEnum, VarOrConstant, VarOrConstantConstantTypeEnum, VarOrConstantTypeEnum } from "../../api/swagger"
-import { html } from 'lit'
-import SparqlingFormDialog from "./base-form-dialog"
 import { ui } from "grapholscape"
+import { html } from 'lit'
+import { FilterExpressionOperatorEnum, VarOrConstantConstantTypeEnum, VarOrConstantTypeEnum } from "../../api/swagger"
+import SparqlingFormDialog from "./base-form-dialog"
 
 export function getFormTemplate(formComponent: SparqlingFormDialog, operators: string[]) {
 
@@ -33,9 +33,19 @@ export function getFormTemplate(formComponent: SparqlingFormDialog, operators: s
           ${formComponent.operator === FilterExpressionOperatorEnum.In ||
             formComponent.operator === FilterExpressionOperatorEnum.NotIn
             ? html`
-              <gscape-button id="add-input-btn" type="subtle" title="Add input value">
-                <span slot="icon">${ui.icons.plus}</span>
-              </gscape>
+              <div>
+                <gscape-button id="add-input-btn" type="subtle" title="Add input value">
+                  <span slot="icon">${ui.icons.plus}</span>
+                </gscape-button>
+                ${formComponent.parameters && formComponent.parameters.length > 3 // at least 3 custom inputs to remove one
+                  ? html`
+                    <gscape-button id="remove-input-btn" type="subtle" title="Remove input value">
+                      <span slot="icon">${ui.icons.minus}</span>
+                    </gscape-button>
+                  `
+                  : null
+                }
+              </div>
             `
             : null
           }

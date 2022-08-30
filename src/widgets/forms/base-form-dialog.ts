@@ -117,7 +117,13 @@ export default class SparqlingFormDialog extends ui.BaseMixin(LitElement) implem
       })
     }
 
-    (this as any).requestUpdate()
+    this.requestUpdate()
+  }
+
+  removeInputValue() {
+    this.parameters?.pop()
+
+    this.requestUpdate()
   }
 
   protected firstUpdated(_changedProperties: PropertyValueMap<any> | Map<PropertyKey, unknown>) {
@@ -141,6 +147,10 @@ export default class SparqlingFormDialog extends ui.BaseMixin(LitElement) implem
     const addInputButton = this.shadowRoot?.querySelector('#add-input-btn') as HTMLElement
     if (addInputButton)
       addInputButton.onclick = () => this.addInputValue()
+
+    const removeInputButton = this.shadowRoot?.querySelector('#remove-input-btn') as HTMLElement
+    if (removeInputButton)
+      removeInputButton.onclick = () => this.removeInputValue()
   }
 
   addMessage(msg: string, msgType: string) {
