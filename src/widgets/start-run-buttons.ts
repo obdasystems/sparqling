@@ -22,12 +22,10 @@ export default class SparqlingStartRunButtons extends ui.BaseMixin(LitElement) {
 
   static styles = [
     ui.GscapeButtonStyle,
+    ui.baseStyle,
     css`
       :host {
         order: 8;
-        border-radius: var(--gscape-border-radius-btn);
-        border: 1px solid var(--gscape-color-border-subtle);
-        background-color: var(--gscape-color-bg-default);
       }
 
       .lds-ring {
@@ -66,19 +64,10 @@ export default class SparqlingStartRunButtons extends ui.BaseMixin(LitElement) {
       }
     `,
   ]
+
   constructor() {
     super()
-
-    // this.startSparqlingButton = new UI.GscapeButton(sparqlingIcon, 'Start/Stop Sparqling')
-    // this.startSparqlingButton.onClick = () => this.handleStartButtonCLick()
-    // this.startSparqlingButton.style.position = 'inherit'
-    // this.startSparqlingButton.classList.add('flat')
-    // this.startSparqlingButton.enabled = true
-
-    // this.runQueryButton = new UI.GscapeButton(playOutlined, 'Send query to SPARQL endpoint')
-    // this.runQueryButton.style.position = 'inherit'
-    // this.runQueryButton.classList.add('flat')
-    // this.runQueryButton.onClick = () => this._onQueryRunCallback()
+    this.classList.add(ui.BOTTOM_RIGHT_WIDGET_CLASS.toString())
   }
 
   render() {
@@ -143,4 +132,4 @@ export default class SparqlingStartRunButtons extends ui.BaseMixin(LitElement) {
   }
 }
 
-customElements.define('sparqling-start-run-buttons', SparqlingStartRunButtons as any)
+customElements.define('sparqling-start-run-buttons', SparqlingStartRunButtons)
