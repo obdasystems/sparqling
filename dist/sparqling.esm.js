@@ -23,53 +23,39 @@
  */
 
 import globalAxios from 'axios';
-import { UI, Type } from 'grapholscape';
+import { ui, GrapholTypesEnum, Iri, RendererStatesEnum, EntityNameType, ColoursNames, LifecycleEvent } from 'grapholscape';
 import cytoscape from 'cytoscape';
 import klay from 'cytoscape-klay';
 import compoundDragAndDrop from 'cytoscape-compound-drag-and-drop';
 import popper$1 from 'cytoscape-popper';
 
-function centerOnElement (elem, zoom) {
-    let cy = elem.cy();
-    if (zoom)
-        cy.zoom(zoom);
-    let pos = elem.renderedPosition();
-    let center = { x: cy.width() / 2, y: cy.height() / 2 };
-    cy.panBy({ x: -(pos.x - center.x), y: -(pos.y - center.y) });
+let body;
+let activeElement;
+// map GraphElementId+IRI -> EntityOccurrence: { OriginGrapholNodeID, diagramId }
+// Use iri to distinguish children of a GraphElement
+const originGrapholNodes = new Map();
+function setQueryBody(newBody) {
+    body = newBody;
+    return body;
 }
-
-getGrapholscapeContainer();
-const bgpContainer = getBGPContainer();
-const leftColumnContainer = getLeftColumnContainer();
-function getGrapholscapeContainer() {
-    let container = document.createElement('div');
-    container.setAttribute('id', 'grapholscape');
-    container.style.position = 'relative';
-    container.style.height = '100%';
-    return container;
+function setActiveElement(newActiveElement) {
+    activeElement = newActiveElement;
 }
-function getBGPContainer() {
-    let container = document.createElement('div');
-    container.setAttribute('id', 'sparqling-query-graph');
-    container.style.position = 'relative';
-    container.style.height = '300px';
-    container.style.width = '100%';
-    return container;
+function getActiveElement() { return activeElement; }
+function getQueryBody() { return body; }
+function getOriginGrapholNodes() {
+    return originGrapholNodes;
 }
-function getLeftColumnContainer() {
-    let container = document.createElement('div');
-    container.setAttribute('id', 'sparqling-left-column');
-    container.style.position = 'absolute';
-    container.style.left = '10px';
-    container.style.top = '100%';
-    container.style.transform = 'translate(0, calc(-100% - 10px))';
-    container.style.display = 'flex';
-    container.style.flexDirection = 'column';
-    container.style.justifyContent = 'space-between';
-    container.style.gap = '30px';
-    container.style.height = 'calc(-80px + 100%)';
-    container.style.pointerEvents = 'none';
-    return container;
+function getTempQueryBody() {
+    return JSON.parse(JSON.stringify(body));
+}
+function getHeadElementByID(headElementId, queryBody = body) {
+    var _a;
+    return (_a = queryBody === null || queryBody === void 0 ? void 0 : queryBody.head) === null || _a === void 0 ? void 0 : _a.find(headElement => headElement.id === headElementId);
+}
+function isCountStarActive() {
+    var _a, _b;
+    return ((_a = body === null || body === void 0 ? void 0 : body.head) === null || _a === void 0 ? void 0 : _a.length) === 1 && ((_b = body === null || body === void 0 ? void 0 : body.head[0]) === null || _b === void 0 ? void 0 : _b.graphElementId) === null;
 }
 
 /******************************************************************************
@@ -2468,35 +2454,6 @@ class StandaloneApi extends BaseAPI {
     }
 }
 
-let body;
-let selectedGraphElement;
-// map GraphElementId+IRI -> OriginGrapholNodeID
-// Use iri to distinguish children of a GraphElement
-const originGrapholNodes = new Map();
-function setQueryBody(newBody) {
-    body = newBody;
-    return body;
-}
-function setSelectedGraphElement(newGraphElement) {
-    selectedGraphElement = newGraphElement;
-}
-function getQueryBody() { return body; }
-function getSelectedGraphElement$1() { return selectedGraphElement; }
-function getOriginGrapholNodes() {
-    return originGrapholNodes;
-}
-function getTempQueryBody() {
-    return JSON.parse(JSON.stringify(body));
-}
-function getHeadElementByID(headElementId, queryBody = body) {
-    var _a;
-    return (_a = queryBody === null || queryBody === void 0 ? void 0 : queryBody.head) === null || _a === void 0 ? void 0 : _a.find(headElement => headElement.id === headElementId);
-}
-function isCountStarActive() {
-    var _a, _b;
-    return ((_a = body === null || body === void 0 ? void 0 : body.head) === null || _a === void 0 ? void 0 : _a.length) === 1 && ((_b = body === null || body === void 0 ? void 0 : body.head[0]) === null || _b === void 0 ? void 0 : _b.graphElementId) === null;
-}
-
 function getFilterById(filterId) {
     const body = getQueryBody();
     if (body.filters) {
@@ -2570,6 +2527,2197 @@ function setSparqlingRunning(value) {
     isRunning = value;
 }
 
+/**
+ * @license
+ * Copyright 2019 Google LLC
+ * SPDX-License-Identifier: BSD-3-Clause
+ */
+const t$1=window.ShadowRoot&&(void 0===window.ShadyCSS||window.ShadyCSS.nativeShadow)&&"adoptedStyleSheets"in Document.prototype&&"replace"in CSSStyleSheet.prototype,e$2=Symbol(),n$3=new WeakMap;class s$3{constructor(t,n,s){if(this._$cssResult$=!0,s!==e$2)throw Error("CSSResult is not constructable. Use `unsafeCSS` or `css` instead.");this.cssText=t,this.t=n;}get styleSheet(){let e=this.o;const s=this.t;if(t$1&&void 0===e){const t=void 0!==s&&1===s.length;t&&(e=n$3.get(s)),void 0===e&&((this.o=e=new CSSStyleSheet).replaceSync(this.cssText),t&&n$3.set(s,e));}return e}toString(){return this.cssText}}const o$3=t=>new s$3("string"==typeof t?t:t+"",void 0,e$2),r$2=(t,...n)=>{const o=1===t.length?t[0]:n.reduce(((e,n,s)=>e+(t=>{if(!0===t._$cssResult$)return t.cssText;if("number"==typeof t)return t;throw Error("Value passed to 'css' function must be a 'css' function result: "+t+". Use 'unsafeCSS' to pass non-literal values, but take care to ensure page security.")})(n)+t[s+1]),t[0]);return new s$3(o,t,e$2)},i$1=(e,n)=>{t$1?e.adoptedStyleSheets=n.map((t=>t instanceof CSSStyleSheet?t:t.styleSheet)):n.forEach((t=>{const n=document.createElement("style"),s=window.litNonce;void 0!==s&&n.setAttribute("nonce",s),n.textContent=t.cssText,e.appendChild(n);}));},S$1=t$1?t=>t:t=>t instanceof CSSStyleSheet?(t=>{let e="";for(const n of t.cssRules)e+=n.cssText;return o$3(e)})(t):t;
+
+/**
+ * @license
+ * Copyright 2017 Google LLC
+ * SPDX-License-Identifier: BSD-3-Clause
+ */var s$2;const e$1=window.trustedTypes,r$1=e$1?e$1.emptyScript:"",h$1=window.reactiveElementPolyfillSupport,o$2={toAttribute(t,i){switch(i){case Boolean:t=t?r$1:null;break;case Object:case Array:t=null==t?t:JSON.stringify(t);}return t},fromAttribute(t,i){let s=t;switch(i){case Boolean:s=null!==t;break;case Number:s=null===t?null:Number(t);break;case Object:case Array:try{s=JSON.parse(t);}catch(t){s=null;}}return s}},n$2=(t,i)=>i!==t&&(i==i||t==t),l$2={attribute:!0,type:String,converter:o$2,reflect:!1,hasChanged:n$2};class a$1 extends HTMLElement{constructor(){super(),this._$Ei=new Map,this.isUpdatePending=!1,this.hasUpdated=!1,this._$El=null,this.u();}static addInitializer(t){var i;null!==(i=this.h)&&void 0!==i||(this.h=[]),this.h.push(t);}static get observedAttributes(){this.finalize();const t=[];return this.elementProperties.forEach(((i,s)=>{const e=this._$Ep(s,i);void 0!==e&&(this._$Ev.set(e,s),t.push(e));})),t}static createProperty(t,i=l$2){if(i.state&&(i.attribute=!1),this.finalize(),this.elementProperties.set(t,i),!i.noAccessor&&!this.prototype.hasOwnProperty(t)){const s="symbol"==typeof t?Symbol():"__"+t,e=this.getPropertyDescriptor(t,s,i);void 0!==e&&Object.defineProperty(this.prototype,t,e);}}static getPropertyDescriptor(t,i,s){return {get(){return this[i]},set(e){const r=this[t];this[i]=e,this.requestUpdate(t,r,s);},configurable:!0,enumerable:!0}}static getPropertyOptions(t){return this.elementProperties.get(t)||l$2}static finalize(){if(this.hasOwnProperty("finalized"))return !1;this.finalized=!0;const t=Object.getPrototypeOf(this);if(t.finalize(),this.elementProperties=new Map(t.elementProperties),this._$Ev=new Map,this.hasOwnProperty("properties")){const t=this.properties,i=[...Object.getOwnPropertyNames(t),...Object.getOwnPropertySymbols(t)];for(const s of i)this.createProperty(s,t[s]);}return this.elementStyles=this.finalizeStyles(this.styles),!0}static finalizeStyles(i){const s=[];if(Array.isArray(i)){const e=new Set(i.flat(1/0).reverse());for(const i of e)s.unshift(S$1(i));}else void 0!==i&&s.push(S$1(i));return s}static _$Ep(t,i){const s=i.attribute;return !1===s?void 0:"string"==typeof s?s:"string"==typeof t?t.toLowerCase():void 0}u(){var t;this._$E_=new Promise((t=>this.enableUpdating=t)),this._$AL=new Map,this._$Eg(),this.requestUpdate(),null===(t=this.constructor.h)||void 0===t||t.forEach((t=>t(this)));}addController(t){var i,s;(null!==(i=this._$ES)&&void 0!==i?i:this._$ES=[]).push(t),void 0!==this.renderRoot&&this.isConnected&&(null===(s=t.hostConnected)||void 0===s||s.call(t));}removeController(t){var i;null===(i=this._$ES)||void 0===i||i.splice(this._$ES.indexOf(t)>>>0,1);}_$Eg(){this.constructor.elementProperties.forEach(((t,i)=>{this.hasOwnProperty(i)&&(this._$Ei.set(i,this[i]),delete this[i]);}));}createRenderRoot(){var t;const s=null!==(t=this.shadowRoot)&&void 0!==t?t:this.attachShadow(this.constructor.shadowRootOptions);return i$1(s,this.constructor.elementStyles),s}connectedCallback(){var t;void 0===this.renderRoot&&(this.renderRoot=this.createRenderRoot()),this.enableUpdating(!0),null===(t=this._$ES)||void 0===t||t.forEach((t=>{var i;return null===(i=t.hostConnected)||void 0===i?void 0:i.call(t)}));}enableUpdating(t){}disconnectedCallback(){var t;null===(t=this._$ES)||void 0===t||t.forEach((t=>{var i;return null===(i=t.hostDisconnected)||void 0===i?void 0:i.call(t)}));}attributeChangedCallback(t,i,s){this._$AK(t,s);}_$EO(t,i,s=l$2){var e,r;const h=this.constructor._$Ep(t,s);if(void 0!==h&&!0===s.reflect){const n=(null!==(r=null===(e=s.converter)||void 0===e?void 0:e.toAttribute)&&void 0!==r?r:o$2.toAttribute)(i,s.type);this._$El=t,null==n?this.removeAttribute(h):this.setAttribute(h,n),this._$El=null;}}_$AK(t,i){var s,e;const r=this.constructor,h=r._$Ev.get(t);if(void 0!==h&&this._$El!==h){const t=r.getPropertyOptions(h),n=t.converter,l=null!==(e=null!==(s=null==n?void 0:n.fromAttribute)&&void 0!==s?s:"function"==typeof n?n:null)&&void 0!==e?e:o$2.fromAttribute;this._$El=h,this[h]=l(i,t.type),this._$El=null;}}requestUpdate(t,i,s){let e=!0;void 0!==t&&(((s=s||this.constructor.getPropertyOptions(t)).hasChanged||n$2)(this[t],i)?(this._$AL.has(t)||this._$AL.set(t,i),!0===s.reflect&&this._$El!==t&&(void 0===this._$EC&&(this._$EC=new Map),this._$EC.set(t,s))):e=!1),!this.isUpdatePending&&e&&(this._$E_=this._$Ej());}async _$Ej(){this.isUpdatePending=!0;try{await this._$E_;}catch(t){Promise.reject(t);}const t=this.scheduleUpdate();return null!=t&&await t,!this.isUpdatePending}scheduleUpdate(){return this.performUpdate()}performUpdate(){var t;if(!this.isUpdatePending)return;this.hasUpdated,this._$Ei&&(this._$Ei.forEach(((t,i)=>this[i]=t)),this._$Ei=void 0);let i=!1;const s=this._$AL;try{i=this.shouldUpdate(s),i?(this.willUpdate(s),null===(t=this._$ES)||void 0===t||t.forEach((t=>{var i;return null===(i=t.hostUpdate)||void 0===i?void 0:i.call(t)})),this.update(s)):this._$Ek();}catch(t){throw i=!1,this._$Ek(),t}i&&this._$AE(s);}willUpdate(t){}_$AE(t){var i;null===(i=this._$ES)||void 0===i||i.forEach((t=>{var i;return null===(i=t.hostUpdated)||void 0===i?void 0:i.call(t)})),this.hasUpdated||(this.hasUpdated=!0,this.firstUpdated(t)),this.updated(t);}_$Ek(){this._$AL=new Map,this.isUpdatePending=!1;}get updateComplete(){return this.getUpdateComplete()}getUpdateComplete(){return this._$E_}shouldUpdate(t){return !0}update(t){void 0!==this._$EC&&(this._$EC.forEach(((t,i)=>this._$EO(i,this[i],t))),this._$EC=void 0),this._$Ek();}updated(t){}firstUpdated(t){}}a$1.finalized=!0,a$1.elementProperties=new Map,a$1.elementStyles=[],a$1.shadowRootOptions={mode:"open"},null==h$1||h$1({ReactiveElement:a$1}),(null!==(s$2=globalThis.reactiveElementVersions)&&void 0!==s$2?s$2:globalThis.reactiveElementVersions=[]).push("1.3.3");
+
+/**
+ * @license
+ * Copyright 2017 Google LLC
+ * SPDX-License-Identifier: BSD-3-Clause
+ */
+var t;const i=globalThis.trustedTypes,s$1=i?i.createPolicy("lit-html",{createHTML:t=>t}):void 0,e=`lit$${(Math.random()+"").slice(9)}$`,o$1="?"+e,n$1=`<${o$1}>`,l$1=document,h=(t="")=>l$1.createComment(t),r=t=>null===t||"object"!=typeof t&&"function"!=typeof t,d=Array.isArray,u=t=>{var i;return d(t)||"function"==typeof(null===(i=t)||void 0===i?void 0:i[Symbol.iterator])},c=/<(?:(!--|\/[^a-zA-Z])|(\/?[a-zA-Z][^>\s]*)|(\/?$))/g,v=/-->/g,a=/>/g,f=/>|[ 	\n\r](?:([^\s"'>=/]+)([ 	\n\r]*=[ 	\n\r]*(?:[^ 	\n\r"'`<>=]|("|')|))|$)/g,_=/'/g,m=/"/g,g=/^(?:script|style|textarea|title)$/i,p=t=>(i,...s)=>({_$litType$:t,strings:i,values:s}),$=p(1),y=p(2),b=Symbol.for("lit-noChange"),w=Symbol.for("lit-nothing"),T=new WeakMap,x=(t,i,s)=>{var e,o;const n=null!==(e=null==s?void 0:s.renderBefore)&&void 0!==e?e:i;let l=n._$litPart$;if(void 0===l){const t=null!==(o=null==s?void 0:s.renderBefore)&&void 0!==o?o:null;n._$litPart$=l=new N(i.insertBefore(h(),t),t,void 0,null!=s?s:{});}return l._$AI(t),l},A=l$1.createTreeWalker(l$1,129,null,!1),C=(t,i)=>{const o=t.length-1,l=[];let h,r=2===i?"<svg>":"",d=c;for(let i=0;i<o;i++){const s=t[i];let o,u,p=-1,$=0;for(;$<s.length&&(d.lastIndex=$,u=d.exec(s),null!==u);)$=d.lastIndex,d===c?"!--"===u[1]?d=v:void 0!==u[1]?d=a:void 0!==u[2]?(g.test(u[2])&&(h=RegExp("</"+u[2],"g")),d=f):void 0!==u[3]&&(d=f):d===f?">"===u[0]?(d=null!=h?h:c,p=-1):void 0===u[1]?p=-2:(p=d.lastIndex-u[2].length,o=u[1],d=void 0===u[3]?f:'"'===u[3]?m:_):d===m||d===_?d=f:d===v||d===a?d=c:(d=f,h=void 0);const y=d===f&&t[i+1].startsWith("/>")?" ":"";r+=d===c?s+n$1:p>=0?(l.push(o),s.slice(0,p)+"$lit$"+s.slice(p)+e+y):s+e+(-2===p?(l.push(void 0),i):y);}const u=r+(t[o]||"<?>")+(2===i?"</svg>":"");if(!Array.isArray(t)||!t.hasOwnProperty("raw"))throw Error("invalid template strings array");return [void 0!==s$1?s$1.createHTML(u):u,l]};class E{constructor({strings:t,_$litType$:s},n){let l;this.parts=[];let r=0,d=0;const u=t.length-1,c=this.parts,[v,a]=C(t,s);if(this.el=E.createElement(v,n),A.currentNode=this.el.content,2===s){const t=this.el.content,i=t.firstChild;i.remove(),t.append(...i.childNodes);}for(;null!==(l=A.nextNode())&&c.length<u;){if(1===l.nodeType){if(l.hasAttributes()){const t=[];for(const i of l.getAttributeNames())if(i.endsWith("$lit$")||i.startsWith(e)){const s=a[d++];if(t.push(i),void 0!==s){const t=l.getAttribute(s.toLowerCase()+"$lit$").split(e),i=/([.?@])?(.*)/.exec(s);c.push({type:1,index:r,name:i[2],strings:t,ctor:"."===i[1]?M:"?"===i[1]?H:"@"===i[1]?I:S});}else c.push({type:6,index:r});}for(const i of t)l.removeAttribute(i);}if(g.test(l.tagName)){const t=l.textContent.split(e),s=t.length-1;if(s>0){l.textContent=i?i.emptyScript:"";for(let i=0;i<s;i++)l.append(t[i],h()),A.nextNode(),c.push({type:2,index:++r});l.append(t[s],h());}}}else if(8===l.nodeType)if(l.data===o$1)c.push({type:2,index:r});else {let t=-1;for(;-1!==(t=l.data.indexOf(e,t+1));)c.push({type:7,index:r}),t+=e.length-1;}r++;}}static createElement(t,i){const s=l$1.createElement("template");return s.innerHTML=t,s}}function P(t,i,s=t,e){var o,n,l,h;if(i===b)return i;let d=void 0!==e?null===(o=s._$Cl)||void 0===o?void 0:o[e]:s._$Cu;const u=r(i)?void 0:i._$litDirective$;return (null==d?void 0:d.constructor)!==u&&(null===(n=null==d?void 0:d._$AO)||void 0===n||n.call(d,!1),void 0===u?d=void 0:(d=new u(t),d._$AT(t,s,e)),void 0!==e?(null!==(l=(h=s)._$Cl)&&void 0!==l?l:h._$Cl=[])[e]=d:s._$Cu=d),void 0!==d&&(i=P(t,d._$AS(t,i.values),d,e)),i}class V{constructor(t,i){this.v=[],this._$AN=void 0,this._$AD=t,this._$AM=i;}get parentNode(){return this._$AM.parentNode}get _$AU(){return this._$AM._$AU}p(t){var i;const{el:{content:s},parts:e}=this._$AD,o=(null!==(i=null==t?void 0:t.creationScope)&&void 0!==i?i:l$1).importNode(s,!0);A.currentNode=o;let n=A.nextNode(),h=0,r=0,d=e[0];for(;void 0!==d;){if(h===d.index){let i;2===d.type?i=new N(n,n.nextSibling,this,t):1===d.type?i=new d.ctor(n,d.name,d.strings,this,t):6===d.type&&(i=new L(n,this,t)),this.v.push(i),d=e[++r];}h!==(null==d?void 0:d.index)&&(n=A.nextNode(),h++);}return o}m(t){let i=0;for(const s of this.v)void 0!==s&&(void 0!==s.strings?(s._$AI(t,s,i),i+=s.strings.length-2):s._$AI(t[i])),i++;}}class N{constructor(t,i,s,e){var o;this.type=2,this._$AH=w,this._$AN=void 0,this._$AA=t,this._$AB=i,this._$AM=s,this.options=e,this._$Cg=null===(o=null==e?void 0:e.isConnected)||void 0===o||o;}get _$AU(){var t,i;return null!==(i=null===(t=this._$AM)||void 0===t?void 0:t._$AU)&&void 0!==i?i:this._$Cg}get parentNode(){let t=this._$AA.parentNode;const i=this._$AM;return void 0!==i&&11===t.nodeType&&(t=i.parentNode),t}get startNode(){return this._$AA}get endNode(){return this._$AB}_$AI(t,i=this){t=P(this,t,i),r(t)?t===w||null==t||""===t?(this._$AH!==w&&this._$AR(),this._$AH=w):t!==this._$AH&&t!==b&&this.$(t):void 0!==t._$litType$?this.T(t):void 0!==t.nodeType?this.k(t):u(t)?this.S(t):this.$(t);}M(t,i=this._$AB){return this._$AA.parentNode.insertBefore(t,i)}k(t){this._$AH!==t&&(this._$AR(),this._$AH=this.M(t));}$(t){this._$AH!==w&&r(this._$AH)?this._$AA.nextSibling.data=t:this.k(l$1.createTextNode(t)),this._$AH=t;}T(t){var i;const{values:s,_$litType$:e}=t,o="number"==typeof e?this._$AC(t):(void 0===e.el&&(e.el=E.createElement(e.h,this.options)),e);if((null===(i=this._$AH)||void 0===i?void 0:i._$AD)===o)this._$AH.m(s);else {const t=new V(o,this),i=t.p(this.options);t.m(s),this.k(i),this._$AH=t;}}_$AC(t){let i=T.get(t.strings);return void 0===i&&T.set(t.strings,i=new E(t)),i}S(t){d(this._$AH)||(this._$AH=[],this._$AR());const i=this._$AH;let s,e=0;for(const o of t)e===i.length?i.push(s=new N(this.M(h()),this.M(h()),this,this.options)):s=i[e],s._$AI(o),e++;e<i.length&&(this._$AR(s&&s._$AB.nextSibling,e),i.length=e);}_$AR(t=this._$AA.nextSibling,i){var s;for(null===(s=this._$AP)||void 0===s||s.call(this,!1,!0,i);t&&t!==this._$AB;){const i=t.nextSibling;t.remove(),t=i;}}setConnected(t){var i;void 0===this._$AM&&(this._$Cg=t,null===(i=this._$AP)||void 0===i||i.call(this,t));}}class S{constructor(t,i,s,e,o){this.type=1,this._$AH=w,this._$AN=void 0,this.element=t,this.name=i,this._$AM=e,this.options=o,s.length>2||""!==s[0]||""!==s[1]?(this._$AH=Array(s.length-1).fill(new String),this.strings=s):this._$AH=w;}get tagName(){return this.element.tagName}get _$AU(){return this._$AM._$AU}_$AI(t,i=this,s,e){const o=this.strings;let n=!1;if(void 0===o)t=P(this,t,i,0),n=!r(t)||t!==this._$AH&&t!==b,n&&(this._$AH=t);else {const e=t;let l,h;for(t=o[0],l=0;l<o.length-1;l++)h=P(this,e[s+l],i,l),h===b&&(h=this._$AH[l]),n||(n=!r(h)||h!==this._$AH[l]),h===w?t=w:t!==w&&(t+=(null!=h?h:"")+o[l+1]),this._$AH[l]=h;}n&&!e&&this.C(t);}C(t){t===w?this.element.removeAttribute(this.name):this.element.setAttribute(this.name,null!=t?t:"");}}class M extends S{constructor(){super(...arguments),this.type=3;}C(t){this.element[this.name]=t===w?void 0:t;}}const k=i?i.emptyScript:"";class H extends S{constructor(){super(...arguments),this.type=4;}C(t){t&&t!==w?this.element.setAttribute(this.name,k):this.element.removeAttribute(this.name);}}class I extends S{constructor(t,i,s,e,o){super(t,i,s,e,o),this.type=5;}_$AI(t,i=this){var s;if((t=null!==(s=P(this,t,i,0))&&void 0!==s?s:w)===b)return;const e=this._$AH,o=t===w&&e!==w||t.capture!==e.capture||t.once!==e.once||t.passive!==e.passive,n=t!==w&&(e===w||o);o&&this.element.removeEventListener(this.name,this,e),n&&this.element.addEventListener(this.name,this,t),this._$AH=t;}handleEvent(t){var i,s;"function"==typeof this._$AH?this._$AH.call(null!==(s=null===(i=this.options)||void 0===i?void 0:i.host)&&void 0!==s?s:this.element,t):this._$AH.handleEvent(t);}}class L{constructor(t,i,s){this.element=t,this.type=6,this._$AN=void 0,this._$AM=i,this.options=s;}get _$AU(){return this._$AM._$AU}_$AI(t){P(this,t);}}const z=window.litHtmlPolyfillSupport;null==z||z(E,N),(null!==(t=globalThis.litHtmlVersions)&&void 0!==t?t:globalThis.litHtmlVersions=[]).push("2.2.6");
+
+/**
+ * @license
+ * Copyright 2017 Google LLC
+ * SPDX-License-Identifier: BSD-3-Clause
+ */var l,o;class s extends a$1{constructor(){super(...arguments),this.renderOptions={host:this},this._$Do=void 0;}createRenderRoot(){var t,e;const i=super.createRenderRoot();return null!==(t=(e=this.renderOptions).renderBefore)&&void 0!==t||(e.renderBefore=i.firstChild),i}update(t){const i=this.render();this.hasUpdated||(this.renderOptions.isConnected=this.isConnected),super.update(t),this._$Do=x(i,this.renderRoot,this.renderOptions);}connectedCallback(){var t;super.connectedCallback(),null===(t=this._$Do)||void 0===t||t.setConnected(!0);}disconnectedCallback(){var t;super.disconnectedCallback(),null===(t=this._$Do)||void 0===t||t.setConnected(!1);}render(){return b}}s.finalized=!0,s._$litElement$=!0,null===(l=globalThis.litElementHydrateSupport)||void 0===l||l.call(globalThis,{LitElement:s});const n=globalThis.litElementPolyfillSupport;null==n||n({LitElement:s});(null!==(o=globalThis.litElementVersions)&&void 0!==o?o:globalThis.litElementVersions=[]).push("3.2.1");
+
+function getFormTemplate(formComponent, operators) {
+    var _a;
+    const op = formComponent.operator || "Operator";
+    const dt = formComponent.datatype || "Datatype";
+    // const addInputButton = new UI.GscapeButton(UI.icons.plus, "Add input value")
+    // addInputButton.id = "add-input-btn"
+    return $ `
+    <div class="section">
+      ${formComponent.formTitle ? $ `<div class="header">${formComponent.formTitle}</div>` : null}
+      <form id="form-dialog" class="form" action="javascript:void(0)" onsubmit="this.handleSubmit">
+        <div class="selects-wrapper">
+          <div id="select-operator">
+            <label>Operator</label>
+            ${getSelect(op, operators)}
+          </div>
+          ${formComponent.parametersType === VarOrConstantTypeEnum.Constant
+        ? $ `
+              <div id="select-datatype">
+                <label>Datatype</label>
+                ${getSelect(dt, Object.values(VarOrConstantConstantTypeEnum), formComponent.datatype !== undefined)}
+              </div>`
+        : null}
+        </div>
+        <div class="inputs-wrapper">
+          ${(_a = formComponent.parametersIriOrConstants) === null || _a === void 0 ? void 0 : _a.map((parameter, index) => getInput(index, formComponent.datatype, parameter.value, "Set input value"))}
+          ${formComponent.operator === FilterExpressionOperatorEnum.In ||
+        formComponent.operator === FilterExpressionOperatorEnum.NotIn
+        ? $ `
+              <div>
+                <gscape-button id="add-input-btn" type="subtle" title="Add input value">
+                  <span slot="icon">${ui.icons.plus}</span>
+                </gscape-button>
+                ${formComponent.parameters && formComponent.parameters.length > 3 // at least 3 custom inputs to remove one
+            ? $ `
+                    <gscape-button id="remove-input-btn" type="subtle" title="Remove input value">
+                      <span slot="icon">${ui.icons.minus}</span>
+                    </gscape-button>
+                  `
+            : null}
+              </div>
+            `
+        : null}
+        </div>
+      </form>
+    </div>
+    <div id="message-tray"></div>
+  `;
+}
+function getInput(index, datatype, value, titleText = '') {
+    if (datatype === VarOrConstantConstantTypeEnum.DateTime) {
+        value = (value === null || value === void 0 ? void 0 : value.split('T')[0]) || 'value'; // Take only date from ISO format 2022-01-01T00:00:....
+    }
+    let placeholder = value || 'value';
+    return $ `
+    <input
+      type="${getInputType(datatype)}"
+      placeholder="${placeholder}"
+      value="${value}"
+      title="${titleText}"
+      index="${index + 1}"
+      required
+    />`;
+}
+function getSelect(defaultOpt, options, disabled = false) {
+    const isDefaultAlreadySet = options.includes(defaultOpt);
+    return $ `
+    <select required ?disabled=${disabled}>
+      ${isDefaultAlreadySet ? null : $ `<option value="" hidden selected>${defaultOpt}</option>`}
+      ${options.map(op => {
+        if (op === defaultOpt)
+            return $ `<option value="${op}" selected>${op}</option>`;
+        else
+            return $ `<option value="${op}">${op}</option>`;
+    })}
+    </select>
+  `;
+}
+function getInputType(datatype) {
+    switch (datatype) {
+        case VarOrConstantConstantTypeEnum.DateTime:
+            return 'date';
+        case VarOrConstantConstantTypeEnum.Decimal:
+            return 'number';
+        case VarOrConstantConstantTypeEnum.String:
+            return 'text';
+        default:
+            return '';
+    }
+}
+
+function validateForm (form) {
+    const inputs = form.querySelectorAll('input');
+    const selects = form.querySelectorAll('select');
+    let isValid = true;
+    inputs === null || inputs === void 0 ? void 0 : inputs.forEach(input => {
+        isValid = isValid && validateInputElement(input);
+    });
+    selects === null || selects === void 0 ? void 0 : selects.forEach(select => {
+        isValid = isValid && validateSelectElement(select);
+    });
+    return isValid;
+}
+function validateInputElement(input) {
+    const validityState = input.validity;
+    if (validityState.valueMissing) {
+        input.setCustomValidity('Please fill out this field.');
+    }
+    else if (validityState.rangeUnderflow) {
+        input.setCustomValidity(`Please select a number that is no lower than ${input.min}`);
+    }
+    else if (validityState.rangeOverflow) {
+        input.setCustomValidity(`Please select a number that is no greater than ${input.max}`);
+    }
+    else if (validityState.typeMismatch) {
+        input.setCustomValidity(`Please select a ${input.type}`);
+    }
+    else {
+        input.setCustomValidity('');
+    }
+    return input.reportValidity();
+}
+function validateSelectElement(select) {
+    if (!select.checkValidity()) {
+        select.setCustomValidity('Please select an item in the list.');
+    }
+    const returnValue = select.reportValidity();
+    // reset message, otherwise checkValidity returns always false at next validations
+    select.setCustomValidity('');
+    return returnValue;
+}
+
+var formStyle = r$2 `
+  :host {
+    position: absolute;
+    top: 100px;
+    left: 50%;
+    transform: translate(-50%, 0)
+  }
+
+  .dialog-body {
+    display: flex;
+    flex-direction: column;
+    gap: 30px;
+    align-items: center;
+    min-width: 350px;
+    max-width: 450px;
+    padding: 8px;
+    margin-top: 8px;
+  }
+
+  .form, .inputs-wrapper {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+  }
+
+  .form {
+    margin: 0 12px;
+  }
+
+  .gscape-panel {
+    max-height: unset;
+  }
+
+  .selects-wrapper {
+    align-self: start;
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+  }
+
+  .inputs-wrapper {
+    flex-direction: column;
+    overflow: auto;
+    max-height: 260px;
+    padding-right: 8px;
+  }
+
+  .inputs-wrapper gscape-button {
+    --gscape-icon-size: 18px;
+  }
+
+  .bottom-buttons {
+    display:flex;
+    width: 100%;
+    justify-content: end;
+    gap: 4px;
+  }
+
+  .section-header {
+    text-align: center;
+    font-weight: bold;
+    border-bottom: solid 1px var(--theme-gscape-borders);
+    color: var(--theme-gscape-secondary);
+    width: 85%;
+    margin: auto;
+    margin-bottom: auto;
+    margin-bottom: 10px;
+    padding-bottom: 5px;
+  }
+
+  #message-tray {
+    font-size: 90%;
+  }
+  #message-tray > .correct-message {
+    color: var(--gscape-color-success);
+  }
+  #message-tray > .error-message {
+    color: var(--gscape-color-danger);
+  }
+
+
+  form *:invalid {
+    border-color: var(--gscape-color-danger);
+    background-color: var(--gscape-color-danger-muted);
+  }
+
+  form *:invalid:focus {
+    box-shadow: var(--gscape-color-danger) 0px 0px 0px 1px inset;
+    border-color: var(--gscape-color-danger);
+  }
+
+  form abbr {
+    margin: 0 5px;
+  }
+
+  *:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+  }
+`;
+
+var sparqlingWidgetStyle = r$2 `
+  .top-bar {
+    font-size: 12px;
+    display: flex;
+    flex-direction: row;
+    position: absolute;
+    top: 0;
+    right: 0;
+    z-index: 2;
+    
+    align-items: center;
+    justify-content: space-between;
+    gap: 4px;
+    box-sizing: border-box;
+    width: 100%;
+    border-top-left-radius: var(--gscape-border-radius);
+    border-top-right-radius: var(--gscape-border-radius);
+    border-bottom-left-radius: 0px;
+    border-bottom-right-radius: 0px;
+    background: var(--gscape-color-bg-inset);
+  }
+
+  .top-bar.traslated-down {
+    top: unset;
+    right: unset;
+    bottom: 0;
+    left: 50%;
+    transform: translate(-50%);
+    width: fit-content;
+    height: fit-content;
+  }
+
+  #widget-header {
+    margin-left: 8px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+
+  #buttons-tray > * {
+    position: initial;
+  }
+
+  #buttons-tray {
+    display: flex;
+    align-items: center;
+    justify-content: end;
+    flex-grow: 3;
+    padding: 0 10px;
+  }
+
+  #buttons-tray > gscape-button {
+    --gscape-icon-size: 20px;
+  }
+
+  #buttons-tray > input {
+    max-width: 130px;
+    margin: 0 5px;
+    padding-right: 2px;
+  }
+
+  .gscape-panel {
+    width: unset;
+    max-width: unset;
+    height: 100%;
+    box-sizing: border-box;
+    overflow: unset;
+    padding: 0;
+    padding-top: 27px;
+  }
+
+  .sparqling-blank-slate {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    max-width: unset;
+    width: 100%;
+    box-sizing: border-box;
+  }
+
+  [disabled] {
+    cursor: not-allowed;
+  }
+`;
+
+var Modality;
+(function (Modality) {
+    Modality["DEFINE"] = "Define";
+    Modality["EDIT"] = "Edit";
+})(Modality || (Modality = {}));
+class SparqlingFormDialog extends ui.BaseMixin(s) {
+    constructor() {
+        super();
+        this.modality = Modality.DEFINE;
+        this.deleteCallback = (filterId) => { };
+        // this.saveButton.onClick = () => this.handleSubmit()
+        // this.deleteButton.onClick = () => this.deleteCallback(this._id)
+        // this.deleteButton.classList.add('danger')
+    }
+    handleSubmit() {
+        if (this.formElement && validateForm(this.formElement)) {
+            this.onValidSubmit();
+        }
+    }
+    onOperatorChange(value) {
+        var _a, _b;
+        this.operator = value;
+        switch (this.operator) {
+            case FilterExpressionOperatorEnum.In:
+            case FilterExpressionOperatorEnum.NotIn:
+                // IN and NOT IN needs at least 2 constants, so at least 3 parameters, variable + 2 constants
+                if (this.parametersIriOrConstants && this.parametersIriOrConstants.length < 2) {
+                    this.addInputValue(2 - this.parametersIriOrConstants.length);
+                }
+                break;
+            case FunctionNameEnum.Ceil:
+            case FunctionNameEnum.Floor:
+            case FunctionNameEnum.Round:
+            case FunctionNameEnum.Day:
+            case FunctionNameEnum.Year:
+            case FunctionNameEnum.Month:
+            case FunctionNameEnum.Hours:
+            case FunctionNameEnum.Minutes:
+            case FunctionNameEnum.Seconds:
+            case FunctionNameEnum.Lcase:
+            case FunctionNameEnum.Ucase:
+                (_a = this.parameters) === null || _a === void 0 ? void 0 : _a.splice(1); // no parameters
+                break;
+            default:
+                (_b = this.parameters) === null || _b === void 0 ? void 0 : _b.splice(2);
+                if (this.parametersIriOrConstants && this.parametersIriOrConstants.length <= 0) {
+                    this.addInputValue();
+                }
+        }
+    }
+    onDatatypeChange(value) {
+        this.datatype = value;
+    }
+    onInputChange(index, inputElem) {
+        var _a;
+        if (this.parameters) {
+            if (this.datatype === VarOrConstantConstantTypeEnum.DateTime) {
+                this.parameters[index].value = (_a = inputElem.valueAsDate) === null || _a === void 0 ? void 0 : _a.toISOString();
+            }
+            else {
+                this.parameters[index].value = inputElem.value;
+            }
+        }
+    }
+    // show = () => {
+    //   super.show()
+    //   this.isDatatypeSelectorDisabled = this.datatype ? true : false
+    // }
+    addInputValue(number = 1) {
+        var _a;
+        for (let i = 0; i < number; i++) {
+            (_a = this.parameters) === null || _a === void 0 ? void 0 : _a.push({
+                type: this.parametersType,
+                value: "",
+                constantType: this.datatype
+            });
+        }
+        this.requestUpdate();
+    }
+    removeInputValue() {
+        var _a;
+        (_a = this.parameters) === null || _a === void 0 ? void 0 : _a.pop();
+        this.requestUpdate();
+    }
+    firstUpdated(_changedProperties) {
+        super.firstUpdated(_changedProperties);
+        this.hide();
+    }
+    updated(_changedProperties) {
+        var _a, _b, _c;
+        super.updated(_changedProperties);
+        if (this.selectOperatorElem)
+            this.selectOperatorElem.onchange = () => this.onOperatorChange(this.selectOperatorElem.value);
+        if (this.selectDatatypeElem)
+            this.selectDatatypeElem.onchange = (e) => this.onDatatypeChange(this.selectDatatypeElem.value);
+        (_a = this.inputElems) === null || _a === void 0 ? void 0 : _a.forEach((input) => input.onchange = (e) => this.onInputChange(input.getAttribute('index'), e.currentTarget));
+        const addInputButton = (_b = this.shadowRoot) === null || _b === void 0 ? void 0 : _b.querySelector('#add-input-btn');
+        if (addInputButton)
+            addInputButton.onclick = () => this.addInputValue();
+        const removeInputButton = (_c = this.shadowRoot) === null || _c === void 0 ? void 0 : _c.querySelector('#remove-input-btn');
+        if (removeInputButton)
+            removeInputButton.onclick = () => this.removeInputValue();
+    }
+    addMessage(msg, msgType) {
+        if (!this.messagesElem)
+            return;
+        let msgDiv = document.createElement('div');
+        msgDiv.classList.add(msgType);
+        msgDiv.innerHTML = msg;
+        this.messagesElem.appendChild(msgDiv);
+    }
+    resetMessages() {
+        if (this.messagesElem)
+            this.messagesElem.textContent = '';
+    }
+    setAsCorrect(customText) {
+        const text = customText || 'Correctly Saved';
+        this.addMessage(text, 'correct-message');
+        setTimeout(() => this.resetMessages(), 2000);
+    }
+    onValidSubmit() {
+        this.submitCallback(this._id, this.operator, this.parameters);
+    }
+    get selectOperatorElem() {
+        var _a;
+        return (_a = this.shadowRoot) === null || _a === void 0 ? void 0 : _a.querySelector('#select-operator > select');
+    }
+    get selectDatatypeElem() {
+        var _a;
+        return (_a = this.shadowRoot) === null || _a === void 0 ? void 0 : _a.querySelector('#select-datatype > select');
+    }
+    get inputElems() {
+        var _a;
+        return (_a = this.shadowRoot) === null || _a === void 0 ? void 0 : _a.querySelectorAll('.inputs-wrapper > input');
+    }
+    get messagesElem() {
+        var _a;
+        return (_a = this.shadowRoot) === null || _a === void 0 ? void 0 : _a.querySelector('#message-tray');
+    }
+    get variable() {
+        var _a;
+        return (_a = this.parameters) === null || _a === void 0 ? void 0 : _a.find(p => p.type === VarOrConstantTypeEnum.Var);
+    }
+    get datatype() { var _a; return (_a = this.variable) === null || _a === void 0 ? void 0 : _a.constantType; }
+    set datatype(value) {
+        var _a;
+        if (this.variable)
+            this.variable.constantType = value;
+        (_a = this.parameters) === null || _a === void 0 ? void 0 : _a.map(p => p.constantType = value);
+        this.requestUpdate();
+    }
+    get parametersIriOrConstants() {
+        var _a;
+        return (_a = this.parameters) === null || _a === void 0 ? void 0 : _a.filter(p => p.type !== VarOrConstantTypeEnum.Var);
+    }
+    get formElement() {
+        var _a;
+        return (_a = this.shadowRoot) === null || _a === void 0 ? void 0 : _a.querySelector('form');
+    }
+}
+SparqlingFormDialog.properties = {
+    operator: { attribute: false },
+    parameters: { attribute: false },
+    modality: { attribute: false },
+    datatype: { attribute: false },
+    aggregateOperator: { attribute: false },
+};
+SparqlingFormDialog.styles = [
+    ui.baseStyle,
+    formStyle,
+    sparqlingWidgetStyle
+];
+
+const rubbishBin = y `<svg fill="currentColor" xmlns="http://www.w3.org/2000/svg" height="20" width="20"><path d="M6.5 17q-.625 0-1.062-.438Q5 16.125 5 15.5v-10H4V4h4V3h4v1h4v1.5h-1v10q0 .625-.438 1.062Q14.125 17 13.5 17Zm7-11.5h-7v10h7ZM8 14h1.5V7H8Zm2.5 0H12V7h-1.5Zm-4-8.5v10Z"/></svg>`;
+const code = y `<svg fill="currentColor" xmlns="http://www.w3.org/2000/svg" height="20" width="20"><path d="M12 16v-1.5h1.75q.312 0 .531-.219.219-.219.219-.531v-1.5q0-.854.573-1.469.573-.614 1.427-.719v-.083q-.854-.167-1.427-.771-.573-.604-.573-1.458v-1.5q0-.312-.219-.531-.219-.219-.531-.219H12V4h1.75q.938 0 1.594.656Q16 5.312 16 6.25v1.5q0 .312.219.531.219.219.531.219H18v3h-1.25q-.312 0-.531.219-.219.219-.219.531v1.5q0 .938-.656 1.594-.656.656-1.594.656Zm-5.75 0q-.938 0-1.594-.656Q4 14.688 4 13.75v-1.5q0-.312-.219-.531-.219-.219-.531-.219H2v-3h1.25q.312 0 .531-.219Q4 8.062 4 7.75v-1.5q0-.938.656-1.594Q5.312 4 6.25 4H8v1.5H6.25q-.312 0-.531.219-.219.219-.219.531v1.5q0 .875-.573 1.49-.573.614-1.427.718v.084q.854.083 1.427.708.573.625.573 1.5v1.5q0 .312.219.531.219.219.531.219H8V16Z"/></svg>`;
+// https://github.com/Templarian/MaterialDesign/blob/master/svg/table-eye.svg
+const tableEye = y `<svg fill="currentColor" viewBox="0 0 24 24" style="height: 20px; width: 20px; padding:2px; box-sizing: border-box"><path d="M17 16.88C17.56 16.88 18 17.32 18 17.88S17.56 18.88 17 18.88 16 18.43 16 17.88 16.44 16.88 17 16.88M17 13.88C19.73 13.88 22.06 15.54 23 17.88C22.06 20.22 19.73 21.88 17 21.88S11.94 20.22 11 17.88C11.94 15.54 14.27 13.88 17 13.88M17 15.38C15.62 15.38 14.5 16.5 14.5 17.88S15.62 20.38 17 20.38 19.5 19.26 19.5 17.88 18.38 15.38 17 15.38M18 3H4C2.9 3 2 3.9 2 5V17C2 18.1 2.9 19 4 19H9.42C9.26 18.68 9.12 18.34 9 18C9.12 17.66 9.26 17.32 9.42 17H4V13H10V15.97C10.55 15.11 11.23 14.37 12 13.76V13H13.15C14.31 12.36 15.62 12 17 12C18.06 12 19.07 12.21 20 12.59V5C20 3.9 19.1 3 18 3M10 11H4V7H10V11M18 11H12V7H18V11Z" /></svg>`;
+// https://github.com/Templarian/MaterialDesign/blob/master/svg/asterisk.svg
+const asterisk = y `<svg fill="currentColor" viewBox="0 0 24 24" height="20px" width="20px"><path d="M11,3H13V10.27L19.29,6.64L20.29,8.37L14,12L20.3,15.64L19.3,17.37L13,13.72V21H11V13.73L4.69,17.36L3.69,15.63L10,12L3.72,8.36L4.72,6.63L11,10.26V3Z" /></svg>`;
+// https://cygri.github.io/rdf-logos/
+const rdfLogo = y `<svg viewBox="0 0 943 1019" style="fill: currentColor; display: inline-block; height: 20px; width: 20px; padding:2px; box-sizing: border-box"><path fill-rule="evenodd" d="M845,668c-6-3-13-6-19-9l5-0c0,0-42-18-45-152 c-4-133,40-156,40-156l-0,0c33-17,61-43,79-78c48-91,14-203-77-252 C729-26,617,8,569,99c-20,37-25,78-19,117l-2-3c0,0,11,48-103,119 c-113,71-165,35-165,35l3,5c-3-2-6-4-10-6C183,317,70,352,22,443 c-48,91-14,203,77,252c68,36,147,26,204-19l-1,2c0,0,41-34,160,30 c94,50,108,100,110,118c-2,69,33,137,98,171c91,48,203,14,252-77 C970,829,935,717,845,668z M635,693c-15,5-58,11-148-37 c-98-53-113-97-115-110c1-16,1-32-2-48l1,1c0,0-8-43,104-112 c100-62,146-50,154-47c5,4,11,7,17,10c11,6,23,11,35,14 c14,13,39,50,42,149c3,99-26,137-42,150C664,671,648,681,635,693z   M622,81c-54,59-55,146-3,196c-26-25-25-77,1-126 c3-4,13-15,27-10c1,0,2,1,3,1c3,1,7,1,10,1 c22-1,38-19,37-41c-0-10-4-18-11-25c50-33,107-37,131-15l1,0 C765,12,677,21,622,81z   M78,431c-54,59-55,146-03,196c-26-25-25-77,1-126 c3-4,13-15,27-10c1,0,2,1,3,1c3,1,7,1,10,1 c22-1,38-19,37-41c-0-10-4-18-11-25c50-33,107-37,131-15l1,0 C221,363,133,371,78,431z   M654,728c-54,59-55,146-3,196c-26-25-25-77,1-126 c3-4,13-15,27-10c1,0,2,1,3,1c3,1,7,1,10,1 c22-1,38-19,37-41c-0-10-4-18-11-25c50-33,107-37,131-15l1,0 C797,659,709,668,654,728z"></path></svg>`;
+const crosshair = y `<svg fill="currentcolor" xmlns="http://www.w3.org/2000/svg" height="20" width="20"><path d="M9.333 18.5v-1.458q-2.541-.271-4.323-2.052-1.781-1.782-2.052-4.323H1.5V9.333h1.458Q3.229 6.792 5.01 5.01q1.782-1.781 4.323-2.052V1.5h1.334v1.458q2.541.271 4.323 2.052 1.781 1.782 2.052 4.323H18.5v1.334h-1.458q-.271 2.541-2.052 4.323-1.782 1.781-4.323 2.052V18.5ZM10 15.729q2.396 0 4.062-1.667 1.667-1.666 1.667-4.062 0-2.396-1.667-4.062Q12.396 4.271 10 4.271q-2.396 0-4.062 1.667Q4.271 7.604 4.271 10q0 2.396 1.667 4.062Q7.604 15.729 10 15.729Zm0-2.75q-1.229 0-2.104-.875T7.021 10q0-1.229.875-2.104T10 7.021q1.229 0 2.104.875T12.979 10q0 1.229-.875 2.104T10 12.979Zm0-1.333q.667 0 1.156-.49.49-.489.49-1.156 0-.667-.49-1.156-.489-.49-1.156-.49-.667 0-1.156.49-.49.489-.49 1.156 0 .667.49 1.156.489.49 1.156.49Zm.021-1.667Z"/></svg>`;
+// https://materialdesignicons.com/icon/lightbulb-question
+const lightbulb = y `<svg fill="currentcolor" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" height="20" width="20" style="padding:1px; box-sizing:border-box"><path d="m18.292 8.375-.521-1.187-1.188-.521 1.188-.542.521-1.167.541 1.167L20 6.667l-1.167.521Zm-2.459-3.292-.812-1.729-1.729-.812 1.729-.813L15.833 0l.813 1.729 1.729.813-1.729.812ZM7.5 18.333q-.688 0-1.177-.489-.49-.49-.49-1.177h3.313q0 .687-.479 1.177-.479.489-1.167.489Zm-3.333-2.416v-1.75h6.645v1.75Zm.229-2.5q-1.458-.855-2.302-2.302-.844-1.448-.844-3.157 0-2.646 1.802-4.468Q4.854 1.667 7.5 1.667q2.604 0 4.417 1.823 1.812 1.822 1.812 4.468 0 1.709-.844 3.157-.843 1.447-2.302 2.302Zm.542-1.75h5.124Q11 11 11.49 10.042q.489-.959.489-2.084 0-1.896-1.291-3.218Q9.396 3.417 7.5 3.417q-1.896 0-3.198 1.323Q3 6.062 3 7.958q0 1.125.5 2.084.5.958 1.438 1.625Zm2.562 0Z"/></svg>`;
+// https://materialdesignicons.com/icon/filter-plus
+const addFilter$1 = y `<svg  fill="currentColor" viewBox="0 0 24 24" height="20px" width="20px" style="padding: 1px; box-sizing:border-box"><path d="M12 12V19.88C12.04 20.18 11.94 20.5 11.71 20.71C11.32 21.1 10.69 21.1 10.3 20.71L8.29 18.7C8.06 18.47 7.96 18.16 8 17.87V12H7.97L2.21 4.62C1.87 4.19 1.95 3.56 2.38 3.22C2.57 3.08 2.78 3 3 3H17C17.22 3 17.43 3.08 17.62 3.22C18.05 3.56 18.13 4.19 17.79 4.62L12.03 12H12M15 17H18V14H20V17H23V19H20V22H18V19H15V17Z" /></svg>`;
+// https://materialdesignicons.com/icon/pencil
+const edit = y `<svg fill="currentColor" viewBox="0 0 24 24" height="20px" width="20px"><path d="M20.71,7.04C21.1,6.65 21.1,6 20.71,5.63L18.37,3.29C18,2.9 17.35,2.9 16.96,3.29L15.12,5.12L18.87,8.87M3,17.25V21H6.75L17.81,9.93L14.06,6.18L3,17.25Z" /></svg>`;
+// https://materialdesignicons.com/icon/playlist-edit
+const editList = y `<svg fill="currentColor" viewBox="0 0 24 24" height="20px" width="20px"><path d="M2,6V8H14V6H2M2,10V12H14V10H2M20.04,10.13C19.9,10.13 19.76,10.19 19.65,10.3L18.65,11.3L20.7,13.35L21.7,12.35C21.92,12.14 21.92,11.79 21.7,11.58L20.42,10.3C20.31,10.19 20.18,10.13 20.04,10.13M18.07,11.88L12,17.94V20H14.06L20.12,13.93L18.07,11.88M2,14V16H10V14H2Z" /></svg>`;
+// https://materialdesignicons.com/icon/filter
+const filter = y `<svg fill="currentColor" viewBox="0 0 24 24" height="20px" width="20px"><path d="M14,12V19.88C14.04,20.18 13.94,20.5 13.71,20.71C13.32,21.1 12.69,21.1 12.3,20.71L10.29,18.7C10.06,18.47 9.96,18.16 10,17.87V12H9.97L4.21,4.62C3.87,4.19 3.95,3.56 4.38,3.22C4.57,3.08 4.78,3 5,3V3H19V3C19.22,3 19.43,3.08 19.62,3.22C20.05,3.56 20.13,4.19 19.79,4.62L14.03,12H14Z" /></svg>`;
+// https://materialdesignicons.com/icon/table-column-plus-after
+const tableColumnPlus = y `<svg fill="currentColor" viewBox="0 0 24 24" height="20px" width="20px"><path d="M11,2A2,2 0 0,1 13,4V20A2,2 0 0,1 11,22H2V2H11M4,10V14H11V10H4M4,16V20H11V16H4M4,4V8H11V4H4M15,11H18V8H20V11H23V13H20V16H18V13H15V11Z" /></svg>`;
+const questionMarkDashed = y `<svg fill="currentColor" viewBox="0 0 24 24" height="20px" width="20px"><path d="M13 2.03V4.05C17.39 4.59 20.5 8.58 19.96 12.97C19.5 16.61 16.64 19.5 13 19.93V21.93C18.5 21.38 22.5 16.5 21.95 11C21.5 6.25 17.73 2.5 13 2.03M11 2.06C9.05 2.25 7.19 3 5.67 4.26L7.1 5.74C8.22 4.84 9.57 4.26 11 4.06V2.06M4.26 5.67C3 7.19 2.25 9.04 2.05 11H4.05C4.24 9.58 4.8 8.23 5.69 7.1L4.26 5.67M2.06 13C2.26 14.96 3.03 16.81 4.27 18.33L5.69 16.9C4.81 15.77 4.24 14.42 4.06 13H2.06M7.1 18.37L5.67 19.74C7.18 21 9.04 21.79 11 22V20C9.58 19.82 8.23 19.25 7.1 18.37M20 4H44M13 18H11V16H13V18M13 15H11C11 11.75 14 12 14 10C14 8.9 13.1 8 12 8S10 8.9 10 10H8C8 7.79 9.79 6 12 6S16 7.79 16 10C16 12.5 13 12.75 13 15Z" /></svg>`;
+// https://materialdesignicons.com/icon/content-copy
+const copyContent = y `<svg fill="currentColor" viewBox="0 0 24 24" height="20px" width="20px" style="padding: 1px; box-sizing:border-box"><path d="M19,21H8V7H19M19,5H8A2,2 0 0,0 6,7V21A2,2 0 0,0 8,23H19A2,2 0 0,0 21,21V7A2,2 0 0,0 19,5M16,1H4A2,2 0 0,0 2,3V17H4V3H16V1Z" /></svg>`;
+// https://materialdesignicons.com/icon/alpha-s-circle
+//export const sparqlingIcon = svg`<svg fill="currentColor" viewBox="0 0 24 24" height="20px" width="20px"><path d="M11,7A2,2 0 0,0 9,9V11A2,2 0 0,0 11,13H13V15H9V17H13A2,2 0 0,0 15,15V13A2,2 0 0,0 13,11H11V9H15V7H11M12,2A10,10 0 0,1 22,12A10,10 0 0,1 12,22A10,10 0 0,1 2,12A10,10 0 0,1 12,2Z" /></svg>`
+// https://materialdesignicons.com/icon/play-circle-outline
+const playOutlined = y `<svg fill="currentColor" viewBox="0 0 24 24" height="20px" width="20px"><path d="M12,20C7.59,20 4,16.41 4,12C4,7.59 7.59,4 12,4C16.41,4 20,7.59 20,12C20,16.41 16.41,20 12,20M12,2A10,10 0 0,0 2,12A10,10 0 0,0 12,22A10,10 0 0,0 22,12A10,10 0 0,0 12,2M10,16.5L16,12L10,7.5V16.5Z" /></svg>`;
+// https://materialdesignicons.com/icon/refresh
+const refresh = y `<svg fill="currentColor" viewBox="0 0 24 24" height="20px" width="20px"><path d="M17.65,6.35C16.2,4.9 14.21,4 12,4A8,8 0 0,0 4,12A8,8 0 0,0 12,20C15.73,20 18.84,17.45 19.73,14H17.65C16.83,16.33 14.61,18 12,18A6,6 0 0,1 6,12A6,6 0 0,1 12,6C13.66,6 15.14,6.69 16.22,7.78L13,11H20V4L17.65,6.35Z" /></svg>`;
+const dragHandler = y `<svg fill="currentColor" xmlns="http://www.w3.org/2000/svg" height="20" width="20"><path d="M7.5 15.688q-.5 0-.844-.355-.344-.354-.344-.833 0-.5.355-.844.354-.344.833-.344.5 0 .844.355.344.354.344.833 0 .5-.355.844-.354.344-.833.344Zm5 0q-.5 0-.844-.355-.344-.354-.344-.833 0-.5.355-.844.354-.344.833-.344.5 0 .844.355.344.354.344.833 0 .5-.355.844-.354.344-.833.344Zm-5-4.5q-.5 0-.844-.355-.344-.354-.344-.833 0-.5.355-.844.354-.344.833-.344.5 0 .844.355.344.354.344.833 0 .5-.355.844-.354.344-.833.344Zm5 0q-.5 0-.844-.355-.344-.354-.344-.833 0-.5.355-.844.354-.344.833-.344.5 0 .844.355.344.354.344.833 0 .5-.355.844-.354.344-.833.344Zm-5-4.5q-.5 0-.844-.355-.344-.354-.344-.833 0-.5.355-.844.354-.344.833-.344.5 0 .844.355.344.354.344.833 0 .5-.355.844-.354.344-.833.344Zm5 0q-.5 0-.844-.355-.344-.354-.344-.833 0-.5.355-.844.354-.344.833-.344.5 0 .844.355.344.354.344.833 0 .5-.355.844-.354.344-.833.344Z"/></svg>`;
+// https://materialdesignicons.com/icon/function
+const functionIcon = y `<svg fill="currentColor" viewBox="0 0 24 24" height="20px" width="20px"><path d="M15.6,5.29C14.5,5.19 13.53,6 13.43,7.11L13.18,10H16V12H13L12.56,17.07C12.37,19.27 10.43,20.9 8.23,20.7C6.92,20.59 5.82,19.86 5.17,18.83L6.67,17.33C6.91,18.07 7.57,18.64 8.4,18.71C9.5,18.81 10.47,18 10.57,16.89L11,12H8V10H11.17L11.44,6.93C11.63,4.73 13.57,3.1 15.77,3.3C17.08,3.41 18.18,4.14 18.83,5.17L17.33,6.67C17.09,5.93 16.43,5.36 15.6,5.29Z" /></svg>`;
+// https://materialdesignicons.com/icon/sort-alphabetical-variant
+const sortIcon = y `<svg fill="currentColor" viewBox="0 0 24 24" height="20px" width="20px"><path d="M9.25,5L12.5,1.75L15.75,5H9.25M15.75,19L12.5,22.25L9.25,19H15.75M8.89,14.3H6L5.28,17H2.91L6,7H9L12.13,17H9.67L8.89,14.3M6.33,12.68H8.56L7.93,10.56L7.67,9.59L7.42,8.63H7.39L7.17,9.6L6.93,10.58L6.33,12.68M13.05,17V15.74L17.8,8.97V8.91H13.5V7H20.73V8.34L16.09,15V15.08H20.8V17H13.05Z" /></svg>`;
+// https://materialdesignicons.com/icon/sort-alphabetical-ascending
+const sortAscendingIcon = y `<svg fill="currentColor" viewBox="0 0 24 24" height="20px" width="20px"><path d="M19 17H22L18 21L14 17H17V3H19M11 13V15L7.67 19H11V21H5V19L8.33 15H5V13M9 3H7C5.9 3 5 3.9 5 5V11H7V9H9V11H11V5C11 3.9 10.11 3 9 3M9 7H7V5H9Z" /></svg>`;
+// https://materialdesignicons.com/icon/sort-alphabetical-descending
+const sortDescendingIcon = y `<svg fill="currentColor" viewBox="0 0 24 24" height="20px" width="20px"><path d="M19 7H22L18 3L14 7H17V21H19M11 13V15L7.67 19H11V21H5V19L8.33 15H5V13M9 3H7C5.9 3 5 3.9 5 5V11H7V9H9V11H11V5C11 3.9 10.11 3 9 3M9 7H7V5H9Z" /></svg>`;
+// https://materialdesignicons.com/icon/sigma
+const sigma = y `<svg fill="currentColor" viewBox="0 0 24 24" height="20px" width="20px"><path d="M18,6H8.83L14.83,12L8.83,18H18V20H6V18L12,12L6,6V4H18V6Z" /></svg>`;
+// https://materialdesignicons.com/icon/gesture-double-tap
+const dbClick = y `<svg fill="currentColor" viewBox="0 0 24 24" height="20px" width="20px"><path d="M10,9A1,1 0 0,1 11,8A1,1 0 0,1 12,9V13.47L13.21,13.6L18.15,15.79C18.68,16.03 19,16.56 19,17.14V21.5C18.97,22.32 18.32,22.97 17.5,23H11C10.62,23 10.26,22.85 10,22.57L5.1,18.37L5.84,17.6C6.03,17.39 6.3,17.28 6.58,17.28H6.8L10,19V9M11,5A4,4 0 0,1 15,9C15,10.5 14.2,11.77 13,12.46V11.24C13.61,10.69 14,9.89 14,9A3,3 0 0,0 11,6A3,3 0 0,0 8,9C8,9.89 8.39,10.69 9,11.24V12.46C7.8,11.77 7,10.5 7,9A4,4 0 0,1 11,5M11,3A6,6 0 0,1 17,9C17,10.7 16.29,12.23 15.16,13.33L14.16,12.88C15.28,11.96 16,10.56 16,9A5,5 0 0,0 11,4A5,5 0 0,0 6,9C6,11.05 7.23,12.81 9,13.58V14.66C6.67,13.83 5,11.61 5,9A6,6 0 0,1 11,3Z" /></svg>`;
+// https://materialdesignicons.com/icon/counter
+const counter = y `<svg fill="currentColor" viewBox="0 0 24 24" height="20px" width="20px"><path d="M4,4H20A2,2 0 0,1 22,6V18A2,2 0 0,1 20,20H4A2,2 0 0,1 2,18V6A2,2 0 0,1 4,4M4,6V18H11V6H4M20,18V6H18.76C19,6.54 18.95,7.07 18.95,7.13C18.88,7.8 18.41,8.5 18.24,8.75L15.91,11.3L19.23,11.28L19.24,12.5L14.04,12.47L14,11.47C14,11.47 17.05,8.24 17.2,7.95C17.34,7.67 17.91,6 16.5,6C15.27,6.05 15.41,7.3 15.41,7.3L13.87,7.31C13.87,7.31 13.88,6.65 14.25,6H13V18H15.58L15.57,17.14L16.54,17.13C16.54,17.13 17.45,16.97 17.46,16.08C17.5,15.08 16.65,15.08 16.5,15.08C16.37,15.08 15.43,15.13 15.43,15.95H13.91C13.91,15.95 13.95,13.89 16.5,13.89C19.1,13.89 18.96,15.91 18.96,15.91C18.96,15.91 19,17.16 17.85,17.63L18.37,18H20M8.92,16H7.42V10.2L5.62,10.76V9.53L8.76,8.41H8.92V16Z" /></svg>`;
+// https://materialdesignicons.com/icon/progress-close
+const dashedCross = y `<svg fill="currentColor" viewBox="0 0 24 24" height="20px" width="20px"><path d="M13 2.03V4.05C17.39 4.59 20.5 8.58 19.96 12.97C19.5 16.61 16.64 19.5 13 19.93V21.93C18.5 21.38 22.5 16.5 21.95 11C21.5 6.25 17.73 2.5 13 2.03M11 2.06C9.05 2.25 7.19 3 5.67 4.26L7.1 5.74C8.22 4.84 9.57 4.26 11 4.06V2.06M4.26 5.67C3 7.19 2.25 9.04 2.05 11H4.05C4.24 9.58 4.8 8.23 5.69 7.1L4.26 5.67M2.06 13C2.26 14.96 3.03 16.81 4.27 18.33L5.69 16.9C4.81 15.77 4.24 14.42 4.06 13H2.06M7.1 18.37L5.67 19.74C7.18 21 9.04 21.79 11 22V20C9.58 19.82 8.23 19.25 7.1 18.37M14.59 8L12 10.59L9.41 8L8 9.41L10.59 12L8 14.59L9.41 16L12 13.41L14.59 16L16 14.59L13.41 12L16 9.41L14.59 8Z" /></svg>`;
+const kebab = y `<svg fill="currentColor" xmlns="http://www.w3.org/2000/svg" height="20" width="20"><path d="M5.688 11.083q-.459 0-.771-.323-.313-.322-.313-.76 0-.458.323-.771.323-.312.761-.312.458 0 .77.323.313.322.313.76 0 .458-.313.771-.312.312-.77.312Zm4.312 0q-.458 0-.771-.323-.312-.322-.312-.76 0-.458.323-.771.322-.312.76-.312.458 0 .771.323.312.322.312.76 0 .458-.323.771-.322.312-.76.312Zm4.312 0q-.458 0-.77-.323-.313-.322-.313-.76 0-.458.313-.771.312-.312.77-.312.459 0 .771.323.313.322.313.76 0 .458-.323.771-.323.312-.761.312Z"/></svg>`;
+const expandMore = y `<svg fill="currentColor" xmlns="http://www.w3.org/2000/svg" height="20" width="20"><path d="m10 12.792-4.708-4.73.77-.77L10 11.229l3.938-3.937.77.77Z"/></svg>`;
+const expandLess = y `<svg fill="currentColor" xmlns="http://www.w3.org/2000/svg" height="20" width="20"><path d="m6.062 12.729-.77-.791L10 7.229l4.708 4.709-.77.791L10 8.792Z"/></svg>`;
+const placeItem = y `<svg fill="currentColor" xmlns="http://www.w3.org/2000/svg" height="20" width="20"><path d="M4.5 17.083q-.667 0-1.125-.458-.458-.458-.458-1.125V7.833q0-.666.458-1.125.458-.458 1.125-.458h2.896v1.333H4.5q-.083 0-.167.084-.083.083-.083.166V15.5q0 .083.083.167.084.083.167.083h11q.083 0 .167-.083.083-.084.083-.167V7.833q0-.083-.083-.166-.084-.084-.167-.084h-2.896V6.25H15.5q.667 0 1.125.458.458.459.458 1.125V15.5q0 .667-.458 1.125-.458.458-1.125.458Zm5.5-4.041L6.938 9.979l.937-.937L9.333 10.5V.625h1.334V10.5l1.458-1.458.937.937Z"/></svg>`;
+const error = y `<svg fill="currentColor" xmlns="http://www.w3.org/2000/svg" height="20" width="20"><path d="M10 13.771q.25 0 .417-.167.166-.166.166-.416 0-.25-.166-.417-.167-.167-.417-.167-.25 0-.417.167-.166.167-.166.417 0 .25.166.416.167.167.417.167Zm-.542-2.709h1.084v-5H9.458ZM10 17.583q-1.562 0-2.948-.593-1.385-.594-2.417-1.625-1.031-1.032-1.625-2.417-.593-1.386-.593-2.948 0-1.583.593-2.958.594-1.375 1.625-2.407Q5.667 3.604 7.052 3.01 8.438 2.417 10 2.417q1.583 0 2.958.593 1.375.594 2.407 1.625 1.031 1.032 1.625 2.417.593 1.386.593 2.948t-.593 2.948q-.594 1.385-1.625 2.417-1.032 1.031-2.417 1.625-1.386.593-2.948.593Zm0-1.083q2.708 0 4.604-1.896T16.5 10q0-2.708-1.896-4.604T10 3.5q-2.708 0-4.604 1.896T3.5 10q0 2.708 1.896 4.604T10 16.5Zm0-6.5Z"/></svg>`;
+const ellipsis = y `<svg fill="currentColor" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 16 16" width="16" height="16"><path fill-rule="evenodd" d="M0 5.75C0 4.784.784 4 1.75 4h12.5c.966 0 1.75.784 1.75 1.75v4.5A1.75 1.75 0 0114.25 12H1.75A1.75 1.75 0 010 10.25v-4.5zM4 7a1 1 0 100 2 1 1 0 000-2zm3 1a1 1 0 112 0 1 1 0 01-2 0zm5-1a1 1 0 100 2 1 1 0 000-2z"></path></svg>`;
+
+var _a, _b;
+class FilterDialog extends (_b = SparqlingFormDialog) {
+    constructor() {
+        super();
+        this.deleteCallback = (filterId) => { };
+        // this.saveButton.label = "Save Filter"
+    }
+    render() {
+        this.title = `${this.modality} filter for ${this.variableName}`;
+        return $ `
+      <div class="gscape-panel">
+        <div class="top-bar">
+          <div id="widget-header" class="bold-text">
+            ${filter}
+            <span>${this.title}</span>
+          </div>
+
+          <gscape-button 
+            id="toggle-panel-button"
+            size="s" 
+            type="subtle"
+            @click=${this.hide}
+          > 
+            <span slot="icon">${ui.icons.close}</span>
+          </gscape-button>
+        </div>
+
+        <div class="dialog-body">
+          ${getFormTemplate(this, Object.values(FilterExpressionOperatorEnum))}
+          
+          <div class="bottom-buttons">
+            ${this.modality === Modality.EDIT
+            ? $ `
+                <gscape-button type="subtle" title="Delete" style="margin-right: auto" id="delete-button" @click=${this.handleDeleteClick}>
+                  <span slot="icon">${rubbishBin}</span>
+                </gscape-button>
+              `
+            : null}
+            <gscape-button label="Cancel" @click=${this.hide}></gscape-button>
+            <gscape-button type="primary" @click=${this.handleSubmit} label="Save Filter"></gscape-button>
+          </div>
+        </div>
+      </div>
+    `;
+    }
+    onSubmit(callback) {
+        this.submitCallback = callback;
+    }
+    onDelete(callback) {
+        this.deleteCallback = callback;
+    }
+    handleDeleteClick() {
+        this.deleteCallback(this._id);
+    }
+}
+_a = FilterDialog;
+FilterDialog.styles = Reflect.get(_b, "styles", _a);
+customElements.define('sparqling-filter-dialog', FilterDialog);
+
+function getElemWithOperatorStyle() {
+    return r$2 `
+    .elem-with-operator {
+      display: flex;
+      gap: 10px;
+      align-items:center;
+      justify-content: center;
+      padding-left: 8px;
+    }
+
+    .parameters {
+      display: flex;
+      flex-direction: column;
+      gap: 2px;
+      flex-grow:2;
+      min-width: 0;
+      text-overflow: ellipsis;
+      overflow: hidden;
+    }
+
+    .parameter {
+      background: var(--gscape-color-neutral-subtle);
+      padding: 4px;
+      padding-bottom: 4px;
+      padding-bottom: 1px;
+      border-radius: var(--gscape-border-radius);
+      border: solid 1px var(--gscape-color-border-subtle);
+    }
+  `;
+}
+
+function getTrayButtonTemplate(title, icon, alternateIcon, id, clickHandler = (e) => { }) {
+    return $ `
+    <gscape-button
+      id=${id}
+      size="s"
+      type="subtle"
+      title=${title}
+      @click=${clickHandler}
+    >
+      <span slot="icon">${icon}</span>
+      ${alternateIcon
+        ? $ `<span slot="alt-icon">${alternateIcon}</span>`
+        : null}
+    </gscape-button>
+  `;
+}
+
+function getElemWithOperatorList(list, editElemCallback, deleteElemCallback) {
+    return $ `
+    ${list === null || list === void 0 ? void 0 : list.map((elemWithOperator) => {
+        var _a, _b;
+        const elem = elemWithOperator.value || elemWithOperator;
+        const operator = ((_a = elem === null || elem === void 0 ? void 0 : elem.expression) === null || _a === void 0 ? void 0 : _a.operator) || elem.name || elem.aggregateFunction;
+        if (!operator)
+            return null;
+        const parameters = ((_b = elem.expression) === null || _b === void 0 ? void 0 : _b.parameters) || elem.parameters;
+        const operatorFullName = Object.keys(FilterExpressionOperatorEnum).find(k => { var _a; return FilterExpressionOperatorEnum[k] === ((_a = elem.expression) === null || _a === void 0 ? void 0 : _a.operator); })
+            || Object.keys(FunctionNameEnum).find(k => FunctionNameEnum[k] === elem.name)
+            || Object.keys(GroupByElementAggregateFunctionEnum).find(k => GroupByElementAggregateFunctionEnum[k] === elem.aggregateFunction);
+        // const editButton = new UI.GscapeButton(edit, 'Edit Filter')
+        // const deleteButton = new UI.GscapeButton(rubbishBin, 'Delete Filter')
+        // if (editElemCallback) {
+        //   editButton.onClick = () => editElemCallback(elemWithOperator.id)
+        // }
+        // if (deleteElemCallback) {
+        //   deleteButton.onClick = () => deleteElemCallback(elemWithOperator.id)
+        //   deleteButton.classList.add('danger')
+        // }
+        return $ `
+        <div class="elem-with-operator">
+          <div class="chip" title="${operatorFullName}">${operator}</div>
+
+          ${parameters
+            ? $ `
+              <div class="parameters">
+                ${parameters === null || parameters === void 0 ? void 0 : parameters.map((param, index) => {
+                if (index === 0)
+                    return null;
+                let value = param.value;
+                if (param.constantType === VarOrConstantConstantTypeEnum.DateTime) {
+                    value = (value === null || value === void 0 ? void 0 : value.split('T')[0]) || value; // Take only date from ISO format 2022-01-01T00:00:....
+                }
+                return $ `
+                    <div class="parameter ellipsed">
+                      ${value}
+                    </div>
+                  `;
+            })}
+              </div>
+            `
+            : null}
+
+          <div>
+            ${editElemCallback
+            ? getTrayButtonTemplate('Edit', edit, undefined, `edit-${elemWithOperator.id}`, () => editElemCallback(elemWithOperator.id))
+            : null}
+            ${deleteElemCallback
+            ? getTrayButtonTemplate('Delete', rubbishBin, undefined, `delete-${elemWithOperator.id}`, () => deleteElemCallback(elemWithOperator.id))
+            : null}
+          </div>
+        </div>
+      `;
+    })}
+  `;
+}
+
+class FilterListDialog extends ui.BaseMixin(s) {
+    constructor() {
+        super(...arguments);
+        this.filterList = [];
+        this.title = ' ';
+        this.editFilterCallback = () => { };
+        this.deleteFilterCallback = () => { };
+    }
+    static get properties() {
+        const props = {
+            filterList: { attribute: false },
+            variable: { attribute: false },
+        };
+        return Object.assign(props, super.properties);
+    }
+    static get styles() {
+        return [
+            ui.baseStyle,
+            sparqlingWidgetStyle,
+            getElemWithOperatorStyle(),
+            r$2 `
+        :host {
+          position: absolute;
+          top: 30%;
+          left: 50%;
+          transform: translate(-50%, 0)
+        }
+
+        .dialog-body {
+          display:flex;
+          flex-direction: column;
+          gap: 20px;
+          padding: 10px 5px;
+        }
+
+        gscape-button {
+          position: initial;
+        }
+
+        .danger:hover {
+          color: var(--theme-gscape-error);
+        }
+      `,
+        ];
+    }
+    render() {
+        this.title = `Defined Filters for ${this.variable}`;
+        return $ `
+      <div class="gscape-panel">
+        <div class="top-bar">
+          <div id="widget-header" class="bold-text">
+            ${filter}
+            <span>${this.title}</span>
+          </div>
+
+          <gscape-button 
+            id="toggle-panel-button"
+            size="s" 
+            type="subtle"
+            @click=${this.hide}
+          > 
+            <span slot="icon">${ui.icons.close}</span>
+          </gscape-button>
+        </div>
+
+        <div class="dialog-body">
+        ${this.filterList
+            ? getElemWithOperatorList(this.filterList, this.editFilterCallback, this.deleteFilterCallback)
+            : null}
+        </div>
+      </div>
+    `;
+    }
+    firstUpdated(_changedProperties) {
+        super.firstUpdated(_changedProperties);
+        this.hide();
+    }
+    onEdit(callback) {
+        this.editFilterCallback = callback;
+    }
+    onDelete(callback) {
+        this.deleteFilterCallback = callback;
+    }
+}
+customElements.define('sparqling-filter-list', FilterListDialog);
+
+class HighlightsList extends ui.BaseMixin(ui.DropPanelMixin(s)) {
+    constructor() {
+        super();
+        this.title = 'Suggestions';
+        this.searchEntityComponent = new ui.GscapeEntitySearch();
+        this._onSuggestionLocalization = (element) => { };
+        this._onSuggestionAddToQuery = (entityIri, entityType, relatedClassIri) => { };
+        this.togglePanel = () => {
+            super.togglePanel();
+            this.requestUpdate();
+        };
+        this.searchEntityComponent.onSearch(e => {
+            var _a, _b, _c, _d;
+            const inputElement = e.target;
+            if (e.key === 'Escape') {
+                inputElement.value = '';
+                inputElement.blur();
+                this.setHighlights();
+            }
+            else {
+                if (this.allHighlights && this.highlights && ((_a = inputElement.value) === null || _a === void 0 ? void 0 : _a.length) > 2) {
+                    const isAmatch = (value1, value2) => value1.toLowerCase().includes(value2.toLowerCase());
+                    this.highlights.classes = (_b = this.highlights.classes) === null || _b === void 0 ? void 0 : _b.filter(classIri => isAmatch(classIri, inputElement.value));
+                    this.highlights.dataProperties = (_c = this.highlights.dataProperties) === null || _c === void 0 ? void 0 : _c.filter(dataPropertyIri => isAmatch(dataPropertyIri, inputElement.value));
+                    this.highlights.objectProperties = (_d = this.highlights.objectProperties) === null || _d === void 0 ? void 0 : _d.filter(branch => branch.objectPropertyIRI ? isAmatch(branch.objectPropertyIRI, inputElement.value) : false);
+                    this.requestUpdate();
+                }
+                else {
+                    this.setHighlights();
+                }
+            }
+        });
+        this.searchEntityComponent.onEntityFilterToggle(() => this.setHighlights());
+    }
+    render() {
+        return $ `
+      ${this.isPanelClosed()
+            ? $ `
+          <div>
+            <gscape-button 
+              id="toggle-panel-button"
+              @click=${this.togglePanel}
+              label=${this.title}
+            > 
+              <span slot="icon">${lightbulb}</span>
+              <span slot="trailing-icon">${ui.icons.plus}</span>
+            </gscape-button>
+          </div>
+        `
+            : $ `
+          <div class="gscape-panel" id="drop-panel">
+            <div class="top-bar">
+              <div id="widget-header" class="bold-text">
+                ${lightbulb}
+                <span>${this.title}</span>
+              </div>
+
+              <gscape-button 
+                id="toggle-panel-button"
+                size="s" 
+                type="subtle"
+                @click=${this.togglePanel}
+              > 
+                <span slot="icon">${ui.icons.minus}</span>
+              </gscape-button>
+            </div>
+            ${this.searchEntityComponent}
+            <div class="list">
+              ${this.highlights
+                ? $ `
+                  ${this.dataProperties.map((dataPropertyIri) => this.getEntitySuggestionTemplate(dataPropertyIri, EntityTypeEnum.DataProperty))}
+                  ${this.objectProperties.map(objectPropertyHighlight => this.getObjectPropertySuggestionTemplate(objectPropertyHighlight))}
+                  ${this.classes.map((classIri) => this.getEntitySuggestionTemplate(classIri, EntityTypeEnum.Class))}
+                `
+                : $ `
+                  <div class="blank-slate">
+                    ${ui.icons.searchOff}
+                    <div class="header">No suggestions available</div>
+                    <div class="description">Add elements to the query and we will provide you next steps suggestions</div>
+                  </div>
+                `}
+              
+            </div>
+          </div>
+        `}
+    `;
+    }
+    getObjectPropertySuggestionTemplate(objectPropertyHighlight) {
+        var _a;
+        return $ `
+      <details class="ellipsed entity-list-item" iri=${objectPropertyHighlight.objectPropertyIRI} title=${objectPropertyHighlight.objectPropertyIRI}>
+        <summary class="actionable">
+          <span class="entity-icon">${ui.icons.objectPropertyIcon}</span>
+          <span @click=${this.handleEntityNameClick} class="entity-name">
+            ${objectPropertyHighlight.objectPropertyIRI}
+          </span>
+        </summary>
+
+        <div class="summary-body">
+          ${(_a = objectPropertyHighlight.relatedClasses) === null || _a === void 0 ? void 0 : _a.map((relatedClass) => this.getEntitySuggestionTemplate(relatedClass, EntityTypeEnum.Class, objectPropertyHighlight.objectPropertyIRI))}
+        </div>
+      </details>
+    `;
+    }
+    getEntitySuggestionTemplate(entityIri, entityType, objectPropertyIri) {
+        let entityIcon;
+        switch (entityType) {
+            case EntityTypeEnum.Class:
+                entityIcon = ui.icons.classIcon;
+                break;
+            case EntityTypeEnum.DataProperty:
+                entityIcon = ui.icons.dataPropertyIcon;
+                break;
+            case EntityTypeEnum.ObjectProperty:
+            case EntityTypeEnum.InverseObjectProperty:
+                entityIcon = ui.icons.objectPropertyIcon;
+                break;
+        }
+        return $ `
+      <div iri=${entityIri} entity-type="${entityType}" class="ellipsed entity-list-item">
+        <span class="entity-icon">${entityIcon}</span>
+        <span class="entity-name actionable" @click=${this.handleEntityNameClick}>${entityIri}</span>
+        <span class="actions">
+          ${getTrayButtonTemplate('Add to query', placeItem, undefined, 'add-to-query-action', (e) => {
+            this.handleAddToQueryClick(e, objectPropertyIri);
+        })}
+        </span>
+      </div>
+    `;
+    }
+    firstUpdated(_changedProperties) {
+        super.firstUpdated(_changedProperties);
+        this.closePanel();
+        this.requestUpdate();
+        this.hide();
+    }
+    handleEntityNameClick(e) {
+        var _a;
+        e.preventDefault();
+        const entityIri = (_a = e.target.parentElement) === null || _a === void 0 ? void 0 : _a.getAttribute('iri');
+        if (entityIri)
+            this._onSuggestionLocalization(entityIri);
+    }
+    handleAddToQueryClick(e, objectPropertyIri) {
+        var _a, _b, _c, _d;
+        e.preventDefault();
+        const entityIri = (_b = (_a = e.currentTarget.parentElement) === null || _a === void 0 ? void 0 : _a.parentElement) === null || _b === void 0 ? void 0 : _b.getAttribute('iri');
+        const entityType = (_d = (_c = e.currentTarget.parentElement) === null || _c === void 0 ? void 0 : _c.parentElement) === null || _d === void 0 ? void 0 : _d.getAttribute('entity-type');
+        if (entityIri && entityType) {
+            if (objectPropertyIri) { // if it's from object property, then the entityIri is the relatedClass iri
+                this._onSuggestionAddToQuery(objectPropertyIri, EntityTypeEnum.ObjectProperty, entityIri);
+            }
+            else {
+                this._onSuggestionAddToQuery(entityIri, entityType);
+            }
+        }
+    }
+    onSuggestionLocalization(callback) {
+        this._onSuggestionLocalization = callback;
+    }
+    onSuggestionAddToQuery(callback) {
+        this._onSuggestionAddToQuery = callback;
+    }
+    get objectProperties() {
+        var _a, _b;
+        return ((_b = (_a = this.highlights) === null || _a === void 0 ? void 0 : _a.objectProperties) === null || _b === void 0 ? void 0 : _b.sort((a, b) => {
+            if (a.objectPropertyIRI && b.objectPropertyIRI)
+                return a.objectPropertyIRI.localeCompare(b.objectPropertyIRI);
+            else
+                return 0;
+        })) || [];
+    }
+    get classes() {
+        var _a, _b;
+        return ((_b = (_a = this.highlights) === null || _a === void 0 ? void 0 : _a.classes) === null || _b === void 0 ? void 0 : _b.sort((a, b) => a.localeCompare(b))) || [];
+    }
+    get dataProperties() {
+        var _a, _b;
+        return ((_b = (_a = this.highlights) === null || _a === void 0 ? void 0 : _a.dataProperties) === null || _b === void 0 ? void 0 : _b.sort((a, b) => a.localeCompare(b))) || [];
+    }
+    set allHighlights(highlights) {
+        this._allHighlights = highlights;
+        this.setHighlights();
+    }
+    get allHighlights() {
+        return this._allHighlights;
+    }
+    setHighlights() {
+        if (this.allHighlights)
+            this.highlights = JSON.parse(JSON.stringify(this.allHighlights));
+        else
+            this.highlights = this.allHighlights;
+        if (this.highlights) {
+            let count = 0;
+            if (this.searchEntityComponent[GrapholTypesEnum.CLASS] !== true) {
+                this.highlights.classes = [];
+                count += 1;
+            }
+            if (this.searchEntityComponent[GrapholTypesEnum.OBJECT_PROPERTY] !== true) {
+                this.highlights.objectProperties = [];
+                count += 1;
+            }
+            if (this.searchEntityComponent[GrapholTypesEnum.DATA_PROPERTY] !== true) {
+                this.highlights.dataProperties = [];
+                count += 1;
+            }
+            // if count = 3 then highlights empty, this will show the blank-slate
+            if (count === 3) {
+                this.highlights = undefined;
+            }
+        }
+    }
+    blur() {
+        var _a;
+        // do not call super.blur() cause it will collapse highlights suggestions body.
+        // This because each click on cytoscape background calls document.activeElement.blur(), 
+        // so if any input field has focus, query-head will be the activeElement and will be
+        // blurred at each tap. this way we only blur the input elements.
+        (_a = this.shadowRoot) === null || _a === void 0 ? void 0 : _a.querySelectorAll('input').forEach(inputElement => inputElement.blur());
+    }
+}
+HighlightsList.properties = {
+    class: { type: String, attribute: false },
+    highlights: { type: Object, attribute: false }
+};
+HighlightsList.styles = [
+    ui.baseStyle,
+    ui.entityListItemStyle,
+    sparqlingWidgetStyle,
+    r$2 `
+      :host {
+        position:initial;
+        pointer-events:initial;
+        margin-top: 60px;
+        max-height: 55%;
+      }
+
+      .gscape-panel {
+        max-height: unset;
+        overflow-y: clip;
+      }
+
+      .list {
+        overflow: hidden auto;
+        scrollbar-width: inherit;
+        max-height: 100%;
+        padding: 0 8px 8px 8px;
+        position: relative;
+        box-sizing: border-box;
+      }
+
+      details.entity-list-item > .summary-body {
+        padding: 4px 8px;
+      }
+
+      details {
+        white-space: nowrap;
+      }
+
+      div.entity-list-item {
+        display: flex;
+        align-items: center;
+        gap: 2px;
+        padding: 0 8px;
+      }
+
+      div.entity-list-item > .entity-name {
+        flex-grow: 2;
+      }
+
+      div.entity-list-item > .entity-icon {
+        line-height: 0;
+      }
+
+      div.entity-list-item > .actions {
+        display: none;
+      }
+
+      div.entity-list-item:hover > .actions {
+        display: unset;
+      }
+
+      .blank-slate {
+        margin: 0 auto;
+      }
+
+      .ellipsed .actions, .ellipsed .entity-icon {
+        overflow-x: unset
+      }
+    `
+];
+customElements.define('sparqling-highlights-list', HighlightsList);
+
+class RelatedClassSelection extends ui.BaseMixin(s) {
+    constructor() {
+        super(...arguments);
+        this.reverseArrow = false;
+        this.onSelection = (listItem) => { };
+    }
+    render() {
+        var _a;
+        return $ `
+      <div class="gscape-panel">
+        <div class="header">Add Object Property</div>
+        <div class="gscape-panel-body">
+          <div id="left-panel">
+            <span class="text class">${this.class}</span>
+            <span class="arrow${this.reverse}">
+              <span class="arrow-tail"></span>
+              <span class="text obj-property">${this.objProperty}</span>
+              <span class="arrow-body"></span>
+              <span class="arrow-head"></span>
+            </span>
+          </div>
+          <div id="right-panel" class="list">
+            ${(_a = this.list) === null || _a === void 0 ? void 0 : _a.map((classItem, i) => {
+            return $ `<span class="actionable" index="${i}" @click=${this.handleSelection}>${classItem}</span>`;
+        })}
+          </div>
+        </div>
+      </div>
+    `;
+    }
+    handleSelection(e) {
+        e.preventDefault();
+        if (this.list) {
+            const index = e.currentTarget.getAttribute('index');
+            if (index !== null) {
+                let listItem = this.list[index];
+                this.onSelection(listItem);
+            }
+        }
+    }
+    showInPosition(position) {
+        this.show();
+        if (position) {
+            this.style.top = position.y + "px";
+            this.style.left = position.x + "px";
+        }
+    }
+    get reverse() {
+        return this.reverseArrow ? '-reverse' : null;
+    }
+    firstUpdated(_changedProperties) {
+        super.firstUpdated(_changedProperties);
+        this.hide();
+    }
+}
+RelatedClassSelection.properties = {
+    class: { attribute: false },
+    objProperty: { attribute: false },
+};
+RelatedClassSelection.styles = [
+    ui.baseStyle,
+    r$2 `
+      :host {
+        position: absolute;
+        min-width: 100px;
+        transform: translate(-100%, -50%);
+      }
+
+      .gscape-panel-body {
+        display: flex;
+        padding: 0px 0px 8px 8px;
+      }
+
+      .gscape-panel {
+        max-width: unset;
+        max-height: unset;
+        padding:0
+      }
+
+      .header {
+        text-align:center;
+      }
+
+      #left-panel {
+        display:flex;
+        align-items:center;
+      }
+
+      .class {
+        padding: 10px 20px;
+        border-radius: 6px;
+        background-color: var(--gscape-color-class);
+        border: solid 2px var(--gscape-color-class-contrast);
+      }
+
+      .arrow {
+        margin: 10px;
+        display: flex;
+        align-items: center;
+      }
+
+      .arrow-reverse {
+        margin: 10px;
+        display: flex;
+        align-items: center;
+        flex-direction: row-reverse;
+      }
+
+      .arrow-tail, .arrow-body {
+        height:8px;
+        background-color: var(--gscape-color-object-property-contrast);
+      }
+
+      .arrow-tail {
+        width: 20px;
+        border-top-left-radius: 3px;
+        border-bottom-left-radius: 3px;
+        border-top-right-radius: 0px;
+        border-bottom-right-radius:0px;
+      }
+
+      .arrow-reverse > .arrow-tail {
+        border-top-right-radius: 3px;
+        border-bottom-right-radius: 3px;
+        border-top-left-radius: 0px;
+        border-bottom-left-radius:0px;
+      }
+
+      .arrow-body {
+        width: 15px;
+      }
+
+      .arrow-head {
+        width: 0; 
+          width: 0; 
+        width: 0; 
+          width: 0; 
+        width: 0; 
+        height: 0; 
+          height: 0; 
+        height: 0; 
+          height: 0; 
+        height: 0; 
+        border-top: 15px solid transparent;
+        border-bottom: 15px solid transparent;
+        background-color: initial;
+      }
+
+      .arrow > .arrow-head {
+        border-left: 15px solid var(--gscape-color-object-property-contrast);
+        border-right: 0;
+      }
+
+      .arrow-reverse > .arrow-head {
+        border-right: 15px solid var(--gscape-color-object-property-contrast);
+        border-left: 0;
+      }
+
+      .obj-property {
+        padding: 5px;
+      }
+
+      .list {
+        display: flex;
+        flex-direction: column;
+        max-height: 200px;
+        overflow: hidden auto;
+        padding-right: 8px;
+      }
+
+      .gscape-panel-title {
+        padding-top:10px;
+      }
+    `
+];
+customElements.define('sparqling-related-classes', RelatedClassSelection);
+
+let lang = 'en';
+const emptyQueryMsg = (l = lang) => {
+    const text = { en: 'Empty Query' };
+    return text[l];
+};
+const emptyHeadMsg = (l = lang) => {
+    const text = {
+        en: 'Your query will output everything'
+    };
+    return text[l];
+};
+const emptyHeadTipMsg = (l = lang) => {
+    const text = {
+        en: 'The query head is the output of your query\n\
+and it seems like you have nothing in it yet.\n\n\
+We don\'t think an empty query is what you want\n\
+so your result now will be everything. \n\n\
+You can choose what to see in output from the\n\
+query graph, data properties \n\
+will automatically go in the query head.'
+    };
+    return text[l];
+};
+const tipWhy = (l = lang) => {
+    const text = {
+        en: 'Why?',
+        it: 'Perché?'
+    };
+    return text[l];
+};
+const emptyGraphMsg = (l = lang) => {
+    const text = {
+        en: 'Double click on a class to add it to the query'
+    };
+    return text[l];
+};
+const tipWhatIsQueryGraph = (l = lang) => {
+    const text = {
+        en: 'What is a Query Graph?',
+        it: 'Cos\'è il Query Graph?'
+    };
+    return text[l];
+};
+const emptyGraphTipMsg = (l = lang) => {
+    const text = {
+        en: 'The query graph is the set of conditions\n\
+you specify to be satisfied by results.\n\n\
+If you add a class (e.g. Person), only\n\
+instances belonging to that class will\n\
+be included in the results (e.g. only persons). \n\n\
+If you then add a object property \n\
+involving that class (e.g. hasCar), results will now\n\
+include only those participating in such relationship\n\
+(e.g. only persons having a Car).'
+    };
+    return text[l];
+};
+const commandAddHeadText = (l = lang) => {
+    const text = {
+        en: 'Add to Query Head',
+        it: 'Aggiungi in Query Head'
+    };
+    return text[l];
+};
+const commandDeleteText = (l = lang) => {
+    const text = {
+        en: 'Delete',
+        it: 'Elimina'
+    };
+    return text[l];
+};
+const commandAddFilterText = (l = lang) => {
+    const text = {
+        en: 'Add Filter',
+        it: 'Aggiungi Filtro'
+    };
+    return text[l];
+};
+const commandMakeOptionalText = (l = lang) => {
+    const text = {
+        en: 'Make Optional',
+        it: 'Rendi Opzionale'
+    };
+    return text[l];
+};
+const commandRemoveOptionalText = (l = lang) => {
+    const text = {
+        en: 'Remove Optional',
+        it: 'Rendi non Opzionale'
+    };
+    return text[l];
+};
+const countStarMsg = (l = lang) => {
+    const text = {
+        en: 'Count the number of results',
+        it: 'Conta il numero di risultati'
+    };
+    return text[l];
+};
+
+class SparqlDialog extends ui.BaseMixin(s) {
+    constructor() {
+        super(...arguments);
+        this.text = emptyQueryMsg();
+        //copyButton = new UI.GscapeButton(copyContent, "Copy Query")
+        this.title = 'SPARQL';
+        this.arePrefixesVisible = false;
+    }
+    render() {
+        return $ `
+      <div class="gscape-panel">
+        <div class="top-bar">
+          <div id="widget-header" class="bold-text">
+            ${code}
+            <span>${this.title}</span>
+          </div>
+
+          <div id="buttons-tray">
+            ${getTrayButtonTemplate('Copy Query', copyContent, undefined, 'copyt-query-code-btn', this.copyQuery)}
+          </div>
+
+          <gscape-button 
+            id="toggle-panel-button"
+            size="s" 
+            type="subtle"
+            @click=${this.hide}
+            title="Close"
+          > 
+            <span slot="icon">${ui.icons.close}</span>
+          </gscape-button>
+        </div>
+
+        <div class="sparql-code-wrapper" title="Click to copy query" @click=${this.copyQuery}>
+          ${this.text === emptyQueryMsg()
+            ? $ `<div class="sparql-code">${this.text.trim()}</div>`
+            : $ `
+              ${this.arePrefixesVisible
+                ? $ `
+                  <div class="sparql-code">${this.queryPrefixes}</div>
+                `
+                : null}
+              <gscape-button type="subtle" title="Show Prefixes" size="s" @click="${this.togglePrefixes}">
+                <span slot="icon">${ellipsis}</span>
+              </gscape-button>
+              <div class="sparql-code">${this.queryText}</div>
+            `}
+        </div>
+      </div>
+    `;
+    }
+    togglePrefixes() {
+        this.arePrefixesVisible = !this.arePrefixesVisible;
+    }
+    copyQuery() {
+        navigator.clipboard.writeText(this.text).then(_ => {
+            console.log('query copied successfully');
+        });
+    }
+    firstUpdated(_changedProperties) {
+        super.firstUpdated(_changedProperties);
+        this.hide();
+    }
+    get queryPrefixes() {
+        return this.text.substring(0, this.text.search('SELECT')).trim();
+    }
+    get queryText() {
+        return this.text.substring(this.text.search('SELECT')).trim();
+    }
+}
+SparqlDialog.styles = [
+    ui.baseStyle,
+    sparqlingWidgetStyle,
+    r$2 `
+      :host {
+        position: absolute;
+        top: 100px;
+        left: 50%;
+        transform: translate(-50%, 0);
+        min-width: 200px;
+        max-width: 800px;
+      }
+
+      .sparql-code-wrapper {
+        display: flex;
+        flex-direction: column;
+        gap: 8px;
+        cursor: copy;
+        font-family: monospace;
+        overflow: auto;
+        max-height: 300px;
+        padding: 10px 20px;
+        scrollbar-width: inherit;
+      }
+
+      .sparql-code {
+        white-space: pre;
+      }
+    `
+];
+SparqlDialog.properties = {
+    text: { type: String, attribute: false },
+    arePrefixesVisible: { type: Boolean, state: true },
+};
+customElements.define('sparqling-sparql-dialog', SparqlDialog);
+
+var sparqlingIcon = y `
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<svg
+   version="1.1"
+   viewBox="0 0 20 20"
+   xml:space="preserve"
+   fill="currentColor"
+   style="width: 20px; height:20px; padding: 2px; box-sizing: border-box;"
+   xmlns="http://www.w3.org/2000/svg"
+   xmlns:svg="http://www.w3.org/2000/svg">
+<g
+   transform="translate(-268.25923,-224.085)"><path
+     style="display:inline;stroke-width:0.04"
+     class="st0"
+     d="m 278.25923,224.085 c -2.672,0 -5.18396,1.03997 -7.07195,2.92797 -1.888,1.888 -2.92805,4.40003 -2.92805,7.07203 0,2.672 1.04005,5.18396 2.92805,7.07195 1.88799,1.888 4.39995,2.92805 7.07195,2.92805 2.672,0 5.18403,-1.04005 7.07203,-2.92805 1.888,-1.88799 2.92797,-4.39995 2.92797,-7.07195 0,-2.672 -1.03997,-5.18403 -2.92797,-7.07203 -1.888,-1.888 -4.40003,-2.92797 -7.07203,-2.92797 z m 10e-4,1.94516 1.55563,1.55562 -0.77781,0.77781 -5.72532,5.72532 1.69391,1.69382 5.72703,-5.7271 a 1.10011,1.10011 0 0 1 1.55563,0 l 3.2489,3.24882 a 1.10011,1.10011 0 0 1 0,1.55563 l -6.50187,6.50187 -0.77781,0.77782 -1.55563,-1.55563 0.77781,-0.77781 5.72407,-5.72406 -1.69321,-1.69321 -5.72711,5.72711 a 1.10011,1.10011 0 0 1 -1.55562,8e-5 l -3.24953,-3.24945 a 1.10011,1.10011 0 0 1 0,-1.55571 l 6.50312,-6.50312 z" /></g>
+
+</svg>
+`;
+
+class SparqlingStartRunButtons extends ui.BaseMixin(s) {
+    constructor() {
+        super();
+        this.isLoading = false;
+        this.canQueryRun = false;
+        this._onSparqlingStartCallback = () => { };
+        this._onSparqlingStopCallback = () => { };
+        this._onQueryRunCallback = () => { };
+        this.classList.add(ui.BOTTOM_RIGHT_WIDGET_CLASS.toString());
+    }
+    render() {
+        return $ `
+    ${this.canQueryRun
+            ? $ `
+          <gscape-button
+            @click="${this._onQueryRunCallback}"
+            type="subtle"
+            title="Send query to SPARQL endpoint"
+          >
+            <span slot="icon">${playOutlined}</span>
+          </gscape-button>
+          <div class="hr"></div>
+        `
+            : null}
+
+    ${this.isLoading
+            ? $ `<div class="lds-ring btn-m" title="Sparqling is loading"><div></div><div></div><div></div><div></div></div>`
+            : $ `
+        <gscape-button
+          @click="${this.handleStartButtonCLick}" 
+          type="subtle"
+          title="Start/Stop Sparqling"
+          ?active=${isSparqlingRunning()}
+        >
+          <span slot="icon">${sparqlingIcon}</span>
+        </gscape-button>
+      `}
+
+    `;
+    }
+    onSparqlingStart(callback) {
+        this._onSparqlingStartCallback = callback;
+    }
+    onSparqlingStop(callback) {
+        this._onSparqlingStopCallback = callback;
+    }
+    onQueryRun(callback) {
+        this._onQueryRunCallback = callback;
+    }
+    handleStartButtonCLick() {
+        isSparqlingRunning() ? this._onSparqlingStopCallback() : this._onSparqlingStartCallback();
+    }
+    startLoadingAnimation() {
+        this.isLoading = true;
+    }
+    stopLoadingAnimation() {
+        this.isLoading = false;
+    }
+    get startButton() {
+        var _a;
+        return (_a = this.shadowRoot) === null || _a === void 0 ? void 0 : _a.querySelector('');
+    }
+}
+SparqlingStartRunButtons.properties = {
+    canQueryRun: { type: Boolean, attribute: false },
+    isLoading: { type: Boolean, attribute: false },
+};
+SparqlingStartRunButtons.styles = [
+    ui.GscapeButtonStyle,
+    ui.baseStyle,
+    r$2 `
+      :host {
+        order: 8;
+      }
+
+      .lds-ring {
+        width: 20px;
+        height: 20px;
+      }
+
+      .lds-ring div {
+        box-sizing: border-box;
+        display: block;
+        position: absolute;
+        width: 16px;
+        height: 16px;
+        margin: 2px;
+        border: 2px solid var(--gscape-color-accent);
+        border-radius: 50%;
+        animation: lds-ring 1.2s cubic-bezier(0.5, 0, 0.5, 1) infinite;
+        border-color: var(--gscape-color-accent) transparent transparent transparent;
+      }
+      .lds-ring div:nth-child(1) {
+        animation-delay: -0.45s;
+      }
+      .lds-ring div:nth-child(2) {
+        animation-delay: -0.3s;
+      }
+      .lds-ring div:nth-child(3) {
+        animation-delay: -0.15s;
+      }
+      @keyframes lds-ring {
+        0% {
+          transform: rotate(0deg);
+        }
+        100% {
+          transform: rotate(360deg);
+        }
+      }
+    `,
+];
+customElements.define('sparqling-start-run-buttons', SparqlingStartRunButtons);
+
+class FunctionDialog extends SparqlingFormDialog {
+    constructor() {
+        super();
+    }
+    render() {
+        this.title = `${this.modality} function for ${this.variableName}`;
+        return $ `
+      <div class="gscape-panel">
+        <div class="top-bar">
+          <div id="widget-header" class="bold-text">
+            ${functionIcon}
+            <span>${this.title}</span>
+          </div>
+
+          <gscape-button 
+            id="toggle-panel-button"
+            size="s" 
+            type="subtle"
+            @click=${this.hide}
+          > 
+            <span slot="icon">${ui.icons.close}</span>
+          </gscape-button>
+        </div>
+
+        <div class="dialog-body">
+          ${getFormTemplate(this, this.operators)}
+          
+          <div class="bottom-buttons">
+            <gscape-button label="Cancel" @click=${this.hide}></gscape-button>
+            <gscape-button type="primary" @click=${this.handleSubmit} label="Save Function"></gscape-button>
+          </div>
+        </div>
+      </div>
+    `;
+    }
+    onSubmit(callback) {
+        this.submitCallback = callback;
+    }
+    setAsCorrect(customText) {
+        var _a, _b;
+        super.setAsCorrect(customText);
+        (_b = (_a = this.shadowRoot) === null || _a === void 0 ? void 0 : _a.querySelector('gscape-button[type = "primary"]')) === null || _b === void 0 ? void 0 : _b.remove();
+    }
+    get operators() {
+        switch (this.datatype) {
+            case VarOrConstantConstantTypeEnum.String:
+                return this.operatorsOnString;
+            case VarOrConstantConstantTypeEnum.Decimal:
+                return this.operatorsOnNumber;
+            case VarOrConstantConstantTypeEnum.DateTime:
+                return this.operatorsOnDate;
+            default:
+                return this.operatorsOnString;
+        }
+    }
+    get operatorsOnString() {
+        return [
+            FunctionNameEnum.Concat,
+            FunctionNameEnum.Contains,
+            FunctionNameEnum.Lcase,
+            FunctionNameEnum.Substr,
+            FunctionNameEnum.Ucase
+        ];
+    }
+    get operatorsOnNumber() {
+        return [
+            FunctionNameEnum.Add,
+            FunctionNameEnum.Subctract,
+            FunctionNameEnum.Multiply,
+            FunctionNameEnum.Divide,
+            FunctionNameEnum.Round,
+            FunctionNameEnum.Ceil,
+            FunctionNameEnum.Floor
+        ];
+    }
+    get operatorsOnDate() {
+        return [
+            FunctionNameEnum.Year,
+            FunctionNameEnum.Month,
+            FunctionNameEnum.Day,
+            FunctionNameEnum.Hours,
+            FunctionNameEnum.Minutes,
+            FunctionNameEnum.Seconds,
+        ];
+    }
+}
+customElements.define('sparqling-function-dialog', FunctionDialog);
+
+class AggregationDialog extends SparqlingFormDialog {
+    constructor() {
+        super(...arguments);
+        // private showHavingFormButton = new UI.GscapeButton(addFilter, "Add Having")
+        this.definingHaving = false;
+        this.distinct = false;
+        this.formTitle = 'Having';
+    }
+    static get properties() {
+        const props = super.properties;
+        const newProps = {
+            definingHaving: { type: Boolean, state: true },
+            distinct: { type: Boolean, state: true },
+        };
+        return Object.assign(props, newProps);
+    }
+    render() {
+        this.title = `${this.modality} aggregate function for ${this.variableName}`;
+        return $ `
+      <div class="gscape-panel">
+        <div class="top-bar">
+          <div id="widget-header" class="bold-text">
+            ${sigma}
+            <span>${this.title}</span>
+          </div>
+
+          <gscape-button 
+            id="toggle-panel-button"
+            size="s" 
+            type="subtle"
+            @click=${this.hide}
+          > 
+            <span slot="icon">${ui.icons.close}</span>
+          </gscape-button>
+        </div>
+
+        <div class="dialog-body">
+          <div style="text-align: center;">
+            <div id="select-aggregate-function">
+              ${getSelect(this.aggregateOperator || "Aggregate Function", Object.values(GroupByElementAggregateFunctionEnum))}
+            </div>
+            <div style="margin: 10px 0">
+              <label>
+                <input id="distinct-checkbox" type="checkbox" @click="${this.onDistinctChange}" ?checked=${this.distinct}>
+                Only distinct values
+              </label>
+            </div>
+          </div>
+          
+          ${!this.definingHaving
+            ? $ `
+                <gscape-button title="Add Having" label="Filter Groups - Having" @click=${this.handleHavingButtonClick}>
+                  <span slot="icon">${addFilter$1}</span>
+                </gscape-button>
+                <div id="message-tray"></div>
+              `
+            : getFormTemplate(this, Object.values(FilterExpressionOperatorEnum))}
+          
+          <div class="bottom-buttons">
+            <gscape-button label="Cancel" @click=${this.hide}></gscape-button>
+            <gscape-button type="primary" @click=${this.handleSubmit} label="Save Function"></gscape-button>
+          </div>
+        </div>
+      </div>
+    `;
+    }
+    handleHavingButtonClick() {
+        this.definingHaving = true;
+    }
+    handleSubmit() {
+        if (validateSelectElement(this.selectAggregateOperatorElem)) {
+            if (this.definingHaving)
+                super.handleSubmit(); // this evaluate validity of the having too
+            else
+                this.onValidSubmit();
+        }
+    }
+    onValidSubmit() {
+        if (this._id && this.aggregateOperator && this.parameters)
+            this.submitCallback(this._id, this.aggregateOperator, this.distinct, this.operator, this.parameters);
+    }
+    onSubmit(callback) {
+        this.submitCallback = callback;
+    }
+    setAsCorrect(customText) {
+        var _a, _b;
+        super.setAsCorrect(customText);
+        (_b = (_a = this.shadowRoot) === null || _a === void 0 ? void 0 : _a.querySelector('gscape-button[type = "primary"]')) === null || _b === void 0 ? void 0 : _b.remove();
+    }
+    firstUpdated(_changedProperties) {
+        super.firstUpdated(_changedProperties);
+        if (this.selectAggregateOperatorElem) {
+            this.selectAggregateOperatorElem.onchange = () => this.onAggregateOperatorChange(this.selectAggregateOperatorElem.value);
+        }
+    }
+    onAggregateOperatorChange(value) {
+        this.aggregateOperator = value;
+    }
+    onDistinctChange(e) {
+        this.distinct = e.target.checked;
+    }
+    get isAggregateOperatorValid() {
+        return this.aggregateOperator && Object.values(GroupByElementAggregateFunctionEnum).includes(this.aggregateOperator);
+    }
+    get selectAggregateOperatorElem() {
+        var _a;
+        return (_a = this.shadowRoot) === null || _a === void 0 ? void 0 : _a.querySelector('#select-aggregate-function > select');
+    }
+    get distinctCheckboxElem() {
+        var _a;
+        return (_a = this.shadowRoot) === null || _a === void 0 ? void 0 : _a.querySelector('#distinct-checkbox');
+    }
+    get datatype() {
+        return super.datatype;
+    }
+    set datatype(value) {
+        super.datatype = value;
+    }
+}
+customElements.define('sparqling-aggregation-dialog', AggregationDialog);
+
+class ErrorsDialog extends ui.BaseMixin(s) {
+    constructor() {
+        super(...arguments);
+        this.errorText = '';
+    }
+    render() {
+        return $ `
+      <div class="gscape-panel">
+        <div class="top-bar">
+          <div id="widget-header" class="bold-text">
+            ${error}
+            <span>Error</span>
+          </div>
+
+          <gscape-button 
+            id="toggle-panel-button"
+            size="s" 
+            type="subtle"
+            @click=${this.hide}
+          > 
+            <span slot="icon">${ui.icons.close}</span>
+          </gscape-button>
+        </div>
+
+        <div class="dialog-body">
+          ${this.errorText}
+        </div>
+      </div>
+    `;
+    }
+    firstUpdated(_changedProperties) {
+        super.firstUpdated(_changedProperties);
+        this.hide();
+    }
+}
+ErrorsDialog.properties = {
+    errorText: { attribute: false, type: String }
+};
+ErrorsDialog.styles = [
+    ui.baseStyle,
+    sparqlingWidgetStyle,
+    r$2 `
+      :host {
+        position: absolute;
+        top: 100px;
+        left: 50%;
+        transform: translate(-50%, 0)
+      }
+
+      .dialog-body {
+        display: flex;
+        flex-direction: column;
+        gap: 30px;
+        align-items: center;
+        min-width: 350px;
+        max-width: 450px;
+        padding: 16px 8px;
+        background: var(--gscape-color-danger-subtle);
+      }
+
+      .dialog-body, #widget-header {
+        color: var(--gscape-color-danger);
+      }
+    `
+];
+customElements.define('error-dialog', ErrorsDialog);
+
+function isResponseError(response) {
+    return !response || (response === null || response === void 0 ? void 0 : response.code) === 1 || (response === null || response === void 0 ? void 0 : response.type) === 'error';
+}
+function getErrorMessage(response) {
+    if (isResponseError(response))
+        return response.message;
+}
+function handlePromise(promise, showError = true) {
+    return new Promise(executor);
+    function executor(resolve) {
+        startLoading();
+        promise
+            .then(response => {
+            if (isResponseError(response.data)) {
+                throw new Error(getErrorMessage(response.data));
+            }
+            else {
+                resolve(response.data);
+            }
+        })
+            .catch(error => {
+            console.error(error);
+            if (showError) {
+                errorsDialog.errorText = `${error.name} : ${error.message}`;
+                errorsDialog.show();
+            }
+        })
+            .finally(() => stopLoading());
+    }
+}
+function startLoading() {
+    increaseLoadingProcesses();
+    startRunButtons.startLoadingAnimation();
+}
+function stopLoading() {
+    decreaseLoadingProcesses();
+    if (getNumberLoadingProcesses() === 0) {
+        startRunButtons.stopLoadingAnimation();
+    }
+}
+
+let gscape;
+var getGscape = () => gscape;
+function setGrapholscapeInstance(grapholscape) {
+    gscape = grapholscape;
+}
+function clearSelected() {
+    for (const diagram of gscape.ontology.diagrams) {
+        for (const [_, diagramRepresentation] of diagram.representations) {
+            diagramRepresentation.cy.elements().unselect();
+        }
+    }
+}
+function isIriSelected(iriToCheck) {
+    var _a, _b;
+    let sparqlingSelectedNode = (_b = (_a = gscape.renderer) === null || _a === void 0 ? void 0 : _a.cy) === null || _b === void 0 ? void 0 : _b.$('.sparqling-selected');
+    if (!sparqlingSelectedNode || (sparqlingSelectedNode === null || sparqlingSelectedNode === void 0 ? void 0 : sparqlingSelectedNode.empty()))
+        return false;
+    else {
+        return iriToCheck.equals(sparqlingSelectedNode.first().data().iri);
+    }
+}
+
+function getPrefixedIri (iriValue) {
+    const iri = new Iri(iriValue, getGscape().ontology.namespaces);
+    return iri.prefixed || iriValue;
+}
+
+let actualHighlights;
+const HIGHLIGHT_CLASS = 'highlighted';
+const FADED_ClASS = 'faded';
+const SPARQLING_SELECTED = 'sparqling-selected';
+// highlightsList.onSuggestionLocalization(iri => getGscape().centerOnEntity(iri))
+const getActualHighlights = () => actualHighlights;
+function highlightIRI(iri) {
+    var _a, _b;
+    const gscape = getGscape();
+    const iriOccurrences = (_a = gscape.ontology.getEntityOccurrences(iri)) === null || _a === void 0 ? void 0 : _a.get(RendererStatesEnum.GRAPHOL);
+    if (gscape.renderState !== RendererStatesEnum.GRAPHOL) {
+        const occurrencesInActualRendererState = (_b = gscape.ontology.getEntityOccurrences(iri)) === null || _b === void 0 ? void 0 : _b.get(gscape.renderState);
+        if (occurrencesInActualRendererState)
+            iriOccurrences === null || iriOccurrences === void 0 ? void 0 : iriOccurrences.push(...occurrencesInActualRendererState);
+    }
+    if (iriOccurrences) {
+        iriOccurrences.forEach(occurrence => {
+            var _a;
+            if (occurrence.diagramId === gscape.diagramId)
+                (_a = gscape.renderer.cy) === null || _a === void 0 ? void 0 : _a.$id(occurrence.elementId).addClass(HIGHLIGHT_CLASS);
+        });
+    }
+}
+function highlightSuggestions(clickedIRI) {
+    if (!clickedIRI)
+        return;
+    resetHighlights();
+    const ogApi = new OntologyGraphApi(undefined, getBasePath());
+    handlePromise(ogApi.highligths(clickedIRI, undefined, getRequestOptions())).then(newHighlights => {
+        actualHighlights = newHighlights;
+        performHighlights(clickedIRI);
+        highlightsList.allHighlights = transformHighlightsToPrefixedIRIs();
+    });
+}
+function resetHighlights() {
+    const gscape = getGscape();
+    gscape.ontology.diagrams.forEach(diagram => {
+        for (let [_, diagramRepresentation] of diagram.representations) {
+            diagramRepresentation.cy.$(`.${SPARQLING_SELECTED}`).removeClass(SPARQLING_SELECTED);
+            diagramRepresentation.cy.$(`.${HIGHLIGHT_CLASS}`).removeClass(HIGHLIGHT_CLASS);
+            diagramRepresentation.cy.$(`.${FADED_ClASS}`).removeClass(FADED_ClASS).selectify();
+        }
+    });
+    actualHighlights = undefined;
+    highlightsList.allHighlights = undefined;
+}
+function isHighlighted(iri) {
+    var _a, _b, _c;
+    // if ((actualHighlights as AxiosError).isAxiosError) return true
+    return ((_a = actualHighlights === null || actualHighlights === void 0 ? void 0 : actualHighlights.classes) === null || _a === void 0 ? void 0 : _a.includes(iri)) ||
+        ((_b = actualHighlights === null || actualHighlights === void 0 ? void 0 : actualHighlights.dataProperties) === null || _b === void 0 ? void 0 : _b.includes(iri)) ||
+        ((_c = actualHighlights === null || actualHighlights === void 0 ? void 0 : actualHighlights.objectProperties) === null || _c === void 0 ? void 0 : _c.map(obj => obj.objectPropertyIRI).includes(iri)) || false;
+}
+function refreshHighlights() {
+    let activeElement = getActiveElement();
+    if (activeElement) {
+        performHighlights(activeElement.iri.fullIri);
+    }
+}
+function performHighlights(clickedIRI) {
+    var _a, _b, _c, _d, _e, _f, _g, _h;
+    const gscape = getGscape();
+    (_a = actualHighlights === null || actualHighlights === void 0 ? void 0 : actualHighlights.classes) === null || _a === void 0 ? void 0 : _a.forEach((iri) => highlightIRI(iri));
+    (_b = actualHighlights === null || actualHighlights === void 0 ? void 0 : actualHighlights.dataProperties) === null || _b === void 0 ? void 0 : _b.forEach((iri) => highlightIRI(iri));
+    (_c = actualHighlights === null || actualHighlights === void 0 ? void 0 : actualHighlights.objectProperties) === null || _c === void 0 ? void 0 : _c.forEach((o) => highlightIRI(o.objectPropertyIRI));
+    const iriOccurrences = (_d = gscape.ontology.getEntityOccurrences(clickedIRI)) === null || _d === void 0 ? void 0 : _d.get(RendererStatesEnum.GRAPHOL);
+    if (gscape.renderState !== RendererStatesEnum.GRAPHOL) {
+        const occurrencesInActualRendererState = (_e = gscape.ontology.getEntityOccurrences(clickedIRI)) === null || _e === void 0 ? void 0 : _e.get(gscape.renderState);
+        if (occurrencesInActualRendererState)
+            iriOccurrences === null || iriOccurrences === void 0 ? void 0 : iriOccurrences.push(...occurrencesInActualRendererState);
+    }
+    if (iriOccurrences) {
+        // select all nodes having iri = clickedIRI
+        for (const occurrence of iriOccurrences) {
+            const diagram = gscape.ontology.getDiagram(occurrence.diagramId);
+            const occurrenceCyElement = (_f = diagram === null || diagram === void 0 ? void 0 : diagram.representations.get(gscape.renderState)) === null || _f === void 0 ? void 0 : _f.cy.$id(occurrence.elementId);
+            occurrenceCyElement === null || occurrenceCyElement === void 0 ? void 0 : occurrenceCyElement.addClass(SPARQLING_SELECTED);
+        }
+        const highlightedElems = ((_g = gscape.renderer.cy) === null || _g === void 0 ? void 0 : _g.$('.highlighted, .sparqling-selected')) || cytoscape().collection();
+        const fadedElems = (_h = gscape.renderer.cy) === null || _h === void 0 ? void 0 : _h.elements().difference(highlightedElems);
+        fadedElems === null || fadedElems === void 0 ? void 0 : fadedElems.addClass(FADED_ClASS);
+    }
+    //fadedElems.unselectify()
+}
+function transformHighlightsToPrefixedIRIs() {
+    var _a, _b, _c;
+    let transformedHighlights = JSON.parse(JSON.stringify(actualHighlights));
+    transformedHighlights.classes = (_a = transformedHighlights.classes) === null || _a === void 0 ? void 0 : _a.map(iri => getPrefixedIri(iri));
+    transformedHighlights.dataProperties = (_b = transformedHighlights.dataProperties) === null || _b === void 0 ? void 0 : _b.map(iri => getPrefixedIri(iri));
+    transformedHighlights.objectProperties = (_c = transformedHighlights.objectProperties) === null || _c === void 0 ? void 0 : _c.map(branch => {
+        var _a;
+        branch.objectPropertyIRI = getPrefixedIri(branch.objectPropertyIRI || '');
+        branch.relatedClasses = (_a = branch.relatedClasses) === null || _a === void 0 ? void 0 : _a.map(iri => getPrefixedIri(iri));
+        return branch;
+    });
+    return transformedHighlights;
+}
+
+/**
+ * Get the entity occurrence (elementId, diagramId).
+ * Prefer instance in actual diagram, pick first one in the list as fallback
+ * @param entityIri the entity's IRI to look for
+ */
+function getEntityOccurrence(entityIri) {
+    const gscape = getGscape();
+    // Prefer instance in actual diagram, first one as fallback
+    const selectedClassEntity = gscape.ontology.getEntity(entityIri);
+    let selectedClassOccurrences = selectedClassEntity.occurrences.get(gscape.renderState);
+    // If the actual representation has no occurrences, then take the original ones
+    if (!selectedClassOccurrences) {
+        selectedClassOccurrences = selectedClassEntity.occurrences.get(RendererStatesEnum.GRAPHOL);
+    }
+    if (selectedClassOccurrences) {
+        return (selectedClassOccurrences === null || selectedClassOccurrences === void 0 ? void 0 : selectedClassOccurrences.find(occurrence => occurrence.diagramId === gscape.diagramId)) ||
+            selectedClassOccurrences[0];
+    }
+}
+function addStylesheet(cy, stylesheet) {
+    stylesheet.forEach(styleObj => {
+        cy.style().selector(styleObj.selector).style(styleObj.style);
+    });
+}
+
+let _onRelatedClassSelection = (objectProperty, relatedClass) => { };
+function showRelatedClassesWidget(objPropertyIri, position) {
+    var _a;
+    const actualHighlights = getActualHighlights();
+    if (!actualHighlights || !isHighlighted(objPropertyIri))
+        return;
+    const gscape = getGscape();
+    const objPropertyEntity = gscape.ontology.getEntity(objPropertyIri);
+    let objPropertyFromApi = (_a = actualHighlights.objectProperties) === null || _a === void 0 ? void 0 : _a.find((o) => {
+        if (o === null || o === void 0 ? void 0 : o.objectPropertyIRI)
+            return objPropertyEntity.iri.equals(o.objectPropertyIRI);
+    });
+    if (!objPropertyFromApi || !objPropertyFromApi.relatedClasses || objPropertyFromApi.relatedClasses.length <= 0) {
+        return;
+    }
+    //listSelectionDialog.title = classSelectDialogTitle()
+    // Use prefixed iri if possible, full iri as fallback
+    relatedClassDialog.list = objPropertyFromApi.relatedClasses.map((iriValue) => {
+        const iri = new Iri(iriValue, gscape.ontology.namespaces);
+        return iri.prefixed;
+    });
+    const activeElement = getActiveElement();
+    if (activeElement) {
+        relatedClassDialog.class = activeElement.iri.prefixed || activeElement.iri.fullIri;
+        relatedClassDialog.objProperty = objPropertyEntity.iri.prefixed;
+        relatedClassDialog.reverseArrow = !objPropertyFromApi.direct;
+        relatedClassDialog.showInPosition(position);
+        relatedClassDialog.onSelection = (selectedClassIri) => {
+            try {
+                if (objPropertyFromApi) {
+                    const relatedClassOccurrence = getEntityOccurrence(selectedClassIri);
+                    if (relatedClassOccurrence)
+                        _onRelatedClassSelection(objPropertyFromApi, relatedClassOccurrence);
+                }
+            }
+            catch (e) {
+                console.error(e);
+            }
+        };
+    }
+}
+function hideRelatedClassesWidget() {
+    relatedClassDialog.list = [];
+    relatedClassDialog.hide();
+}
+function onRelatedClassSelection(callback) {
+    _onRelatedClassSelection = callback;
+}
+
+function centerOnElement (elem, zoom) {
+    let cy = elem.cy();
+    if (zoom)
+        cy.zoom(zoom);
+    let pos = elem.renderedPosition();
+    let center = { x: cy.width() / 2, y: cy.height() / 2 };
+    cy.panBy({ x: -(pos.x - center.x), y: -(pos.y - center.y) });
+}
+
+getGrapholscapeContainer();
+const bgpContainer = getBGPContainer();
+const leftColumnContainer = getLeftColumnContainer();
+function getGrapholscapeContainer() {
+    let container = document.createElement('div');
+    container.setAttribute('id', 'grapholscape');
+    container.style.position = 'relative';
+    container.style.height = '100%';
+    return container;
+}
+function getBGPContainer() {
+    let container = document.createElement('div');
+    container.setAttribute('id', 'sparqling-query-graph');
+    container.style.position = 'relative';
+    container.style.height = '100%';
+    container.style.width = '100%';
+    return container;
+}
+function getLeftColumnContainer() {
+    let container = document.createElement('div');
+    container.setAttribute('id', 'sparqling-left-column');
+    container.style.position = 'absolute';
+    container.style.left = '10px';
+    container.style.bottom = '0';
+    container.style.display = 'flex';
+    container.style.flexDirection = 'column-reverse';
+    container.style.justifyContent = 'space-between';
+    container.style.gap = '30px';
+    container.style.height = '100%';
+    container.style.boxSizing = 'border-box';
+    container.style.marginTop = '70px';
+    container.style.pointerEvents = 'none';
+    container.style.width = '20%';
+    return container;
+}
+
 function getGraphElementByID(id) {
     var _a;
     const graph = (_a = getQueryBody()) === null || _a === void 0 ? void 0 : _a.graph;
@@ -2610,16 +4758,6 @@ function getIri(elem, i = 0) {
     var _a;
     if (elem === null || elem === void 0 ? void 0 : elem.entities)
         return (_a = elem === null || elem === void 0 ? void 0 : elem.entities[i]) === null || _a === void 0 ? void 0 : _a.iri;
-}
-/**
- * Get the prefixed iri of an entity contained in a GraphElement
- * @param elem the GraphElement to extract IRI from
- * @param i the entity index in the array, default first one
- * @returns
- */
-function getPrefixedIri(elem, i = 0) {
-    if (elem === null || elem === void 0 ? void 0 : elem.entities)
-        return elem.entities[i].prefixedIri;
 }
 function getEntityType(elem) {
     if (elem === null || elem === void 0 ? void 0 : elem.entities)
@@ -2690,1612 +4828,121 @@ function getParentFromChildId(id) {
     return findGraphElement(graph, ge => graphElementHasIri(ge, childIri) && ge.id === parentId);
 }
 
-/**
- * @license
- * Copyright 2019 Google LLC
- * SPDX-License-Identifier: BSD-3-Clause
- */
-const t$1=window.ShadowRoot&&(void 0===window.ShadyCSS||window.ShadyCSS.nativeShadow)&&"adoptedStyleSheets"in Document.prototype&&"replace"in CSSStyleSheet.prototype,e$2=Symbol(),n$3=new WeakMap;class s$3{constructor(t,n,s){if(this._$cssResult$=!0,s!==e$2)throw Error("CSSResult is not constructable. Use `unsafeCSS` or `css` instead.");this.cssText=t,this.t=n;}get styleSheet(){let e=this.o;const s=this.t;if(t$1&&void 0===e){const t=void 0!==s&&1===s.length;t&&(e=n$3.get(s)),void 0===e&&((this.o=e=new CSSStyleSheet).replaceSync(this.cssText),t&&n$3.set(s,e));}return e}toString(){return this.cssText}}const o$3=t=>new s$3("string"==typeof t?t:t+"",void 0,e$2),r$2=(t,...n)=>{const o=1===t.length?t[0]:n.reduce(((e,n,s)=>e+(t=>{if(!0===t._$cssResult$)return t.cssText;if("number"==typeof t)return t;throw Error("Value passed to 'css' function must be a 'css' function result: "+t+". Use 'unsafeCSS' to pass non-literal values, but take care to ensure page security.")})(n)+t[s+1]),t[0]);return new s$3(o,t,e$2)},i$1=(e,n)=>{t$1?e.adoptedStyleSheets=n.map((t=>t instanceof CSSStyleSheet?t:t.styleSheet)):n.forEach((t=>{const n=document.createElement("style"),s=window.litNonce;void 0!==s&&n.setAttribute("nonce",s),n.textContent=t.cssText,e.appendChild(n);}));},S$1=t$1?t=>t:t=>t instanceof CSSStyleSheet?(t=>{let e="";for(const n of t.cssRules)e+=n.cssText;return o$3(e)})(t):t;
-
-/**
- * @license
- * Copyright 2017 Google LLC
- * SPDX-License-Identifier: BSD-3-Clause
- */var s$2;const e$1=window.trustedTypes,r$1=e$1?e$1.emptyScript:"",h$1=window.reactiveElementPolyfillSupport,o$2={toAttribute(t,i){switch(i){case Boolean:t=t?r$1:null;break;case Object:case Array:t=null==t?t:JSON.stringify(t);}return t},fromAttribute(t,i){let s=t;switch(i){case Boolean:s=null!==t;break;case Number:s=null===t?null:Number(t);break;case Object:case Array:try{s=JSON.parse(t);}catch(t){s=null;}}return s}},n$2=(t,i)=>i!==t&&(i==i||t==t),l$2={attribute:!0,type:String,converter:o$2,reflect:!1,hasChanged:n$2};class a$1 extends HTMLElement{constructor(){super(),this._$Ei=new Map,this.isUpdatePending=!1,this.hasUpdated=!1,this._$El=null,this.u();}static addInitializer(t){var i;null!==(i=this.h)&&void 0!==i||(this.h=[]),this.h.push(t);}static get observedAttributes(){this.finalize();const t=[];return this.elementProperties.forEach(((i,s)=>{const e=this._$Ep(s,i);void 0!==e&&(this._$Ev.set(e,s),t.push(e));})),t}static createProperty(t,i=l$2){if(i.state&&(i.attribute=!1),this.finalize(),this.elementProperties.set(t,i),!i.noAccessor&&!this.prototype.hasOwnProperty(t)){const s="symbol"==typeof t?Symbol():"__"+t,e=this.getPropertyDescriptor(t,s,i);void 0!==e&&Object.defineProperty(this.prototype,t,e);}}static getPropertyDescriptor(t,i,s){return {get(){return this[i]},set(e){const r=this[t];this[i]=e,this.requestUpdate(t,r,s);},configurable:!0,enumerable:!0}}static getPropertyOptions(t){return this.elementProperties.get(t)||l$2}static finalize(){if(this.hasOwnProperty("finalized"))return !1;this.finalized=!0;const t=Object.getPrototypeOf(this);if(t.finalize(),this.elementProperties=new Map(t.elementProperties),this._$Ev=new Map,this.hasOwnProperty("properties")){const t=this.properties,i=[...Object.getOwnPropertyNames(t),...Object.getOwnPropertySymbols(t)];for(const s of i)this.createProperty(s,t[s]);}return this.elementStyles=this.finalizeStyles(this.styles),!0}static finalizeStyles(i){const s=[];if(Array.isArray(i)){const e=new Set(i.flat(1/0).reverse());for(const i of e)s.unshift(S$1(i));}else void 0!==i&&s.push(S$1(i));return s}static _$Ep(t,i){const s=i.attribute;return !1===s?void 0:"string"==typeof s?s:"string"==typeof t?t.toLowerCase():void 0}u(){var t;this._$E_=new Promise((t=>this.enableUpdating=t)),this._$AL=new Map,this._$Eg(),this.requestUpdate(),null===(t=this.constructor.h)||void 0===t||t.forEach((t=>t(this)));}addController(t){var i,s;(null!==(i=this._$ES)&&void 0!==i?i:this._$ES=[]).push(t),void 0!==this.renderRoot&&this.isConnected&&(null===(s=t.hostConnected)||void 0===s||s.call(t));}removeController(t){var i;null===(i=this._$ES)||void 0===i||i.splice(this._$ES.indexOf(t)>>>0,1);}_$Eg(){this.constructor.elementProperties.forEach(((t,i)=>{this.hasOwnProperty(i)&&(this._$Ei.set(i,this[i]),delete this[i]);}));}createRenderRoot(){var t;const s=null!==(t=this.shadowRoot)&&void 0!==t?t:this.attachShadow(this.constructor.shadowRootOptions);return i$1(s,this.constructor.elementStyles),s}connectedCallback(){var t;void 0===this.renderRoot&&(this.renderRoot=this.createRenderRoot()),this.enableUpdating(!0),null===(t=this._$ES)||void 0===t||t.forEach((t=>{var i;return null===(i=t.hostConnected)||void 0===i?void 0:i.call(t)}));}enableUpdating(t){}disconnectedCallback(){var t;null===(t=this._$ES)||void 0===t||t.forEach((t=>{var i;return null===(i=t.hostDisconnected)||void 0===i?void 0:i.call(t)}));}attributeChangedCallback(t,i,s){this._$AK(t,s);}_$EO(t,i,s=l$2){var e,r;const h=this.constructor._$Ep(t,s);if(void 0!==h&&!0===s.reflect){const n=(null!==(r=null===(e=s.converter)||void 0===e?void 0:e.toAttribute)&&void 0!==r?r:o$2.toAttribute)(i,s.type);this._$El=t,null==n?this.removeAttribute(h):this.setAttribute(h,n),this._$El=null;}}_$AK(t,i){var s,e;const r=this.constructor,h=r._$Ev.get(t);if(void 0!==h&&this._$El!==h){const t=r.getPropertyOptions(h),n=t.converter,l=null!==(e=null!==(s=null==n?void 0:n.fromAttribute)&&void 0!==s?s:"function"==typeof n?n:null)&&void 0!==e?e:o$2.fromAttribute;this._$El=h,this[h]=l(i,t.type),this._$El=null;}}requestUpdate(t,i,s){let e=!0;void 0!==t&&(((s=s||this.constructor.getPropertyOptions(t)).hasChanged||n$2)(this[t],i)?(this._$AL.has(t)||this._$AL.set(t,i),!0===s.reflect&&this._$El!==t&&(void 0===this._$EC&&(this._$EC=new Map),this._$EC.set(t,s))):e=!1),!this.isUpdatePending&&e&&(this._$E_=this._$Ej());}async _$Ej(){this.isUpdatePending=!0;try{await this._$E_;}catch(t){Promise.reject(t);}const t=this.scheduleUpdate();return null!=t&&await t,!this.isUpdatePending}scheduleUpdate(){return this.performUpdate()}performUpdate(){var t;if(!this.isUpdatePending)return;this.hasUpdated,this._$Ei&&(this._$Ei.forEach(((t,i)=>this[i]=t)),this._$Ei=void 0);let i=!1;const s=this._$AL;try{i=this.shouldUpdate(s),i?(this.willUpdate(s),null===(t=this._$ES)||void 0===t||t.forEach((t=>{var i;return null===(i=t.hostUpdate)||void 0===i?void 0:i.call(t)})),this.update(s)):this._$Ek();}catch(t){throw i=!1,this._$Ek(),t}i&&this._$AE(s);}willUpdate(t){}_$AE(t){var i;null===(i=this._$ES)||void 0===i||i.forEach((t=>{var i;return null===(i=t.hostUpdated)||void 0===i?void 0:i.call(t)})),this.hasUpdated||(this.hasUpdated=!0,this.firstUpdated(t)),this.updated(t);}_$Ek(){this._$AL=new Map,this.isUpdatePending=!1;}get updateComplete(){return this.getUpdateComplete()}getUpdateComplete(){return this._$E_}shouldUpdate(t){return !0}update(t){void 0!==this._$EC&&(this._$EC.forEach(((t,i)=>this._$EO(i,this[i],t))),this._$EC=void 0),this._$Ek();}updated(t){}firstUpdated(t){}}a$1.finalized=!0,a$1.elementProperties=new Map,a$1.elementStyles=[],a$1.shadowRootOptions={mode:"open"},null==h$1||h$1({ReactiveElement:a$1}),(null!==(s$2=globalThis.reactiveElementVersions)&&void 0!==s$2?s$2:globalThis.reactiveElementVersions=[]).push("1.3.3");
-
-/**
- * @license
- * Copyright 2017 Google LLC
- * SPDX-License-Identifier: BSD-3-Clause
- */
-var t;const i=globalThis.trustedTypes,s$1=i?i.createPolicy("lit-html",{createHTML:t=>t}):void 0,e=`lit$${(Math.random()+"").slice(9)}$`,o$1="?"+e,n$1=`<${o$1}>`,l$1=document,h=(t="")=>l$1.createComment(t),r=t=>null===t||"object"!=typeof t&&"function"!=typeof t,d=Array.isArray,u=t=>{var i;return d(t)||"function"==typeof(null===(i=t)||void 0===i?void 0:i[Symbol.iterator])},c=/<(?:(!--|\/[^a-zA-Z])|(\/?[a-zA-Z][^>\s]*)|(\/?$))/g,v=/-->/g,a=/>/g,f=/>|[ 	\n\r](?:([^\s"'>=/]+)([ 	\n\r]*=[ 	\n\r]*(?:[^ 	\n\r"'`<>=]|("|')|))|$)/g,_=/'/g,m=/"/g,g=/^(?:script|style|textarea|title)$/i,p=t=>(i,...s)=>({_$litType$:t,strings:i,values:s}),$=p(1),y=p(2),b=Symbol.for("lit-noChange"),w=Symbol.for("lit-nothing"),T=new WeakMap,x=(t,i,s)=>{var e,o;const n=null!==(e=null==s?void 0:s.renderBefore)&&void 0!==e?e:i;let l=n._$litPart$;if(void 0===l){const t=null!==(o=null==s?void 0:s.renderBefore)&&void 0!==o?o:null;n._$litPart$=l=new N(i.insertBefore(h(),t),t,void 0,null!=s?s:{});}return l._$AI(t),l},A=l$1.createTreeWalker(l$1,129,null,!1),C=(t,i)=>{const o=t.length-1,l=[];let h,r=2===i?"<svg>":"",d=c;for(let i=0;i<o;i++){const s=t[i];let o,u,p=-1,$=0;for(;$<s.length&&(d.lastIndex=$,u=d.exec(s),null!==u);)$=d.lastIndex,d===c?"!--"===u[1]?d=v:void 0!==u[1]?d=a:void 0!==u[2]?(g.test(u[2])&&(h=RegExp("</"+u[2],"g")),d=f):void 0!==u[3]&&(d=f):d===f?">"===u[0]?(d=null!=h?h:c,p=-1):void 0===u[1]?p=-2:(p=d.lastIndex-u[2].length,o=u[1],d=void 0===u[3]?f:'"'===u[3]?m:_):d===m||d===_?d=f:d===v||d===a?d=c:(d=f,h=void 0);const y=d===f&&t[i+1].startsWith("/>")?" ":"";r+=d===c?s+n$1:p>=0?(l.push(o),s.slice(0,p)+"$lit$"+s.slice(p)+e+y):s+e+(-2===p?(l.push(void 0),i):y);}const u=r+(t[o]||"<?>")+(2===i?"</svg>":"");if(!Array.isArray(t)||!t.hasOwnProperty("raw"))throw Error("invalid template strings array");return [void 0!==s$1?s$1.createHTML(u):u,l]};class E{constructor({strings:t,_$litType$:s},n){let l;this.parts=[];let r=0,d=0;const u=t.length-1,c=this.parts,[v,a]=C(t,s);if(this.el=E.createElement(v,n),A.currentNode=this.el.content,2===s){const t=this.el.content,i=t.firstChild;i.remove(),t.append(...i.childNodes);}for(;null!==(l=A.nextNode())&&c.length<u;){if(1===l.nodeType){if(l.hasAttributes()){const t=[];for(const i of l.getAttributeNames())if(i.endsWith("$lit$")||i.startsWith(e)){const s=a[d++];if(t.push(i),void 0!==s){const t=l.getAttribute(s.toLowerCase()+"$lit$").split(e),i=/([.?@])?(.*)/.exec(s);c.push({type:1,index:r,name:i[2],strings:t,ctor:"."===i[1]?M:"?"===i[1]?H:"@"===i[1]?I:S});}else c.push({type:6,index:r});}for(const i of t)l.removeAttribute(i);}if(g.test(l.tagName)){const t=l.textContent.split(e),s=t.length-1;if(s>0){l.textContent=i?i.emptyScript:"";for(let i=0;i<s;i++)l.append(t[i],h()),A.nextNode(),c.push({type:2,index:++r});l.append(t[s],h());}}}else if(8===l.nodeType)if(l.data===o$1)c.push({type:2,index:r});else {let t=-1;for(;-1!==(t=l.data.indexOf(e,t+1));)c.push({type:7,index:r}),t+=e.length-1;}r++;}}static createElement(t,i){const s=l$1.createElement("template");return s.innerHTML=t,s}}function P(t,i,s=t,e){var o,n,l,h;if(i===b)return i;let d=void 0!==e?null===(o=s._$Cl)||void 0===o?void 0:o[e]:s._$Cu;const u=r(i)?void 0:i._$litDirective$;return (null==d?void 0:d.constructor)!==u&&(null===(n=null==d?void 0:d._$AO)||void 0===n||n.call(d,!1),void 0===u?d=void 0:(d=new u(t),d._$AT(t,s,e)),void 0!==e?(null!==(l=(h=s)._$Cl)&&void 0!==l?l:h._$Cl=[])[e]=d:s._$Cu=d),void 0!==d&&(i=P(t,d._$AS(t,i.values),d,e)),i}class V{constructor(t,i){this.v=[],this._$AN=void 0,this._$AD=t,this._$AM=i;}get parentNode(){return this._$AM.parentNode}get _$AU(){return this._$AM._$AU}p(t){var i;const{el:{content:s},parts:e}=this._$AD,o=(null!==(i=null==t?void 0:t.creationScope)&&void 0!==i?i:l$1).importNode(s,!0);A.currentNode=o;let n=A.nextNode(),h=0,r=0,d=e[0];for(;void 0!==d;){if(h===d.index){let i;2===d.type?i=new N(n,n.nextSibling,this,t):1===d.type?i=new d.ctor(n,d.name,d.strings,this,t):6===d.type&&(i=new L(n,this,t)),this.v.push(i),d=e[++r];}h!==(null==d?void 0:d.index)&&(n=A.nextNode(),h++);}return o}m(t){let i=0;for(const s of this.v)void 0!==s&&(void 0!==s.strings?(s._$AI(t,s,i),i+=s.strings.length-2):s._$AI(t[i])),i++;}}class N{constructor(t,i,s,e){var o;this.type=2,this._$AH=w,this._$AN=void 0,this._$AA=t,this._$AB=i,this._$AM=s,this.options=e,this._$Cg=null===(o=null==e?void 0:e.isConnected)||void 0===o||o;}get _$AU(){var t,i;return null!==(i=null===(t=this._$AM)||void 0===t?void 0:t._$AU)&&void 0!==i?i:this._$Cg}get parentNode(){let t=this._$AA.parentNode;const i=this._$AM;return void 0!==i&&11===t.nodeType&&(t=i.parentNode),t}get startNode(){return this._$AA}get endNode(){return this._$AB}_$AI(t,i=this){t=P(this,t,i),r(t)?t===w||null==t||""===t?(this._$AH!==w&&this._$AR(),this._$AH=w):t!==this._$AH&&t!==b&&this.$(t):void 0!==t._$litType$?this.T(t):void 0!==t.nodeType?this.k(t):u(t)?this.S(t):this.$(t);}M(t,i=this._$AB){return this._$AA.parentNode.insertBefore(t,i)}k(t){this._$AH!==t&&(this._$AR(),this._$AH=this.M(t));}$(t){this._$AH!==w&&r(this._$AH)?this._$AA.nextSibling.data=t:this.k(l$1.createTextNode(t)),this._$AH=t;}T(t){var i;const{values:s,_$litType$:e}=t,o="number"==typeof e?this._$AC(t):(void 0===e.el&&(e.el=E.createElement(e.h,this.options)),e);if((null===(i=this._$AH)||void 0===i?void 0:i._$AD)===o)this._$AH.m(s);else {const t=new V(o,this),i=t.p(this.options);t.m(s),this.k(i),this._$AH=t;}}_$AC(t){let i=T.get(t.strings);return void 0===i&&T.set(t.strings,i=new E(t)),i}S(t){d(this._$AH)||(this._$AH=[],this._$AR());const i=this._$AH;let s,e=0;for(const o of t)e===i.length?i.push(s=new N(this.M(h()),this.M(h()),this,this.options)):s=i[e],s._$AI(o),e++;e<i.length&&(this._$AR(s&&s._$AB.nextSibling,e),i.length=e);}_$AR(t=this._$AA.nextSibling,i){var s;for(null===(s=this._$AP)||void 0===s||s.call(this,!1,!0,i);t&&t!==this._$AB;){const i=t.nextSibling;t.remove(),t=i;}}setConnected(t){var i;void 0===this._$AM&&(this._$Cg=t,null===(i=this._$AP)||void 0===i||i.call(this,t));}}class S{constructor(t,i,s,e,o){this.type=1,this._$AH=w,this._$AN=void 0,this.element=t,this.name=i,this._$AM=e,this.options=o,s.length>2||""!==s[0]||""!==s[1]?(this._$AH=Array(s.length-1).fill(new String),this.strings=s):this._$AH=w;}get tagName(){return this.element.tagName}get _$AU(){return this._$AM._$AU}_$AI(t,i=this,s,e){const o=this.strings;let n=!1;if(void 0===o)t=P(this,t,i,0),n=!r(t)||t!==this._$AH&&t!==b,n&&(this._$AH=t);else {const e=t;let l,h;for(t=o[0],l=0;l<o.length-1;l++)h=P(this,e[s+l],i,l),h===b&&(h=this._$AH[l]),n||(n=!r(h)||h!==this._$AH[l]),h===w?t=w:t!==w&&(t+=(null!=h?h:"")+o[l+1]),this._$AH[l]=h;}n&&!e&&this.C(t);}C(t){t===w?this.element.removeAttribute(this.name):this.element.setAttribute(this.name,null!=t?t:"");}}class M extends S{constructor(){super(...arguments),this.type=3;}C(t){this.element[this.name]=t===w?void 0:t;}}const k=i?i.emptyScript:"";class H extends S{constructor(){super(...arguments),this.type=4;}C(t){t&&t!==w?this.element.setAttribute(this.name,k):this.element.removeAttribute(this.name);}}class I extends S{constructor(t,i,s,e,o){super(t,i,s,e,o),this.type=5;}_$AI(t,i=this){var s;if((t=null!==(s=P(this,t,i,0))&&void 0!==s?s:w)===b)return;const e=this._$AH,o=t===w&&e!==w||t.capture!==e.capture||t.once!==e.once||t.passive!==e.passive,n=t!==w&&(e===w||o);o&&this.element.removeEventListener(this.name,this,e),n&&this.element.addEventListener(this.name,this,t),this._$AH=t;}handleEvent(t){var i,s;"function"==typeof this._$AH?this._$AH.call(null!==(s=null===(i=this.options)||void 0===i?void 0:i.host)&&void 0!==s?s:this.element,t):this._$AH.handleEvent(t);}}class L{constructor(t,i,s){this.element=t,this.type=6,this._$AN=void 0,this._$AM=i,this.options=s;}get _$AU(){return this._$AM._$AU}_$AI(t){P(this,t);}}const z=window.litHtmlPolyfillSupport;null==z||z(E,N),(null!==(t=globalThis.litHtmlVersions)&&void 0!==t?t:globalThis.litHtmlVersions=[]).push("2.2.6");
-
-/**
- * @license
- * Copyright 2017 Google LLC
- * SPDX-License-Identifier: BSD-3-Clause
- */var l,o;class s extends a$1{constructor(){super(...arguments),this.renderOptions={host:this},this._$Do=void 0;}createRenderRoot(){var t,e;const i=super.createRenderRoot();return null!==(t=(e=this.renderOptions).renderBefore)&&void 0!==t||(e.renderBefore=i.firstChild),i}update(t){const i=this.render();this.hasUpdated||(this.renderOptions.isConnected=this.isConnected),super.update(t),this._$Do=x(i,this.renderRoot,this.renderOptions);}connectedCallback(){var t;super.connectedCallback(),null===(t=this._$Do)||void 0===t||t.setConnected(!0);}disconnectedCallback(){var t;super.disconnectedCallback(),null===(t=this._$Do)||void 0===t||t.setConnected(!1);}render(){return b}}s.finalized=!0,s._$litElement$=!0,null===(l=globalThis.litElementHydrateSupport)||void 0===l||l.call(globalThis,{LitElement:s});const n=globalThis.litElementPolyfillSupport;null==n||n({LitElement:s});(null!==(o=globalThis.litElementVersions)&&void 0!==o?o:globalThis.litElementVersions=[]).push("3.2.1");
-
-// export function getfilterFormTemplate(
-//   operator: FilterExpressionOperatorEnum,
-//   parameters: VarOrConstant[],
-//   datatype: VarOrConstantConstantTypeEnum) {
-//   return getFormTemplate(operator, parameters, FilterExpressionOperatorEnum, datatype)
-// }
-// export function getFunctionFormTemplate(
-//   operator: FilterExpressionOperatorEnum,
-//   parameters: VarOrConstant[],
-//   datatype: VarOrConstantConstantTypeEnum) {
-//   return getFormTemplate(operator, parameters, FunctionNameEnum, datatype)
-// }
-function getFormTemplate(formComponent, operators) {
-    var _a;
-    const op = formComponent.operator || "Operator";
-    const dt = formComponent.datatype || "Datatype";
-    const addInputButton = new UI.GscapeButton(UI.icons.plus, "Add input value");
-    addInputButton.id = "add-input-btn";
-    return $ `
-    <div class="section">
-      ${formComponent.formTitle ? $ `<div class="section-header">${formComponent.formTitle}</div>` : null}
-      <form id="form-dialog" class="form" action="javascript:void(0)" onsubmit="this.handleSubmit">
-        <div class="selects-wrapper">
-          <div id="select-operator">
-            <label>Operator</label>
-            ${getSelect(op, operators)}
-          </div>
-          ${formComponent.parametersType === VarOrConstantTypeEnum.Constant
-        ? $ `
-              <div id="select-datatype">
-                <label>Datatype</label>
-                ${getSelect(dt, Object.values(VarOrConstantConstantTypeEnum), formComponent.isDatatypeSelectorDisabled)}
-              </div>`
-        : null}
-        </div>
-        <div class="inputs-wrapper">
-          ${(_a = formComponent.parametersIriOrConstants) === null || _a === void 0 ? void 0 : _a.map((parameter, index) => getInput(index, formComponent.datatype, parameter.value, "Set input value"))}
-          ${formComponent.operator === FilterExpressionOperatorEnum.In ||
-        formComponent.operator === FilterExpressionOperatorEnum.NotIn
-        ? $ `${addInputButton}`
-        : null}
-        </div>
-      </form>
-    </div>
-    <div id="message-tray"></div>
-  `;
-}
-function getInput(index, datatype, value, titleText = '') {
-    if (datatype === VarOrConstantConstantTypeEnum.DateTime) {
-        value = (value === null || value === void 0 ? void 0 : value.split('T')[0]) || 'value'; // Take only date from ISO format 2022-01-01T00:00:....
+const distinctToggle = new ui.GscapeToggle();
+distinctToggle.label = 'Duplicates';
+distinctToggle.labelPosition = ui.GscapeToggle.ToggleLabelPosition.LEFT;
+distinctToggle.classList.add('actionable');
+distinctToggle.disabled = true;
+distinctToggle.checked = true;
+distinctToggle.onclick = (evt) => {
+    evt.preventDefault();
+    if (!distinctToggle.disabled) {
+        distinctToggle.checked = !distinctToggle.checked;
+        handleDistinctChange();
     }
-    let placeholder = value || 'value';
-    return $ `
-    <input
-      class="input-elem"
-      type="${getInputType(datatype)}"
-      placeholder="${placeholder}"
-      value="${value}"
-      title="${titleText}"
-      index="${index + 1}"
-      required
-    />`;
-}
-function getSelect(defaultOpt, options, disabled = false) {
-    const isDefaultAlreadySet = options.includes(defaultOpt);
-    return $ `
-    <select required ?disabled=${disabled}>
-      ${isDefaultAlreadySet ? null : $ `<option value="" hidden selected>${defaultOpt}</option>`}
-      ${options.map(op => {
-        if (op === defaultOpt)
-            return $ `<option value="${op}" selected>${op}</option>`;
-        else
-            return $ `<option value="${op}">${op}</option>`;
-    })}
-    </select>
-  `;
-}
-function getInputType(datatype) {
-    switch (datatype) {
-        case VarOrConstantConstantTypeEnum.DateTime:
-            return 'date';
-        case VarOrConstantConstantTypeEnum.Decimal:
-            return 'number';
-        case VarOrConstantConstantTypeEnum.String:
-            return 'text';
-        default:
-            return '';
-    }
-}
+};
 
-const rubbishBin = y `<svg fill="currentColor" xmlns="http://www.w3.org/2000/svg"  viewBox="0 0 24 24" ><path d="M0 0h24v24H0z" fill="none"/><path d="M6 19c0 1.1.9 2 2 2h8c1.1 0 2-.9 2-2V7H6v12zM19 4h-3.5l-1-1h-5l-1 1H5v2h14V4z"/></svg>`;
-const code = y `<svg fill="currentColor"  viewBox="0 0 24 24" ><path fill="currentColor" d="M14.6,16.6L19.2,12L14.6,7.4L16,6L22,12L16,18L14.6,16.6M9.4,16.6L4.8,12L9.4,7.4L8,6L2,12L8,18L9.4,16.6Z" /></svg>`;
-// https://github.com/Templarian/MaterialDesign/blob/master/svg/table-eye.svg
-const tableEye = y `<svg fill="currentColor"  viewBox="0 0 24 24" ><path d="M17 16.88C17.56 16.88 18 17.32 18 17.88S17.56 18.88 17 18.88 16 18.43 16 17.88 16.44 16.88 17 16.88M17 13.88C19.73 13.88 22.06 15.54 23 17.88C22.06 20.22 19.73 21.88 17 21.88S11.94 20.22 11 17.88C11.94 15.54 14.27 13.88 17 13.88M17 15.38C15.62 15.38 14.5 16.5 14.5 17.88S15.62 20.38 17 20.38 19.5 19.26 19.5 17.88 18.38 15.38 17 15.38M18 3H4C2.9 3 2 3.9 2 5V17C2 18.1 2.9 19 4 19H9.42C9.26 18.68 9.12 18.34 9 18C9.12 17.66 9.26 17.32 9.42 17H4V13H10V15.97C10.55 15.11 11.23 14.37 12 13.76V13H13.15C14.31 12.36 15.62 12 17 12C18.06 12 19.07 12.21 20 12.59V5C20 3.9 19.1 3 18 3M10 11H4V7H10V11M18 11H12V7H18V11Z" /></svg>`;
-// https://github.com/Templarian/MaterialDesign/blob/master/svg/asterisk.svg
-const asterisk = y `<svg fill="currentColor" viewBox="0 0 24 24"><path d="M11,3H13V10.27L19.29,6.64L20.29,8.37L14,12L20.3,15.64L19.3,17.37L13,13.72V21H11V13.73L4.69,17.36L3.69,15.63L10,12L3.72,8.36L4.72,6.63L11,10.26V3Z" /></svg>`;
-// https://cygri.github.io/rdf-logos/
-const rdfLogo = y `<svg viewBox="0 0 943 1019" style="fill: currentColor; display: inline-block; height: 20px; width: 20px; padding:2px"><path fill-rule="evenodd" d="M845,668c-6-3-13-6-19-9l5-0c0,0-42-18-45-152 c-4-133,40-156,40-156l-0,0c33-17,61-43,79-78c48-91,14-203-77-252 C729-26,617,8,569,99c-20,37-25,78-19,117l-2-3c0,0,11,48-103,119 c-113,71-165,35-165,35l3,5c-3-2-6-4-10-6C183,317,70,352,22,443 c-48,91-14,203,77,252c68,36,147,26,204-19l-1,2c0,0,41-34,160,30 c94,50,108,100,110,118c-2,69,33,137,98,171c91,48,203,14,252-77 C970,829,935,717,845,668z M635,693c-15,5-58,11-148-37 c-98-53-113-97-115-110c1-16,1-32-2-48l1,1c0,0-8-43,104-112 c100-62,146-50,154-47c5,4,11,7,17,10c11,6,23,11,35,14 c14,13,39,50,42,149c3,99-26,137-42,150C664,671,648,681,635,693z   M622,81c-54,59-55,146-3,196c-26-25-25-77,1-126 c3-4,13-15,27-10c1,0,2,1,3,1c3,1,7,1,10,1 c22-1,38-19,37-41c-0-10-4-18-11-25c50-33,107-37,131-15l1,0 C765,12,677,21,622,81z   M78,431c-54,59-55,146-03,196c-26-25-25-77,1-126 c3-4,13-15,27-10c1,0,2,1,3,1c3,1,7,1,10,1 c22-1,38-19,37-41c-0-10-4-18-11-25c50-33,107-37,131-15l1,0 C221,363,133,371,78,431z   M654,728c-54,59-55,146-3,196c-26-25-25-77,1-126 c3-4,13-15,27-10c1,0,2,1,3,1c3,1,7,1,10,1 c22-1,38-19,37-41c-0-10-4-18-11-25c50-33,107-37,131-15l1,0 C797,659,709,668,654,728z"></path></svg>`;
-// https://materialdesignicons.com/icon/crosshairs-gps
-const crosshair = y `<svg fill="currentColor" viewBox="0 0 24 24"><path  d="M12,8A4,4 0 0,1 16,12A4,4 0 0,1 12,16A4,4 0 0,1 8,12A4,4 0 0,1 12,8M3.05,13H1V11H3.05C3.5,6.83 6.83,3.5 11,3.05V1H13V3.05C17.17,3.5 20.5,6.83 20.95,11H23V13H20.95C20.5,17.17 17.17,20.5 13,20.95V23H11V20.95C6.83,20.5 3.5,17.17 3.05,13M12,5A7,7 0 0,0 5,12A7,7 0 0,0 12,19A7,7 0 0,0 19,12A7,7 0 0,0 12,5Z" /></svg>`;
-// https://materialdesignicons.com/icon/lightbulb-question
-const lightbulbQuestion = y `<svg fill="currentColor" viewBox="0 0 26 26"><path d="M8 2C4.1 2 1 5.1 1 9C1 11.4 2.2 13.5 4 14.7V17C4 17.6 4.4 18 5 18H11C11.6 18 12 17.6 12 17V14.7C13.8 13.4 15 11.3 15 9C15 5.1 11.9 2 8 2M5 21C5 21.6 5.4 22 6 22H10C10.6 22 11 21.6 11 21V20H5V21M20.5 14.5V16H19V14.5H20.5M18.5 9.5H17V9C17 7.3 18.3 6 20 6S23 7.3 23 9C23 10 22.5 10.9 21.7 11.4L21.4 11.6C20.8 12 20.5 12.6 20.5 13.3V13.5H19V13.3C19 12.1 19.6 11 20.6 10.4L20.9 10.2C21.3 9.9 21.5 9.5 21.5 9C21.5 8.2 20.8 7.5 20 7.5S18.5 8.2 18.5 9V9.5Z" /></svg>`;
-// https://materialdesignicons.com/icon/check
-const checkmark = y `<svg fill="currentColor" viewBox="0 0 24 24"><path d="M21,7L9,19L3.5,13.5L4.91,12.09L9,16.17L19.59,5.59L21,7Z" /></svg>`;
-// https://materialdesignicons.com/icon/filter-plus
-const addFilter$1 = y `<svg  fill="currentColor" viewBox="0 0 24 24"><path d="M12 12V19.88C12.04 20.18 11.94 20.5 11.71 20.71C11.32 21.1 10.69 21.1 10.3 20.71L8.29 18.7C8.06 18.47 7.96 18.16 8 17.87V12H7.97L2.21 4.62C1.87 4.19 1.95 3.56 2.38 3.22C2.57 3.08 2.78 3 3 3H17C17.22 3 17.43 3.08 17.62 3.22C18.05 3.56 18.13 4.19 17.79 4.62L12.03 12H12M15 17H18V14H20V17H23V19H20V22H18V19H15V17Z" /></svg>`;
-// https://materialdesignicons.com/icon/pencil
-const edit = y `<svg fill="currentColor" viewBox="0 0 24 24"><path d="M20.71,7.04C21.1,6.65 21.1,6 20.71,5.63L18.37,3.29C18,2.9 17.35,2.9 16.96,3.29L15.12,5.12L18.87,8.87M3,17.25V21H6.75L17.81,9.93L14.06,6.18L3,17.25Z" /></svg>`;
-// https://materialdesignicons.com/icon/playlist-edit
-const editList = y `<svg fill="currentColor" viewBox="0 0 24 24"><path d="M2,6V8H14V6H2M2,10V12H14V10H2M20.04,10.13C19.9,10.13 19.76,10.19 19.65,10.3L18.65,11.3L20.7,13.35L21.7,12.35C21.92,12.14 21.92,11.79 21.7,11.58L20.42,10.3C20.31,10.19 20.18,10.13 20.04,10.13M18.07,11.88L12,17.94V20H14.06L20.12,13.93L18.07,11.88M2,14V16H10V14H2Z" /></svg>`;
-// https://materialdesignicons.com/icon/filter
-const filter = y `<svg fill="currentColor" viewBox="0 0 24 24"><path d="M14,12V19.88C14.04,20.18 13.94,20.5 13.71,20.71C13.32,21.1 12.69,21.1 12.3,20.71L10.29,18.7C10.06,18.47 9.96,18.16 10,17.87V12H9.97L4.21,4.62C3.87,4.19 3.95,3.56 4.38,3.22C4.57,3.08 4.78,3 5,3V3H19V3C19.22,3 19.43,3.08 19.62,3.22C20.05,3.56 20.13,4.19 19.79,4.62L14.03,12H14Z" /></svg>`;
-// https://materialdesignicons.com/icon/table-column-plus-after
-const tableColumnPlus = y `<svg fill="currentColor" viewBox="0 0 24 24"><path d="M11,2A2,2 0 0,1 13,4V20A2,2 0 0,1 11,22H2V2H11M4,10V14H11V10H4M4,16V20H11V16H4M4,4V8H11V4H4M15,11H18V8H20V11H23V13H20V16H18V13H15V11Z" /></svg>`;
-const questionMarkDashed = y `<svg fill="currentColor" viewBox="0 0 24 24"><path d="M13 2.03V4.05C17.39 4.59 20.5 8.58 19.96 12.97C19.5 16.61 16.64 19.5 13 19.93V21.93C18.5 21.38 22.5 16.5 21.95 11C21.5 6.25 17.73 2.5 13 2.03M11 2.06C9.05 2.25 7.19 3 5.67 4.26L7.1 5.74C8.22 4.84 9.57 4.26 11 4.06V2.06M4.26 5.67C3 7.19 2.25 9.04 2.05 11H4.05C4.24 9.58 4.8 8.23 5.69 7.1L4.26 5.67M2.06 13C2.26 14.96 3.03 16.81 4.27 18.33L5.69 16.9C4.81 15.77 4.24 14.42 4.06 13H2.06M7.1 18.37L5.67 19.74C7.18 21 9.04 21.79 11 22V20C9.58 19.82 8.23 19.25 7.1 18.37M20 4H44M13 18H11V16H13V18M13 15H11C11 11.75 14 12 14 10C14 8.9 13.1 8 12 8S10 8.9 10 10H8C8 7.79 9.79 6 12 6S16 7.79 16 10C16 12.5 13 12.75 13 15Z" /></svg>`;
-// https://materialdesignicons.com/icon/content-copy
-const copyContent = y `<svg fill="currentColor" viewBox="0 0 24 24"><path d="M19,21H8V7H19M19,5H8A2,2 0 0,0 6,7V21A2,2 0 0,0 8,23H19A2,2 0 0,0 21,21V7A2,2 0 0,0 19,5M16,1H4A2,2 0 0,0 2,3V17H4V3H16V1Z" /></svg>`;
-// https://materialdesignicons.com/icon/alpha-s-circle
-//export const sparqlingIcon = svg`<svg fill="currentColor" viewBox="0 0 24 24"><path d="M11,7A2,2 0 0,0 9,9V11A2,2 0 0,0 11,13H13V15H9V17H13A2,2 0 0,0 15,15V13A2,2 0 0,0 13,11H11V9H15V7H11M12,2A10,10 0 0,1 22,12A10,10 0 0,1 12,22A10,10 0 0,1 2,12A10,10 0 0,1 12,2Z" /></svg>`
-// https://materialdesignicons.com/icon/play-circle-outline
-const playOutlined = y `<svg fill="currentColor" viewBox="0 0 24 24"><path d="M12,20C7.59,20 4,16.41 4,12C4,7.59 7.59,4 12,4C16.41,4 20,7.59 20,12C20,16.41 16.41,20 12,20M12,2A10,10 0 0,0 2,12A10,10 0 0,0 12,22A10,10 0 0,0 22,12A10,10 0 0,0 12,2M10,16.5L16,12L10,7.5V16.5Z" /></svg>`;
-// https://materialdesignicons.com/icon/refresh
-const refresh = y `<svg fill="currentColor" viewBox="0 0 24 24"><path d="M17.65,6.35C16.2,4.9 14.21,4 12,4A8,8 0 0,0 4,12A8,8 0 0,0 12,20C15.73,20 18.84,17.45 19.73,14H17.65C16.83,16.33 14.61,18 12,18A6,6 0 0,1 6,12A6,6 0 0,1 12,6C13.66,6 15.14,6.69 16.22,7.78L13,11H20V4L17.65,6.35Z" /></svg>`;
-//https://materialdesignicons.com/icon/drag
-const dragHandler = y `<svg fill="currentColor" viewBox="0 0 24 24"><path d="M9,3H11V5H9V3M13,3H15V5H13V3M9,7H11V9H9V7M13,7H15V9H13V7M9,11H11V13H9V11M13,11H15V13H13V11M9,15H11V17H9V15M13,15H15V17H13V15M9,19H11V21H9V19M13,19H15V21H13V19Z" /></svg>`;
-// https://materialdesignicons.com/icon/function
-const functionIcon = y `<svg fill="currentColor" viewBox="0 0 24 24"><path d="M15.6,5.29C14.5,5.19 13.53,6 13.43,7.11L13.18,10H16V12H13L12.56,17.07C12.37,19.27 10.43,20.9 8.23,20.7C6.92,20.59 5.82,19.86 5.17,18.83L6.67,17.33C6.91,18.07 7.57,18.64 8.4,18.71C9.5,18.81 10.47,18 10.57,16.89L11,12H8V10H11.17L11.44,6.93C11.63,4.73 13.57,3.1 15.77,3.3C17.08,3.41 18.18,4.14 18.83,5.17L17.33,6.67C17.09,5.93 16.43,5.36 15.6,5.29Z" /></svg>`;
-// https://materialdesignicons.com/icon/sort-alphabetical-variant
-const sortIcon = y `<svg fill="currentColor" viewBox="0 0 24 24"><path d="M9.25,5L12.5,1.75L15.75,5H9.25M15.75,19L12.5,22.25L9.25,19H15.75M8.89,14.3H6L5.28,17H2.91L6,7H9L12.13,17H9.67L8.89,14.3M6.33,12.68H8.56L7.93,10.56L7.67,9.59L7.42,8.63H7.39L7.17,9.6L6.93,10.58L6.33,12.68M13.05,17V15.74L17.8,8.97V8.91H13.5V7H20.73V8.34L16.09,15V15.08H20.8V17H13.05Z" /></svg>`;
-// https://materialdesignicons.com/icon/sort-alphabetical-ascending
-const sortAscendingIcon = y `<svg fill="currentColor" viewBox="0 0 24 24"><path d="M19 17H22L18 21L14 17H17V3H19M11 13V15L7.67 19H11V21H5V19L8.33 15H5V13M9 3H7C5.9 3 5 3.9 5 5V11H7V9H9V11H11V5C11 3.9 10.11 3 9 3M9 7H7V5H9Z" /></svg>`;
-// https://materialdesignicons.com/icon/sort-alphabetical-descending
-const sortDescendingIcon = y `<svg fill="currentColor" viewBox="0 0 24 24"><path d="M19 7H22L18 3L14 7H17V21H19M11 13V15L7.67 19H11V21H5V19L8.33 15H5V13M9 3H7C5.9 3 5 3.9 5 5V11H7V9H9V11H11V5C11 3.9 10.11 3 9 3M9 7H7V5H9Z" /></svg>`;
-// https://materialdesignicons.com/icon/sigma
-const sigma = y `<svg fill="currentColor" viewBox="0 0 24 24"><path d="M18,6H8.83L14.83,12L8.83,18H18V20H6V18L12,12L6,6V4H18V6Z" /></svg>`;
-// https://materialdesignicons.com/icon/gesture-double-tap
-const dbClick = y `<svg fill="currentColor" viewBox="0 0 24 24"><path d="M10,9A1,1 0 0,1 11,8A1,1 0 0,1 12,9V13.47L13.21,13.6L18.15,15.79C18.68,16.03 19,16.56 19,17.14V21.5C18.97,22.32 18.32,22.97 17.5,23H11C10.62,23 10.26,22.85 10,22.57L5.1,18.37L5.84,17.6C6.03,17.39 6.3,17.28 6.58,17.28H6.8L10,19V9M11,5A4,4 0 0,1 15,9C15,10.5 14.2,11.77 13,12.46V11.24C13.61,10.69 14,9.89 14,9A3,3 0 0,0 11,6A3,3 0 0,0 8,9C8,9.89 8.39,10.69 9,11.24V12.46C7.8,11.77 7,10.5 7,9A4,4 0 0,1 11,5M11,3A6,6 0 0,1 17,9C17,10.7 16.29,12.23 15.16,13.33L14.16,12.88C15.28,11.96 16,10.56 16,9A5,5 0 0,0 11,4A5,5 0 0,0 6,9C6,11.05 7.23,12.81 9,13.58V14.66C6.67,13.83 5,11.61 5,9A6,6 0 0,1 11,3Z" /></svg>`;
-// https://materialdesignicons.com/icon/counter
-const counter = y `<svg fill="currentColor" viewBox="0 0 24 24"><path d="M4,4H20A2,2 0 0,1 22,6V18A2,2 0 0,1 20,20H4A2,2 0 0,1 2,18V6A2,2 0 0,1 4,4M4,6V18H11V6H4M20,18V6H18.76C19,6.54 18.95,7.07 18.95,7.13C18.88,7.8 18.41,8.5 18.24,8.75L15.91,11.3L19.23,11.28L19.24,12.5L14.04,12.47L14,11.47C14,11.47 17.05,8.24 17.2,7.95C17.34,7.67 17.91,6 16.5,6C15.27,6.05 15.41,7.3 15.41,7.3L13.87,7.31C13.87,7.31 13.88,6.65 14.25,6H13V18H15.58L15.57,17.14L16.54,17.13C16.54,17.13 17.45,16.97 17.46,16.08C17.5,15.08 16.65,15.08 16.5,15.08C16.37,15.08 15.43,15.13 15.43,15.95H13.91C13.91,15.95 13.95,13.89 16.5,13.89C19.1,13.89 18.96,15.91 18.96,15.91C18.96,15.91 19,17.16 17.85,17.63L18.37,18H20M8.92,16H7.42V10.2L5.62,10.76V9.53L8.76,8.41H8.92V16Z" /></svg>`;
-// https://materialdesignicons.com/icon/progress-close
-const dashedCross = y `<svg fill="currentColor" viewBox="0 0 24 24"><path d="M13 2.03V4.05C17.39 4.59 20.5 8.58 19.96 12.97C19.5 16.61 16.64 19.5 13 19.93V21.93C18.5 21.38 22.5 16.5 21.95 11C21.5 6.25 17.73 2.5 13 2.03M11 2.06C9.05 2.25 7.19 3 5.67 4.26L7.1 5.74C8.22 4.84 9.57 4.26 11 4.06V2.06M4.26 5.67C3 7.19 2.25 9.04 2.05 11H4.05C4.24 9.58 4.8 8.23 5.69 7.1L4.26 5.67M2.06 13C2.26 14.96 3.03 16.81 4.27 18.33L5.69 16.9C4.81 15.77 4.24 14.42 4.06 13H2.06M7.1 18.37L5.67 19.74C7.18 21 9.04 21.79 11 22V20C9.58 19.82 8.23 19.25 7.1 18.37M14.59 8L12 10.59L9.41 8L8 9.41L10.59 12L8 14.59L9.41 16L12 13.41L14.59 16L16 14.59L13.41 12L16 9.41L14.59 8Z" /></svg>`;
-// https://materialdesignicons.com/icon/filter-multiple
-const filterMultiple = y `<svg fill="currentColor" viewBox="0 0 24 24"><path d="M3.46 5C3.25 5 3.04 5.08 2.87 5.21C2.43 5.55 2.35 6.18 2.69 6.61L2.69 6.62L8 13.42V19.41L10.29 21.71C10.68 22.1 11.32 22.1 11.71 21.71C12.1 21.32 12.1 20.68 11.71 20.29L10 18.59V12.73L4.27 5.39C4.08 5.14 3.78 5 3.46 5M16 12V19.88C16.04 20.18 15.94 20.5 15.71 20.71C15.32 21.1 14.69 21.1 14.3 20.71L12.29 18.7C12.06 18.47 11.96 18.16 12 17.87V12H11.97L6.21 4.62C5.87 4.19 5.95 3.56 6.38 3.22C6.57 3.08 6.78 3 7 3H21C21.22 3 21.43 3.08 21.62 3.22C22.05 3.56 22.13 4.19 21.79 4.62L16.03 12H16Z" /></svg>`;
+const offsetInput = document.createElement('input');
+offsetInput.placeholder = 'Offset';
+offsetInput.type = 'number';
+offsetInput.id = 'offset-input';
+offsetInput.min = '1';
+offsetInput.disabled = true;
+offsetInput.onchange = handleOffsetChange;
+offsetInput.addEventListener('focusout', handleOffsetChange);
+offsetInput.onsubmit = handleOffsetChange;
 
-function validateForm (form) {
-    const inputs = form.querySelectorAll('input');
-    const selects = form.querySelectorAll('select');
-    let isValid = true;
-    inputs === null || inputs === void 0 ? void 0 : inputs.forEach(input => {
-        isValid = isValid && validateInputElement(input);
-    });
-    selects === null || selects === void 0 ? void 0 : selects.forEach(select => {
-        isValid = isValid && validateSelectElement(select);
-    });
-    return isValid;
-}
-function validateInputElement(input) {
-    const validityState = input.validity;
-    if (validityState.valueMissing) {
-        input.setCustomValidity('Please fill out this field.');
-    }
-    else if (validityState.rangeUnderflow) {
-        input.setCustomValidity(`Please select a number that is no lower than ${input.min}`);
-    }
-    else if (validityState.rangeOverflow) {
-        input.setCustomValidity(`Please select a number that is no greater than ${input.max}`);
-    }
-    else if (validityState.typeMismatch) {
-        input.setCustomValidity(`Please select a ${input.type}`);
+let addHeadCallback;
+let deleteCallback;
+let addFilterCallback;
+let seeFiltersCallback;
+let makeOptionalCallback;
+let removeOptionalCallback;
+let _ele;
+function getCommandsForElement(elem) {
+    _ele = elem;
+    const commands = [];
+    // COMANDI OPTIONALS SU OBJECT PROPERTY
+    if (elem.data().type === EntityTypeEnum.ObjectProperty || elem.data().type === EntityTypeEnum.InverseObjectProperty) {
+        if (elem.data().optional) {
+            commands.push(removeOptional);
+        }
+        else {
+            commands.push(makeOptional);
+        }
     }
     else {
-        input.setCustomValidity('');
-    }
-    return input.reportValidity();
-}
-function validateSelectElement(select) {
-    if (!select.checkValidity()) {
-        select.setCustomValidity('Please select an item in the list.');
-    }
-    const returnValue = select.reportValidity();
-    // reset message, otherwise checkValidity returns always false at next validations
-    select.setCustomValidity('');
-    return returnValue;
-}
-
-var Modality;
-(function (Modality) {
-    Modality["DEFINE"] = "Define";
-    Modality["EDIT"] = "Edit";
-})(Modality || (Modality = {}));
-class SparqlingFormDialog extends UI.GscapeDialog {
-    constructor() {
-        super();
-        this.saveButton = new UI.GscapeButton(checkmark, "Save");
-        this.deleteButton = new UI.GscapeButton(rubbishBin, "Delete");
-        this.modality = Modality.DEFINE;
-        this.deleteCallback = (filterId) => { };
-        this.saveButton.onClick = () => this.handleSubmit();
-        this.deleteButton.onClick = () => this.deleteCallback(this._id);
-        this.deleteButton.classList.add('danger');
-    }
-    static get properties() {
-        let props = super.properties;
-        // props.class = { attribute: false }
-        // props.highlights = { attribute: false }
-        props.operator = { attribute: false };
-        props.parameters = { attribute: false };
-        props.modality = { attribute: false };
-        props.datatype = { attribute: false };
-        props.aggregateOperator = { attribute: false };
-        return props;
-    }
-    static get styles() {
-        let super_styles = super.styles;
-        let colors = UI.GscapeWidget.styles[1];
-        return [
-            super_styles[0],
-            r$2 `
-        :host {
-          position: absolute;
-          top: 30%;
-          left: 50%;
-          transform: translate(-50%, 0)
-        }
-
-
-        .dialog-body {
-          display: flex;
-          flex-direction: column;
-          gap: 30px;
-          align-items: center;
-          padding: 10px;
-        }
-
-        .form, .inputs-wrapper {
-          display: flex;
-          align-items: center;
-          gap: 10px;
-        }
-
-        .selects-wrapper {
-          align-self: start;
-        }
-
-        .inputs-wrapper {
-          flex-direction: column;
-        }
-
-        .inputs-wrapper gscape-button {
-          --gscape-icon-size: 18px;
-        }
-
-        gscape-button {
-          position: initial;
-          display: inline-block;
-        }
-
-        .danger:hover {
-          color: var(--theme-gscape-error, ${colors.error});
-        }
-
-        .bottom-buttons {
-          display:flex;
-          flex-direction:row-reverse;
-          width: 100%;
-          justify-content: space-between;
-        }
-
-        .section-header {
-          text-align: center;
-          font-weight: bold;
-          border-bottom: solid 1px var(--theme-gscape-borders, ${colors.borders});
-          color: var(--theme-gscape-secondary, ${colors.secondary});
-          width: 85%;
-          margin: auto;
-          margin-bottom: auto;
-          margin-bottom: 10px;
-          padding-bottom: 5px;
-        }
-
-        #message-tray {
-          font-size: 80%;
-        }
-        #message-tray > .correct-message {
-          color: var(--theme-gscape-secondary);
-        }
-        #message-tray > .error-message {
-          color: var(--theme-gscape-error);
-        }
-
-        .input-elem {
-          color: inherit;
-          margin:5px;
-          padding: 5px;
-          border: none;
-          border-bottom: solid 1px var(--theme-gscape-borders, ${colors.borders});
-          background: var(--theme-gscape-primary, ${colors.primary});
-        }
-
-        form *:invalid {
-          border-color: var(--theme-gscape-error);
-        }
-
-        form abbr {
-          margin: 0 5px;
-        }
-      `
-        ];
-    }
-    handleSubmit() {
-        if (this.formElement && validateForm(this.formElement)) {
-            this.onValidSubmit();
-        }
-    }
-    onOperatorChange(value) {
-        var _a, _b;
-        this.operator = value;
-        switch (this.operator) {
-            case FilterExpressionOperatorEnum.In:
-            case FilterExpressionOperatorEnum.NotIn:
-                // IN and NOT IN needs at least 2 constants, so at least 3 parameters, variable + 2 constants
-                if (this.parametersIriOrConstants && this.parametersIriOrConstants.length < 2) {
-                    this.addInputValue(2 - this.parametersIriOrConstants.length);
-                }
-                break;
-            case FunctionNameEnum.Ceil:
-            case FunctionNameEnum.Floor:
-            case FunctionNameEnum.Round:
-            case FunctionNameEnum.Day:
-            case FunctionNameEnum.Year:
-            case FunctionNameEnum.Month:
-            case FunctionNameEnum.Hours:
-            case FunctionNameEnum.Minutes:
-            case FunctionNameEnum.Seconds:
-            case FunctionNameEnum.Lcase:
-            case FunctionNameEnum.Ucase:
-                (_a = this.parameters) === null || _a === void 0 ? void 0 : _a.splice(1); // no parameters
-                break;
-            default:
-                (_b = this.parameters) === null || _b === void 0 ? void 0 : _b.splice(2);
-                if (this.parametersIriOrConstants && this.parametersIriOrConstants.length <= 0) {
-                    this.addInputValue();
-                }
-        }
-    }
-    onDatatypeChange(value) {
-        this.datatype = value;
-    }
-    onInputChange(index, inputElem) {
-        var _a;
-        if (this.parameters) {
-            if (this.datatype === VarOrConstantConstantTypeEnum.DateTime) {
-                this.parameters[index].value = (_a = inputElem.valueAsDate) === null || _a === void 0 ? void 0 : _a.toISOString();
+        if (!elem.isChild()) {
+            if (!getHeadElementByID('?' + elem.id()) && !isCountStarActive()) {
+                commands.push(addHead);
             }
-            else {
-                this.parameters[index].value = inputElem.value;
+            if (elem.data().hasFilters) {
+                commands.push(seeFilters);
+            }
+            commands.push(addFilter);
+            if (!elem.incomers().empty() && elem.data().type !== EntityTypeEnum.Class) {
+                if (elem.data().optional) {
+                    commands.push(removeOptional);
+                }
+                else {
+                    commands.push(makeOptional);
+                }
             }
         }
+        commands.push(del);
     }
-    show() {
-        super.show();
-        this.isDatatypeSelectorDisabled = this.datatype ? true : false;
-    }
-    addInputValue(number = 1) {
-        var _a;
-        for (let i = 0; i < number; i++) {
-            (_a = this.parameters) === null || _a === void 0 ? void 0 : _a.push({
-                type: this.parametersType,
-                value: "",
-                constantType: this.datatype
-            });
-        }
-        this.requestUpdate();
-    }
-    firstUpdated() {
-        super.firstUpdated();
-        this.header.left_icon = this.left_icon;
-    }
-    updated() {
-        var _a;
-        super.updated();
-        if (this.selectOperatorElem)
-            this.selectOperatorElem.onchange = (e) => this.onOperatorChange(e.currentTarget.value);
-        if (this.selectDatatypeElem)
-            this.selectDatatypeElem.onchange = (e) => this.onDatatypeChange(e.currentTarget.value);
-        (_a = this.inputElems) === null || _a === void 0 ? void 0 : _a.forEach((input) => input.onchange = (e) => this.onInputChange(input.getAttribute('index'), e.currentTarget));
-        const addInputButton = this.shadowRoot.querySelector('#add-input-btn');
-        if (addInputButton)
-            addInputButton.onClick = () => this.addInputValue();
-    }
-    addMessage(msg, msgType) {
-        if (!this.messagesElem)
-            return;
-        let msgDiv = document.createElement('div');
-        msgDiv.classList.add(msgType);
-        msgDiv.innerHTML = msg;
-        this.messagesElem.appendChild(msgDiv);
-    }
-    resetMessages() {
-        if (this.messagesElem)
-            this.messagesElem.textContent = '';
-    }
-    setAsCorrect(customText) {
-        const text = customText || 'Correctly Saved';
-        this.addMessage(text, 'correct-message');
-        setTimeout(() => this.resetMessages(), 2000);
-    }
-    onValidSubmit() {
-        this.submitCallback(this._id, this.operator, this.parameters);
-    }
-    get selectOperatorElem() {
-        return this.shadowRoot.querySelector('#select-operator > select');
-    }
-    get selectDatatypeElem() {
-        return this.shadowRoot.querySelector('#select-datatype > select');
-    }
-    get inputElems() {
-        return this.shadowRoot.querySelectorAll('.inputs-wrapper > input');
-    }
-    get messagesElem() {
-        return this.shadowRoot.querySelector('#message-tray');
-    }
-    get variable() {
-        var _a;
-        return (_a = this.parameters) === null || _a === void 0 ? void 0 : _a.find(p => p.type === VarOrConstantTypeEnum.Var);
-    }
-    get datatype() { var _a; return (_a = this.variable) === null || _a === void 0 ? void 0 : _a.constantType; }
-    set datatype(value) {
-        var _a;
-        if (this.variable)
-            this.variable.constantType = value;
-        (_a = this.parameters) === null || _a === void 0 ? void 0 : _a.map(p => p.constantType = value);
-        this.requestUpdate();
-    }
-    get parametersIriOrConstants() {
-        var _a;
-        return (_a = this.parameters) === null || _a === void 0 ? void 0 : _a.filter(p => p.type !== VarOrConstantTypeEnum.Var);
-    }
-    get formElement() {
-        var _a;
-        return (_a = this.shadowRoot) === null || _a === void 0 ? void 0 : _a.querySelector('form');
-    }
+    return commands;
 }
-
-class FilterDialog extends SparqlingFormDialog {
-    constructor() {
-        super();
-        this.deleteCallback = (filterId) => { };
-        this.saveButton.label = "Save Filter";
-        this.left_icon = filter;
+const addHead = {
+    content: commandAddHeadText(),
+    icon: tableColumnPlus,
+    select: () => addHeadCallback(_ele.id())
+};
+const del = {
+    content: commandDeleteText(),
+    icon: rubbishBin,
+    select: () => {
+        _ele.isChild() ? deleteCallback(_ele.id(), _ele.data().iri) : deleteCallback(_ele.id());
     }
-    render() {
-        return $ `
-      <gscape-head title="${this.modality} Filter for ${this.variableName}" class="drag-handler"></gscape-head>
-      <div class="dialog-body">
-        ${getFormTemplate(this, Object.values(FilterExpressionOperatorEnum))}
-        
-        <div class="bottom-buttons">
-          ${this.saveButton}
-          ${this.modality === Modality.EDIT ? this.deleteButton : null}
-        </div>
-      </div>
-    `;
-    }
-    onSubmit(callback) {
-        this.submitCallback = callback;
-    }
-    onDelete(callback) {
-        this.deleteCallback = callback;
-    }
+};
+const addFilter = {
+    content: commandAddFilterText(),
+    icon: addFilter$1,
+    select: () => addFilterCallback(_ele.id())
+};
+const makeOptional = {
+    content: commandMakeOptionalText(),
+    icon: questionMarkDashed,
+    select: () => makeOptionalCallback(_ele.id())
+};
+const removeOptional = {
+    content: commandRemoveOptionalText(),
+    icon: dashedCross,
+    select: () => removeOptionalCallback(_ele.id())
+};
+const seeFilters = {
+    content: 'See Filters',
+    icon: editList,
+    select: () => seeFiltersCallback(_ele.id())
+};
+function onAddHead$1(callback) {
+    addHeadCallback = callback;
 }
-customElements.define('sparqling-filter-dialog', FilterDialog);
-
-function getElemWithOperatorStyle() {
-    return r$2 `
-    .elem-with-operator {
-      display: flex;
-      gap: 10px;
-      align-items:center;
-      justify-content: center;
-    }
-
-    .elem-with-operator > gscape-button {
-      --gscape-icon-size: 20px;
-    }
-
-    .parameters {
-      display: flex;
-      flex-direction: column;
-      gap: 2px;
-      flex-grow:2;
-      min-width: 0;
-      text-overflow: ellipsis;
-      overflow: hidden;
-    }
-
-    .operator {
-      font-weight:bold;
-      font-size:110%;
-    }
-
-    .operator, .parameter {
-      padding: 4px 6px;
-      padding-bottom: 2px;
-      border-radius: 6px;
-      background-color: var(--theme-gscape-primary);
-      color: var(--theme-gscape-on-primary);
-      line-height: 1;
-    }
-  `;
+function onDelete$2(callback) {
+    deleteCallback = callback;
 }
-
-function getElemWithOperatorList(list, editElemCallback, deleteElemCallback) {
-    return $ `
-    ${list === null || list === void 0 ? void 0 : list.map((elemWithOperator) => {
-        var _a, _b;
-        const elem = elemWithOperator.value || elemWithOperator;
-        const operator = ((_a = elem === null || elem === void 0 ? void 0 : elem.expression) === null || _a === void 0 ? void 0 : _a.operator) || elem.name || elem.aggregateFunction;
-        if (!operator)
-            return null;
-        const parameters = ((_b = elem.expression) === null || _b === void 0 ? void 0 : _b.parameters) || elem.parameters;
-        const operatorFullName = Object.keys(FilterExpressionOperatorEnum).find(k => { var _a; return FilterExpressionOperatorEnum[k] === ((_a = elem.expression) === null || _a === void 0 ? void 0 : _a.operator); })
-            || Object.keys(FunctionNameEnum).find(k => FunctionNameEnum[k] === elem.name)
-            || Object.keys(GroupByElementAggregateFunctionEnum).find(k => GroupByElementAggregateFunctionEnum[k] === elem.aggregateFunction);
-        const editButton = new UI.GscapeButton(edit, 'Edit Filter');
-        const deleteButton = new UI.GscapeButton(rubbishBin, 'Delete Filter');
-        if (editElemCallback) {
-            editButton.onClick = () => editElemCallback(elemWithOperator.id);
-        }
-        if (deleteElemCallback) {
-            deleteButton.onClick = () => deleteElemCallback(elemWithOperator.id);
-            deleteButton.classList.add('danger');
-        }
-        return $ `
-        <div class="elem-with-operator">
-          <div
-            class="operator"
-            title="${operatorFullName}"
-          >
-            ${operator}</div>
-
-          ${parameters
-            ? $ `
-              <div class="parameters">
-                ${parameters === null || parameters === void 0 ? void 0 : parameters.map((param, index) => {
-                if (index === 0)
-                    return null;
-                let value = param.value;
-                if (param.constantType === VarOrConstantConstantTypeEnum.DateTime) {
-                    value = (value === null || value === void 0 ? void 0 : value.split('T')[0]) || value; // Take only date from ISO format 2022-01-01T00:00:....
-                }
-                return $ `
-                    <div class="parameter">
-                      ${value}
-                    </div>
-                  `;
-            })}
-              </div>
-            `
-            : null}
-          ${editElemCallback ? editButton : null}
-          ${deleteElemCallback ? deleteButton : null}
-        </div>
-      `;
-    })}
-  `;
+function onAddFilter$2(callback) {
+    addFilterCallback = callback;
 }
-
-class FilterListDialog extends UI.GscapeDialog {
-    constructor() {
-        super();
-        this.filterList = [];
-        this.editFilterCallback = () => { };
-        this.deleteFilterCallback = () => { };
-    }
-    static get properties() {
-        let props = super.properties;
-        props.filterList = { attribute: false };
-        props.variable = { attribute: false };
-        return props;
-    }
-    static get styles() {
-        let super_styles = super.styles;
-        let colors = UI.GscapeWidget.styles[1];
-        return [
-            super_styles[0],
-            r$2 `
-        :host {
-          position: absolute;
-          top: 30%;
-          left: 50%;
-          transform: translate(-50%, 0)
-        }
-
-        .dialog-body {
-          display:flex;
-          flex-direction: column;
-          gap: 20px;
-          padding: 10px 5px;
-        }
-
-        gscape-button {
-          position: initial;
-        }
-
-        .danger:hover {
-          color: var(--theme-gscape-error, ${colors.error});
-        }
-      `,
-            getElemWithOperatorStyle()
-        ];
-    }
-    render() {
-        return $ `
-      <gscape-head title="Defined Filters for ${this.variable}" class="drag-handler"></gscape-head>
-      <div class="dialog-body">
-        ${this.filterList
-            ? getElemWithOperatorList(this.filterList, this.editFilterCallback, this.deleteFilterCallback)
-            : null}
-      </div>
-    `;
-    }
-    firstUpdated() {
-        super.firstUpdated();
-        this.header.left_icon = filterMultiple;
-    }
-    show() {
-        super.show();
-    }
-    hide() {
-        super.hide();
-    }
-    onEdit(callback) {
-        this.editFilterCallback = callback;
-    }
-    onDelete(callback) {
-        this.deleteFilterCallback = callback;
-    }
+function onSeeFilters$1(callback) {
+    seeFiltersCallback = callback;
 }
-customElements.define('sparqling-filter-list', FilterListDialog);
-
-class HighlightsList extends UI.GscapeWidget {
-    constructor() {
-        super();
-        this.collapsible = true;
-        this._onSuggestionSelection = (element) => { };
-        this.class = '';
-    }
-    static get properties() {
-        let props = super.properties;
-        props.class = { attribute: false };
-        props.highlights = { attribute: false };
-        return props;
-    }
-    static get styles() {
-        let super_styles = super.styles;
-        let colors = super_styles[1];
-        return [
-            super_styles[0],
-            r$2 `
-        :host {
-          position:initial;
-          pointer-events:initial;
-        }
-
-        .widget-body {
-          max-height: 400px;
-        }
-
-        .gscape-panel-title {
-          padding-top:10px;
-        }
-
-        .list {
-          display:flex;
-          flex-direction:column;
-        }
-
-        .list-item {
-          padding:5px 10px;
-          cursor: pointer;
-        }
-
-        details {
-          margin: 5px;
-          padding: 5px;
-          border-radius: 6px;
-        }
-
-        summary {
-          font-weight: bold;
-          margin: 5px;
-          cursor:pointer;
-        }
-
-        #classes-panel {
-          background-color: var(--theme-gscape-concept, ${colors.concept});
-        }
-
-        #object-properties-panel {
-          background-color: var(--theme-gscape-role, ${colors.role});
-        }
-
-        #data-properties-panel {
-          background-color: var(--theme-gscape-attribute, ${colors.attribute});
-        }
-      `
-        ];
-    }
-    render() {
-        return $ `
-    <gscape-head title="Suggestions"></gscape-head>
-    <div class="widget-body">
-      <details id="object-properties-panel" open>
-        <summary>Object Properties</summary>
-        <div class="list">
-          ${this.objectProperties.map((objectProperty, i) => {
-            return $ `
-              <span index="${i}" @click=${this.handleObjectPropertySelection} class="list-item highlight">
-                ${objectProperty.objectPropertyIRI}
-              </span>`;
-        })}
-        </div>
-      </details>
-      
-      <details id="data-properties-panel" open>
-        <summary>Data Properties</summary>
-        <div id="data-properties-panel" class="list">
-          ${this.dataProperties.map((dataProperty, i) => {
-            return $ `
-              <span index="${i}" @click=${this.handleDataPropertySelection} class="list-item highlight">
-                ${dataProperty}
-              </span>`;
-        })}
-        </div>
-      </details>
-
-      <details id="classes-panel" open>
-        <summary>Classes</summary>
-        <div class="list">
-          ${this.classes.map((classItem, i) => {
-            return $ `
-              <span index="${i}" @click=${this.handleClassSelection} class="list-item highlight">
-                ${classItem}
-              </span>`;
-        })}
-        </div>
-      </details>
-    </div>
-    `;
-    }
-    firstUpdated() {
-        super.firstUpdated();
-        let self = this;
-        self.header.left_icon = lightbulbQuestion;
-        self.header.invertIcons();
-        this.hide();
-    }
-    handleClassSelection(e) {
-        e.preventDefault();
-        this._onSuggestionSelection(this.classes[e.target.getAttribute('index')]);
-    }
-    handleObjectPropertySelection(e) {
-        e.preventDefault();
-        const index = e.target.getAttribute('index');
-        const objectPropertyIRI = this.objectProperties[index].objectPropertyIRI;
-        if (objectPropertyIRI)
-            this._onSuggestionSelection(objectPropertyIRI);
-    }
-    handleDataPropertySelection(e) {
-        e.preventDefault();
-        this._onSuggestionSelection(this.dataProperties[e.target.getAttribute('index')]);
-    }
-    onSuggestionSelection(callback) {
-        this._onSuggestionSelection = callback;
-    }
-    get objectProperties() {
-        var _a, _b;
-        return ((_b = (_a = this.highlights) === null || _a === void 0 ? void 0 : _a.objectProperties) === null || _b === void 0 ? void 0 : _b.sort((a, b) => {
-            if (a.objectPropertyIRI && b.objectPropertyIRI)
-                return a.objectPropertyIRI.localeCompare(b.objectPropertyIRI);
-            else
-                return 0;
-        })) || [];
-    }
-    get classes() {
-        var _a, _b;
-        return ((_b = (_a = this.highlights) === null || _a === void 0 ? void 0 : _a.classes) === null || _b === void 0 ? void 0 : _b.sort((a, b) => a.localeCompare(b))) || [];
-    }
-    get dataProperties() {
-        var _a, _b;
-        return ((_b = (_a = this.highlights) === null || _a === void 0 ? void 0 : _a.dataProperties) === null || _b === void 0 ? void 0 : _b.sort((a, b) => a.localeCompare(b))) || [];
-    }
-    show() { super.show(); }
-    hide() { super.hide(); }
-    toggleBody() { super.toggleBody(); }
-    showBody() { super.showBody(); }
-    collapseBody() { super.collapseBody(); }
-    blur() { }
+function onMakeOptional$1(callback) {
+    makeOptionalCallback = callback;
 }
-customElements.define('sparqling-highlights-list', HighlightsList);
-
-let lang = 'en';
-const emptyQueryMsg = (l = lang) => {
-    const text = { en: 'Empty Query' };
-    return text[l];
-};
-const emptyHeadMsg = (l = lang) => {
-    const text = {
-        en: 'Your query will output everything'
-    };
-    return text[l];
-};
-const emptyHeadTipMsg = (l = lang) => {
-    const text = {
-        en: 'The query head is the output of your query\n\
-and it seems like you have nothing in it yet.\n\n\
-We don\'t think an empty query is what you want\n\
-so your result now will be everything. \n\n\
-You can choose what to see in output from the\n\
-query graph, data properties \n\
-will automatically go in the query head.'
-    };
-    return text[l];
-};
-const tipWhy = (l = lang) => {
-    const text = {
-        en: 'Why?',
-        it: 'Perché?'
-    };
-    return text[l];
-};
-const emptyGraphMsg = (l = lang) => {
-    const text = {
-        en: 'Double click on a class to add it to the query'
-    };
-    return text[l];
-};
-const tipWhatIsQueryGraph = (l = lang) => {
-    const text = {
-        en: 'What is a Query Graph?',
-        it: 'Cos\'è il Query Graph?'
-    };
-    return text[l];
-};
-const emptyGraphTipMsg = (l = lang) => {
-    const text = {
-        en: 'The query graph is the set of conditions\n\
-you specify to be satisfied by results.\n\n\
-If you add a class (e.g. Person), only\n\
-instances belonging to that class will\n\
-be included in the results (e.g. only persons). \n\n\
-If you then add a object property \n\
-involving that class (e.g. hasCar), results will now\n\
-include only those participating in such relationship\n\
-(e.g. only persons having a Car).'
-    };
-    return text[l];
-};
-const defaultSelectDialogTitle = (l = lang) => {
-    const text = {
-        en: 'Select Item',
-        it: 'Seleziona un elemento'
-    };
-    return text[l];
-};
-const commandAddHeadText = (l = lang) => {
-    const text = {
-        en: 'Add to Query Head',
-        it: 'Aggiungi in Query Head'
-    };
-    return text[l];
-};
-const commandDeleteText = (l = lang) => {
-    const text = {
-        en: 'Delete',
-        it: 'Elimina'
-    };
-    return text[l];
-};
-const commandAddFilterText = (l = lang) => {
-    const text = {
-        en: 'Add Filter',
-        it: 'Aggiungi Filtro'
-    };
-    return text[l];
-};
-const commandMakeOptionalText = (l = lang) => {
-    const text = {
-        en: 'Make Optional',
-        it: 'Rendi Opzionale'
-    };
-    return text[l];
-};
-const commandRemoveOptionalText = (l = lang) => {
-    const text = {
-        en: 'Remove Optional',
-        it: 'Rendi non Opzionale'
-    };
-    return text[l];
-};
-const countStarMsg = (l = lang) => {
-    const text = {
-        en: 'Count the number of results',
-        it: 'Conta il numero di risultati'
-    };
-    return text[l];
-};
-
-class ListSelectionDialog extends UI.GscapeWidget {
-    constructor(buildItemString) {
-        super();
-        this.list = [];
-        this.title = defaultSelectDialogTitle();
-        this.buildItemString = buildItemString || function (item) { return item; };
-        this.hide();
-    }
-    static get properties() {
-        let props = super.properties;
-        props.list = { attribute: false };
-        props.title = { attribute: false };
-        return props;
-    }
-    static get styles() {
-        let super_styles = super.styles;
-        let colors = super_styles[1];
-        return [
-            super_styles[0],
-            colors,
-            r$2 `
-        :host {
-          position:absolute;
-        }
-
-        .list-item {
-          cursor:pointer;
-          padding:5px 10px;
-        }
-
-        .list-item:last-of-type {
-          border-radius: inherit;
-        }
-
-        gscape-dialog > .widget-body {
-          padding: 0;
-        }
-      `
-        ];
-    }
-    render() {
-        var _a;
-        return $ `
-    <gscape-dialog title="${this.title}">
-      <div>
-      ${(_a = this.list) === null || _a === void 0 ? void 0 : _a.map((item, i) => {
-            return $ `
-          <div class="list-item highlight" index="${i}" @click=${this.handleSelection}>
-            <span>${this.buildItemString(item)}</span>
-          </div>
-        `;
-        })}
-      </div>
-    </gscape-dialog>
-  `;
-    }
-    onSelection(callback) {
-        this.selectionCallback = callback;
-    }
-    onClose(callback) {
-        this.closeCallback = callback;
-    }
-    handleSelection(e) {
-        e.preventDefault();
-        if (this.list) {
-            const index = e.currentTarget.getAttribute('index');
-            if (index !== null) {
-                let listItem = this.list[index];
-                this.selectionCallback(listItem);
-            }
-        }
-    }
-    hide() { super.hide(); }
-    show(position) {
-        var _a;
-        const self = this;
-        if (position) {
-            self.style.top = position.y + "px";
-            self.style.left = position.x + "px";
-        }
-        super.show();
-        (_a = self.shadowRoot.querySelector('gscape-dialog')) === null || _a === void 0 ? void 0 : _a.show();
-    }
+function onRemoveOptional$1(callback) {
+    removeOptionalCallback = callback;
 }
-customElements.define('list-selection-dialog', ListSelectionDialog);
-
-class RelatedClassSelection extends ListSelectionDialog {
-    constructor(buildItemString) {
-        super(buildItemString);
-        this.reverseArrow = false;
-        this.class = '';
-        this.objProperty = '';
-    }
-    static get properties() {
-        let props = super.properties;
-        props.class = { attribute: false };
-        props.objProperty = { attribute: false };
-        return props;
-    }
-    static get styles() {
-        let super_styles = super.styles;
-        let colors = super_styles[1];
-        return [
-            super_styles[0],
-            r$2 `
-        :host {
-          min-width:100px;
-          transform: translate(-100%, -50%);
-        }
-
-        .widget-body {
-          padding:0;
-          display:flex;
-        }
-
-        #left-panel {
-          display:flex;
-          align-items:center;
-          padding:10px;
-        }
-
-        .class {
-          padding: 10px 20px;
-          border-radius: 6px;
-          background-color: var(--theme-gscape-concept, ${colors.concept});
-          border: solid 2px var(--theme-gscape-concept-dark, ${colors.concept_dark});
-        }
-
-        .arrow {
-          margin: 10px;
-          display: flex;
-          align-items: center;
-        }
-
-        .arrow-reverse {
-          margin: 10px;
-          display: flex;
-          align-items: center;
-          flex-direction: row-reverse;
-        }
-
-        .arrow-tail, .arrow-body {
-          height:8px;
-          background-color: var(--theme-gscape-role-dark, ${colors.role_dark});
-        }
-
-        .arrow-tail {
-          width: 20px;
-          border-top-left-radius: 3px;
-          border-bottom-left-radius: 3px;
-          border-top-right-radius: 0px;
-          border-bottom-right-radius:0px;
-        }
-
-        .arrow-reverse > .arrow-tail {
-          border-top-right-radius: 3px;
-          border-bottom-right-radius: 3px;
-          border-top-left-radius: 0px;
-          border-bottom-left-radius:0px;
-        }
-
-        .arrow-body {
-          width: 15px;
-        }
-
-        .arrow-head {
-          width: 0; 
-          height: 0; 
-          border-top: 15px solid transparent;
-          border-bottom: 15px solid transparent;
-          background-color: initial;
-        }
-
-        .arrow > .arrow-head {
-          border-left: 15px solid var(--theme-gscape-role-dark, ${colors.role_dark});
-          border-right: 0;
-        }
-
-        .arrow-reverse > .arrow-head {
-          border-right: 15px solid var(--theme-gscape-role-dark, ${colors.role_dark});
-          border-left: 0;
-        }
-
-        .obj-property {
-          padding: 5px;
-        }
-
-        .list {
-          display:flex;
-          flex-direction: column;
-          justify-content: center;
-          max-height: 100px;
-          overflow: auto;
-          overflow-x: hidden;
-        }
-
-        .list-item {
-          cursor:pointer;
-          padding:5px 20px;
-        }
-
-        .list-item:last-of-type {
-          border-radius: inherit;
-        }
-
-        .gscape-panel-title {
-          padding-top:10px;
-        }
-        .
-      `
-        ];
-    }
-    render() {
-        var _a;
-        return $ `
-    <div class="gscape-panel-title">Add Object Property</div>
-    <div class="widget-body">
-      <div id="left-panel">
-        <span class="text class">${this.class}</span>
-        <span class="arrow${this.reverse}">
-          <span class="arrow-tail"></span>
-          <span class="text obj-property">${this.objProperty}</span>
-          <span class="arrow-body"></span>
-          <span class="arrow-head"></span>
-        </span>
-      </div>
-      <div id="right-panel" class="list">
-        ${(_a = this.list) === null || _a === void 0 ? void 0 : _a.map((classItem, i) => {
-            return $ `<span index="${i}" @click=${this.handleSelection} class="list-item highlight">${this.buildItemString(classItem)}</span>`;
-        })}
-      </div>
-    </div>
-    `;
-    }
-    get reverse() {
-        return this.reverseArrow ? '-reverse' : null;
-    }
-}
-customElements.define('sparqling-related-classes', RelatedClassSelection);
-
-class SparqlDialog extends UI.GscapeDialog {
-    constructor() {
-        super();
-        this._text = emptyQueryMsg();
-        this.copyButton = new UI.GscapeButton(copyContent, "Copy Query");
-        this.copyButton.onClick = () => this.copyQuery();
-    }
-    static get styles() {
-        let super_styles = super.styles;
-        super_styles[1];
-        return [
-            super_styles[0],
-            r$2 `
-        :host {
-          top:50%;
-          left:50%;
-          transform: translate(-50%, -50%);
-        }
-
-        .sparql-code {
-          white-space: pre;
-          padding: 10px 20px;
-          cursor: copy;
-          font-family: monospace;
-        }
-
-        #buttons-tray > * {
-          position: initial;
-        }
-
-        #buttons-tray {
-          display: flex;
-          align-items: center;
-          justify-content: end;
-          gap:10px;
-          flex-grow: 3;
-          padding: 0 20px;
-        }
-
-        #buttons-tray > gscape-button {
-          --gscape-icon-size: 20px;
-        }
-      `,
-        ];
-    }
-    render() {
-        return $ `
-      <gscape-head title="SPARQL" class="drag-handler">
-        <div id="buttons-tray">
-          ${this.copyButton}
-        </div>
-      </gscape-head>
-      <div class="widget-body">
-        <div class="sparql-code" title="Click to copy query" @click=${this.copyQuery}>${this.text.trim()}</div>
-      </div>
-    `;
-    }
-    firstUpdated() {
-        super.firstUpdated();
-        this.header.left_icon = code;
-    }
-    copyQuery() {
-        navigator.clipboard.writeText(this.text).then(_ => {
-            console.log('query copied successfully');
-        });
-    }
-    show() {
-        super.show();
-    }
-    hide() {
-        super.hide();
-    }
-    set text(text) {
-        this._text = text;
-    }
-    get text() { return this._text; }
-}
-customElements.define('sparqling-sparql-dialog', SparqlDialog);
-
-var sparqlingIcon = y `
-<?xml version="1.0" encoding="UTF-8" standalone="no"?>
-<svg
-   version="1.1"
-   viewBox="0 0 20 20"
-   xml:space="preserve"
-   fill="currentColor"
-   style="width: 20px; height:20px; padding: 2px"
-   xmlns="http://www.w3.org/2000/svg"
-   xmlns:svg="http://www.w3.org/2000/svg">
-<g
-   transform="translate(-268.25923,-224.085)"><path
-     style="display:inline;stroke-width:0.04"
-     class="st0"
-     d="m 278.25923,224.085 c -2.672,0 -5.18396,1.03997 -7.07195,2.92797 -1.888,1.888 -2.92805,4.40003 -2.92805,7.07203 0,2.672 1.04005,5.18396 2.92805,7.07195 1.88799,1.888 4.39995,2.92805 7.07195,2.92805 2.672,0 5.18403,-1.04005 7.07203,-2.92805 1.888,-1.88799 2.92797,-4.39995 2.92797,-7.07195 0,-2.672 -1.03997,-5.18403 -2.92797,-7.07203 -1.888,-1.888 -4.40003,-2.92797 -7.07203,-2.92797 z m 10e-4,1.94516 1.55563,1.55562 -0.77781,0.77781 -5.72532,5.72532 1.69391,1.69382 5.72703,-5.7271 a 1.10011,1.10011 0 0 1 1.55563,0 l 3.2489,3.24882 a 1.10011,1.10011 0 0 1 0,1.55563 l -6.50187,6.50187 -0.77781,0.77782 -1.55563,-1.55563 0.77781,-0.77781 5.72407,-5.72406 -1.69321,-1.69321 -5.72711,5.72711 a 1.10011,1.10011 0 0 1 -1.55562,8e-5 l -3.24953,-3.24945 a 1.10011,1.10011 0 0 1 0,-1.55571 l 6.50312,-6.50312 z" /></g>
-
-</svg>
-`;
-
-class SparqlingStartRunButtons extends UI.GscapeWidget {
-    constructor() {
-        super();
-        this.isEnabled = true;
-        this.isLoading = false;
-        this.canQueryRun = false;
-        this._onSparqlingStartCallback = () => { };
-        this._onSparqlingStopCallback = () => { };
-        this._onQueryRunCallback = () => { };
-        this.startSparqlingButton = new UI.GscapeButton(sparqlingIcon, 'Start/Stop Sparqling');
-        this.startSparqlingButton.onClick = () => this.handleStartButtonCLick();
-        this.startSparqlingButton.style.position = 'inherit';
-        this.startSparqlingButton.classList.add('flat');
-        this.startSparqlingButton.enabled = true;
-        this.runQueryButton = new UI.GscapeButton(playOutlined, 'Send query to SPARQL endpoint');
-        this.runQueryButton.style.position = 'inherit';
-        this.runQueryButton.classList.add('flat');
-        this.runQueryButton.onClick = () => this._onQueryRunCallback();
-    }
-    static get properties() {
-        const superProps = super.properties;
-        const newProps = {
-            canQueryRun: { type: Boolean, attribute: false },
-            isLoading: { type: Boolean, attribute: false }
-        };
-        Object.assign(superProps, newProps);
-        return superProps;
-    }
-    static get styles() {
-        let super_styles = super.styles;
-        let colors = super_styles[1];
-        return [
-            super_styles[0],
-            r$2 `
-        :host {
-          order: 7;
-          display:inline-block;
-          position: initial;
-          margin-top:10px;
-        }
-
-        #hr {
-          height:1px;
-          width:90%;
-          margin: 0 auto;
-          background-color: var(--theme-gscape-borders, ${colors.borders})
-        }
-
-        .lds-ripple {
-          position: relative;
-          width: var(--gscape-icon-size);
-          height: var(--gscape-icon-size);
-          padding: calc(var(--gscape-icon-size) * 0.2);
-        }
-        .lds-ripple div {
-          position: absolute;
-          border: 4px solid ${colors.secondary};
-          opacity: 1;
-          border-radius: 50%;
-          animation: lds-ripple 1s cubic-bezier(0, 0.2, 0.8, 1) infinite;
-        }
-        .lds-ripple div:nth-child(2) {
-          animation-delay: -0.5s;
-        }
-        @keyframes lds-ripple {
-          0% {
-            top: calc(var(--gscape-icon-size) / 2);
-            left: calc(var(--gscape-icon-size) / 2);
-            width: 0;
-            height: 0;
-            opacity: 1;
-          }
-          100% {
-            top: 0px;
-            left: 0px;
-            width: var(--gscape-icon-size);
-            height: var(--gscape-icon-size);
-            opacity: 0;
-          }
-        }
-      `,
-        ];
-    }
-    render() {
-        return $ `
-      ${this.canQueryRun
-            ? $ `
-          ${this.runQueryButton}
-          <div id="hr"></div>
-        `
-            : null}
-      
-      ${this.isLoading
-            ? $ `<div class="lds-ripple"><div></div><div></div></div>`
-            : this.startSparqlingButton}
-    `;
-    }
-    show() {
-        if (this.isEnabled)
-            this.style.display = 'inline-block';
-    }
-    onSparqlingStart(callback) {
-        this._onSparqlingStartCallback = callback;
-    }
-    onSparqlingStop(callback) {
-        this._onSparqlingStopCallback = callback;
-    }
-    onQueryRun(callback) {
-        this._onQueryRunCallback = callback;
-    }
-    handleStartButtonCLick() {
-        isSparqlingRunning() ? this._onSparqlingStopCallback() : this._onSparqlingStartCallback();
-    }
-    startLoadingAnimation() {
-        this.isLoading = true;
-    }
-    stopLoadingAnimation() {
-        this.isLoading = false;
-    }
-}
-customElements.define('sparqling-start-run-buttons', SparqlingStartRunButtons);
-
-class FunctionDialog extends SparqlingFormDialog {
-    constructor() {
-        super();
-        this.saveButton.label = "Save Function";
-        this.left_icon = functionIcon;
-    }
-    render() {
-        return $ `
-      <gscape-head title="${this.modality} Function for ${this.variableName}" class="drag-handler"></gscape-head>
-      <div class="dialog-body">
-        ${getFormTemplate(this, this.operators)}
-      
-        <div class="bottom-buttons">
-          ${this.saveButton}
-        </div>
-      </div>
-    `;
-    }
-    onSubmit(callback) {
-        this.submitCallback = callback;
-    }
-    setAsCorrect(customText) {
-        super.setAsCorrect(customText);
-        this.saveButton.hide();
-    }
-    show() {
-        super.show();
-        this.saveButton.show();
-    }
-    onDatatypeChange(value) {
-        super.onDatatypeChange(value);
-        this.selectOperatorElem.value = null;
-    }
-    get operators() {
-        switch (this.datatype) {
-            case VarOrConstantConstantTypeEnum.String:
-                return this.operatorsOnString;
-            case VarOrConstantConstantTypeEnum.Decimal:
-                return this.operatorsOnNumber;
-            case VarOrConstantConstantTypeEnum.DateTime:
-                return this.operatorsOnDate;
-            default:
-                return this.operatorsOnString;
-        }
-    }
-    get operatorsOnString() {
-        return [
-            FunctionNameEnum.Concat,
-            FunctionNameEnum.Contains,
-            FunctionNameEnum.Lcase,
-            FunctionNameEnum.Substr,
-            FunctionNameEnum.Ucase
-        ];
-    }
-    get operatorsOnNumber() {
-        return [
-            FunctionNameEnum.Add,
-            FunctionNameEnum.Subctract,
-            FunctionNameEnum.Multiply,
-            FunctionNameEnum.Divide,
-            FunctionNameEnum.Round,
-            FunctionNameEnum.Ceil,
-            FunctionNameEnum.Floor
-        ];
-    }
-    get operatorsOnDate() {
-        return [
-            FunctionNameEnum.Year,
-            FunctionNameEnum.Month,
-            FunctionNameEnum.Day,
-            FunctionNameEnum.Hours,
-            FunctionNameEnum.Minutes,
-            FunctionNameEnum.Seconds,
-        ];
-    }
-}
-customElements.define('sparqling-function-dialog', FunctionDialog);
-
-class AggregationDialog extends SparqlingFormDialog {
-    constructor() {
-        super();
-        this.showHavingFormButton = new UI.GscapeButton(addFilter$1, "Add Having");
-        this.definingHaving = false;
-        this.distinct = false;
-        this.saveButton.label = "Save Aggregation";
-        this.showHavingFormButton.label = "Filter Groups - Having";
-        this.showHavingFormButton.classList.add('flat');
-        this.showHavingFormButton.onClick = () => { this.definingHaving = true; };
-        this.havingOperator = GroupByElementAggregateFunctionEnum.Avarage;
-        this.formTitle = "Having";
-        this.left_icon = sigma;
-    }
-    static get properties() {
-        const props = super.properties;
-        props.definingHaving = { attribute: false };
-        props.distinct = { attribute: false };
-        return props;
-    }
-    render() {
-        return $ `
-      <gscape-head title="${this.modality} Aggregate Function for ${this.variableName}" class="drag-handler"></gscape-head>
-      <div class="dialog-body">
-        <div style="text-align: center;">
-          <div id="select-aggregate-function">
-            ${getSelect(this.aggregateOperator || "Aggregate Function", Object.values(GroupByElementAggregateFunctionEnum))}
-          </div>
-          <div style="margin: 10px 0">
-            <label>
-              <input id="distinct-checkbox" type="checkbox" @click="${this.onDistinctChange}" ?checked=${this.distinct}>
-              Only distinct values
-            </label>
-          </div>
-        </div>
-        ${!this.definingHaving
-            ? this.showHavingFormButton
-            : getFormTemplate(this, Object.values(FilterExpressionOperatorEnum))}
-        <div class="bottom-buttons">
-          ${this.saveButton}
-        </div>
-      </div>
-    `;
-    }
-    firstUpdated() {
-        super.firstUpdated();
-        this.selectAggregateOperatorElem.onchange = (e) => this.onAggregateOperatorChange(e.currentTarget.value);
-    }
-    handleSubmit() {
-        if (validateSelectElement(this.selectAggregateOperatorElem)) {
-            if (this.definingHaving)
-                super.handleSubmit(); // this evaluate validity of the having too
-            else
-                this.onValidSubmit();
-        }
-    }
-    onValidSubmit() {
-        if (this._id && this.aggregateOperator && this.parameters)
-            this.submitCallback(this._id, this.aggregateOperator, this.distinct, this.operator, this.parameters);
-    }
-    onSubmit(callback) {
-        this.submitCallback = callback;
-    }
-    setAsCorrect(customText) {
-        super.setAsCorrect(customText);
-        this.saveButton.hide();
-    }
-    show() {
-        super.show();
-        this.saveButton.show();
-        this.definingHaving = false;
-        this.distinct = false;
-        this.distinctCheckboxElem.checked = this.distinct;
-        this.aggregateOperator = undefined;
-    }
-    onAggregateOperatorChange(value) {
-        this.aggregateOperator = value;
-    }
-    onDistinctChange(e) {
-        this.distinct = e.target.checked;
-    }
-    get isAggregateOperatorValid() {
-        return this.aggregateOperator && Object.values(GroupByElementAggregateFunctionEnum).includes(this.aggregateOperator);
-    }
-    get selectAggregateOperatorElem() {
-        return this.shadowRoot.querySelector('#select-aggregate-function > select');
-    }
-    get distinctCheckboxElem() {
-        return this.shadowRoot.querySelector('#distinct-checkbox');
-    }
-}
-customElements.define('sparqling-aggregation-dialog', AggregationDialog);
-
-const limit = document.createElement('div');
-const label$1 = document.createElement('label');
-const input$1 = document.createElement('input');
-label$1.innerHTML = 'N. of results';
-input$1.type = 'number';
-input$1.classList.add('input-elem');
-input$1.id = 'limit-input';
-input$1.min = '1';
-input$1.disabled = true;
-limit.appendChild(label$1);
-limit.appendChild(input$1);
-
-const offset$2 = document.createElement('div');
-const label = document.createElement('label');
-const input = document.createElement('input');
-label.innerHTML = 'Offset';
-input.type = 'number';
-input.classList.add('input-elem');
-input.id = 'offset-input';
-input.min = '1';
-input.disabled = true;
-offset$2.appendChild(label);
-offset$2.appendChild(input);
-
-const sparqlDialog = new SparqlDialog();
-new ListSelectionDialog();
-const relatedClassDialog = new RelatedClassSelection();
-const highlightsList = new HighlightsList();
-const filterDialog = new FilterDialog();
-const filterListDialog = new FilterListDialog();
-const functionDialog = new FunctionDialog();
-const aggregationDialog = new AggregationDialog();
-const startRunButtons = new SparqlingStartRunButtons();
-const errorsDialog = new UI.GscapeDialog();
-errorsDialog.title = 'Error';
-const sparqlButton = new UI.GscapeButton(code, 'SPARQL');
-const clearQueryButton = new UI.GscapeButton(refresh, 'Clear Query');
-const distinctToggle = new UI.GscapeToggle('distinct', false, true, 'Duplicates', null, true);
-distinctToggle.style.marginRight = '5px';
-const countStarToggle = new UI.GscapeToggle('count-star', false, true, 'Count Results');
 
 cytoscape.use(klay);
 cytoscape.use(compoundDragAndDrop);
@@ -4321,6 +4968,19 @@ cy.on('render', () => {
     }
     catch (_a) { }
 });
+cy.on('mouseover', '[iri]', () => {
+    const container = cy.container();
+    if (container)
+        container.style.cursor = 'pointer';
+});
+cy.on('mouseout', () => {
+    const container = cy.container();
+    if (container)
+        container.style.cursor = 'unset';
+});
+cy.on('cxttap', `node, edge[type = "${EntityTypeEnum.ObjectProperty}"], edge[type = "${EntityTypeEnum.InverseObjectProperty}"]`, e => {
+    attachCxtMenuTo(e.target.popperRef(), getCommandsForElement(e.target));
+});
 let displayedNameType;
 let language;
 function setStateDisplayedNameType(newDisplayNameType) {
@@ -4332,134 +4992,92 @@ function setLanguage(newLanguage) {
 }
 function getLanguage() { return language; }
 
-const { GscapeWidget: GscapeWidget$1, GscapeHeader } = UI;
 /**
  * Widget extending base grapholscape widget which uses Lit-element inside
  */
-class QueryGraphWidget extends GscapeWidget$1 {
-    constructor(bgpContainer, headSlottedWidgets) {
+class QueryGraphWidget extends ui.BaseMixin(ui.DropPanelMixin(s)) {
+    constructor(bgpContainer) {
         super();
         this._isBGPEmpty = true;
+        this.onQueryClear = () => { };
+        this.onSparqlButtonClick = () => { };
+        this.title = 'Query Graph';
+        this.togglePanel = () => {
+            super.togglePanel();
+            this.requestUpdate();
+            if (this.isPanelClosed()) {
+                this.style.height = 'fit-content';
+            }
+            else {
+                this.style.height = '30%';
+            }
+        };
         this.bgpContainer = bgpContainer;
-        this.collapsible = true;
-        this.draggable = true;
-        this.headSlottedWidgets = headSlottedWidgets;
-        //super.makeDraggable()
-    }
-    static get properties() {
-        const props = super.properties;
-        props._isBGPEmpty = { attribute: false, type: Boolean };
-        return props;
-    }
-    static get styles() {
-        let super_styles = super.styles;
-        let colors = super_styles[1];
-        return [
-            super_styles[0],
-            r$2 `
-        :host {
-          width: calc(50%);
-          position: absolute;
-          left: 50%;
-          top: 100%;
-          transform: translate(-50%, calc(-100% - 10px));
-        }
-
-        .widget-body {
-          min-height: 50px;
-          margin:0;
-          border-top: none;
-          border-radius: inherit;
-          border-bottom-left-radius:0;
-          border-bottom-right-radius:0;
-        }
-
-        #empty-graph {
-          padding: 20px;
-          display: flex;
-          flex-direction: column;
-          align-items: center;
-          gap: 20px;
-          text-align: center;
-        }
-
-        #empty-graph > .icon {
-          --gscape-icon-size: 60px;
-        }
-
-        #empty-graph-msg {
-          font-weight: bold;
-        }
-
-        .tip {
-          font-size: 90%;
-          color: var(--theme-gscape-shadows, ${colors.shadows});
-          border-bottom: dotted 2px;
-          cursor: help;
-        }
-
-        .tip: hover {
-          color:inherit;
-        }
-
-        #buttons-tray > * {
-          position: initial;
-        }
-
-        #buttons-tray {
-          display: flex;
-          align-items: center;
-          justify-content: end;
-          gap:10px;
-          flex-grow: 3;
-          padding: 0 10px;
-        }
-
-        #buttons-tray > gscape-button {
-          --gscape-icon-size: 20px;
-        }
-
-        #buttons-tray > input {
-          max-width:50px;
-        }
-
-        .input-elem {
-          color: inherit;
-          padding: 5px;
-          border: none;
-          border-bottom: solid 1px var(--theme-gscape-borders, ${colors.borders});
-          max-width: 50px;
-          background: var(--theme-gscape-primary, ${colors.primary});
-        }
-      `
-        ];
     }
     render() {
         return $ `
-      <div class="widget-body">
-        ${this.isBGPEmpty
+      ${this.isPanelClosed()
             ? $ `
-            <div id="empty-graph">
-              <div class="icon">${dbClick}</div>
-              <div id="empty-graph-msg">${emptyGraphMsg()}</div>
-              <div class="tip" title="${emptyGraphTipMsg()}">${tipWhatIsQueryGraph()}</div>
-            </div>
-          `
-            : this.bgpContainer}
-      </div>
+          <div class="top-bar traslated-down">
+            <gscape-button 
+              id="toggle-panel-button"
+              @click=${this.togglePanel}
+              label=${this.title}
+            > 
+              <span slot="icon">${rdfLogo}</span>
+              <span slot="trailing-icon">${ui.icons.plus}</span>
+            </gscape-button>
+          </div>
+        `
+            : $ `
+          <div class="gscape-panel" id="drop-panel">
+            <div class="top-bar">
+              <div id="widget-header" class="bold-text">
+                ${rdfLogo}
+                <span>${this.title}</span>
+              </div>
 
-      <gscape-head title="Query Graph">
-        <div id="buttons-tray">
-          ${this.headSlottedWidgets}
-        </div>
-      </gscape-head>
+              <div id="buttons-tray">
+
+                ${limitInput$1}
+                ${offsetInput}
+                ${distinctToggle}
+                ${countStarToggle$1}
+
+                ${getTrayButtonTemplate('Sparql', code, undefined, 'sparql-code-btn', this.onSparqlButtonClick)}
+                ${getTrayButtonTemplate('Clear Query', refresh, undefined, 'clear-query-btn', this.onQueryClear)}
+              </div>
+
+              <gscape-button 
+                id="toggle-panel-button"
+                size="s" 
+                type="subtle"
+                @click=${this.togglePanel}
+              > 
+                <span slot="icon">${ui.icons.minus}</span>
+              </gscape-button>
+            </div>
+
+
+            ${this.isBGPEmpty
+                ? $ `
+                <div class="blank-slate sparqling-blank-slate">
+                  ${dbClick}
+                  <div class="header">${emptyGraphMsg()}</div>
+                  <div class="tip description" title="${emptyGraphTipMsg()}">${tipWhatIsQueryGraph()}</div>
+                </div>
+              `
+                : this.bgpContainer}
+          </div>
+
+        `}
     `;
     }
     firstUpdated() {
-        super.firstUpdated();
-        this.header.left_icon = rdfLogo;
-        this.header.invertIcons();
-        super.makeDraggableHeadTitle();
+        //   super.firstUpdated()
+        //   this.header.left_icon = rdfLogo
+        //   this.header.invertIcons()
+        //   super.makeDraggableHeadTitle()
         this.hide();
     }
     createRenderRoot() {
@@ -4488,21 +5106,46 @@ class QueryGraphWidget extends GscapeWidget$1 {
     get isBGPEmpty() {
         return this._isBGPEmpty;
     }
-    set graphContainerHeight(value) {
-        this.bgpContainer.style.height = `${value + 40}px`;
-    }
-    set graphContainerWidth(value) {
-        this.bgpContainer.style.width = `${value + 40}px`;
+    get clearQueryButton() {
+        var _a;
+        return (_a = this.shadowRoot) === null || _a === void 0 ? void 0 : _a.querySelector('#clear-query-btn');
     }
 }
-customElements.define('query-graph', QueryGraphWidget);
+QueryGraphWidget.properties = {
+    _isBGPEmpty: { attribute: false, type: Boolean }
+};
+QueryGraphWidget.styles = [
+    ui.baseStyle,
+    sparqlingWidgetStyle,
+    r$2 `
+      :host {
+        width: calc(50%);
+        height: 30%;
+        position: absolute;
+        left: 50%;
+        top: 100%;
+        transform: translate(-50%, calc(-100% - 10px));
+      }
+      
+      .tip {
+        border-bottom: dotted 2px;
+        cursor: help;
+      }
 
-var DisplayedNameType;
-(function (DisplayedNameType) {
-    DisplayedNameType["full"] = "iri";
-    DisplayedNameType["prefixed"] = "prefixedIri";
-    DisplayedNameType["label"] = "labels";
-})(DisplayedNameType || (DisplayedNameType = {}));
+      .tip: hover {
+        color:inherit;
+      }
+
+      .input-elem {
+        color: inherit;
+        padding: 5px;
+        border: none;
+        border-bottom: solid 1px var(--gscape-color-border-default);
+        max-width: 50px;
+      }
+    `
+];
+customElements.define('query-graph', QueryGraphWidget);
 
 /**
  * Get an elem by its id
@@ -7865,22 +8508,33 @@ tippy.setDefaultProps({
   render: render$2
 });
 
+const hasFilterIcon = `
+  <div style="
+    color: var(--gscape-color-accent);
+    background: var(--gscape-color-accent-subtle);
+    border: solid 1px;
+    line-height: 0;
+    padding: 2px 4px;
+    margin: 0 8px;
+    border-radius: 12px;"
+  >
+    ${filter.strings.join('').replace(/20px/g, '15px')}
+  </div>`;
 function addHasFilterIcon(node) {
     const dummyDomElement = document.createElement('div');
-    const icon = new UI.GscapeButton(filter, 'Has Filters Defined');
-    icon.style.position = 'relative';
     const container = cy.container();
-    if (container) {
+    if (container === null || container === void 0 ? void 0 : container.firstElementChild) {
         node['tippy'] = tippy(dummyDomElement, {
-            content: icon,
+            content: hasFilterIcon,
             trigger: 'manuaul',
             hideOnClick: false,
             allowHTML: true,
             getReferenceClientRect: node.popperRef().getBoundingClientRect,
             sticky: "reference",
-            appendTo: container,
+            appendTo: container.firstElementChild,
             placement: "right",
-            plugins: [sticky]
+            plugins: [sticky],
+            offset: [0, 0]
         });
         node['tippy'].show();
     }
@@ -8123,13 +8777,13 @@ function getDataObj(graphElement, i) {
     }
 }
 function getDisplayedName(data) {
-    let labels = data[DisplayedNameType.label];
+    let labels = data.labels;
     const displayedNameType = getDisplayedNameType();
-    if (displayedNameType === DisplayedNameType.label && labels)
+    if (displayedNameType === EntityNameType.LABEL && labels)
         // use first language found if the actual one is not available
-        return labels[getLanguage] || labels[Object.keys(labels)[0]];
+        return labels[getLanguage()] || labels[Object.keys(labels)[0]];
     else
-        return data[displayedNameType] || data[DisplayedNameType.prefixed] || data[DisplayedNameType.full];
+        return data[displayedNameType] || data.iri;
 }
 
 const { DataProperty, Class, ObjectProperty, InverseObjectProperty } = EntityTypeEnum;
@@ -8138,7 +8792,7 @@ var getStylesheet = (theme) => {
         {
             selector: '*',
             style: {
-                'color': theme.label_color,
+                'color': theme.colours.label,
                 'border-width': '1px',
             }
         },
@@ -8146,8 +8800,8 @@ var getStylesheet = (theme) => {
             selector: `node[type = "${Class}"]`,
             style: {
                 'shape': 'round-rectangle',
-                'background-color': theme.concept,
-                'border-color': theme.concept_dark,
+                'background-color': theme.colours.class,
+                'border-color': theme.colours["class-contrast"],
                 'text-halign': 'center',
                 'text-valign': 'center',
                 'width': '60px',
@@ -8169,7 +8823,7 @@ var getStylesheet = (theme) => {
             selector: '[displayed_name]',
             style: {
                 'text-wrap': 'wrap',
-                'text-max-width': '50px',
+                'text-max-width': '80px',
                 'text-overflow-wrap': 'anywhere',
                 'label': 'data(displayed_name)',
                 'font-size': '8px'
@@ -8180,7 +8834,7 @@ var getStylesheet = (theme) => {
             style: {
                 'curve-style': 'straight',
                 'target-arrow-shape': 'none',
-                'line-color': theme.attribute_dark,
+                'line-color': theme.colours["data-property"],
             },
         },
         {
@@ -8189,16 +8843,16 @@ var getStylesheet = (theme) => {
                 'shape': 'ellipse',
                 'height': 10,
                 'width': 10,
-                'background-color': theme.attribute,
-                'border-color': theme.attribute_dark,
+                'background-color': theme.colours["data-property"],
+                'border-color': theme.colours["data-property-contrast"],
             },
         },
         {
             selector: `edge[type = "${ObjectProperty}"], edge[type = "${InverseObjectProperty}"]`,
             style: {
-                'line-color': theme.role_dark,
-                'target-arrow-color': theme.role_dark,
-                'source-arrow-color': theme.role_dark,
+                'line-color': theme.colours["object-property-contrast"],
+                'target-arrow-color': theme.colours["object-property-contrast"],
+                'source-arrow-color': theme.colours["object-property-contrast"],
                 'text-max-width': '60px'
             }
         },
@@ -8213,9 +8867,9 @@ var getStylesheet = (theme) => {
         {
             selector: '.cdnd-drop-target',
             style: {
-                'background-color': theme.primary_dark,
+                'background-color': theme.colours["bg-inset"],
                 'border-style': 'dashed',
-                'border-color': theme.secondary,
+                'border-color': theme.colours["accent-muted"],
                 'shape': 'round-rectangle',
                 'label': 'Release to join these classes',
                 'font-size': '12px',
@@ -8250,9 +8904,9 @@ var getStylesheet = (theme) => {
         {
             selector: '.sparqling-selected',
             style: {
-                'underlay-color': 'green',
-                'underlay-padding': '10px',
-                'underlay-opacity': 0.5,
+                'underlay-color': theme.getColour(ColoursNames.accent),
+                'underlay-padding': '2.5px',
+                'underlay-opacity': 1,
             }
         },
     ];
@@ -8296,186 +8950,6 @@ function onJoin$1(callback) {
     joinCallback = callback;
 }
 
-class ContextMenuWidget extends UI.GscapeWidget {
-    constructor() {
-        super();
-        this.commands = [];
-    }
-    static get properties() {
-        const props = super.properties;
-        props.commands = { attribute: false };
-        return props;
-    }
-    static get styles() {
-        let super_styles = super.styles;
-        super_styles[1];
-        return [
-            super_styles[0],
-            r$2 `
-        :host {
-          position: initial;
-          display: flex;
-          flex-direction: column;
-          padding: 5px 0;
-        }
-
-        .command-entry {
-          white-space: nowrap;
-          cursor: pointer;
-          padding: 5px 10px;
-
-          display: flex;
-          gap: 10px;
-          align-items: center;
-        }
-
-        .command-icon {
-          width: 19px;
-          height: 19px;
-        }
-
-        .command-text {
-          position: relative;
-          top: 2px;
-        }
-      `
-        ];
-    }
-    render() {
-        return $ `
-      ${this.commands.map((command, id) => {
-            return $ `
-          <div class="command-entry highlight" command-id="${id}" @click=${this.handleCommandClick}>
-            <span class="command-icon">${command.icon}</span>
-            <span class="command-text">${command.content}</span>
-          <div>
-        `;
-        })}
-    `;
-    }
-    handleCommandClick(e) {
-        this.commands[e.currentTarget.getAttribute('command-id')].select();
-        this.onCommandRun();
-    }
-}
-customElements.define('query-graph-cxt-menu', ContextMenuWidget);
-
-let addHeadCallback;
-let deleteCallback;
-let addFilterCallback;
-let seeFiltersCallback;
-let makeOptionalCallback;
-let removeOptionalCallback;
-let _ele;
-function getCommandsForElement(elem) {
-    _ele = elem;
-    const commands = [];
-    // COMANDI OPTIONALS SU OBJECT PROPERTY
-    if (elem.data().type === EntityTypeEnum.ObjectProperty || elem.data().type === EntityTypeEnum.InverseObjectProperty) {
-        if (elem.data().optional) {
-            commands.push(removeOptional);
-        }
-        else {
-            commands.push(makeOptional);
-        }
-    }
-    else {
-        if (!elem.isChild()) {
-            if (!getHeadElementByID('?' + elem.id()) && !isCountStarActive()) {
-                commands.push(addHead);
-            }
-            if (elem.data().hasFilters) {
-                commands.push(seeFilters);
-            }
-            commands.push(addFilter);
-            if (!elem.incomers().empty() && elem.data().type !== EntityTypeEnum.Class) {
-                if (elem.data().optional) {
-                    commands.push(removeOptional);
-                }
-                else {
-                    commands.push(makeOptional);
-                }
-            }
-        }
-        commands.push(del);
-    }
-    return commands;
-}
-const addHead = {
-    content: commandAddHeadText(),
-    icon: tableColumnPlus,
-    select: () => addHeadCallback(_ele.id())
-};
-const del = {
-    content: commandDeleteText(),
-    icon: rubbishBin,
-    select: () => {
-        _ele.isChild() ? deleteCallback(_ele.id(), _ele.data().iri) : deleteCallback(_ele.id());
-    }
-};
-const addFilter = {
-    content: commandAddFilterText(),
-    icon: addFilter$1,
-    select: () => addFilterCallback(_ele.id())
-};
-const makeOptional = {
-    content: commandMakeOptionalText(),
-    icon: questionMarkDashed,
-    select: () => makeOptionalCallback(_ele.id())
-};
-const removeOptional = {
-    content: commandRemoveOptionalText(),
-    icon: dashedCross,
-    select: () => removeOptionalCallback(_ele.id())
-};
-const seeFilters = {
-    content: 'See Filters',
-    icon: editList,
-    select: () => seeFiltersCallback(_ele.id())
-};
-function onAddHead$1(callback) {
-    addHeadCallback = callback;
-}
-function onDelete$2(callback) {
-    deleteCallback = callback;
-}
-function onAddFilter$2(callback) {
-    addFilterCallback = callback;
-}
-function onSeeFilters$1(callback) {
-    seeFiltersCallback = callback;
-}
-function onMakeOptional$1(callback) {
-    makeOptionalCallback = callback;
-}
-function onRemoveOptional$1(callback) {
-    removeOptionalCallback = callback;
-}
-
-// A dummy element must be passed as tippy only accepts dom element(s) as the target
-// https://atomiks.github.io/tippyjs/v6/constructor/#target-types
-const dummyDomElement = document.createElement('div');
-const cxtMenuWidget = new ContextMenuWidget();
-const cxtMenu = tippy(dummyDomElement, {
-    trigger: 'manual',
-    allowHTML: true,
-    interactive: true,
-    arrow: true,
-    appendTo: () => { var _a; return (_a = cy.container()) === null || _a === void 0 ? void 0 : _a.parentElement; },
-    placement: "bottom",
-    // content prop can be used when the target is a single element https://atomiks.github.io/tippyjs/v6/constructor/#prop
-    content: () => cxtMenuWidget,
-});
-function attachCxtMenuToElement(ref) {
-    cxtMenu.setProps({ getReferenceClientRect: ref.getBoundingClientRect });
-}
-cy.on('cxttap', `node, edge[type = "${EntityTypeEnum.ObjectProperty}"], edge[type = "${EntityTypeEnum.InverseObjectProperty}"]`, e => {
-    attachCxtMenuToElement(e.target.popperRef());
-    cxtMenuWidget.commands = getCommandsForElement(e.target);
-    cxtMenu.show();
-});
-cxtMenuWidget.onCommandRun = () => cxtMenu.hide();
-
 function onMakeOptional(callback) {
     onMakeOptional$1((elemId) => {
         const graphElement = getGraphElementByID(elemId);
@@ -8491,8 +8965,8 @@ function onRemoveOptional(callback) {
     });
 }
 
-const widget = new QueryGraphWidget(bgpContainer, [limit, offset$2, distinctToggle, countStarToggle, sparqlButton, clearQueryButton]);
-// inject tests for allowing joins into renderer, keep renderer logic agnostic
+const widget = new QueryGraphWidget(bgpContainer);
+// // inject tests for allowing joins into renderer, keep renderer logic agnostic
 setJoinStartCondition((nodeID) => {
     const graphElement = getGraphElementByID(nodeID);
     return graphElement ? canStartJoin(graphElement) : false;
@@ -8530,7 +9004,7 @@ function render$1(graphElem, parent, objectProperty) {
         (_b = graphElem.children) === null || _b === void 0 ? void 0 : _b.forEach((childGraphElem) => render$1(childGraphElem, graphElem));
     }
 }
-// remove elements not in query anymore, asynchronously
+// // remove elements not in query anymore, asynchronously
 function removeNodesNotInQuery() {
     let deletedNodeIds = [];
     getElements().forEach(elem => {
@@ -8556,11 +9030,7 @@ function centerOnElem(graphElem) {
             centerOnElement(cyElem, cyElem.cy().maxZoom());
     }
 }
-function getSelectedGraphElement() {
-    var _a;
-    return getGraphElementByID((_a = getElements().filter('.sparqling-selected')[0]) === null || _a === void 0 ? void 0 : _a.id());
-}
-// ******************************* GRAPH INTERACTION CALLBACKS ******************************* //
+// // ******************************* GRAPH INTERACTION CALLBACKS ******************************* //
 function onAddHead(callback) {
     onAddHead$1(id => {
         const graphElement = getGraphElementByID(id);
@@ -8573,7 +9043,6 @@ function onDelete$1(callback) {
         const graphElement = getGraphElementByID(id) || getParentFromChildId(id);
         if (graphElement)
             callback(graphElement, iri);
-        cxtMenu.hide();
     });
 }
 function onAddFilter$1(callback) {
@@ -8605,32 +9074,9 @@ function onElementClick(callback) {
             callback(graphElement, iri);
     });
 }
-function isIriInQueryGraph(iri) {
+function isIriInQueryGraph$1(iri) {
     return getGraphElementByIRI(iri) ? true : false;
 }
-
-var queryGraph = /*#__PURE__*/Object.freeze({
-    __proto__: null,
-    widget: widget,
-    selectElement: selectElement,
-    render: render$1,
-    removeNodesNotInQuery: removeNodesNotInQuery,
-    centerOnElem: centerOnElem,
-    getSelectedGraphElement: getSelectedGraphElement,
-    onAddHead: onAddHead,
-    onDelete: onDelete$1,
-    onAddFilter: onAddFilter$1,
-    onSeeFilters: onSeeFilters,
-    onJoin: onJoin,
-    onElementClick: onElementClick,
-    isIriInQueryGraph: isIriInQueryGraph,
-    renderOptionals: renderOptionals,
-    setLanguage: setLanguage,
-    onMakeOptional: onMakeOptional,
-    onRemoveOptional: onRemoveOptional,
-    setDisplayedNameType: setDisplayedNameType,
-    setTheme: setTheme
-});
 
 let sortChangedCallback;
 let dragging;
@@ -8663,7 +9109,7 @@ function onDragEnd(event) {
         elemsWrapper.replaceChild(dragging, dropIndicator);
         setTimeout(() => dragging.classList.remove('dragged'), 100);
         const draggedElemNewIndex = getDraggedElemNewIndex();
-        if (draggedElemNewIndex)
+        if (draggedElemNewIndex || draggedElemNewIndex === 0)
             sortChangedCallback(dragging._id, draggedElemNewIndex);
     }
     else {
@@ -8697,205 +9143,60 @@ function getDraggedElemNewIndex() {
 }
 
 const ALIAS_INPUT_ID = 'alias';
-class HeadElementComponent extends UI.GscapeWidget {
+class HeadElementComponent extends ui.BaseMixin(ui.DropPanelMixin(s)) {
     constructor(headElement) {
         super();
-        this.collapsible = true;
-        this.renameCallback = (headElemntID, alias) => { };
-        this.localizeCallback = (headElementId) => { };
+        this.showCxtMenu = () => { };
+        this.onDelete = () => { };
+        this.onRename = () => { };
+        this.onLocalize = () => { };
+        this.onOrderBy = () => { };
         this.addFilterCallback = (headElementId) => { };
         this.editFilterCallback = (filterId) => { };
         this.deleteFilterCallback = (filterId) => { };
         this.addFunctionCallback = (headElementId) => { };
-        this.orderByCallback = (headElementId) => { };
         this.addAggregationCallback = (headElementId) => { };
         this.headElement = headElement;
-        this.deleteButton = new UI.GscapeButton(rubbishBin, 'Delete Field');
-        this.deleteButton.onClick = () => { };
-        this.deleteButton.classList.add('danger');
-        this.toggleBodyButton = new UI.GscapeButton(UI.icons.triangle_down, 'Show More', UI.icons.triangle_up);
-        this.toggleBodyButton.onClick = () => this.toggleBody();
-        this.toggleBodyButton.style.boxShadow = 'none';
-        this.localizeButton = new UI.GscapeButton(crosshair, 'Find in Query Graph');
-        this.localizeButton.onClick = () => this.localizeCallback(this._id);
-        this.addFilterButton = new UI.GscapeButton(addFilter$1, 'Add Filter');
-        this.addFilterButton.onClick = () => this.addFilterCallback(this._id);
-        this.addFunctionButton = new UI.GscapeButton(functionIcon, 'Add Function');
-        this.addFunctionButton.onClick = () => this.addFunctionCallback(this._id);
-        this.orderByButton = new UI.GscapeButton(null, 'Order By');
-        this.orderByButton.onClick = () => this.orderByCallback(this._id);
-        this.addAggregationButton = new UI.GscapeButton(sigma, 'Add Aggregation Function');
-        this.addAggregationButton.onClick = () => this.addAggregationCallback(this._id);
+        // this.deleteButton = new UI.GscapeButton(rubbishBin, 'Delete Field')
+        // this.deleteButton.onClick = () => { }
+        // this.deleteButton.classList.add('danger')
+        // this.toggleBodyButton = new UI.GscapeButton(UI.icons.triangle_down, 'Show More', UI.icons.triangle_up)
+        // this.toggleBodyButton.onClick = () => (this as any).toggleBody()
+        // this.toggleBodyButton.style.boxShadow = 'none'
+        // this.localizeButton = new UI.GscapeButton(crosshair, 'Find in Query Graph')
+        // this.localizeButton.onClick = () => this.localizeCallback(this._id)
+        // this.addFilterButton = new UI.GscapeButton(addFilter, 'Add Filter')
+        // this.addFilterButton.onClick = () => this.addFilterCallback(this._id)
+        // this.addFunctionButton = new UI.GscapeButton(functionIcon, 'Add Function')
+        // this.addFunctionButton.onClick = () => this.addFunctionCallback(this._id)
+        // this.orderByButton = new UI.GscapeButton(null, 'Order By')
+        // this.orderByButton.onClick = () => this.orderByCallback(this._id)
+        // this.addAggregationButton = new UI.GscapeButton(sigma, 'Add Aggregation Function')
+        // this.addAggregationButton.onClick = () => this.addAggregationCallback(this._id)
         this.ondragstart = (evt) => onDragStart(evt);
         this.ondragover = (evt) => onDragOver(evt);
         this.ondragend = (evt) => onDragEnd(evt);
         this.ondrop = (evt) => evt.preventDefault();
     }
-    static get properties() {
-        let props = super.properties;
-        let new_props = {
-            alias: { attribute: false },
-            graphElementId: { attribute: false },
-            function: { attribute: false },
-            _entityType: { type: String },
-        };
-        Object.assign(props, new_props);
-        return props;
-    }
-    static get styles() {
-        let super_styles = super.styles;
-        let colors = super_styles[1];
-        return [
-            super_styles[0],
-            r$2 `
-        :host {
-          display:block;
-          height: fit-content;
-          margin:5px 2.5px 5px 0;
-          padding: 5px;
-          position: relative;
-          opacity:1;
-          border: none;
-          transition: all 0.5s;
-        }
-
-        :host(.dragged) {
-          opacity: 0.2;
-          border: solid 2px var(--theme-gscape-secondary, ${colors.secondary});
-        }
-
-        input {
-          font-size: inherit;
-          text-align: center;
-          padding:2px;
-          border-radius: 4px;
-          border: solid 1px var(--theme-gscape-shadows, ${colors.shadows});
-          color: inherit;
-          font-weight: bold;
-          width:100%;
-          box-sizing: border-box;
-          background-color: var(--theme-gscape-primary, ${colors.primary});
-        }
-
-        .input-wrapper, select {
-          margin:5px 0;
-        }
-
-        #drag-handler {
-          display: none;
-          cursor: grab;
-        }
-
-        #field-head, #field-head-input-action-wrapper {
-          display: flex;
-          align-items: center;
-          gap: 10px;
-        }
-
-        #field-head-input-action-wrapper {
-          flex-direction: column;
-          flex-grow:2;
-        }
-
-        #field-head-input-action-wrapper > input {
-          margin: 0;
-          background-color: inherit;
-          border: none;
-        }
-
-        #field-head-input-action-wrapper > input:hover {
-          border: solid 1px var(--theme-gscape-shadows, ${colors.shadows});
-        }
-
-        #field-head-input-action-wrapper:hover > #actions {
-          display: flex;
-        }
-
-        #field-head-input-action-wrapper:hover > #state-tray {
-          display: none;
-        }
-
-        #field-head:hover > #drag-handler {
-          display: block;
-        }
-
-        #field-head-input-action-wrapper > input:focus {
-          background-color: var(--theme-gscape-primary, ${colors.primary});
-        }
-
-        gscape-button {
-          position:initial;
-          width: fit-content;
-          --gscape-icon-size: 20px;
-          background: inherit;
-        }
-
-        #actions {
-          display: none;
-          align-items: center;
-          gap: 10px;
-        }
-
-        .danger:hover {
-          color: var(--theme-gscape-error, ${colors.error});
-        }
-
-        .filters-function-list {
-          display:flex;
-          flex-direction: column;
-          gap: 20px;
-          padding: 10px 5px;
-        }
-
-        .section {
-          padding: 5px;
-          margin: 10px 0;
-        }
-
-        .section > .title {
-          font-weight: bold;
-        }
-
-        #drag-handler {
-          height: 20px;
-          width: 20px;
-        }
-
-        #state-tray {
-          display: flex;
-        }
-        #state-tray > svg {
-          height: calc(var(--gscape-icon-size) - 6px);
-          width: calc(var(--gscape-icon-size) - 6px);
-        }
-      `,
-            getElemWithOperatorStyle(),
-        ];
-    }
     render() {
         var _a, _b;
-        if (this.ordering > 0) {
-            this.orderByButton.icon = sortAscendingIcon;
-            this.orderByButton.highlighted = true;
-        }
-        else if (this.ordering < 0) {
-            this.orderByButton.icon = sortDescendingIcon;
-            this.orderByButton.highlighted = true;
-        }
-        else {
-            this.orderByButton.icon = sortIcon;
-            this.orderByButton.highlighted = false;
-        }
+        // if (this.ordering > 0) {
+        //   this.orderByButton.icon = sortAscendingIcon
+        //   this.orderByButton.highlighted = true
+        // } else if (this.ordering < 0) {
+        //   this.orderByButton.icon = sortDescendingIcon
+        //   this.orderByButton.highlighted = true
+        // } else {
+        //   this.orderByButton.icon = sortIcon
+        //   this.orderByButton.highlighted = false
+        // }
         return $ `
       <div>
         <div id="field-head">
-          <div
-            id="drag-handler"
-            draggable="true"
-          >
+          <div id="drag-handler" draggable="true">
             ${dragHandler}
           </div>
-          <div id="field-head-input-action-wrapper">
+          <div id="alias-input">
             <input
               id="${ALIAS_INPUT_ID}"
               @focusout="${this.handleInputChange}"
@@ -8903,33 +9204,35 @@ class HeadElementComponent extends UI.GscapeWidget {
               value="${this.alias || this.graphElementId}"
               title="Rename Field"
             />
-            ${this.hasAnythingInBody || this.ordering
-            ? $ `
-                <div id="state-tray">
-                  ${((_a = this.filters) === null || _a === void 0 ? void 0 : _a.length) > 0 ? filter : null}
-                  ${this.function ? functionIcon : null}
-                  ${this.ordering > 0 ? sortAscendingIcon : null}
-                  ${this.ordering < 0 ? sortDescendingIcon : null}
-                  ${this.groupBy ? sigma : null}
-                </div>
-              `
-            : null}
-            <div id="actions">
-              ${this.localizeButton}
-              ${this.deleteButton}
-              ${this.addFilterButton}
-              ${!this.function ? this.addFunctionButton : null}
-              ${this.orderByButton}
-              ${!this.groupBy ? this.addAggregationButton : null}
-            </div>
           </div>
-          ${this.hasAnythingInBody ? this.toggleBodyButton : null}
+          <div id="actions">
+            ${getTrayButtonTemplate('Show in graphs', crosshair, undefined, 'localize-action', () => this.onLocalize(this._id))}
+            ${getTrayButtonTemplate('Order results ascending/descending', this.orderIcon, undefined, 'sort-action', () => this.onOrderBy(this._id))}
+            ${getTrayButtonTemplate('More actions', kebab, undefined, 'cxt-menu-action', () => this.showCxtMenu())}
+          </div>
+          ${this.hasAnythingInBody || this.ordering !== 0
+            ? $ `
+              <div id="state-tray">
+                ${this.function ? functionIcon : null}
+                ${this.ordering && this.ordering !== 0 ? this.orderIcon : null}
+                ${((_a = this.filters) === null || _a === void 0 ? void 0 : _a.length) > 0 ? filter : null}
+                ${this.groupBy ? sigma : null}
+              </div>
+            `
+            : null}
+          ${this.hasAnythingInBody
+            ? $ `
+              <div id="toggle-panel">
+                ${getTrayButtonTemplate('Expand', expandMore, expandLess, 'expand-action', this.togglePanel)}
+              </div>
+            `
+            : null}
         </div>
-        <div id="field-body" class="widget-body hide">
+        <div id="drop-panel" class="hide">
           ${this.groupBy
             ? $ `
               <div class="section">
-                <div class="section-header">Aggregation</div>
+                <div class="section-header bold-text">Aggregation</div>
                 <div class="filters-function-list">
                   ${getElemWithOperatorList([this.groupBy])}
                 </div>
@@ -8944,7 +9247,7 @@ class HeadElementComponent extends UI.GscapeWidget {
           ${this.function
             ? $ `
               <div class="section">
-                <div class="section-header">Function</div>
+                <div class="section-header bold-text">Function</div>
                 <div class="filters-function-list">
                   ${getElemWithOperatorList([this.function])}
                 </div>
@@ -8955,17 +9258,13 @@ class HeadElementComponent extends UI.GscapeWidget {
           ${((_b = this.filters) === null || _b === void 0 ? void 0 : _b.length) > 0
             ? $ `
               <div class="section">
-                <div class="section-header">Filters</div>
+                <div class="section-header bold-text">Filters</div>
                 <div class="filters-function-list">
                   ${getElemWithOperatorList(this.filters, this.editFilterCallback, this.deleteFilterCallback)}
                 </div>
               </div>
             `
             : null}
-          <!-- ******************  SORT  ****************** -->
-          <div class="section" style="text-align: center; margin-bottom:0">
-            ${this.getSelect('sort', 'sort-select', 'sort', { asc: 'Ascending', desc: 'Descending' })}
-          </div>
         </div>
       </div>
     `;
@@ -8990,12 +9289,11 @@ class HeadElementComponent extends UI.GscapeWidget {
         if (newElement.having)
             this.having = newElement.having;
         let types = {
-            'class': 'concept',
-            'objectProperty': 'role',
-            'dataProperty': 'attribute'
+            'class': 'class',
+            'objectProperty': 'object-property',
+            'dataProperty': 'data-property'
         };
-        let self = this;
-        self.style.backgroundColor = `var(--theme-gscape-${types[this.entityType]})`;
+        this.style.borderColor = `var(--gscape-color-${types[this.entityType]}-contrast)`;
         if (newElement.graphElementId) {
             const filtersOnVariable = getFiltersOnVariable(newElement.graphElementId);
             if (filtersOnVariable)
@@ -9019,14 +9317,12 @@ class HeadElementComponent extends UI.GscapeWidget {
     handleInputChange(evt) {
         let target = evt.currentTarget;
         if (this.alias !== target.value && target.value.length > 0 && target.value !== this.graphElementId) {
-            this.renameCallback(this._id, target.value);
+            this.onRename(this._id, target.value);
         }
         else {
             target.value = this.alias || this.graphElementId;
         }
     }
-    onRename(callback) { this.renameCallback = callback; }
-    onLocalize(callback) { this.localizeCallback = callback; }
     onFunctionSet(callback) { }
     onAddFilter(callback) {
         this.addFilterCallback = callback;
@@ -9040,9 +9336,6 @@ class HeadElementComponent extends UI.GscapeWidget {
     onAddFunction(callback) {
         this.addFunctionCallback = callback;
     }
-    onOrderByChange(callback) {
-        this.orderByCallback = callback;
-    }
     onAddAggregation(callback) {
         this.addAggregationCallback = callback;
     }
@@ -9053,167 +9346,246 @@ class HeadElementComponent extends UI.GscapeWidget {
         var _a;
         return ((_a = this.filters) === null || _a === void 0 ? void 0 : _a.length) > 0 || this.function || this.groupBy;
     }
-}
-customElements.define('head-element', HeadElementComponent);
-
-const { GscapeWidget } = UI;
-/**
- * Widget extending base grapholscape widget which uses Lit-element inside
- */
-class QueryHeadWidget extends GscapeWidget {
-    constructor(headSlottedWidget) {
-        super();
-        this.headElements = [];
-        this.collapsible = true;
-        if (headSlottedWidget)
-            this.headSlottedWidgets = headSlottedWidget;
+    get orderIcon() {
+        if (this.ordering > 0) {
+            return sortAscendingIcon;
+        }
+        else if (this.ordering < 0) {
+            return sortDescendingIcon;
+        }
+        else {
+            return sortIcon;
+        }
     }
-    static get properties() {
-        let result = super.properties;
-        result.headElements = { attribute: false };
+    get moreActionsButton() {
+        var _a;
+        return (_a = this.shadowRoot) === null || _a === void 0 ? void 0 : _a.querySelector('#cxt-menu-action');
+    }
+    get cxtMenuCommands() {
+        const result = [];
+        result.push({
+            content: 'Add Filter',
+            icon: addFilter$1,
+            select: () => this.addFilterCallback(this._id)
+        });
+        if (!this.function) {
+            result.push({
+                content: 'Add Function',
+                icon: functionIcon,
+                select: () => this.addFunctionCallback(this._id)
+            });
+        }
+        if (!this.groupBy) {
+            result.push({
+                content: 'Add aggregation function',
+                icon: sigma,
+                select: () => this.addAggregationCallback(this._id)
+            });
+        }
+        result.push({
+            content: 'Delete field',
+            icon: rubbishBin,
+            select: () => this.onDelete(this._id)
+        });
         return result;
     }
-    static get styles() {
-        let super_styles = super.styles;
-        let colors = super_styles[1];
-        return [
-            super_styles[0],
-            r$2 `
-        :host {
-          position:initial;
-          width: 300px;
-          background: transparent;
-          box-shadow: none;
-          pointer-events:initial;
-        }
+}
+HeadElementComponent.properties = {
+    alias: { attribute: false },
+    graphElementId: { attribute: false },
+    function: { attribute: false },
+    _entityType: { type: String },
+};
+HeadElementComponent.styles = [
+    ui.baseStyle,
+    getElemWithOperatorStyle(),
+    r$2 `
+      :host {
+        display:block;
+        height: fit-content;
+        margin:5px 0;
+        position: relative;
+        opacity:1;
+        border: none;
+        transition: all 0.5s;
+        border-left: solid 2px;
+      }
 
-        :host(:hover){
-          box-shadow: none;
-        }
+      :host(.dragged) {
+        opacity: 0.2;
+        border: solid 2px var(--gscape-color-accent);
+      }
 
-        gscape-head {
-          --title-text-align: 'left';
-          border-radius: 8px;
-        }
+      #alias-input {
+        flex-grow: 2;
+      }
 
-        gscape-head, #empty-head {
-          background-color: var(--theme-gscape-primary, ${colors.primary});
-          box-shadow: 0 2px 4px 0 var(--theme-gscape-shadows, ${colors.shadows});
-        }
+      #field-head{
+        display: flex;
+        align-items: center;
+        gap: 2px;
+        padding-left: 20px;
+      }
 
-        .widget-body {
-          margin:0;
-          border-top: none;
-          border-radius: inherit;
-          border-bottom-left-radius:0;
-          border-bottom-right-radius:0;
-          max-height:350px;
-        }
+      #drag-handler {
+        cursor: grab;
+        display: none;
+        line-height: 0;
+        position: absolute;
+        left: 0;
+      }
 
-        #elems-wrapper {
-          display: flex;
-          flex-direction: column;
-        }
+      :host(:hover) #drag-handler {
+        display: inline-block;
+      }
 
-        #buttons-tray > * {
-          position: initial;
-        }
+      #field-head:hover > #actions {
+        display: flex;
+      }
 
-        #buttons-tray {
-          display: flex;
-          align-items: center;
-          justify-content: end;
-          gap:10px;
-          flex-grow: 3;
-          padding: 0 10px;
-        }
+      #field-head:hover > #state-tray {
+        display: none;
+      }
 
-        #buttons-tray > gscape-button {
-          --gscape-icon-size: 20px;
-        }
+      #field-head-input-action-wrapper:hover > #state-tray {
+        display: none;
+      }
+      #field-head-input-action-wrapper > input:focus {
+        background-color: blue;
+      }
 
-        #empty-head {
-          padding: 20px;
-          display: flex;
-          flex-direction: column;
-          align-items: center;
-          gap: 20px;
-          text-align: center;
-        }
+      #actions {
+        align-items: center;
+        display: none;
+      }
 
-        #empty-head > .icon {
-          --gscape-icon-size: 60px;
-        }
+      #actions > * {
+        line-height: 0;
+      }
 
-        #empty-head-msg {
-          font-weight: bold;
-        }
+      .danger:hover {
+        color: var(--gscape-color-error);
+      }
 
-        .tip {
-          font-size: 90%;
-          color: var(--theme-gscape-shadows, ${colors.shadows});
-          border-bottom: dotted 2px;
-          cursor: help;
-        }
+      .filters-function-list {
+        display:flex;
+        flex-direction: column;
+        gap: 20px;
+      }
 
-        .tip: hover {
-          color:inherit;
-        }
-      `
-        ];
+      #state-tray {
+        color: var(--gscape-color-accent);
+        line-height: 0;
+      }
+
+      #state-tray > svg {
+        height: 15px;
+        width: 15px;
+      }
+
+      summary {
+        list-style: none
+      }
+
+      #drop-panel {
+        padding: 8px;
+        padding-right: 0;
+      }
+
+      .section {
+        margin: 8px 0;
+      }
+    `,
+];
+customElements.define('head-element', HeadElementComponent);
+
+class QueryHeadWidget extends ui.BaseMixin(ui.DropPanelMixin(s)) {
+    constructor() {
+        super();
+        this.title = 'Query Results';
+        this.headElements = [];
+        this.togglePanel = () => {
+            super.togglePanel();
+            this.requestUpdate();
+        };
     }
     render() {
         return $ `
-      <div class="widget-body">
-      ${isCountStarActive()
+      ${this.isPanelClosed()
             ? $ `
-          <div id="empty-head">
-            <div class="icon">${counter}</div>
-            <div id="empty-head-msg">${countStarMsg()}</div>
+          <div class="top-bar traslated-down">
+            <gscape-button 
+              id="toggle-panel-button"
+              @click=${this.togglePanel}
+              label=${this.title}
+            > 
+              <span slot="icon">${tableEye}</span>
+              <span slot="trailing-icon">${ui.icons.plus}</span>
+            </gscape-button>
           </div>
         `
-            : this.headElements.length === 0
-                ? $ `
-            <div id="empty-head">
-              <div class="icon">${asterisk}</div>
-              <div id="empty-head-msg">${emptyHeadMsg()}</div>
-              <div class="tip" title="${emptyHeadTipMsg()}">${tipWhy()}</div>
-            </div>
-            `
-                : $ `
-            <div style="overflow-y:scroll; max-height:inherit; scrollbar-width: inherit;">
-              <div id="elems-wrapper" @dragover=${allowDrop} @drop=${allowDrop}>
-                ${this.headElements.map(headElement => new HeadElementComponent(headElement))}
+            : $ `
+          <div class="gscape-panel" id="drop-panel" style="width: 100%; overflow-y:clip">
+            <div class="top-bar">
+              <div id="widget-header" class="bold-text">
+                ${tableEye}
+                <span>${this.title}</span>
               </div>
+
+              <gscape-button 
+                id="toggle-panel-button"
+                size="s" 
+                type="subtle"
+                @click=${this.togglePanel}
+              > 
+                <span slot="icon">${ui.icons.minus}</span>
+              </gscape-button>
             </div>
-            `}
-      </div>
-      <gscape-head title="Query Results">
-        <div id="buttons-tray">
-          ${this.headSlottedWidgets}
-        </div>
-      </gscape-head>
+
+          ${isCountStarActive()
+                ? $ `
+              <div class="blank-slate sparqling-blank-slate">
+                ${counter}
+                <div class="header">${countStarMsg()}</div>
+              </div>
+            `
+                : this.headElements.length === 0
+                    ? $ `
+                <div class="blank-slate sparqling-blank-slate">
+                  ${asterisk}
+                  <div class="header">${emptyHeadMsg()}</div>
+                  <div class="tip description" title="${emptyHeadTipMsg()}">${tipWhy()}</div>
+                </div>
+              `
+                    : $ `
+                <div id="elems-wrapper" @dragover=${allowDrop} @drop=${allowDrop}>
+                  ${this.headElements.map(headElement => new HeadElementComponent(headElement))}
+                </div>
+              `}
+          </div>
+        `}
     `;
     }
     updated() {
+        var _a;
         // register callbacks for all head elements
-        this.shadowRoot.querySelectorAll('head-element').forEach((element) => {
-            element.deleteButton.onClick = () => this.deleteElementCallback(element._id);
-            element.onRename(this.renameElementCallback);
-            element.onLocalize(this.localizeElementCallback);
-            element.onAddFilter(this.addFilterCallback);
-            element.onEditFilter(this.editFilterCallback);
-            element.onDeleteFilter(this.deleteFilterCallback);
-            element.onAddFunction(this.addFunctionCallback);
-            element.onOrderByChange(this.orderByChangeCallback);
-            element.onAddAggregation(this.addAggregationCallback);
+        (_a = this.shadowRoot) === null || _a === void 0 ? void 0 : _a.querySelectorAll('head-element').forEach((element) => {
+            const headElementComponent = element;
+            headElementComponent.onDelete = this.deleteElementCallback;
+            headElementComponent.onRename = this.renameElementCallback;
+            headElementComponent.onLocalize = this.localizeElementCallback;
+            headElementComponent.onAddFilter(this.addFilterCallback);
+            headElementComponent.onEditFilter(this.editFilterCallback);
+            headElementComponent.onDeleteFilter(this.deleteFilterCallback);
+            headElementComponent.onAddFunction(this.addFunctionCallback);
+            headElementComponent.onOrderBy = this.orderByChangeCallback;
+            headElementComponent.onAddAggregation(this.addAggregationCallback);
+            headElementComponent.showCxtMenu = () => {
+                if (headElementComponent.moreActionsButton) {
+                    attachCxtMenuTo(headElementComponent.moreActionsButton, headElementComponent.cxtMenuCommands);
+                }
+            };
         });
-    }
-    firstUpdated() {
-        super.firstUpdated();
-        let self = this;
-        self.header.left_icon = tableEye;
-        this.hide();
     }
     /**
      * Register callback to execute on delete of a HeadElement
@@ -9255,21 +9627,64 @@ class QueryHeadWidget extends GscapeWidget {
         this.addAggregationCallback = callback;
     }
     blur() {
+        var _a;
         // do not call super.blur() cause it will collapse query-head body.
         // This because each click on cytoscape background calls document.activeElement.blur(), 
         // so if any input field has focus, query-head will be the activeElement and will be
         // blurred at each tap. this way we only blur the input elements.
-        this.shadowRoot.querySelectorAll('head-element').forEach(headElementComponent => {
-            headElementComponent.shadowRoot.querySelectorAll('input').forEach(inputElement => inputElement.blur());
+        (_a = this.shadowRoot) === null || _a === void 0 ? void 0 : _a.querySelectorAll('head-element').forEach(headElementComponent => {
+            var _a;
+            (_a = headElementComponent.shadowRoot) === null || _a === void 0 ? void 0 : _a.querySelectorAll('input').forEach(inputElement => inputElement.blur());
         });
     }
-    hide() {
-        super.hide();
-    }
-    show() {
-        super.show();
+    firstUpdated() {
+        this.hide();
     }
 }
+QueryHeadWidget.properties = {
+    headElements: { type: Object, attribute: false }
+};
+QueryHeadWidget.styles = [
+    ui.baseStyle,
+    sparqlingWidgetStyle,
+    r$2 `
+      :host {
+        position:initial;
+        min-height: 30%;
+        margin-bottom: 10px;
+        background: transparent;
+        box-shadow: none;
+        pointer-events:initial;
+      }
+
+      #elems-wrapper {
+        display: flex;
+        height:inherit;
+        flex-direction: column;
+        overflow: hidden scroll;
+        scrollbar-width: inherit;
+        padding: 4px 8px;
+      }
+
+      .blank-slate {
+        max-width: unset;
+      }
+
+      .tip {
+        font-size: 90%;
+        border-bottom: dotted 2px;
+        cursor: help;
+      }
+
+      .tip: hover {
+        color:inherit;
+      }
+
+      .top-bar.traslated-down {
+        bottom: 10px;
+      }
+    `
+];
 customElements.define('query-head', QueryHeadWidget);
 
 const qhWidget = new QueryHeadWidget();
@@ -9318,302 +9733,6 @@ function onAddAggregation(callback) {
     qhWidget.onAddAggregation(headElementId => callback(headElementId));
 }
 
-var queryHead = /*#__PURE__*/Object.freeze({
-    __proto__: null,
-    widget: qhWidget,
-    onDelete: onDelete,
-    onRename: onRename,
-    onLocalize: onLocalize,
-    render: render,
-    onAddFilter: onAddFilter,
-    onEditFilter: onEditFilter,
-    onDeleteFilter: onDeleteFilter,
-    onAddFunction: onAddFunction,
-    onOrderByChange: onOrderByChange,
-    onAddAggregation: onAddAggregation,
-    onElementSortChange: onElementSortChange
-});
-
-function isResponseError(response) {
-    return !response || (response === null || response === void 0 ? void 0 : response.code) === 1 || (response === null || response === void 0 ? void 0 : response.type) === 'error';
-}
-function getErrorMessage(response) {
-    if (isResponseError(response))
-        return response.message;
-}
-function handlePromise(promise, showError = true) {
-    return new Promise(executor);
-    function executor(resolve) {
-        startLoading();
-        promise
-            .then(response => {
-            if (isResponseError(response.data)) {
-                throw new Error(getErrorMessage(response.data));
-            }
-            else {
-                resolve(response.data);
-            }
-        })
-            .catch(error => {
-            console.error(error);
-            if (showError) {
-                errorsDialog.text = `${error.name} : ${error.message}`;
-                errorsDialog.show();
-            }
-        })
-            .finally(() => stopLoading());
-    }
-}
-function startLoading() {
-    increaseLoadingProcesses();
-    startRunButtons.startLoadingAnimation();
-}
-function stopLoading() {
-    decreaseLoadingProcesses();
-    if (getNumberLoadingProcesses() === 0) {
-        startRunButtons.stopLoadingAnimation();
-    }
-}
-
-let gscape;
-var getGscape = () => gscape;
-function setGrapholscapeInstance(grapholscape) {
-    gscape = grapholscape;
-}
-function clearSelected() {
-    gscape.ontology.diagrams.forEach((diagram) => {
-        diagram.unselectAll();
-    });
-}
-function isIriSelected(iri) {
-    let sparqlingSelectedNode = gscape.renderer.cy.$('.sparqling-selected');
-    if (sparqlingSelectedNode.empty())
-        return false;
-    else {
-        const sparqlingSelectedIri = sparqlingSelectedNode.first().data().iri;
-        return sparqlingSelectedIri.full === iri || sparqlingSelectedIri.prefixed === iri;
-    }
-}
-
-/**
- * Select a node without firing cytoscape's selection event
- */
-function focusNodeByIRI(iri) {
-    return __awaiter(this, void 0, void 0, function* () {
-        const gscape = getGscape();
-        let occurrences = gscape.ontology.getEntityOccurrences(iri);
-        // find the first one in the actual diagram
-        let node = occurrences.find((occ) => occ.data('diagram_id') === gscape.actualDiagramID);
-        if (!node)
-            node = occurrences[0];
-        focusNode(node);
-    });
-}
-function focusNodeByIdAndDiagram(nodeId) {
-    return __awaiter(this, void 0, void 0, function* () {
-        const gscape = getGscape();
-        const cyNode = gscape.ontology.getElem(nodeId);
-        if (cyNode) {
-            focusNode(cyNode);
-        }
-    });
-}
-function focusNode(node) {
-    return __awaiter(this, void 0, void 0, function* () {
-        const gscape = getGscape();
-        if ((node === null || node === void 0 ? void 0 : node.data('diagram_id')) !== gscape.actualDiagramID) {
-            yield gscape.showDiagram(node.data('diagram_id'));
-        }
-        if (node) {
-            centerOnElement(node, 1.5);
-        }
-    });
-}
-
-let actualHighlights;
-highlightsList.onSuggestionSelection(iri => focusNodeByIRI(iri));
-const getActualHighlights = () => actualHighlights;
-function highlightIRI(iri) {
-    const gscape = getGscape();
-    let nodes = gscape.ontology.getEntityOccurrences(iri);
-    if (nodes) {
-        nodes.forEach((n) => {
-            n.addClass('highlighted');
-        });
-    }
-}
-function highlightSuggestions(clickedIRI) {
-    if (!clickedIRI)
-        return;
-    resetHighlights();
-    const ogApi = new OntologyGraphApi(undefined, getBasePath());
-    handlePromise(ogApi.highligths(clickedIRI, undefined, getRequestOptions())).then(newHighlights => {
-        actualHighlights = newHighlights;
-        performHighlights(clickedIRI);
-        highlightsList.highlights = transformHighlightsToPrefixedIRIs();
-    });
-}
-function resetHighlights() {
-    const gscape = getGscape();
-    Object.values(gscape.ontologies).forEach((ontology) => {
-        var _a;
-        (_a = ontology === null || ontology === void 0 ? void 0 : ontology.diagrams) === null || _a === void 0 ? void 0 : _a.forEach((diagram) => {
-            let cy = diagram === null || diagram === void 0 ? void 0 : diagram.cy;
-            cy.$('.sparqling-selected').removeClass('sparqling-selected');
-            cy.$('.highlighted').removeClass('highlighted');
-            cy.$('.faded')
-                .removeClass('faded')
-                .selectify();
-        });
-    });
-    actualHighlights = undefined;
-    highlightsList.highlights = undefined;
-}
-function isHighlighted(iri) {
-    var _a, _b, _c;
-    // if ((actualHighlights as AxiosError).isAxiosError) return true
-    return ((_a = actualHighlights === null || actualHighlights === void 0 ? void 0 : actualHighlights.classes) === null || _a === void 0 ? void 0 : _a.includes(iri)) ||
-        ((_b = actualHighlights === null || actualHighlights === void 0 ? void 0 : actualHighlights.dataProperties) === null || _b === void 0 ? void 0 : _b.includes(iri)) ||
-        ((_c = actualHighlights === null || actualHighlights === void 0 ? void 0 : actualHighlights.objectProperties) === null || _c === void 0 ? void 0 : _c.map(obj => obj.objectPropertyIRI).includes(iri)) || false;
-}
-function refreshHighlights() {
-    let selectedGraphElem = getSelectedGraphElement$1();
-    if (selectedGraphElem) {
-        const selectedGraphElemIri = getIri(selectedGraphElem);
-        if (selectedGraphElemIri)
-            performHighlights(selectedGraphElemIri);
-    }
-}
-function performHighlights(clickedIRI) {
-    var _a, _b, _c;
-    const gscape = getGscape();
-    (_a = actualHighlights === null || actualHighlights === void 0 ? void 0 : actualHighlights.classes) === null || _a === void 0 ? void 0 : _a.forEach((iri) => highlightIRI(iri));
-    (_b = actualHighlights === null || actualHighlights === void 0 ? void 0 : actualHighlights.dataProperties) === null || _b === void 0 ? void 0 : _b.forEach((iri) => highlightIRI(iri));
-    (_c = actualHighlights === null || actualHighlights === void 0 ? void 0 : actualHighlights.objectProperties) === null || _c === void 0 ? void 0 : _c.forEach((o) => highlightIRI(o.objectPropertyIRI));
-    // select all nodes having iri = clickedIRI
-    for (const node of gscape.ontology.getEntityOccurrences(clickedIRI)) {
-        if (node.data('diagram_id') === gscape.actualDiagramID) {
-            node.addClass('sparqling-selected');
-            break;
-        }
-    }
-    const highlightedElems = gscape.renderer.cy.$('.highlighted, .sparqling-selected');
-    const fadedElems = gscape.renderer.cy.elements().difference(highlightedElems);
-    fadedElems.addClass('faded');
-    //fadedElems.unselectify()
-}
-function transformHighlightsToPrefixedIRIs() {
-    var _a, _b, _c;
-    let transformedHighlights = JSON.parse(JSON.stringify(actualHighlights));
-    const ontology = getGscape().ontology;
-    transformedHighlights.classes = (_a = transformedHighlights.classes) === null || _a === void 0 ? void 0 : _a.map(iri => getPrefixedIri(iri));
-    transformedHighlights.dataProperties = (_b = transformedHighlights.dataProperties) === null || _b === void 0 ? void 0 : _b.map(iri => getPrefixedIri(iri));
-    transformedHighlights.objectProperties = (_c = transformedHighlights.objectProperties) === null || _c === void 0 ? void 0 : _c.map(branch => {
-        branch.objectPropertyIRI = getPrefixedIri(branch.objectPropertyIRI || '');
-        return branch;
-    });
-    return transformedHighlights;
-    function getPrefixedIri(iri) {
-        const destructuredIRI = ontology.destructureIri(iri);
-        if (destructuredIRI) {
-            return destructuredIRI.prefixed;
-        }
-        else {
-            return iri;
-        }
-    }
-}
-
-let _onRelatedClassSelection = (objectProperty, relatedClass) => { };
-function showRelatedClassesWidget(objProperty, position) {
-    var _a;
-    const actualHighlights = getActualHighlights();
-    if (!actualHighlights || !isHighlighted(objProperty.data('iri').fullIri))
-        return;
-    const gscape = getGscape();
-    // let result: { objPropertyFromApi: Branch; connectedClass: CollectionReturnValue } = {
-    //   objPropertyFromApi: undefined,
-    //   connectedClass: undefined
-    // }
-    let objPropertyFromApi = (_a = actualHighlights.objectProperties) === null || _a === void 0 ? void 0 : _a.find((o) => {
-        if (o === null || o === void 0 ? void 0 : o.objectPropertyIRI)
-            return gscape.ontology.checkEntityIri(objProperty, o.objectPropertyIRI);
-    });
-    if (!objPropertyFromApi || !objPropertyFromApi.relatedClasses || objPropertyFromApi.relatedClasses.length <= 0) {
-        return;
-    }
-    //listSelectionDialog.title = classSelectDialogTitle()
-    // Use prefixed iri if possible, full iri as fallback
-    relatedClassDialog.list = objPropertyFromApi.relatedClasses.map((iri) => {
-        var _a;
-        return gscape.ontology.destructureIri(iri)
-            ? (_a = gscape.ontology.destructureIri(iri)) === null || _a === void 0 ? void 0 : _a.prefixed
-            : iri;
-    });
-    const selectedGraphElement = getSelectedGraphElement$1();
-    if (selectedGraphElement) {
-        relatedClassDialog.class = getPrefixedIri(selectedGraphElement) || getIri(selectedGraphElement);
-        relatedClassDialog.objProperty = objProperty.data('iri').prefixed;
-        relatedClassDialog.reverseArrow = !objPropertyFromApi.direct;
-        relatedClassDialog.show(position);
-        relatedClassDialog.onSelection((iri) => {
-            try {
-                if (objPropertyFromApi) {
-                    // Prefer instance in actual diagram, first one as fallback
-                    let connectedClass = gscape.ontology
-                        .getEntityOccurrences(iri).find(entity => entity.data().diagram_id === gscape.actualDiagramID)
-                        || gscape.ontology.getEntityOccurrences(iri)[0];
-                    connectedClass.selectify();
-                    relatedClassDialog.hide();
-                    _onRelatedClassSelection(objPropertyFromApi, connectedClass);
-                }
-            }
-            catch (e) {
-                console.error(e);
-            }
-        });
-    }
-}
-function hideRelatedClassesWidget() {
-    relatedClassDialog.list = [];
-    relatedClassDialog.hide();
-}
-function onRelatedClassSelection(callback) {
-    _onRelatedClassSelection = callback;
-}
-
-/**
- * Search a value-domain node in the neighborhood of an Entity
- * @param iri the Entity IRI
- */
-function guessDataType(iri) {
-    let gscape = getGscape();
-    // search entities in the standard graphol ontologies because in simplified versions
-    // datatype are not present
-    let nodes = gscape.ontologies.default.getEntityOccurrences(iri);
-    if (!nodes)
-        return;
-    // for each node we have, find a range node leading to a datatype
-    for (let node of nodes) {
-        let valueDomainNodes = node
-            .openNeighborhood(`[type = "${Type.RANGE_RESTRICTION}"]`)
-            .openNeighborhood(`[type = "${Type.VALUE_DOMAIN}"]`);
-        if (valueDomainNodes[0] && valueDomainNodes.length > 0) {
-            let valueDomainType = valueDomainNodes[0].data().iri.prefixed; // xsd:(??)
-            let key = Object.keys(VarOrConstantConstantTypeEnum).find(k => {
-                return VarOrConstantConstantTypeEnum[k] === valueDomainType;
-            });
-            if (key)
-                return VarOrConstantConstantTypeEnum[key];
-        }
-    }
-}
-function addStylesheet(cy, stylesheet) {
-    stylesheet.forEach(styleObj => {
-        cy.style().selector(styleObj.selector).style(styleObj.style);
-    });
-}
-
 function getHeadElementWithDatatype(headElement) {
     const headElementCopy = JSON.parse(JSON.stringify(headElement));
     if (headElementCopy.graphElementId) {
@@ -9621,9 +9740,10 @@ function getHeadElementWithDatatype(headElement) {
         if (relatedGraphElem) {
             const relatedGraphElemIri = getIri(relatedGraphElem);
             if (relatedGraphElemIri) {
+                const grapholEntity = getGscape().ontology.getEntity(relatedGraphElemIri);
                 headElementCopy['entityType'] = getEntityType(relatedGraphElem);
                 headElementCopy['dataType'] = headElementCopy['entityType'] === EntityTypeEnum.DataProperty
-                    ? guessDataType(relatedGraphElemIri)
+                    ? grapholEntity.datatype
                     : null;
                 return headElementCopy;
             }
@@ -9634,20 +9754,16 @@ function getHeadElementWithDatatype(headElement) {
 
 function onNewBody(newBody) {
     var _a;
-    const limitInputElement = limit.querySelector('input');
-    const offsetInputElement = offset$2.querySelector('input');
     // empty query
     if (!newBody.graph) {
-        setSelectedGraphElement(undefined);
+        setActiveElement(undefined);
         getOriginGrapholNodes().clear();
         resetHighlights();
-        getGscape().unselectEntity();
-        distinctToggle.state = false;
-        countStarToggle.state = false;
-        if (limitInputElement)
-            limitInputElement.value = '';
-        if (offsetInputElement)
-            offsetInputElement.value = '';
+        getGscape().unselect();
+        distinctToggle.checked = true;
+        countStarToggle$1.checked = false;
+        limitInput$1.value = '';
+        offsetInput.value = '';
     }
     startRunButtons.canQueryRun = newBody.graph && !isStandalone() && core.onQueryRun !== undefined;
     let body = setQueryBody(newBody);
@@ -9659,87 +9775,307 @@ function onNewBody(newBody) {
     render((_a = body.head) === null || _a === void 0 ? void 0 : _a.map((headElem) => getHeadElementWithDatatype(headElem)));
     filterListDialog.filterList = getFiltersOnVariable(filterListDialog.variable);
     sparqlDialog.text = (body === null || body === void 0 ? void 0 : body.sparql) ? body.sparql : emptyQueryMsg();
-    if (limitInputElement && offsetInputElement) {
-        distinctToggle.disabled =
-            countStarToggle.disabled =
-                limitInputElement.disabled =
-                    offsetInputElement.disabled =
-                        (newBody === null || newBody === void 0 ? void 0 : newBody.graph) ? false : true;
+    distinctToggle.disabled =
+        countStarToggle$1.disabled =
+            limitInput$1.disabled =
+                offsetInput.disabled =
+                    (newBody === null || newBody === void 0 ? void 0 : newBody.graph) ? false : true;
+    if (!distinctToggle.disabled)
+        distinctToggle.classList.add('actionable');
+    if (!countStarToggle$1.disabled)
+        countStarToggle$1.classList.add('actionable');
+}
+
+function handleDistinctChange() {
+    if (!isCountStarActive()) {
+        setMainDistinct(!distinctToggle.checked);
+    }
+    else {
+        const qExtraApi = new QueryGraphExtraApi(undefined, getBasePath());
+        handlePromise(qExtraApi.countStarQueryGraph(!distinctToggle.checked, getQueryBody(), getRequestOptions())).then(newBody => onNewBody(newBody));
+    }
+}
+function setMainDistinct(value) {
+    const qExtraApi = new QueryGraphExtraApi(undefined, getBasePath());
+    handlePromise(qExtraApi.distinctQueryGraph(value, getQueryBody(), getRequestOptions())).then(newBody => {
+        onNewBody(newBody);
+    });
+}
+function handleCountStarChange() {
+    const queryBody = getQueryBody();
+    const qExtraApi = new QueryGraphExtraApi(undefined, getBasePath());
+    const distinct = !distinctToggle.checked;
+    if (isCountStarActive()) {
+        // remove headElement associated to count star
+        const qHeadApi = new QueryGraphHeadApi(undefined, getBasePath());
+        const countStarHeadElement = queryBody.head[0];
+        if (countStarHeadElement === null || countStarHeadElement === void 0 ? void 0 : countStarHeadElement.id) {
+            handlePromise(qHeadApi.deleteHeadTerm(countStarHeadElement.id, queryBody, getRequestOptions())).then(newBody => {
+                onNewBody(newBody);
+                setMainDistinct(distinct);
+            });
+        }
+    }
+    else {
+        // add count star
+        handlePromise(qExtraApi.countStarQueryGraph(distinct, queryBody, getRequestOptions())).then(newBody => {
+            onNewBody(newBody);
+            setMainDistinct(false);
+        });
+    }
+}
+function handleOffsetChange(evt) {
+    const queryBody = getQueryBody();
+    if (!(queryBody === null || queryBody === void 0 ? void 0 : queryBody.graph))
+        return;
+    const input = evt.currentTarget;
+    if (input) {
+        let value = input.valueAsNumber;
+        const qExtraApi = new QueryGraphExtraApi(undefined, getBasePath());
+        if (validateInputElement(input) && value !== queryBody.offset) {
+            // if NaN but valid, then th field is empty, pass -1 to remove the offset
+            if (isNaN(value)) {
+                value = -1;
+                if (value === queryBody.offset || !queryBody.offset) {
+                    //if offset is not set, no need to remove it, return
+                    return;
+                }
+            }
+            handlePromise(qExtraApi.offsetQueryGraph(value, queryBody, getRequestOptions())).then(newBody => {
+                onNewBody(newBody);
+            });
+        }
+        else {
+            input.value = queryBody.offset && queryBody.offset > 0
+                ? queryBody.offset.toString()
+                : '';
+        }
+    }
+}
+function handleLimitChange(evt) {
+    const queryBody = getQueryBody();
+    if (!(queryBody === null || queryBody === void 0 ? void 0 : queryBody.graph))
+        return;
+    const input = evt.currentTarget;
+    if (input) {
+        let value = input.valueAsNumber;
+        const qExtraApi = new QueryGraphExtraApi(undefined, getBasePath());
+        if (validateInputElement(input) && value !== queryBody.limit) {
+            // if NaN but valid, then th field is empty, pass -1 to remove the limit
+            if (isNaN(value)) {
+                value = -1;
+                if (value === queryBody.limit || !queryBody.limit) {
+                    //if limit is not set, no need to remove it, return
+                    return;
+                }
+            }
+            handlePromise(qExtraApi.limitQueryGraph(value, queryBody, getRequestOptions())).then(newBody => {
+                onNewBody(newBody);
+            });
+        }
+        else {
+            input.value = queryBody.limit && queryBody.limit > 0 ? queryBody.limit.toString() : '';
+        }
     }
 }
 
-const { CONCEPT, OBJECT_PROPERTY, DATA_PROPERTY } = Type;
+const limitInput = document.createElement('input');
+limitInput.placeholder = 'Num. of results';
+limitInput.type = 'number';
+limitInput.id = 'limit-input';
+limitInput.min = '1';
+limitInput.disabled = true;
+limitInput.onchange = handleLimitChange;
+limitInput.addEventListener('focusout', handleLimitChange);
+limitInput.onsubmit = handleLimitChange;
+var limitInput$1 = limitInput;
+
+const countStarToggle = new ui.GscapeToggle();
+countStarToggle.label = 'Count Results';
+countStarToggle.labelPosition = ui.GscapeToggle.ToggleLabelPosition.LEFT;
+countStarToggle.classList.add('actionable');
+countStarToggle.disabled = true;
+countStarToggle.onclick = (evt) => {
+    evt.preventDefault();
+    if (!countStarToggle.disabled) {
+        countStarToggle.checked = !countStarToggle.checked;
+        handleCountStarChange();
+    }
+};
+var countStarToggle$1 = countStarToggle;
+
+class ContextMenuWidget extends ui.BaseMixin(s) {
+    constructor() {
+        super(...arguments);
+        this.commands = [];
+        this.onCommandRun = () => { };
+    }
+    render() {
+        return $ `
+    <div class="gscape-panel">
+      ${this.commands.map((command, id) => {
+            return $ `
+          <div class="command-entry actionable" command-id="${id}" @click=${this.handleCommandClick}>
+            <span class="command-icon">${command.icon}</span>
+            <span class="command-text">${command.content}</span>
+          <div>
+        `;
+        })}
+    </div>
+    `;
+    }
+    handleCommandClick(e) {
+        this.commands[e.currentTarget.getAttribute('command-id')].select();
+        this.onCommandRun();
+    }
+}
+ContextMenuWidget.properties = {
+    commands: { attribute: false }
+};
+ContextMenuWidget.styles = [
+    ui.baseStyle,
+    r$2 `
+      :host {
+        position: initial;
+        display: flex;
+        flex-direction: column;
+        padding: 5px 0;
+      }
+
+      .command-entry {
+        white-space: nowrap;
+        cursor: pointer;
+        padding: 5px 10px;
+        display: flex;
+        gap: 10px;
+        align-items: center;
+      }
+
+      .command-icon {
+        width: 19px;
+        height: 19px;
+      }
+
+      .command-text {
+        position: relative;
+        top: 2px;
+      }
+
+      .gscape-panel {
+        overflow: unset;
+      }
+    `
+];
+customElements.define('query-graph-cxt-menu', ContextMenuWidget);
+
+const cxtMenuWidget = new ContextMenuWidget();
+const cxtMenu = tippy(document.createElement('div'));
+function getCxtMenuProps() {
+    return {
+        trigger: 'manual',
+        allowHTML: true,
+        interactive: true,
+        placement: "bottom",
+        appendTo: document.querySelector('.gscape-ui') || undefined,
+        // content prop can be used when the target is a single element https://atomiks.github.io/tippyjs/v6/constructor/#prop
+        content: cxtMenuWidget,
+        hideOnClick: true,
+        offset: [0, 0],
+    };
+}
+function attachCxtMenuTo(element, commands) {
+    cxtMenu.setProps(getCxtMenuProps());
+    cxtMenu.setProps({ getReferenceClientRect: () => element.getBoundingClientRect() });
+    cxtMenuWidget.commands = commands;
+    cxtMenu.show();
+}
+cxtMenuWidget.onCommandRun = () => cxtMenu.hide();
+
+const sparqlDialog = new SparqlDialog();
+const relatedClassDialog = new RelatedClassSelection();
+const highlightsList = new HighlightsList();
+const filterDialog = new FilterDialog();
+const filterListDialog = new FilterListDialog();
+const functionDialog = new FunctionDialog();
+const aggregationDialog = new AggregationDialog();
+const startRunButtons = new SparqlingStartRunButtons();
+const errorsDialog = new ErrorsDialog();
+
 let lastObjProperty;
-//let selectedGraphElement: GraphElement
-let isIriHighlighted;
-let iriInQueryGraph;
-let clickedIRI;
-// const iriInQueryGraph = actualBody ? queryManager.getGraphElementByIRI(clickedIRI) : null
-function handleEntitySelection(cyEntity) {
+function handleEntitySelection(entityIriString, entityType, entityOccurrence) {
     var _a, _b;
     return __awaiter(this, void 0, void 0, function* () {
-        let clickedIRI = cyEntity.data('iri').fullIri;
-        const selectedGraphElement = getSelectedGraphElement$1();
-        if (selectedGraphElement && graphElementHasIri(selectedGraphElement, clickedIRI) && !lastObjProperty) {
-            if (!isIriSelected(clickedIRI)) {
+        const gscape = getGscape();
+        const entityIri = new Iri(entityIriString, gscape.ontology.namespaces);
+        const activeElement = getActiveElement();
+        if (activeElement && graphElementHasIri(activeElement.graphElement, entityIriString) && !lastObjProperty) {
+            if (!isIriSelected(entityIri)) {
                 resetHighlights();
-                highlightSuggestions(clickedIRI);
+                highlightSuggestions(entityIriString);
             }
             return;
         }
-        const gscape = getGscape();
-        switch (cyEntity.data('type')) {
-            case OBJECT_PROPERTY: {
+        switch (entityType) {
+            case GrapholTypesEnum.OBJECT_PROPERTY: {
                 // let result = await handleObjectPropertySelection(cyEntity)
                 // if (result && result.connectedClass) {
                 //   gscape.centerOnNode(result.connectedClass.id(), 1.8)
                 // }
                 break;
             }
-            case CONCEPT: {
-                (_a = handleConceptSelection(cyEntity)) === null || _a === void 0 ? void 0 : _a.then(newBody => {
+            case GrapholTypesEnum.CLASS: {
+                (_a = handleConceptSelection(entityIriString)) === null || _a === void 0 ? void 0 : _a.then(newBody => {
                     var _a;
                     if (!newBody)
                         return;
                     // Get nodes not present in the old graph
                     const newGraphElements = getdiffNew((_a = getQueryBody()) === null || _a === void 0 ? void 0 : _a.graph, newBody.graph);
-                    const newSelectedGraphElement = setOriginNode(cyEntity, newGraphElements);
+                    const newSelectedGraphElement = setOriginNode(entityOccurrence, newGraphElements, entityIriString);
                     resetHighlights();
-                    highlightSuggestions(clickedIRI);
+                    highlightSuggestions(entityIriString);
                     onNewBody(newBody);
                     // after onNewBody because we need to select the element after rendering phase
                     if (newSelectedGraphElement && newSelectedGraphElement.id) {
                         // The node to select is the one having the clickedIri among the new nodes
-                        setSelectedGraphElement(selectElement(newSelectedGraphElement.id));
+                        selectElement(newSelectedGraphElement.id);
+                        setActiveElement({
+                            graphElement: newSelectedGraphElement,
+                            iri: entityIri,
+                        });
                     }
                 });
                 break;
             }
-            case DATA_PROPERTY: {
-                (_b = handleDataPropertySelection(cyEntity)) === null || _b === void 0 ? void 0 : _b.then(newBody => {
+            case GrapholTypesEnum.DATA_PROPERTY: {
+                (_b = handleDataPropertySelection(entityIriString)) === null || _b === void 0 ? void 0 : _b.then(newBody => {
                     var _a;
                     if (!newBody)
                         return;
                     const newGraphElements = getdiffNew((_a = getQueryBody()) === null || _a === void 0 ? void 0 : _a.graph, newBody.graph);
-                    setOriginNode(cyEntity, newGraphElements);
+                    setOriginNode(entityOccurrence, newGraphElements, entityIriString);
                     onNewBody(newBody);
                 });
                 break;
             }
         }
-        gscape.unselectEntity();
+        gscape.unselect();
     });
 }
-onRelatedClassSelection((branch, relatedClass) => {
+onRelatedClassSelection(handleObjectPropertySelection);
+function handleObjectPropertySelection(branch, relatedClassEntityOccurrence) {
+    var _a, _b;
     const gscape = getGscape();
     lastObjProperty = branch;
-    gscape.centerOnNode(relatedClass.id());
-    handleEntitySelection(relatedClass);
-});
+    gscape.centerOnElement(relatedClassEntityOccurrence.elementId, relatedClassEntityOccurrence.diagramId);
+    const relatedClassCyElement = (_b = (_a = gscape.ontology
+        .getDiagram(relatedClassEntityOccurrence.diagramId)) === null || _a === void 0 ? void 0 : _a.representations.get(gscape.renderState)) === null || _b === void 0 ? void 0 : _b.cy.$id(relatedClassEntityOccurrence.elementId);
+    if (relatedClassCyElement)
+        handleEntitySelection(relatedClassCyElement.data().iri, relatedClassCyElement.data().type, relatedClassEntityOccurrence);
+}
 function handleConceptSelection(cyEntity) {
     return __awaiter(this, void 0, void 0, function* () {
         const qgBGPApi = new QueryGraphBGPApi(undefined, getBasePath());
-        getInitialInfo(cyEntity);
+        const clickedIRI = typeof cyEntity === 'string' ? cyEntity : cyEntity.data().iri;
         let newQueryGraph = new Promise((resolve) => { resolve(null); });
         let actualBody = getQueryBody();
         /**
@@ -9748,18 +10084,18 @@ function handleConceptSelection(cyEntity) {
          * it's not connected to a objectProperty
          * and it's not already in the queryGraph, then skip this click
          */
-        if ((actualBody === null || actualBody === void 0 ? void 0 : actualBody.graph) && !isIriHighlighted && !lastObjProperty && !iriInQueryGraph) {
+        if ((actualBody === null || actualBody === void 0 ? void 0 : actualBody.graph) && !isIriHighlighted(clickedIRI) && !lastObjProperty && !isIriInQueryGraph(clickedIRI)) {
             //cyEntity.unselect()
             console.log('selection ignored for class ' + clickedIRI);
             return newQueryGraph; // empty promise
         }
-        let selectedGraphElement = getSelectedGraphElement$1();
-        if (lastObjProperty && lastObjProperty.objectPropertyIRI && (selectedGraphElement === null || selectedGraphElement === void 0 ? void 0 : selectedGraphElement.id)) {
+        let activeElement = getActiveElement();
+        if (lastObjProperty && lastObjProperty.objectPropertyIRI && (activeElement === null || activeElement === void 0 ? void 0 : activeElement.graphElement.id)) {
             // this comes after a selection of a object property
-            newQueryGraph = handlePromise(qgBGPApi.putQueryGraphObjectProperty(selectedGraphElement.id, "", lastObjProperty.objectPropertyIRI, clickedIRI, lastObjProperty.direct || false, actualBody, getRequestOptions()));
+            newQueryGraph = handlePromise(qgBGPApi.putQueryGraphObjectProperty(activeElement.graphElement.id, "", lastObjProperty.objectPropertyIRI, clickedIRI, lastObjProperty.direct || false, actualBody, getRequestOptions()));
         }
-        else if ((actualBody === null || actualBody === void 0 ? void 0 : actualBody.graph) && isIriHighlighted && (selectedGraphElement === null || selectedGraphElement === void 0 ? void 0 : selectedGraphElement.id)) {
-            newQueryGraph = handlePromise(qgBGPApi.putQueryGraphClass(selectedGraphElement.id, '', clickedIRI, actualBody, getRequestOptions()));
+        else if ((actualBody === null || actualBody === void 0 ? void 0 : actualBody.graph) && isIriHighlighted(clickedIRI) && (activeElement === null || activeElement === void 0 ? void 0 : activeElement.graphElement.id)) {
+            newQueryGraph = handlePromise(qgBGPApi.putQueryGraphClass(activeElement.graphElement.id, '', clickedIRI, actualBody, getRequestOptions()));
         }
         else if (!(actualBody === null || actualBody === void 0 ? void 0 : actualBody.graph)) {
             // initial selection
@@ -9771,46 +10107,42 @@ function handleConceptSelection(cyEntity) {
 }
 function handleDataPropertySelection(cyEntity) {
     return __awaiter(this, void 0, void 0, function* () {
-        getInitialInfo(cyEntity);
+        const clickedIRI = typeof cyEntity === 'string' ? cyEntity : cyEntity.data().iri;
         let newQueryGraph = new Promise((resolve) => { resolve(null); });
-        if (!isIriHighlighted) {
-            cyEntity.unselect();
+        if (!isIriHighlighted(clickedIRI)) {
+            // cyEntity.unselect()
             return newQueryGraph; // empty promise
         }
         const actualBody = getQueryBody();
-        const selectedGraphElement = getSelectedGraphElement$1();
-        if (!(selectedGraphElement === null || selectedGraphElement === void 0 ? void 0 : selectedGraphElement.id)) {
+        const activeElement = getActiveElement();
+        if (!(activeElement === null || activeElement === void 0 ? void 0 : activeElement.graphElement.id)) {
             return newQueryGraph; // empty promise
         }
-        if (isClass(selectedGraphElement)) {
+        if (isClass(activeElement.graphElement)) {
             const qgBGPApi = new QueryGraphBGPApi(undefined, getBasePath());
-            newQueryGraph = handlePromise(qgBGPApi.putQueryGraphDataProperty(selectedGraphElement.id, '', clickedIRI, actualBody, getRequestOptions()));
+            newQueryGraph = handlePromise(qgBGPApi.putQueryGraphDataProperty(activeElement.graphElement.id, '', clickedIRI, actualBody, getRequestOptions()));
         }
         lastObjProperty = null;
         return newQueryGraph;
     });
 }
-function getInitialInfo(cyEntity) {
-    clickedIRI = cyEntity.data('iri').fullIri;
-    //selectedGraphElement = queryGraph.getSelectedGraphElement()
-    isIriHighlighted = isHighlighted(clickedIRI);
-    iriInQueryGraph = isIriInQueryGraph(clickedIRI);
-}
 /**
  * Find the GraphElement corresponding to the clicked entity and set entity as its origin Graphol node
- * @param cyEntity The clicked entity
+ * @param entityOccurrence The clicked entity occurrence
  * @param graphElements Array of newly added graphElements
  * @returns The GraphElement corresponding to the clicked entity
  */
-function setOriginNode(cyEntity, graphElements) {
-    let graphElement = graphElements === null || graphElements === void 0 ? void 0 : graphElements.find(ge => graphElementHasIri(ge, clickedIRI));
+function setOriginNode(entityOccurrence, graphElements, clickedIri) {
+    let graphElement = graphElements === null || graphElements === void 0 ? void 0 : graphElements.find(ge => graphElementHasIri(ge, clickedIri));
     if (graphElement) {
-        getOriginGrapholNodes().set(graphElement.id + clickedIRI, cyEntity.id());
+        getOriginGrapholNodes().set(graphElement.id + clickedIri, entityOccurrence);
     }
     return graphElement;
 }
+function isIriHighlighted(iri) { return isHighlighted(iri); }
+function isIriInQueryGraph(iri) { return isIriInQueryGraph$1(iri); }
 
-var sparqlingStyle = [
+var sparqlingStyle = (theme) => [
     {
         selector: 'node[shape = "ellipse"], .bubble',
         style: { 'underlay-shape': 'ellipse' }
@@ -9818,17 +10150,18 @@ var sparqlingStyle = [
     {
         selector: '.sparqling-selected',
         style: {
-            'underlay-color': 'green',
-            'underlay-padding': '10px',
-            'underlay-opacity': 0.5,
+            'underlay-color': theme.getColour(ColoursNames.accent),
+            'underlay-padding': '4px',
+            'underlay-opacity': 1,
         }
     },
     {
         selector: '.highlighted',
         style: {
-            'underlay-color': 'red',
-            'underlay-padding': '10px',
-            'underlay-opacity': 0.2,
+            'underlay-color': theme.colours["sparqling-highlight"] || theme.getColour(ColoursNames.success_muted),
+            'underlay-padding': '8px',
+            'underlay-opacity': 1,
+            'border-opacity': 1,
         }
     },
     {
@@ -9876,14 +10209,14 @@ function start () {
         startSparqling();
     }
     function startSparqling() {
-        var _a;
+        var _a, _b;
         init();
-        getGscape().widgets.OWL_VISUALIZER.disable();
+        getGscape().widgets.get(ui.WidgetEnum.OWL_VISUALIZER).disable();
         showUI();
         setSparqlingRunning(true);
-        startRunButtons.startSparqlingButton.highlighted = true;
         startRunButtons.canQueryRun = ((_a = getQueryBody()) === null || _a === void 0 ? void 0 : _a.graph) && !isStandalone() && core.onQueryRun !== undefined;
-        const selectedGraphElement = getSelectedGraphElement$1();
+        startRunButtons.requestUpdate();
+        const selectedGraphElement = (_b = getActiveElement()) === null || _b === void 0 ? void 0 : _b.graphElement;
         if (selectedGraphElement) {
             const selectedGraphElementIri = getIri(selectedGraphElement);
             if (selectedGraphElementIri)
@@ -9896,43 +10229,43 @@ function init() {
     if (isSparqlingInitialised())
         return;
     const gscape = getGscape();
-    addStylesheet(gscape.renderer.cy, sparqlingStyle);
-    setHandlers(gscape.renderer.cy);
-    gscape.onLanguageChange((newLanguage) => setLanguage(newLanguage));
-    gscape.onEntityNameTypeChange((newNameType) => {
-        setDisplayedNameType(newNameType, gscape.languages.selected);
-    });
-    gscape.onThemeChange((newTheme) => {
-        setTheme(newTheme);
-        addStylesheet(gscape.renderer.cy, sparqlingStyle);
-    });
-    gscape.onDiagramChange(() => {
+    addStylesheet(gscape.renderer.cy, sparqlingStyle(gscape.theme));
+    if (gscape.renderer.cy)
         setHandlers(gscape.renderer.cy);
-        addStylesheet(gscape.renderer.cy, sparqlingStyle);
-        refreshHighlights();
+    gscape.on(LifecycleEvent.LanguageChange, (newLanguage) => setLanguage(newLanguage));
+    gscape.on(LifecycleEvent.EntityNameTypeChange, (newNameType) => {
+        setDisplayedNameType(newNameType, gscape.language);
     });
-    gscape.onRendererChange(() => __awaiter(this, void 0, void 0, function* () {
-        addStylesheet(gscape.renderer.cy, sparqlingStyle);
-        yield gscape.SimplifiedOntologyPromise;
-        refreshHighlights();
-    }));
+    gscape.on(LifecycleEvent.ThemeChange, (newTheme) => {
+        setTheme(newTheme);
+        addStylesheet(gscape.renderer.cy, sparqlingStyle(newTheme));
+    });
+    gscape.on(LifecycleEvent.DiagramChange, () => onChangeDiagramOrRenderer(gscape));
+    gscape.on(LifecycleEvent.RendererChange, () => onChangeDiagramOrRenderer(gscape));
     setInitialised(true);
+}
+function onChangeDiagramOrRenderer(gscape) {
+    if (gscape.renderer.cy) {
+        setHandlers(gscape.renderer.cy);
+        addStylesheet(gscape.renderer.cy, sparqlingStyle(gscape.theme));
+    }
+    refreshHighlights();
 }
 function setHandlers(cy) {
     // [diplayed_name] select only nodes with a defined displayed name, 
     // avoid fake nodes (for inverse/nonInverse functional obj properties)
-    const objPropertiesSelector = `[displayed_name][type = "${Type.OBJECT_PROPERTY}"]`;
+    const objPropertiesSelector = `[iri][type = "${GrapholTypesEnum.OBJECT_PROPERTY}"]`;
     cy.on('mouseover', objPropertiesSelector, e => {
         if (isSparqlingRunning())
-            showRelatedClassesWidget(e.target, e.renderedPosition);
+            showRelatedClassesWidget(e.target.data('iri'), e.renderedPosition);
     });
     cy.on('mouseout', objPropertiesSelector, e => {
         if (isSparqlingRunning())
             hideRelatedClassesWidget();
     });
-    cy.on('dblclick', `[displayed_name].predicate`, e => {
+    cy.on('dblclick', `[iri]`, e => {
         if (isSparqlingRunning())
-            handleEntitySelection(e.target);
+            handleEntitySelection(e.target.data().iri, e.target.data().type, { elementId: e.target.id(), diagramId: getGscape().diagramId });
     });
 }
 
@@ -9941,17 +10274,15 @@ function stop () {
         hideUI();
         clearSelected();
         resetHighlights();
-        getGscape().widgets.ENTITY_DETAILS.hide();
+        getGscape().widgets.get(ui.WidgetEnum.ENTITY_DETAILS).hide();
         setSparqlingRunning(false);
-        startRunButtons.startSparqlingButton.highlighted = false;
         startRunButtons.canQueryRun = false;
+        startRunButtons.requestUpdate();
         core.onStop();
     }
 }
 
 var core = {
-    queryGraph: queryGraph,
-    queryHead: queryHead,
     getQueryBody: getQueryBody,
     startStopButton: startRunButtons.startSparqlingButton,
     runQueryButton: startRunButtons.runQueryButton,
@@ -10004,7 +10335,7 @@ function showFormDialog (element, formDialog) {
     formDialog.operator = undefined;
     formDialog.parameters = [{
             type: VarOrConstantTypeEnum.Var,
-            constantType: guessDataType(graphElementIri),
+            constantType: getGscape().ontology.getEntity(graphElementIri).datatype,
             value: graphElement.id
         }];
     formDialog.variableName = variableName || graphElement.id;
@@ -10033,12 +10364,13 @@ onAddHead((graphElement) => __awaiter(void 0, void 0, void 0, function* () {
     }
 }));
 onDelete$1((graphElement, iri) => {
+    var _a;
     if (!graphElement.id) {
         return;
     }
     const qgApi = QueryGraphBGPApiFactory(undefined, getBasePath());
     const body = getQueryBody();
-    const selectedGraphElement = getSelectedGraphElement$1();
+    const selectedGraphElement = (_a = getActiveElement()) === null || _a === void 0 ? void 0 : _a.graphElement;
     const gscape = getGscape();
     if (!iri) {
         handlePromise(qgApi.deleteGraphElementId(graphElement.id, body, getRequestOptions())).then(newBody => {
@@ -10052,15 +10384,21 @@ onDelete$1((graphElement, iri) => {
                             return true;
                     })) || false;
                 });
-                setSelectedGraphElement(newSelectedGE);
-                resetHighlights();
-                gscape.unselectEntity();
+                let newSelectedGEIri;
                 if (newSelectedGE) {
-                    const newSelectedGEIri = getIri(newSelectedGE);
+                    newSelectedGEIri = getIri(newSelectedGE);
                     if (newSelectedGEIri) {
-                        focusNodeByIRI(newSelectedGEIri);
-                        highlightSuggestions(newSelectedGEIri);
+                        setActiveElement({
+                            graphElement: newSelectedGE,
+                            iri: new Iri(newSelectedGEIri, gscape.ontology.namespaces)
+                        });
                     }
+                }
+                resetHighlights();
+                gscape.unselect();
+                if (newSelectedGEIri) {
+                    gscape.centerOnEntity(newSelectedGEIri);
+                    highlightSuggestions(newSelectedGEIri);
                 }
                 if (newSelectedGE === null || newSelectedGE === void 0 ? void 0 : newSelectedGE.id) {
                     selectElement(newSelectedGE.id); // force selecting a new class
@@ -10086,34 +10424,46 @@ onJoin((ge1, ge2) => __awaiter(void 0, void 0, void 0, function* () {
         const qgApi = QueryGraphBGPApiFactory(undefined, getBasePath());
         const body = getQueryBody();
         handlePromise(qgApi.putQueryGraphJoin(ge1.id, ge2.id, body, getRequestOptions())).then(newBody => {
-            setSelectedGraphElement(ge1);
-            onNewBody(newBody);
+            const ge1Iri = getIri(ge1);
+            if (ge1Iri) {
+                setActiveElement({
+                    graphElement: ge1,
+                    iri: new Iri(ge1Iri, getGscape().ontology.namespaces)
+                });
+                onNewBody(newBody);
+            }
         });
     }
 }));
 onElementClick((graphElement, iri) => {
+    var _a;
     const gscape = getGscape();
     // move ontology graph to show origin graphol node or any other iri occurrence
-    const originGrapholNodeId = getOriginGrapholNodes().get(graphElement.id + iri);
-    if (originGrapholNodeId) {
-        focusNodeByIdAndDiagram(originGrapholNodeId);
+    const originGrapholNodeOccurrence = getOriginGrapholNodes().get(graphElement.id + iri);
+    if (originGrapholNodeOccurrence) {
+        gscape.centerOnElement(originGrapholNodeOccurrence.elementId, originGrapholNodeOccurrence.diagramId);
     }
     else {
-        focusNodeByIRI(iri);
+        gscape.centerOnEntity(iri);
     }
     if (isClass(graphElement)) {
         // if the new graphElement is different from the current selected one the select it
-        if (getSelectedGraphElement$1() !== graphElement) {
-            setSelectedGraphElement(graphElement);
+        if (((_a = getActiveElement()) === null || _a === void 0 ? void 0 : _a.graphElement) !== graphElement) {
+            setActiveElement({
+                graphElement: graphElement,
+                iri: new Iri(iri, gscape.ontology.namespaces)
+            });
             // Highlight suggestions for the actual clicked iri (might be a child node)
             highlightSuggestions(iri);
         }
     }
-    gscape.widgets.ENTITY_DETAILS.setEntity(gscape.ontology.getEntityOccurrences(iri)[0]);
+    const entityDetailsWidget = gscape.widgets.get(ui.WidgetEnum.ENTITY_DETAILS);
+    if (entityDetailsWidget)
+        entityDetailsWidget.grapholEntity = gscape.ontology.getEntity(iri);
     // keep focus on selected class
-    const selectedGraphElem = getSelectedGraphElement$1();
-    if (selectedGraphElem === null || selectedGraphElem === void 0 ? void 0 : selectedGraphElem.id)
-        selectElement(selectedGraphElem.id);
+    const activeElement = getActiveElement();
+    if (activeElement === null || activeElement === void 0 ? void 0 : activeElement.graphElement.id)
+        selectElement(activeElement.graphElement.id);
 });
 onMakeOptional(graphElement => {
     if (graphElement.id) {
@@ -10137,12 +10487,13 @@ onAddFilter$1(graphElement => {
     showFormDialog(graphElement, filterDialog);
 });
 onSeeFilters(graphElement => {
-    if (graphElement.id) {
+    if (graphElement.id && qhWidget.shadowRoot) {
         for (const headElementComponent of qhWidget.shadowRoot.querySelectorAll('head-element')) {
-            if (headElementComponent.graphElementId === graphElement.id) {
-                headElementComponent.focus();
-                headElementComponent.showBody();
-                headElementComponent.scrollIntoView({ behavior: 'smooth' });
+            const headElemC = headElementComponent;
+            if (headElemC.graphElementId === graphElement.id) {
+                headElemC.focus();
+                headElemC.openPanel();
+                headElemC.scrollIntoView({ behavior: 'smooth' });
                 return;
             }
         }
@@ -10154,10 +10505,8 @@ onSeeFilters(graphElement => {
         filterListDialog.show();
     }
 });
-sparqlButton.onClick = () => {
-    sparqlDialog.isVisible ? sparqlDialog.hide() : sparqlDialog.show();
-};
-clearQueryButton.onClick = () => clearQuery();
+widget.onSparqlButtonClick = () => sparqlDialog.isVisible ? sparqlDialog.hide() : sparqlDialog.show();
+widget.onQueryClear = () => { clearQuery(); };
 
 filterListDialog.onEdit((filterId) => showFilterDialogEditingMode(filterId));
 filterListDialog.onDelete((filterId) => { deleteFilter(filterId); });
@@ -10174,8 +10523,9 @@ filterDialog.onSubmit((id, op, params) => __awaiter(void 0, void 0, void 0, func
     const tempQueryBody = getTempQueryBody();
     if (id === undefined || id === null) {
         // add filter
-        if (!tempQueryBody.filters)
+        if (!tempQueryBody.filters) {
             tempQueryBody.filters = [];
+        }
         id = tempQueryBody.filters.push(newFilter) - 1;
         handlePromise(filterApi.newFilter(id, tempQueryBody, getRequestOptions())).then(newBody => {
             filterDialog._id = id;
@@ -10256,7 +10606,7 @@ onLocalize(headElement => {
             const geIri = getIri(graphElement);
             if (geIri) {
                 centerOnElem(graphElement);
-                focusNodeByIRI(geIri);
+                getGscape().centerOnEntity(geIri);
             }
         }
     }
@@ -10309,8 +10659,14 @@ onOrderByChange(headElementId => {
 });
 onAddAggregation(headElementId => {
     const headElement = getHeadElementByID(headElementId);
-    if (headElement)
+    if (headElement) {
         showFormDialog(headElement, aggregationDialog);
+        aggregationDialog.aggregateOperator = undefined;
+        aggregationDialog.definingHaving = false;
+        aggregationDialog.distinct = false;
+        if (aggregationDialog.distinctCheckboxElem)
+            aggregationDialog.distinctCheckboxElem.checked = false;
+    }
 });
 
 startRunButtons.onSparqlingStart(() => {
@@ -10330,7 +10686,8 @@ startRunButtons.onSparqlingStop(() => {
 });
 startRunButtons.onQueryRun(() => {
     var _a;
-    core.onQueryRun((_a = getQueryBody()) === null || _a === void 0 ? void 0 : _a.sparql);
+    if (core.onQueryRun)
+        core.onQueryRun((_a = getQueryBody()) === null || _a === void 0 ? void 0 : _a.sparql);
 });
 
 aggregationDialog.onSubmit((headElementId, aggregateOperator, distinct, havingOperator, havingParameters) => {
@@ -10379,113 +10736,31 @@ functionDialog.onSubmit((id, op, params) => __awaiter(void 0, void 0, void 0, fu
     }
 }));
 
-distinctToggle.onToggle = () => {
-    if (!isCountStarActive()) {
-        setMainDistinct(distinctToggle.state);
-    }
-    else {
-        const qExtraApi = new QueryGraphExtraApi(undefined, getBasePath());
-        handlePromise(qExtraApi.countStarQueryGraph(distinctToggle.state, getQueryBody(), getRequestOptions())).then(newBody => onNewBody(newBody));
-    }
-};
-function setMainDistinct(value) {
-    const qExtraApi = new QueryGraphExtraApi(undefined, getBasePath());
-    handlePromise(qExtraApi.distinctQueryGraph(value, getQueryBody(), getRequestOptions())).then(newBody => {
-        onNewBody(newBody);
-    });
-}
-const limitInputElement = getInputElement(limit);
-if (limitInputElement) {
-    limitInputElement.onchange = handleLimitChange;
-    limitInputElement.addEventListener('focusout', handleLimitChange);
-    limitInputElement.onsubmit = handleOffsetChange;
-}
-const offsetInputElement = getInputElement(offset$2);
-if (offsetInputElement) {
-    offsetInputElement.onchange = handleOffsetChange;
-    offsetInputElement.addEventListener('focusout', handleOffsetChange);
-    offsetInputElement.onsubmit = handleOffsetChange;
-}
-countStarToggle.onToggle = () => {
-    const queryBody = getQueryBody();
-    const qExtraApi = new QueryGraphExtraApi(undefined, getBasePath());
-    const distinct = distinctToggle.state;
-    if (isCountStarActive()) {
-        // remove headElement associated to count star
-        const qHeadApi = new QueryGraphHeadApi(undefined, getBasePath());
-        const countStarHeadElement = queryBody.head[0];
-        if (countStarHeadElement === null || countStarHeadElement === void 0 ? void 0 : countStarHeadElement.id) {
-            handlePromise(qHeadApi.deleteHeadTerm(countStarHeadElement.id, queryBody, getRequestOptions())).then(newBody => {
-                onNewBody(newBody);
-                setMainDistinct(distinct);
-            });
-        }
-    }
-    else {
-        // add count star
-        handlePromise(qExtraApi.countStarQueryGraph(distinct, queryBody, getRequestOptions())).then(newBody => {
-            onNewBody(newBody);
-            setMainDistinct(false);
-        });
-    }
-};
-function handleOffsetChange() {
-    const queryBody = getQueryBody();
-    if (!(queryBody === null || queryBody === void 0 ? void 0 : queryBody.graph))
-        return;
-    const input = getInputElement(offset$2);
-    if (input) {
-        let value = input.valueAsNumber;
-        const qExtraApi = new QueryGraphExtraApi(undefined, getBasePath());
-        if (validateInputElement(input) && value !== queryBody.offset) {
-            // if NaN but valid, then th field is empty, pass -1 to remove the offset
-            if (isNaN(value)) {
-                value = -1;
-                if (value === queryBody.offset || !queryBody.offset) {
-                    //if offset is not set, no need to remove it, return
-                    return;
+highlightsList.onSuggestionLocalization((entityIri) => getGscape().centerOnEntity(entityIri));
+highlightsList.onSuggestionAddToQuery((entityIri, entityType, relatedClass) => {
+    var _a, _b;
+    console.log(entityIri);
+    switch (entityType) {
+        case EntityTypeEnum.Class:
+        case EntityTypeEnum.DataProperty:
+            const grapholEntityType = entityType === EntityTypeEnum.Class ? GrapholTypesEnum.CLASS : GrapholTypesEnum.DATA_PROPERTY;
+            const entityOccurrence = getEntityOccurrence(entityIri);
+            if (entityOccurrence)
+                handleEntitySelection(getGscape().ontology.prefixedToFullIri(entityIri) || entityIri, grapholEntityType, entityOccurrence);
+            break;
+        case EntityTypeEnum.ObjectProperty:
+            if (relatedClass) {
+                const objectPropertyBranch = (_b = (_a = getActualHighlights()) === null || _a === void 0 ? void 0 : _a.objectProperties) === null || _b === void 0 ? void 0 : _b.find((b) => {
+                    if (b.objectPropertyIRI)
+                        return b.objectPropertyIRI === entityIri || getPrefixedIri(b.objectPropertyIRI) === entityIri;
+                });
+                const relatedClassOccurrence = getEntityOccurrence(relatedClass);
+                if (objectPropertyBranch && relatedClassOccurrence) {
+                    handleObjectPropertySelection(objectPropertyBranch, relatedClassOccurrence);
                 }
             }
-            handlePromise(qExtraApi.offsetQueryGraph(value, queryBody, getRequestOptions())).then(newBody => {
-                onNewBody(newBody);
-            });
-        }
-        else {
-            input.value = queryBody.offset && queryBody.offset > 0
-                ? queryBody.offset.toString()
-                : '';
-        }
     }
-}
-function handleLimitChange() {
-    const queryBody = getQueryBody();
-    if (!(queryBody === null || queryBody === void 0 ? void 0 : queryBody.graph))
-        return;
-    const input = getInputElement(limit);
-    if (input) {
-        let value = input.valueAsNumber;
-        const qExtraApi = new QueryGraphExtraApi(undefined, getBasePath());
-        if (validateInputElement(input) && value !== queryBody.limit) {
-            // if NaN but valid, then th field is empty, pass -1 to remove the limit
-            if (isNaN(value)) {
-                value = -1;
-                if (value === queryBody.limit || !queryBody.limit) {
-                    //if limit is not set, no need to remove it, return
-                    return;
-                }
-            }
-            handlePromise(qExtraApi.limitQueryGraph(value, queryBody, getRequestOptions())).then(newBody => {
-                onNewBody(newBody);
-            });
-        }
-        else {
-            input.value = queryBody.limit && queryBody.limit > 0 ? queryBody.limit.toString() : '';
-        }
-    }
-}
-function getInputElement(elem) {
-    return elem.querySelector('input');
-}
+});
 
 /**
  * Initialise sparqling on a grapholscape instance
@@ -10511,6 +10786,7 @@ function sparqling(gscape, file, requestOptions) {
     return sparqlingCore;
 }
 function getCore(gscape, file) {
+    var _a;
     if (file && gscape) {
         let ontologyFile = new File([file], `${gscape.ontology.name}-from-string.graphol`);
         // model.setStandalone(basePath !== undefined || basePath !== null)
@@ -10524,22 +10800,24 @@ function getCore(gscape, file) {
         if (actualGrapholscape !== gscape)
             setInitialised(false);
         setGrapholscapeInstance(gscape);
-        leftColumnContainer.appendChild(highlightsList);
         leftColumnContainer.appendChild(qhWidget);
+        leftColumnContainer.appendChild(highlightsList);
         // Add query graph and query head widgets to grapholscape instance
-        const uiContainer = gscape.container.querySelector('#gscape-ui');
-        uiContainer.insertBefore(widget, uiContainer.firstChild);
-        uiContainer.insertBefore(leftColumnContainer, uiContainer.firstChild);
-        uiContainer.appendChild(relatedClassDialog);
-        uiContainer.appendChild(sparqlDialog);
-        uiContainer.appendChild(filterDialog);
-        uiContainer.appendChild(filterListDialog);
-        uiContainer.appendChild(functionDialog);
-        uiContainer.appendChild(errorsDialog);
-        uiContainer.appendChild(aggregationDialog);
-        gscape.container.querySelector('#gscape-ui-bottom-container').appendChild(startRunButtons);
-        setDisplayedNameType(gscape.actualEntityNameType, gscape.languages.selected);
-        setTheme(gscape.themesController.actualTheme);
+        const uiContainer = gscape.container.querySelector('.gscape-ui');
+        if (uiContainer) {
+            uiContainer.insertBefore(widget, uiContainer.firstChild);
+            uiContainer.insertBefore(leftColumnContainer, uiContainer.firstChild);
+            uiContainer.appendChild(relatedClassDialog);
+            uiContainer.appendChild(sparqlDialog);
+            uiContainer.appendChild(filterDialog);
+            uiContainer.appendChild(filterListDialog);
+            uiContainer.appendChild(functionDialog);
+            uiContainer.appendChild(errorsDialog);
+            uiContainer.appendChild(aggregationDialog);
+            (_a = uiContainer === null || uiContainer === void 0 ? void 0 : uiContainer.querySelector('.gscape-ui-buttons-tray')) === null || _a === void 0 ? void 0 : _a.appendChild(startRunButtons);
+        }
+        setDisplayedNameType(gscape.entityNameType, gscape.language);
+        setTheme(gscape.theme);
         return core;
     }
     else {
