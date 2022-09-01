@@ -1,12 +1,10 @@
-import { html, css } from 'lit'
-import { UI } from 'grapholscape'
+import { html, css, LitElement } from 'lit'
 import { playOutlined } from './assets/icons'
 import sparqlingIcon from './assets/sparqling-icon'
 import * as model from '../model'
+import { ui } from 'grapholscape'
 
-export default class SparqlingStartRunButtons extends (UI.GscapeWidget as any) {
-  private isEnabled: boolean = true
-  private style: any
+export default class SparqlingStartRunButtons extends ui.BaseMixin(LitElement) {
   private isLoading: boolean = false
 
   public startSparqlingButton: any
@@ -17,120 +15,103 @@ export default class SparqlingStartRunButtons extends (UI.GscapeWidget as any) {
   private _onSparqlingStopCallback = () => { }
   private _onQueryRunCallback = () => { }
 
-  static get properties() {
-    const superProps = super.properties
-    
-    const newProps = {
-      canQueryRun: { type: Boolean, attribute: false },
-      isLoading: { type: Boolean, attribute: false }
-    }
-
-    Object.assign(superProps, newProps)
-    return superProps
+  static properties = {
+    canQueryRun: { type: Boolean, attribute: false },
+    isLoading: { type: Boolean, attribute: false },
   }
 
-  static get styles() {
-    let super_styles = super.styles
-    let colors = super_styles[1] as any
+  static styles = [
+    ui.GscapeButtonStyle,
+    ui.baseStyle,
+    css`
+      :host {
+        order: 8;
+      }
 
-    return [
-      super_styles[0],
-      css`
-        :host {
-          order: 7;
-          display:inline-block;
-          position: initial;
-          margin-top:10px;
-        }
+      .lds-ring {
+        width: 20px;
+        height: 20px;
+      }
 
-        #hr {
-          height:1px;
-          width:90%;
-          margin: 0 auto;
-          background-color: var(--theme-gscape-borders, ${colors.borders})
+      .lds-ring div {
+        box-sizing: border-box;
+        display: block;
+        position: absolute;
+        width: 16px;
+        height: 16px;
+        margin: 2px;
+        border: 2px solid var(--gscape-color-accent);
+        border-radius: 50%;
+        animation: lds-ring 1.2s cubic-bezier(0.5, 0, 0.5, 1) infinite;
+        border-color: var(--gscape-color-accent) transparent transparent transparent;
+      }
+      .lds-ring div:nth-child(1) {
+        animation-delay: -0.45s;
+      }
+      .lds-ring div:nth-child(2) {
+        animation-delay: -0.3s;
+      }
+      .lds-ring div:nth-child(3) {
+        animation-delay: -0.15s;
+      }
+      @keyframes lds-ring {
+        0% {
+          transform: rotate(0deg);
         }
-
-        .lds-ripple {
-          position: relative;
-          width: var(--gscape-icon-size);
-          height: var(--gscape-icon-size);
-          padding: calc(var(--gscape-icon-size) * 0.2);
+        100% {
+          transform: rotate(360deg);
         }
-        .lds-ripple div {
-          position: absolute;
-          border: 4px solid ${colors.secondary};
-          opacity: 1;
-          border-radius: 50%;
-          animation: lds-ripple 1s cubic-bezier(0, 0.2, 0.8, 1) infinite;
-        }
-        .lds-ripple div:nth-child(2) {
-          animation-delay: -0.5s;
-        }
-        @keyframes lds-ripple {
-          0% {
-            top: calc(var(--gscape-icon-size) / 2);
-            left: calc(var(--gscape-icon-size) / 2);
-            width: 0;
-            height: 0;
-            opacity: 1;
-          }
-          100% {
-            top: 0px;
-            left: 0px;
-            width: var(--gscape-icon-size);
-            height: var(--gscape-icon-size);
-            opacity: 0;
-          }
-        }
-      `,
-    ]
-  }
+      }
+    `,
+  ]
 
   constructor() {
     super()
-
-    this.startSparqlingButton = new UI.GscapeButton(sparqlingIcon, 'Start/Stop Sparqling')
-    this.startSparqlingButton.onClick = () => this.handleStartButtonCLick()
-    this.startSparqlingButton.style.position = 'inherit'
-    this.startSparqlingButton.classList.add('flat')
-    this.startSparqlingButton.enabled = true
-
-    this.runQueryButton = new UI.GscapeButton(playOutlined, 'Send query to SPARQL endpoint')
-    this.runQueryButton.style.position = 'inherit'
-    this.runQueryButton.classList.add('flat')
-    this.runQueryButton.onClick = () => this._onQueryRunCallback()
+    this.classList.add(ui.BOTTOM_RIGHT_WIDGET_CLASS.toString())
   }
 
   render() {
     return html`
-      ${this.canQueryRun
-        ? html`
-          ${this.runQueryButton}
-          <div id="hr"></div>
+    ${this.canQueryRun
+      ? html`
+          <gscape-button
+            @click="${this._onQueryRunCallback}"
+            type="subtle"
+            title="Send query to SPARQL endpoint"
+          >
+            <span slot="icon">${playOutlined}</span>
+          </gscape-button>
+          <div class="hr"></div>
         `
-        : null
-      }
-      
-      ${this.isLoading 
-        ? html`<div class="lds-ripple"><div></div><div></div></div>` 
-        : this.startSparqlingButton
-      }
+      : null
+    }
+
+    ${this.isLoading 
+      ? html`<div class="lds-ring btn-m" title="Sparqling is loading"><div></div><div></div><div></div><div></div></div>` 
+      : html`
+        <gscape-button
+          @click="${this.handleStartButtonCLick}" 
+          type="subtle"
+          title="Start/Stop Sparqling"
+          ?active=${model.isSparqlingRunning()}
+        >
+          <span slot="icon">${sparqlingIcon}</span>
+        </gscape-button>
+      `
+    }
+
     `
   }
 
-  show() {
-    if (this.isEnabled) this.style.display = 'inline-block'
-  }
-
-  onSparqlingStart(callback) {
+  onSparqlingStart(callback: () => void) {
     this._onSparqlingStartCallback = callback
   }
 
-  onSparqlingStop(callback) {
+  onSparqlingStop(callback: () => void) {
     this._onSparqlingStopCallback = callback
   }
 
-  onQueryRun(callback) {
+  onQueryRun(callback: () => void) {
     this._onQueryRunCallback = callback
   }
 
@@ -145,6 +126,10 @@ export default class SparqlingStartRunButtons extends (UI.GscapeWidget as any) {
   stopLoadingAnimation() {
     this.isLoading = false
   }
+
+  get startButton() {
+    return this.shadowRoot?.querySelector('')
+  }
 }
 
-customElements.define('sparqling-start-run-buttons', SparqlingStartRunButtons as any)
+customElements.define('sparqling-start-run-buttons', SparqlingStartRunButtons)

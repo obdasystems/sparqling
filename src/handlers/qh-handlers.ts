@@ -42,7 +42,7 @@ queryHead.onLocalize(headElement => {
       const geIri = getIri(graphElement)
       if (geIri) {
         queryGraph.centerOnElem(graphElement)
-        ontologyGraph.focusNodeByIRI(geIri)
+        ontologyGraph.getGscape().centerOnEntity(geIri)
       }
     }
   }
@@ -107,6 +107,12 @@ queryHead.onOrderByChange(headElementId => {
 
 queryHead.onAddAggregation(headElementId => {
   const headElement = model.getHeadElementByID(headElementId)
-  if (headElement)
+  if (headElement) {
     showFormDialog(headElement, aggregationDialog)
+    aggregationDialog.aggregateOperator = undefined
+    aggregationDialog.definingHaving = false
+    aggregationDialog.distinct = false
+    if (aggregationDialog.distinctCheckboxElem)
+      (aggregationDialog.distinctCheckboxElem as HTMLInputElement).checked = false
+  }
 })

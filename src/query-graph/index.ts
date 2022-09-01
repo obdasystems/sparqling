@@ -2,18 +2,17 @@ import { GraphElement } from "../api/swagger"
 import centerOnElement from "../util/center-on-element"
 import { bgpContainer } from "../util/get-container"
 import * as GEUtility from "../util/graph-element-utility"
-import { clearQueryButton, countStarToggle, distinctToggle, limit, offset, sparqlButton } from "../widgets"
+// import { clearQueryButton, countStarToggle, distinctToggle, limit, offset, sparqlButton } from "../widgets"
 import QueryGraphWidget from "./qg-widget"
 import * as bgp from "./renderer"
-import { cxtMenu } from "./renderer"
 
 export * from './optionals'
 export { renderOptionals, setLanguage } from './renderer'
 export * from './renderer/setters'
 
-export const widget = new QueryGraphWidget(bgpContainer, [limit, offset, distinctToggle, countStarToggle, sparqlButton, clearQueryButton])
+export const widget = new QueryGraphWidget(bgpContainer)
 
-// inject tests for allowing joins into renderer, keep renderer logic agnostic
+// // inject tests for allowing joins into renderer, keep renderer logic agnostic
 bgp.setJoinStartCondition((nodeID: string) => {
   const graphElement = GEUtility.getGraphElementByID(nodeID)
   return graphElement ? GEUtility.canStartJoin(graphElement) : false
@@ -55,7 +54,7 @@ export function render(graphElem: GraphElement, parent?: GraphElement, objectPro
   }
 }
 
-// remove elements not in query anymore, asynchronously
+// // remove elements not in query anymore, asynchronously
 export function removeNodesNotInQuery() {
   let deletedNodeIds: string[] = []
   bgp.getElements().forEach(elem => {
@@ -88,7 +87,7 @@ export function getSelectedGraphElement() {
   return GEUtility.getGraphElementByID(bgp.getElements().filter('.sparqling-selected')[0]?.id())
 }
 
-// ******************************* GRAPH INTERACTION CALLBACKS ******************************* //
+// // ******************************* GRAPH INTERACTION CALLBACKS ******************************* //
 export function onAddHead(callback: (graphElem: GraphElement) => void) {
   bgp.onAddHead(id => {
     const graphElement = GEUtility.getGraphElementByID(id)
@@ -102,7 +101,6 @@ export function onDelete(callback: (graphElement: GraphElement, iri?: string) =>
     const graphElement = GEUtility.getGraphElementByID(id) || GEUtility.getParentFromChildId(id)
     if (graphElement)
       callback(graphElement, iri)
-    cxtMenu.hide()
   })
 }
 

@@ -1,7 +1,6 @@
 import { widget as queryGraphWidget } from "../query-graph"
-import { cxtMenu } from "../query-graph/renderer"
-import { widget as queryHeadWidget } from "../query-head" 
-import { errorsDialog, filterDialog, filterListDialog, highlightsList, relatedClassDialog, sparqlDialog } from "../widgets"
+import { widget as queryHeadWidget } from "../query-head"
+import { cxtMenu, errorsDialog, filterDialog, filterListDialog, highlightsList, relatedClassDialog, sparqlDialog } from "../widgets"
 
 export function showUI() {
   queryGraphWidget.show()

@@ -1,16 +1,15 @@
-const limit = document.createElement('div')
-const label = document.createElement('label')
-const input = document.createElement('input')
+import { handleLimitChange } from "../handlers/extra-handlers"
 
-label.innerHTML = 'N. of results'
-input.type = 'number'
-input.classList.add('input-elem')
-input.id = 'limit-input'
-input.min = '1'
-input.disabled = true
+const limitInput = document.createElement('input')
 
+limitInput.placeholder = 'Num. of results'
+limitInput.type = 'number'
+limitInput.id = 'limit-input'
+limitInput.min = '1'
+limitInput.disabled = true
 
-limit.appendChild(label)
-limit.appendChild(input)
+limitInput.onchange = handleLimitChange
+limitInput.addEventListener('focusout', handleLimitChange)
+limitInput.onsubmit = handleLimitChange
 
-export default limit
+export default limitInput

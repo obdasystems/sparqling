@@ -1,19 +1,21 @@
-import { css, TemplateResult } from 'lit'
-import { UI } from 'grapholscape'
+import { css, LitElement, PropertyValueMap, TemplateResult } from 'lit'
+import { ui } from 'grapholscape'
 import { FilterExpressionOperatorEnum, FunctionNameEnum, GroupByElementAggregateFunctionEnum, VarOrConstant, VarOrConstantConstantTypeEnum, VarOrConstantTypeEnum } from '../../api/swagger'
 import { FormID, FormOperator, FormWidget } from '../../util/filter-function-interface'
 import { checkmark, rubbishBin } from '../assets/icons'
 import validateForm, { validateSelectElement } from './validate-form'
+import formStyle from './form-style'
+import sparqlingWidgetStyle from '../sparqling-widget-style'
 
 export enum Modality {
   DEFINE = 'Define',
   EDIT = 'Edit'
 }
 
-export default class SparqlingFormDialog extends (UI.GscapeDialog as any) implements FormWidget {
+export default class SparqlingFormDialog extends ui.BaseMixin(LitElement) implements FormWidget {
   protected left_icon: TemplateResult
-  protected saveButton = new UI.GscapeButton(checkmark, "Save")
-  protected deleteButton = new UI.GscapeButton(rubbishBin, "Delete")
+  // protected saveButton = new UI.GscapeButton(checkmark, "Save")
+  // protected deleteButton = new UI.GscapeButton(rubbishBin, "Delete")
   public operator?: FormOperator
   public parameters?: VarOrConstant[]
   public parametersType?: VarOrConstantTypeEnum
@@ -22,122 +24,28 @@ export default class SparqlingFormDialog extends (UI.GscapeDialog as any) implem
   public aggregateOperator?: GroupByElementAggregateFunctionEnum
   public variableName?: string
   protected deleteCallback = (filterId: any) => { }
+  protected submitCallback: any
+  public formTitle?: string
 
-  static get properties() {
-    let props = super.properties
-    // props.class = { attribute: false }
-    // props.highlights = { attribute: false }
-    props.operator = { attribute: false }
-    props.parameters = { attribute: false }
-    props.modality = { attribute: false }
-    props.datatype = { attribute: false }
-    props.aggregateOperator = { attribute: false }
-    return props
+  static properties = {
+    operator: { attribute: false },
+    parameters: { attribute: false },
+    modality: { attribute: false },
+    datatype: { attribute: false },
+    aggregateOperator: { attribute: false },
   }
 
-  static get styles() {
-    let super_styles = super.styles
-    let colors = UI.GscapeWidget.styles[1]
-    return [
-      super_styles[0],
-      css`
-        :host {
-          position: absolute;
-          top: 30%;
-          left: 50%;
-          transform: translate(-50%, 0)
-        }
-
-
-        .dialog-body {
-          display: flex;
-          flex-direction: column;
-          gap: 30px;
-          align-items: center;
-          padding: 10px;
-        }
-
-        .form, .inputs-wrapper {
-          display: flex;
-          align-items: center;
-          gap: 10px;
-        }
-
-        .selects-wrapper {
-          align-self: start;
-        }
-
-        .inputs-wrapper {
-          flex-direction: column;
-        }
-
-        .inputs-wrapper gscape-button {
-          --gscape-icon-size: 18px;
-        }
-
-        gscape-button {
-          position: initial;
-          display: inline-block;
-        }
-
-        .danger:hover {
-          color: var(--theme-gscape-error, ${colors.error});
-        }
-
-        .bottom-buttons {
-          display:flex;
-          flex-direction:row-reverse;
-          width: 100%;
-          justify-content: space-between;
-        }
-
-        .section-header {
-          text-align: center;
-          font-weight: bold;
-          border-bottom: solid 1px var(--theme-gscape-borders, ${colors.borders});
-          color: var(--theme-gscape-secondary, ${colors.secondary});
-          width: 85%;
-          margin: auto;
-          margin-bottom: auto;
-          margin-bottom: 10px;
-          padding-bottom: 5px;
-        }
-
-        #message-tray {
-          font-size: 80%;
-        }
-        #message-tray > .correct-message {
-          color: var(--theme-gscape-secondary);
-        }
-        #message-tray > .error-message {
-          color: var(--theme-gscape-error);
-        }
-
-        .input-elem {
-          color: inherit;
-          margin:5px;
-          padding: 5px;
-          border: none;
-          border-bottom: solid 1px var(--theme-gscape-borders, ${colors.borders});
-          background: var(--theme-gscape-primary, ${colors.primary});
-        }
-
-        form *:invalid {
-          border-color: var(--theme-gscape-error);
-        }
-
-        form abbr {
-          margin: 0 5px;
-        }
-      `
-    ]
-  }
+  static styles = [
+    ui.baseStyle,
+    formStyle,
+    sparqlingWidgetStyle
+  ]
 
   constructor() {
     super()
-    this.saveButton.onClick = () => this.handleSubmit()
-    this.deleteButton.onClick = () => this.deleteCallback(this._id)
-    this.deleteButton.classList.add('danger')
+    // this.saveButton.onClick = () => this.handleSubmit()
+    // this.deleteButton.onClick = () => this.deleteCallback(this._id)
+    // this.deleteButton.classList.add('danger')
   }
 
   protected handleSubmit() {
@@ -146,7 +54,7 @@ export default class SparqlingFormDialog extends (UI.GscapeDialog as any) implem
     }
   }
 
-  private onOperatorChange(value: FilterExpressionOperatorEnum | FunctionNameEnum) {
+  private onOperatorChange(value: FormOperator) {
     this.operator = value
 
     switch (this.operator) {
@@ -194,11 +102,11 @@ export default class SparqlingFormDialog extends (UI.GscapeDialog as any) implem
     }
   }
 
-  show() {
-    super.show()
+  // show = () => {
+  //   super.show()
 
-    this.isDatatypeSelectorDisabled = this.datatype ? true : false
-  }
+  //   this.isDatatypeSelectorDisabled = this.datatype ? true : false
+  // }
 
   addInputValue(number = 1) {
     for (let i = 0; i < number; i++) {
@@ -209,30 +117,40 @@ export default class SparqlingFormDialog extends (UI.GscapeDialog as any) implem
       })
     }
 
-    (this as any).requestUpdate()
+    this.requestUpdate()
   }
 
-  firstUpdated() {
-    super.firstUpdated()
-    this.header.left_icon = this.left_icon
+  removeInputValue() {
+    this.parameters?.pop()
+
+    this.requestUpdate()
   }
 
-  updated() {
-    super.updated()
+  protected firstUpdated(_changedProperties: PropertyValueMap<any> | Map<PropertyKey, unknown>) {
+    super.firstUpdated(_changedProperties)
+    this.hide()
+  }
+
+  protected updated(_changedProperties: PropertyValueMap<any> | Map<PropertyKey, unknown>) {
+    super.updated(_changedProperties)
 
     if (this.selectOperatorElem)
-      this.selectOperatorElem.onchange = (e) => this.onOperatorChange(e.currentTarget.value)
+      this.selectOperatorElem.onchange = () => this.onOperatorChange(this.selectOperatorElem.value as FormOperator)
 
     if (this.selectDatatypeElem)
-      this.selectDatatypeElem.onchange = (e) => this.onDatatypeChange(e.currentTarget.value)
+      this.selectDatatypeElem.onchange = (e) => this.onDatatypeChange(this.selectDatatypeElem.value as VarOrConstantConstantTypeEnum)
 
     this.inputElems?.forEach((input: any) =>
       input.onchange = (e) => this.onInputChange(input.getAttribute('index'), e.currentTarget)
     )
 
-    const addInputButton: any = this.shadowRoot.querySelector('#add-input-btn')
+    const addInputButton = this.shadowRoot?.querySelector('#add-input-btn') as HTMLElement
     if (addInputButton)
-      addInputButton.onClick = () => this.addInputValue()
+      addInputButton.onclick = () => this.addInputValue()
+
+    const removeInputButton = this.shadowRoot?.querySelector('#remove-input-btn') as HTMLElement
+    if (removeInputButton)
+      removeInputButton.onclick = () => this.removeInputValue()
   }
 
   addMessage(msg: string, msgType: string) {
@@ -260,19 +178,19 @@ export default class SparqlingFormDialog extends (UI.GscapeDialog as any) implem
   }
 
   protected get selectOperatorElem() {
-    return this.shadowRoot.querySelector('#select-operator > select')
+    return this.shadowRoot?.querySelector('#select-operator > select') as HTMLSelectElement
   }
 
   protected get selectDatatypeElem() {
-    return this.shadowRoot.querySelector('#select-datatype > select')
+    return this.shadowRoot?.querySelector('#select-datatype > select') as HTMLSelectElement
   }
 
   protected get inputElems() {
-    return this.shadowRoot.querySelectorAll('.inputs-wrapper > input')
+    return this.shadowRoot?.querySelectorAll('.inputs-wrapper > input')
   }
 
   protected get messagesElem() {
-    return this.shadowRoot.querySelector('#message-tray')
+    return this.shadowRoot?.querySelector('#message-tray')
   }
 
   protected get variable(): VarOrConstant | undefined {
@@ -292,7 +210,7 @@ export default class SparqlingFormDialog extends (UI.GscapeDialog as any) implem
     return this.parameters?.filter(p => p.type !== VarOrConstantTypeEnum.Var)
   }
 
-  protected get formElement(): HTMLFormElement {
+  protected get formElement() {
     return this.shadowRoot?.querySelector('form')
   }
 }

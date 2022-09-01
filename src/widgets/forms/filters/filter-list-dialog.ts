@@ -1,27 +1,31 @@
-import { UI } from 'grapholscape'
-import { css, html } from 'lit'
-import { filterMultiple } from '../../assets/icons'
+import { ui } from 'grapholscape'
+import { css, html, LitElement, PropertyValueMap } from 'lit'
+import { filter, filterMultiple } from '../../assets/icons'
+import sparqlingWidgetStyle from '../../sparqling-widget-style'
 import { getElemWithOperatorStyle } from '../elem-with-operator-style'
 import { FilterWithID, getElemWithOperatorList } from '../elems-with-operator-list-template'
 
-export default class FilterListDialog extends (UI.GscapeDialog as any) {
+export default class FilterListDialog extends ui.BaseMixin(LitElement) {
   public filterList?: FilterWithID[] = []
   public variable: string
+  title = ' '
+
   private editFilterCallback: (filterId: number) => void = () => {}
   private deleteFilterCallback: (filterId: number) => void = () => {}
 
   static get properties() {
-    let props = super.properties
-    props.filterList = { attribute: false }
-    props.variable = { attribute: false }
-    return props
+    const props = {
+      filterList: { attribute: false },
+      variable: { attribute: false },
+    }
+    return Object.assign(props, super.properties)
   }
 
   static get styles() {
-    let super_styles = super.styles
-    let colors = UI.GscapeWidget.styles[1]
     return [
-      super_styles[0],
+      ui.baseStyle,
+      sparqlingWidgetStyle,
+      getElemWithOperatorStyle(),
       css`
         :host {
           position: absolute;
@@ -42,39 +46,44 @@ export default class FilterListDialog extends (UI.GscapeDialog as any) {
         }
 
         .danger:hover {
-          color: var(--theme-gscape-error, ${colors.error});
+          color: var(--theme-gscape-error);
         }
       `,
-      getElemWithOperatorStyle()
     ]
   }
 
-  constructor() {
-    super()
-  }
-
   render() {
+    this.title = `Defined Filters for ${this.variable}`
     return html`
-      <gscape-head title="Defined Filters for ${this.variable}" class="drag-handler"></gscape-head>
-      <div class="dialog-body">
+      <div class="gscape-panel">
+        <div class="top-bar">
+          <div id="widget-header" class="bold-text">
+            ${filter}
+            <span>${this.title}</span>
+          </div>
+
+          <gscape-button 
+            id="toggle-panel-button"
+            size="s" 
+            type="subtle"
+            @click=${this.hide}
+          > 
+            <span slot="icon">${ui.icons.close}</span>
+          </gscape-button>
+        </div>
+
+        <div class="dialog-body">
         ${this.filterList
           ? getElemWithOperatorList(this.filterList, this.editFilterCallback, this.deleteFilterCallback)
           : null}
+        </div>
       </div>
     `
   }
 
-  firstUpdated() {
-    super.firstUpdated()
-    this.header.left_icon = filterMultiple
-  }
-
-  show() {
-    super.show()
-  }
-
-  hide() {
-    super.hide()
+  protected firstUpdated(_changedProperties: PropertyValueMap<any> | Map<PropertyKey, unknown>): void {
+    super.firstUpdated(_changedProperties)
+    this.hide()
   }
 
   onEdit(callback: (filterId: number) => void) {

@@ -1,5 +1,5 @@
 import { CollectionReturnValue } from "cytoscape"
-import { Type } from "grapholscape"
+import { EntityOccurrence, GrapholTypesEnum, Iri } from "grapholscape"
 import { Branch, GraphElement, QueryGraph, QueryGraphBGPApi } from "../api/swagger"
 import { handlePromise } from "../main/handle-promises"
 import onNewBody from "../main/on-new-body"
@@ -10,79 +10,86 @@ import * as queryGraph from "../query-graph"
 import { getdiffNew, graphElementHasIri, isClass } from "../util/graph-element-utility"
 
 
-const { CONCEPT, OBJECT_PROPERTY, DATA_PROPERTY } = Type
 let lastObjProperty: Branch | null
-//let selectedGraphElement: GraphElement
-let isIriHighlighted: boolean
-let iriInQueryGraph: boolean
-let clickedIRI: string
-// const iriInQueryGraph = actualBody ? queryManager.getGraphElementByIRI(clickedIRI) : null
 
-export async function handleEntitySelection(cyEntity: CollectionReturnValue) {
-  let clickedIRI = cyEntity.data('iri').fullIri
-  const selectedGraphElement = model.getSelectedGraphElement()
+export async function handleEntitySelection(entityIriString: string, entityType: GrapholTypesEnum, entityOccurrence: EntityOccurrence) {
+  const gscape = getGscape()
+  const entityIri = new Iri(entityIriString, gscape.ontology.namespaces)
+  const activeElement = model.getActiveElement()
 
-  if (selectedGraphElement && graphElementHasIri(selectedGraphElement, clickedIRI) && !lastObjProperty) {
-    if (!ontologyGraph.isIriSelected(clickedIRI)) {
+  if (activeElement && graphElementHasIri(activeElement.graphElement, entityIriString) && !lastObjProperty) {
+    if (!ontologyGraph.isIriSelected(entityIri)) {
       ontologyGraph.resetHighlights()
-      ontologyGraph.highlightSuggestions(clickedIRI)
+      ontologyGraph.highlightSuggestions(entityIriString)
     }
     return
   }
 
-  const gscape = getGscape()
-  switch (cyEntity.data('type')) {
-    case OBJECT_PROPERTY: {
+  switch (entityType) {
+    case GrapholTypesEnum.OBJECT_PROPERTY: {
       // let result = await handleObjectPropertySelection(cyEntity)
       // if (result && result.connectedClass) {
       //   gscape.centerOnNode(result.connectedClass.id(), 1.8)
       // }
       break
     }
-    case CONCEPT: {
-      handleConceptSelection(cyEntity)?.then(newBody => {
+    case GrapholTypesEnum.CLASS: {
+      handleConceptSelection(entityIriString)?.then(newBody => {
         if (!newBody) return
 
         // Get nodes not present in the old graph
         const newGraphElements = getdiffNew(model.getQueryBody()?.graph, newBody.graph)
-        const newSelectedGraphElement = setOriginNode(cyEntity, newGraphElements)
+        const newSelectedGraphElement = setOriginNode(entityOccurrence, newGraphElements, entityIriString)
         ontologyGraph.resetHighlights()
-        ontologyGraph.highlightSuggestions(clickedIRI)
+        ontologyGraph.highlightSuggestions(entityIriString)
         onNewBody(newBody)
 
         // after onNewBody because we need to select the element after rendering phase
         if (newSelectedGraphElement && newSelectedGraphElement.id) {
           // The node to select is the one having the clickedIri among the new nodes
-          model.setSelectedGraphElement(queryGraph.selectElement(newSelectedGraphElement.id))
+          queryGraph.selectElement(newSelectedGraphElement.id)
+          model.setActiveElement({
+            graphElement: newSelectedGraphElement,
+            iri: entityIri,
+          })
         }
       })
       break
     }
-    case DATA_PROPERTY: {
-      handleDataPropertySelection(cyEntity)?.then(newBody => {
+    case GrapholTypesEnum.DATA_PROPERTY: {
+      handleDataPropertySelection(entityIriString)?.then(newBody => {
         if (!newBody) return
 
         const newGraphElements = getdiffNew(model.getQueryBody()?.graph, newBody.graph)
-        setOriginNode(cyEntity, newGraphElements)
+        setOriginNode(entityOccurrence, newGraphElements, entityIriString)
         onNewBody(newBody)
       })
       break
     }
   }
 
-  gscape.unselectEntity()
+  gscape.unselect()
 }
 
-ontologyGraph.onRelatedClassSelection((branch: Branch, relatedClass) => {
+ontologyGraph.onRelatedClassSelection(handleObjectPropertySelection)
+
+export function handleObjectPropertySelection(branch: Branch, relatedClassEntityOccurrence: EntityOccurrence) {
   const gscape = getGscape()
   lastObjProperty = branch
-  gscape.centerOnNode(relatedClass.id())
-  handleEntitySelection(relatedClass)
-})
+  gscape.centerOnElement(relatedClassEntityOccurrence.elementId, relatedClassEntityOccurrence.diagramId)
+  
+  const relatedClassCyElement = gscape.ontology
+    .getDiagram(relatedClassEntityOccurrence.diagramId)
+    ?.representations.get(gscape.renderState)
+    ?.cy.$id(relatedClassEntityOccurrence.elementId)
+  
+  if (relatedClassCyElement)
+    handleEntitySelection(relatedClassCyElement.data().iri, relatedClassCyElement.data().type, relatedClassEntityOccurrence)
+}
 
-async function handleConceptSelection(cyEntity: CollectionReturnValue): Promise<QueryGraph | null> {
+export async function handleConceptSelection(cyEntity: CollectionReturnValue | string): Promise<QueryGraph | null> {
   const qgBGPApi = new QueryGraphBGPApi(undefined, model.getBasePath())
-  getInitialInfo(cyEntity)
+  const clickedIRI = typeof cyEntity === 'string' ? cyEntity : cyEntity.data().iri
   let newQueryGraph: Promise<QueryGraph | null> = new Promise((resolve) => { resolve(null) })
   let actualBody = model.getQueryBody()
   /**
@@ -91,25 +98,25 @@ async function handleConceptSelection(cyEntity: CollectionReturnValue): Promise<
    * it's not connected to a objectProperty 
    * and it's not already in the queryGraph, then skip this click
    */
-  if (actualBody?.graph && !isIriHighlighted && !lastObjProperty && !iriInQueryGraph) {
+  if (actualBody?.graph && !isIriHighlighted(clickedIRI) && !lastObjProperty && !isIriInQueryGraph(clickedIRI)) {
     //cyEntity.unselect()
     console.log('selection ignored for class ' + clickedIRI)
     return newQueryGraph // empty promise
   }
 
-  let selectedGraphElement = model.getSelectedGraphElement()
+  let activeElement = model.getActiveElement()
 
-  if (lastObjProperty && lastObjProperty.objectPropertyIRI && selectedGraphElement?.id) {
+  if (lastObjProperty && lastObjProperty.objectPropertyIRI && activeElement?.graphElement.id) {
     // this comes after a selection of a object property
     newQueryGraph = handlePromise(qgBGPApi.putQueryGraphObjectProperty(
-      selectedGraphElement.id, "", lastObjProperty.objectPropertyIRI, clickedIRI,
+      activeElement.graphElement.id, "", lastObjProperty.objectPropertyIRI, clickedIRI,
       lastObjProperty.direct || false,
       actualBody, model.getRequestOptions()
     ))
 
-  } else if (actualBody?.graph && isIriHighlighted && selectedGraphElement?.id) {
+  } else if (actualBody?.graph && isIriHighlighted(clickedIRI) && activeElement?.graphElement.id) {
     newQueryGraph = handlePromise(qgBGPApi.putQueryGraphClass(
-      selectedGraphElement.id, '',
+      activeElement.graphElement.id, '',
       clickedIRI,
       actualBody, model.getRequestOptions()))
   } else if (!actualBody?.graph) {
@@ -120,52 +127,51 @@ async function handleConceptSelection(cyEntity: CollectionReturnValue): Promise<
   return newQueryGraph
 }
 
-async function handleDataPropertySelection(cyEntity: CollectionReturnValue): Promise<QueryGraph | null> {
+export async function handleDataPropertySelection(cyEntity: string | CollectionReturnValue): Promise<QueryGraph | null> {
 
-  getInitialInfo(cyEntity)
+  const clickedIRI = typeof cyEntity === 'string' ? cyEntity : cyEntity.data().iri
   let newQueryGraph: Promise<QueryGraph | null> = new Promise((resolve) => { resolve(null) })
 
 
-  if (!isIriHighlighted) {
-    cyEntity.unselect()
+  if (!isIriHighlighted(clickedIRI)) {
+    // cyEntity.unselect()
     return newQueryGraph // empty promise
   }
 
   const actualBody = model.getQueryBody()
-  const selectedGraphElement = model.getSelectedGraphElement()
+  const activeElement = model.getActiveElement()
 
-  if (!selectedGraphElement?.id) {
+  if (!activeElement?.graphElement.id) {
     return newQueryGraph // empty promise
   }
 
-  if (isClass(selectedGraphElement)) {
+  if (isClass(activeElement.graphElement)) {
     const qgBGPApi = new QueryGraphBGPApi(undefined, model.getBasePath())
     newQueryGraph = handlePromise(qgBGPApi.putQueryGraphDataProperty(
-      selectedGraphElement.id, '', clickedIRI, actualBody, model.getRequestOptions()
+      activeElement.graphElement.id, '', clickedIRI, actualBody, model.getRequestOptions()
     ))
   }
   lastObjProperty = null
   return newQueryGraph
 }
 
-function getInitialInfo(cyEntity: CollectionReturnValue) {
-  clickedIRI = cyEntity.data('iri').fullIri
-  //selectedGraphElement = queryGraph.getSelectedGraphElement()
-  isIriHighlighted = ontologyGraph.isHighlighted(clickedIRI)
-  iriInQueryGraph = queryGraph.isIriInQueryGraph(clickedIRI)
-}
-
 /**
  * Find the GraphElement corresponding to the clicked entity and set entity as its origin Graphol node
- * @param cyEntity The clicked entity
+ * @param entityOccurrence The clicked entity occurrence
  * @param graphElements Array of newly added graphElements
  * @returns The GraphElement corresponding to the clicked entity
  */
-function setOriginNode(cyEntity: CollectionReturnValue, graphElements: GraphElement[]) {
-  let graphElement = graphElements?.find(ge => graphElementHasIri(ge, clickedIRI))
+export function setOriginNode(entityOccurrence: EntityOccurrence, graphElements: GraphElement[], clickedIri: string) {
+  let graphElement = graphElements?.find(ge => graphElementHasIri(ge, clickedIri))
   if (graphElement) {
-    model.getOriginGrapholNodes().set(graphElement.id + clickedIRI, cyEntity.id())
+    model.getOriginGrapholNodes().set(graphElement.id + clickedIri, entityOccurrence)
   }
 
   return graphElement
 }
+
+export function setLastObjectProperty(objProperty: Branch) {
+  lastObjProperty = objProperty
+}
+function isIriHighlighted(iri: string) { return ontologyGraph.isHighlighted(iri) }
+function isIriInQueryGraph(iri: string) { return queryGraph.isIriInQueryGraph(iri) }

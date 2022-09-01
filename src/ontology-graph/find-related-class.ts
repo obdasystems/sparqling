@@ -1,74 +1,25 @@
-import { CollectionReturnValue } from "cytoscape"
 import { getActualHighlights } from "./highlights"
 import { Branch } from "../api/swagger"
 import getGscape from "./get-gscape"
-import { listSelectionDialog, relatedClassDialog } from "../widgets"
-import { classSelectDialogTitle } from "../widgets/assets/texts"
+import { relatedClassDialog } from "../widgets"
 import EventPosition from "../util/event-position"
-import { getSelectedGraphElement } from "../model"
-import * as GEUtility from "../util/graph-element-utility"
 import { isHighlighted } from "./highlights"
+import { EntityOccurrence, Iri } from "grapholscape"
+import { getEntityOccurrence } from "./util"
+import { getActiveElement } from "../model"
 
-let _onRelatedClassSelection = (objectProperty: Branch, relatedClass: CollectionReturnValue) => { }
+let _onRelatedClassSelection = (objectProperty: Branch, relatedClass: EntityOccurrence) => { }
 
-export function findNextClassFromObjProperty(objProperty: CollectionReturnValue):
-  Promise<{ objPropertyFromApi?: Branch, connectedClass?: CollectionReturnValue } | undefined> {
-
+export function showRelatedClassesWidget(objPropertyIri: string, position: EventPosition) {
   const actualHighlights = getActualHighlights()
-  if (!actualHighlights) return new Promise((resolve) => { resolve(undefined) })
-  const gscape = getGscape()
-  let result: { objPropertyFromApi?: Branch; connectedClass?: CollectionReturnValue } = {
-    objPropertyFromApi: undefined,
-    connectedClass: undefined
-  }
-
-  result.objPropertyFromApi = actualHighlights.objectProperties?.find((o: Branch) => {
-    if (o?.objectPropertyIRI)
-      gscape.ontology.checkEntityIri(objProperty, o.objectPropertyIRI)
-  })
-
-  return new Promise((resolve, reject) => {
-    if (!result.objPropertyFromApi?.relatedClasses) reject()
-
-    if (result.objPropertyFromApi?.relatedClasses?.length === 1) {
-      result.connectedClass = gscape.ontology.getEntityOccurrences(
-        result.objPropertyFromApi.relatedClasses[0])[0] as CollectionReturnValue
-
-      result.connectedClass.selectify()
-      resolve(result)
-    } else {
-      listSelectionDialog.title = classSelectDialogTitle()
-      // Use prefixed iri if possible, full iri as fallback
-      listSelectionDialog.list = result.objPropertyFromApi?.relatedClasses?.map((iri: string) => {
-        return gscape.ontology.destructureIri(iri)
-          ? gscape.ontology.destructureIri(iri)?.prefixed
-          : iri
-      })
-      //listSelectionDialog.show()
-      listSelectionDialog.onSelection((iri: string) => {
-        result.connectedClass = (gscape.ontology.getEntityOccurrences(iri)[0] as CollectionReturnValue)
-        result.connectedClass.selectify()
-        resolve(result)
-        listSelectionDialog.hide()
-      })
-    }
-  })
-}
-
-
-export function showRelatedClassesWidget(objProperty: CollectionReturnValue, position: EventPosition) {
-  const actualHighlights = getActualHighlights()
-  if (!actualHighlights || !isHighlighted(objProperty.data('iri').fullIri)) return
+  if (!actualHighlights || !isHighlighted(objPropertyIri)) return
   const gscape = getGscape()
 
-  // let result: { objPropertyFromApi: Branch; connectedClass: CollectionReturnValue } = {
-  //   objPropertyFromApi: undefined,
-  //   connectedClass: undefined
-  // }
+  const objPropertyEntity = gscape.ontology.getEntity(objPropertyIri)
 
   let objPropertyFromApi = actualHighlights.objectProperties?.find((o: Branch) => {
     if (o?.objectPropertyIRI)
-      return gscape.ontology.checkEntityIri(objProperty, o.objectPropertyIRI)
+      return objPropertyEntity.iri.equals(o.objectPropertyIRI)
   })
 
   if (!objPropertyFromApi || !objPropertyFromApi.relatedClasses || objPropertyFromApi.relatedClasses.length <= 0) {
@@ -77,32 +28,28 @@ export function showRelatedClassesWidget(objProperty: CollectionReturnValue, pos
 
   //listSelectionDialog.title = classSelectDialogTitle()
   // Use prefixed iri if possible, full iri as fallback
-  relatedClassDialog.list = objPropertyFromApi.relatedClasses.map((iri: string) => {
-    return gscape.ontology.destructureIri(iri)
-      ? gscape.ontology.destructureIri(iri)?.prefixed
-      : iri
+  relatedClassDialog.list = objPropertyFromApi.relatedClasses.map((iriValue: string) => {
+    const iri = new Iri(iriValue, gscape.ontology.namespaces)
+    return iri.prefixed
   })
 
-  const selectedGraphElement = getSelectedGraphElement()
-  if (selectedGraphElement) {
-    relatedClassDialog.class = GEUtility.getPrefixedIri(selectedGraphElement) || GEUtility.getIri(selectedGraphElement)
+  const activeElement = getActiveElement()
+  if (activeElement) {
+    relatedClassDialog.class = activeElement.iri.prefixed || activeElement.iri.fullIri
 
-    relatedClassDialog.objProperty = objProperty.data('iri').prefixed
+    relatedClassDialog.objProperty = objPropertyEntity.iri.prefixed
     relatedClassDialog.reverseArrow = !objPropertyFromApi.direct
-    relatedClassDialog.show(position)
-    relatedClassDialog.onSelection((iri: string) => {
+    relatedClassDialog.showInPosition(position)
+    relatedClassDialog.onSelection = (selectedClassIri: string) => {
       try {
         if (objPropertyFromApi) {
-          // Prefer instance in actual diagram, first one as fallback
-          let connectedClass = gscape.ontology
-            .getEntityOccurrences(iri).find(entity => entity.data().diagram_id === gscape.actualDiagramID)
-            || gscape.ontology.getEntityOccurrences(iri)[0]
-          connectedClass.selectify()
-          relatedClassDialog.hide()
-          _onRelatedClassSelection(objPropertyFromApi, connectedClass)
+          const relatedClassOccurrence = getEntityOccurrence(selectedClassIri)
+
+          if (relatedClassOccurrence)
+            _onRelatedClassSelection(objPropertyFromApi, relatedClassOccurrence)
         }
       } catch (e) { console.error(e) }
-    })
+    }
   }
 }
 
@@ -111,6 +58,6 @@ export function hideRelatedClassesWidget() {
   relatedClassDialog.hide()
 }
 
-export function onRelatedClassSelection(callback: (objectProperty: Branch, relatedClass: CollectionReturnValue) => void) {
+export function onRelatedClassSelection(callback: (objectProperty: Branch, relatedClass: EntityOccurrence) => void) {
   _onRelatedClassSelection = callback
 }

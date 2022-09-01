@@ -1,9 +1,13 @@
 import cytoscape, { Stylesheet } from "cytoscape"
-import { DisplayedNameType } from "../displayed-name-type"
 import klay from 'cytoscape-klay'
 import compoundDragAndDrop from 'cytoscape-compound-drag-and-drop'
 import popper from 'cytoscape-popper'
 import { bgpContainer } from "../../util/get-container"
+import { EntityNameType } from "grapholscape"
+import { EntityTypeEnum } from "../../api/swagger"
+import { attachCxtMenuTo, cxtMenuWidget, getCxtMenuProps } from "../../widgets"
+import { getCommandsForElement } from "./cxt-menu-commands"
+import tippy from "tippy.js"
 
 cytoscape.use(klay)
 cytoscape.use(compoundDragAndDrop)
@@ -31,13 +35,28 @@ cy.on('render', () => {
   } catch {}
 })
 
-let menu: any
-let displayedNameType: DisplayedNameType
+cy.on('mouseover', '[iri]', () => {
+  const container = cy.container()
+  if (container)
+    container.style.cursor = 'pointer'
+})
+
+cy.on('mouseout', () => {
+  const container = cy.container()
+  if (container)
+    container.style.cursor = 'unset'
+})
+
+cy.on('cxttap', `node, edge[type = "${EntityTypeEnum.ObjectProperty}"], edge[type = "${EntityTypeEnum.InverseObjectProperty}"]`, e => {
+  attachCxtMenuTo(e.target.popperRef(), getCommandsForElement(e.target))
+})
+
+let displayedNameType: EntityNameType
 let language: string
 
 export default cy
 
-export function setStateDisplayedNameType(newDisplayNameType: DisplayedNameType) {
+export function setStateDisplayedNameType(newDisplayNameType: EntityNameType) {
   displayedNameType = newDisplayNameType || displayedNameType
 }
 

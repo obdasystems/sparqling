@@ -32,7 +32,7 @@ export function handlePromise(promise: AxiosPromise<any>, showError = true): Pro
       .catch(error => {
         console.error(error)
         if (showError) {
-          errorsDialog.text = `${error.name} : ${error.message}`
+          errorsDialog.errorText = `${error.name} : ${error.message}`
           errorsDialog.show()
         }
       })

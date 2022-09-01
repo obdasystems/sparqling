@@ -1,33 +1,18 @@
-import { FilterExpressionOperatorEnum, FunctionNameEnum, GroupByElementAggregateFunctionEnum, VarOrConstant, VarOrConstantConstantTypeEnum, VarOrConstantTypeEnum } from "../../api/swagger"
+import { ui } from "grapholscape"
 import { html } from 'lit'
-import { UI } from 'grapholscape'
+import { FilterExpressionOperatorEnum, VarOrConstantConstantTypeEnum, VarOrConstantTypeEnum } from "../../api/swagger"
 import SparqlingFormDialog from "./base-form-dialog"
-
-// export function getfilterFormTemplate(
-//   operator: FilterExpressionOperatorEnum,
-//   parameters: VarOrConstant[],
-//   datatype: VarOrConstantConstantTypeEnum) {
-//   return getFormTemplate(operator, parameters, FilterExpressionOperatorEnum, datatype)
-// }
-
-// export function getFunctionFormTemplate(
-//   operator: FilterExpressionOperatorEnum,
-//   parameters: VarOrConstant[],
-//   datatype: VarOrConstantConstantTypeEnum) {
-//   return getFormTemplate(operator, parameters, FunctionNameEnum, datatype)
-// }
-
 
 export function getFormTemplate(formComponent: SparqlingFormDialog, operators: string[]) {
 
   const op: string = formComponent.operator || "Operator"
   const dt: string = formComponent.datatype || "Datatype"
-  const addInputButton = new UI.GscapeButton(UI.icons.plus, "Add input value")
-  addInputButton.id = "add-input-btn"
+  // const addInputButton = new UI.GscapeButton(UI.icons.plus, "Add input value")
+  // addInputButton.id = "add-input-btn"
 
   return html`
     <div class="section">
-      ${formComponent.formTitle ? html`<div class="section-header">${formComponent.formTitle}</div>` : null}
+      ${formComponent.formTitle ? html`<div class="header">${formComponent.formTitle}</div>` : null}
       <form id="form-dialog" class="form" action="javascript:void(0)" onsubmit="this.handleSubmit">
         <div class="selects-wrapper">
           <div id="select-operator">
@@ -38,7 +23,7 @@ export function getFormTemplate(formComponent: SparqlingFormDialog, operators: s
             ? html`
               <div id="select-datatype">
                 <label>Datatype</label>
-                ${getSelect(dt, Object.values(VarOrConstantConstantTypeEnum), formComponent.isDatatypeSelectorDisabled)}
+                ${getSelect(dt, Object.values(VarOrConstantConstantTypeEnum), formComponent.datatype !== undefined)}
               </div>`
             : null
           }
@@ -47,7 +32,21 @@ export function getFormTemplate(formComponent: SparqlingFormDialog, operators: s
           ${formComponent.parametersIriOrConstants?.map((parameter, index) => getInput(index, formComponent.datatype, parameter.value, "Set input value"))}
           ${formComponent.operator === FilterExpressionOperatorEnum.In ||
             formComponent.operator === FilterExpressionOperatorEnum.NotIn
-            ? html`${addInputButton}`
+            ? html`
+              <div>
+                <gscape-button id="add-input-btn" type="subtle" title="Add input value">
+                  <span slot="icon">${ui.icons.plus}</span>
+                </gscape-button>
+                ${formComponent.parameters && formComponent.parameters.length > 3 // at least 3 custom inputs to remove one
+                  ? html`
+                    <gscape-button id="remove-input-btn" type="subtle" title="Remove input value">
+                      <span slot="icon">${ui.icons.minus}</span>
+                    </gscape-button>
+                  `
+                  : null
+                }
+              </div>
+            `
             : null
           }
         </div>
@@ -65,7 +64,6 @@ function getInput(index: number, datatype?: VarOrConstantConstantTypeEnum, value
 
   return html`
     <input
-      class="input-elem"
       type="${getInputType(datatype)}"
       placeholder="${placeholder}"
       value="${value}"

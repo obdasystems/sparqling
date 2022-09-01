@@ -1,26 +1,36 @@
 import { SingularData } from "cytoscape"
-import { UI } from "grapholscape"
 import tippy, { sticky } from "tippy.js"
 import { filter } from "../../widgets/assets/icons"
 import cy from "./cy"
 
+const hasFilterIcon = `
+  <div style="
+    color: var(--gscape-color-accent);
+    background: var(--gscape-color-accent-subtle);
+    border: solid 1px;
+    line-height: 0;
+    padding: 2px 4px;
+    margin: 0 8px;
+    border-radius: 12px;"
+  >
+    ${filter.strings.join('').replace(/20px/g, '15px',)}
+  </div>`
+
 export function addHasFilterIcon(node: SingularData) {
   const dummyDomElement = document.createElement('div')
-  const icon = new UI.GscapeButton(filter, 'Has Filters Defined')
-  icon.style.position = 'relative'
-
   const container = cy.container()
-  if (container) {
+  if (container?.firstElementChild) {
     node['tippy'] = tippy(dummyDomElement, {
-      content: icon,
+      content: hasFilterIcon,
       trigger: 'manuaul',
       hideOnClick: false,
       allowHTML: true,
       getReferenceClientRect: (node as any).popperRef().getBoundingClientRect,
       sticky: "reference",
-      appendTo: container,
+      appendTo: container.firstElementChild,
       placement: "right",
-      plugins: [ sticky ]
+      plugins: [ sticky ],
+      offset: [0,0]
     })
 
     

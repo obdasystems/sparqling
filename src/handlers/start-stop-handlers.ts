@@ -21,5 +21,6 @@ startRunButtons.onSparqlingStop(() => {
 })
 
 startRunButtons.onQueryRun(() => {
-  core.onQueryRun(getQueryBody()?.sparql)
+  if (core.onQueryRun)
+    core.onQueryRun(getQueryBody()?.sparql)
 })

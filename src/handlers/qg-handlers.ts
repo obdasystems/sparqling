@@ -1,3 +1,4 @@
+import { Iri, ui } from 'grapholscape'
 import { QueryGraph, QueryGraphBGPApiFactory, QueryGraphHeadApiFactory, QueryGraphOptionalApiFactory } from '../api/swagger'
 import { clearQuery } from '../main'
 import { handlePromise } from '../main/handle-promises'
@@ -7,8 +8,9 @@ import * as ontologyGraph from '../ontology-graph'
 import getGscape from '../ontology-graph/get-gscape'
 import * as queryGraph from '../query-graph'
 import * as queryHead from '../query-head'
+import HeadElementComponent from '../query-head/qh-element-component'
 import * as GEUtility from '../util/graph-element-utility'
-import { clearQueryButton, filterDialog, filterListDialog, sparqlButton, sparqlDialog } from '../widgets'
+import { filterDialog, filterListDialog, sparqlDialog } from '../widgets'
 import showFormDialog from './show-form-dialog'
 
 queryGraph.onAddHead(async graphElement => {
@@ -28,7 +30,7 @@ queryGraph.onDelete((graphElement, iri) => {
 
   const qgApi = QueryGraphBGPApiFactory(undefined, model.getBasePath())
   const body = model.getQueryBody()
-  const selectedGraphElement = model.getSelectedGraphElement()
+  const selectedGraphElement = model.getActiveElement()?.graphElement
   const gscape = getGscape()
 
   if (!iri) {
@@ -41,25 +43,31 @@ queryGraph.onDelete((graphElement, iri) => {
               return true
           }) || false
         })
-        
-  
-        model.setSelectedGraphElement(newSelectedGE)
-        ontologyGraph.resetHighlights()
-        gscape.unselectEntity()
 
+        let newSelectedGEIri: string | undefined
         if (newSelectedGE) {
-          const newSelectedGEIri = GEUtility.getIri(newSelectedGE)
+          newSelectedGEIri = GEUtility.getIri(newSelectedGE)
           if (newSelectedGEIri) {
-            ontologyGraph.focusNodeByIRI(newSelectedGEIri)
-            ontologyGraph.highlightSuggestions(newSelectedGEIri)
+            model.setActiveElement({
+              graphElement: newSelectedGE,
+              iri: new Iri(newSelectedGEIri, gscape.ontology.namespaces)
+            })
           }
         }
         
+        ontologyGraph.resetHighlights()
+        gscape.unselect()
+
+        if (newSelectedGEIri) {
+          gscape.centerOnEntity(newSelectedGEIri)
+          ontologyGraph.highlightSuggestions(newSelectedGEIri)
+        }
+
         if (newSelectedGE?.id) {
           queryGraph.selectElement(newSelectedGE.id) // force selecting a new class
         }
       }
-      
+
       finalizeDelete(newBody)
     })
   } else { // deleted a children
@@ -82,8 +90,15 @@ queryGraph.onJoin(async (ge1, ge2) => {
     const body = model.getQueryBody()
 
     handlePromise(qgApi.putQueryGraphJoin(ge1.id, ge2.id, body, model.getRequestOptions())).then(newBody => {
-      model.setSelectedGraphElement(ge1)
-      onNewBody(newBody)
+      const ge1Iri = GEUtility.getIri(ge1)
+
+      if (ge1Iri) {
+        model.setActiveElement({
+          graphElement: ge1,
+          iri: new Iri(ge1Iri, getGscape().ontology.namespaces)
+        })
+        onNewBody(newBody)
+      }
     })
   }
 })
@@ -92,28 +107,33 @@ queryGraph.onElementClick((graphElement, iri) => {
   const gscape = getGscape()
 
   // move ontology graph to show origin graphol node or any other iri occurrence
-  const originGrapholNodeId = model.getOriginGrapholNodes().get(graphElement.id + iri)
-  if (originGrapholNodeId) {
-    ontologyGraph.focusNodeByIdAndDiagram(originGrapholNodeId)
+  const originGrapholNodeOccurrence = model.getOriginGrapholNodes().get(graphElement.id + iri)
+  if (originGrapholNodeOccurrence) {
+    gscape.centerOnElement(originGrapholNodeOccurrence.elementId, originGrapholNodeOccurrence.diagramId)
   } else {
-    ontologyGraph.focusNodeByIRI(iri)
+    gscape.centerOnEntity(iri)
   }
 
   if (GEUtility.isClass(graphElement)) {
     // if the new graphElement is different from the current selected one the select it
-    if (model.getSelectedGraphElement() !== graphElement) {
-      model.setSelectedGraphElement(graphElement)
+    if (model.getActiveElement()?.graphElement !== graphElement) {
+      model.setActiveElement({
+        graphElement: graphElement,
+        iri: new Iri(iri, gscape.ontology.namespaces)
+      })
 
       // Highlight suggestions for the actual clicked iri (might be a child node)
       ontologyGraph.highlightSuggestions(iri)
     }
   }
+  const entityDetailsWidget = gscape.widgets.get(ui.WidgetEnum.ENTITY_DETAILS) as any
+  if (entityDetailsWidget)
+    entityDetailsWidget.grapholEntity = gscape.ontology.getEntity(iri)
 
-  gscape.widgets.ENTITY_DETAILS.setEntity(gscape.ontology.getEntityOccurrences(iri)[0])
   // keep focus on selected class
-  const selectedGraphElem = model.getSelectedGraphElement()
-  if (selectedGraphElem?.id)
-    queryGraph.selectElement(selectedGraphElem.id)
+  const activeElement = model.getActiveElement()
+  if (activeElement?.graphElement.id)
+    queryGraph.selectElement(activeElement.graphElement.id)
 })
 
 queryGraph.onMakeOptional(graphElement => {
@@ -141,12 +161,13 @@ queryGraph.onAddFilter(graphElement => {
 })
 
 queryGraph.onSeeFilters(graphElement => {
-  if (graphElement.id) {
+  if (graphElement.id && queryHead.widget.shadowRoot) {
     for (const headElementComponent of queryHead.widget.shadowRoot.querySelectorAll('head-element')) {
-      if (headElementComponent.graphElementId === graphElement.id) {
-        headElementComponent.focus()
-        headElementComponent.showBody()
-        headElementComponent.scrollIntoView({ behavior: 'smooth' })
+      const headElemC = headElementComponent as HeadElementComponent
+      if (headElemC.graphElementId === graphElement.id) {
+        headElemC.focus()
+        headElemC.openPanel()
+        headElemC.scrollIntoView({ behavior: 'smooth' })
         return
       }
     }
@@ -161,8 +182,6 @@ queryGraph.onSeeFilters(graphElement => {
   }
 })
 
-sparqlButton.onClick = () => {
-  sparqlDialog.isVisible ? sparqlDialog.hide() : sparqlDialog.show()
-}
+queryGraph.widget.onSparqlButtonClick = () => sparqlDialog.isVisible ? sparqlDialog.hide() : sparqlDialog.show()
 
-clearQueryButton.onClick = () => clearQuery()
+queryGraph.widget.onQueryClear = () => { clearQuery() }

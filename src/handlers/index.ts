@@ -5,4 +5,5 @@ export * as StartStopHandlers from './start-stop-handlers'
 
 import './aggregatetions-handlers'
 import './functions-handlers'
-import './extra-handlers'
+import './filters-handlers'
+import './highlights-list-handlers'

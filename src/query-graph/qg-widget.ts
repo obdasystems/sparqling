@@ -1,149 +1,144 @@
-import { UI } from 'grapholscape'
-import { html, css } from 'lit'
-import { dbClick, rdfLogo } from '../widgets/assets/icons'
+import { ui } from 'grapholscape'
+import { css, html, LitElement } from 'lit'
+import { countStarToggle } from '../widgets'
+import { code, dbClick, rdfLogo, refresh } from '../widgets/assets/icons'
 import { emptyGraphMsg, emptyGraphTipMsg, tipWhatIsQueryGraph } from '../widgets/assets/texts'
+import distinctToggle from '../widgets/distinct-toggle'
+import limitInput from '../widgets/limit'
+import offsetInput from '../widgets/offset'
+import sparqlignWidgetStyle from '../widgets/sparqling-widget-style'
+import getTrayButtonTemplate from '../widgets/tray-button-template'
 import cy from './renderer/cy'
 
-const { GscapeWidget, GscapeHeader } = UI
 /**
  * Widget extending base grapholscape widget which uses Lit-element inside
  */
-export default class QueryGraphWidget extends (GscapeWidget as any) {
-  public collapsible : boolean
-  public draggable: boolean
+export default class QueryGraphWidget extends ui.BaseMixin(ui.DropPanelMixin(LitElement)) {
   private bgpContainer: HTMLElement
   private _isBGPEmpty: boolean = true
-  private headSlottedWidgets?: Element[]
+  
+  onQueryClear = () => { }
+  onSparqlButtonClick = () => { }
+  title = 'Query Graph'
 
-  static get properties() {
-    const props = super.properties
-
-    props._isBGPEmpty = { attribute: false, type: Boolean }
-
-    return props
+  static properties = {
+    _isBGPEmpty: { attribute: false, type: Boolean }
   }
 
-  static get styles() {
-    let super_styles = super.styles as any
-    let colors = super_styles[1]
+  static styles = [
+    ui.baseStyle,
+    sparqlignWidgetStyle,
+    css`
+      :host {
+        width: calc(50%);
+        height: 30%;
+        position: absolute;
+        left: 50%;
+        top: 100%;
+        transform: translate(-50%, calc(-100% - 10px));
+      }
+      
+      .tip {
+        border-bottom: dotted 2px;
+        cursor: help;
+      }
 
-    return [
-      super_styles[0],
-      css`
-        :host {
-          width: calc(50%);
-          position: absolute;
-          left: 50%;
-          top: 100%;
-          transform: translate(-50%, calc(-100% - 10px));
-        }
+      .tip: hover {
+        color:inherit;
+      }
 
-        .widget-body {
-          min-height: 50px;
-          margin:0;
-          border-top: none;
-          border-radius: inherit;
-          border-bottom-left-radius:0;
-          border-bottom-right-radius:0;
-        }
+      .input-elem {
+        color: inherit;
+        padding: 5px;
+        border: none;
+        border-bottom: solid 1px var(--gscape-color-border-default);
+        max-width: 50px;
+      }
+    `
+  ]
 
-        #empty-graph {
-          padding: 20px;
-          display: flex;
-          flex-direction: column;
-          align-items: center;
-          gap: 20px;
-          text-align: center;
-        }
-
-        #empty-graph > .icon {
-          --gscape-icon-size: 60px;
-        }
-
-        #empty-graph-msg {
-          font-weight: bold;
-        }
-
-        .tip {
-          font-size: 90%;
-          color: var(--theme-gscape-shadows, ${colors.shadows});
-          border-bottom: dotted 2px;
-          cursor: help;
-        }
-
-        .tip: hover {
-          color:inherit;
-        }
-
-        #buttons-tray > * {
-          position: initial;
-        }
-
-        #buttons-tray {
-          display: flex;
-          align-items: center;
-          justify-content: end;
-          gap:10px;
-          flex-grow: 3;
-          padding: 0 10px;
-        }
-
-        #buttons-tray > gscape-button {
-          --gscape-icon-size: 20px;
-        }
-
-        #buttons-tray > input {
-          max-width:50px;
-        }
-
-        .input-elem {
-          color: inherit;
-          padding: 5px;
-          border: none;
-          border-bottom: solid 1px var(--theme-gscape-borders, ${colors.borders});
-          max-width: 50px;
-          background: var(--theme-gscape-primary, ${colors.primary});
-        }
-      `
-    ]
-  }
-
-  constructor(bgpContainer: HTMLElement, headSlottedWidgets?: Element[]) {
+  constructor(bgpContainer: HTMLElement) {
     super()
     this.bgpContainer = bgpContainer
-    this.collapsible = true
-    this.draggable = true
-    this.headSlottedWidgets = headSlottedWidgets
-    //super.makeDraggable()
   }
 
   render() {
     return html`
-      <div class="widget-body">
-        ${this.isBGPEmpty
-          ? html`
-            <div id="empty-graph">
-              <div class="icon">${dbClick}</div>
-              <div id="empty-graph-msg">${emptyGraphMsg()}</div>
-              <div class="tip" title="${emptyGraphTipMsg()}">${tipWhatIsQueryGraph()}</div>
-            </div>
-          `
-          : this.bgpContainer}
-      </div>
+      ${this.isPanelClosed()
+        ? html`
+          <div class="top-bar traslated-down">
+            <gscape-button 
+              id="toggle-panel-button"
+              @click=${this.togglePanel}
+              label=${this.title}
+            > 
+              <span slot="icon">${rdfLogo}</span>
+              <span slot="trailing-icon">${ui.icons.plus}</span>
+            </gscape-button>
+          </div>
+        `
+        : html`
+          <div class="gscape-panel" id="drop-panel">
+            <div class="top-bar">
+              <div id="widget-header" class="bold-text">
+                ${rdfLogo}
+                <span>${this.title}</span>
+              </div>
 
-      <gscape-head title="Query Graph">
-        <div id="buttons-tray">
-          ${this.headSlottedWidgets}
-        </div>
-      </gscape-head>
+              <div id="buttons-tray">
+
+                ${limitInput}
+                ${offsetInput}
+                ${distinctToggle}
+                ${countStarToggle}
+
+                ${getTrayButtonTemplate('Sparql', code, undefined, 'sparql-code-btn', this.onSparqlButtonClick)}
+                ${getTrayButtonTemplate('Clear Query', refresh, undefined, 'clear-query-btn', this.onQueryClear)}
+              </div>
+
+              <gscape-button 
+                id="toggle-panel-button"
+                size="s" 
+                type="subtle"
+                @click=${this.togglePanel}
+              > 
+                <span slot="icon">${ui.icons.minus}</span>
+              </gscape-button>
+            </div>
+
+
+            ${this.isBGPEmpty
+            ? html`
+                <div class="blank-slate sparqling-blank-slate">
+                  ${dbClick}
+                  <div class="header">${emptyGraphMsg()}</div>
+                  <div class="tip description" title="${emptyGraphTipMsg()}">${tipWhatIsQueryGraph()}</div>
+                </div>
+              `
+            : this.bgpContainer}
+          </div>
+
+        `
+      }
     `
   }
 
+  togglePanel = () => {
+    super.togglePanel()
+
+    this.requestUpdate()
+    if (this.isPanelClosed()) {
+      this.style.height = 'fit-content'
+    } else {
+      this.style.height = '30%'
+    }
+  }
+
   firstUpdated() {
-    super.firstUpdated()
-    this.header.left_icon = rdfLogo
-    this.header.invertIcons()
-    super.makeDraggableHeadTitle()
+  //   super.firstUpdated()
+  //   this.header.left_icon = rdfLogo
+  //   this.header.invertIcons()
+  //   super.makeDraggableHeadTitle()
     this.hide()
   }
 
@@ -161,12 +156,12 @@ export default class QueryGraphWidget extends (GscapeWidget as any) {
        */
       try {
         (cy as any).renderer().hoverData.capture = true
-      } catch {}
+      } catch { }
     })
     return root
   }
 
-  blur() {}
+  blur() { }
 
   set isBGPEmpty(value: boolean) {
     this._isBGPEmpty = value
@@ -176,12 +171,8 @@ export default class QueryGraphWidget extends (GscapeWidget as any) {
     return this._isBGPEmpty
   }
 
-  set graphContainerHeight(value: number) {
-    this.bgpContainer.style.height = `${value + 40}px`
-  }
-
-  set graphContainerWidth(value: number) {
-    this.bgpContainer.style.width = `${value + 40}px`
+  get clearQueryButton() {
+    return this.shadowRoot?.querySelector('#clear-query-btn') as ui.GscapeButton
   }
 
   //createRenderRoot() { return this as any }

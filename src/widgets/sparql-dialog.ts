@@ -1,75 +1,102 @@
-import { UI } from 'grapholscape'
-import { html, css } from 'lit'
-import { code, copyContent } from './assets/icons'
+import { ui } from 'grapholscape'
+import { html, css, LitElement, PropertyValueMap } from 'lit'
+import { code, copyContent, ellipsis } from './assets/icons'
 import { emptyQueryMsg } from './assets/texts'
+import sparqlingWidgetStyle from './sparqling-widget-style'
+import getTrayButtonTemplate from './tray-button-template'
 
-export default class SparqlDialog extends (UI.GscapeDialog as any) {
-  _text: string = emptyQueryMsg()
-  copyButton = new UI.GscapeButton(copyContent, "Copy Query")
-  isVisible: any
+export default class SparqlDialog extends ui.BaseMixin(LitElement) {
+  text: string = emptyQueryMsg()
+  //copyButton = new UI.GscapeButton(copyContent, "Copy Query")
+  title = 'SPARQL'
 
-  static get styles() {
-    let super_styles = super.styles as any
-    let colors = super_styles[1]
+  private arePrefixesVisible: Boolean = false
 
-    return [
-      super_styles[0],
-      css`
-        :host {
-          top:50%;
-          left:50%;
-          transform: translate(-50%, -50%);
-        }
+  static styles = [
+    ui.baseStyle,
+    sparqlingWidgetStyle,
+    css`
+      :host {
+        position: absolute;
+        top: 100px;
+        left: 50%;
+        transform: translate(-50%, 0);
+        min-width: 200px;
+        max-width: 800px;
+      }
 
-        .sparql-code {
-          white-space: pre;
-          padding: 10px 20px;
-          cursor: copy;
-          font-family: monospace;
-        }
+      .sparql-code-wrapper {
+        display: flex;
+        flex-direction: column;
+        gap: 8px;
+        cursor: copy;
+        font-family: monospace;
+        overflow: auto;
+        max-height: 300px;
+        padding: 10px 20px;
+        scrollbar-width: inherit;
+      }
 
-        #buttons-tray > * {
-          position: initial;
-        }
+      .sparql-code {
+        white-space: pre;
+      }
+    `
+  ]
 
-        #buttons-tray {
-          display: flex;
-          align-items: center;
-          justify-content: end;
-          gap:10px;
-          flex-grow: 3;
-          padding: 0 20px;
-        }
-
-        #buttons-tray > gscape-button {
-          --gscape-icon-size: 20px;
-        }
-      `,
-    ]
-  }
-
-  constructor() {
-    super()
-    this.copyButton.onClick = () => this.copyQuery()
+  static properties = {
+    text: { type: String, attribute: false },
+    arePrefixesVisible: { type: Boolean, state: true },
   }
 
   render() {
     return html`
-      <gscape-head title="SPARQL" class="drag-handler">
-        <div id="buttons-tray">
-          ${this.copyButton}
+      <div class="gscape-panel">
+        <div class="top-bar">
+          <div id="widget-header" class="bold-text">
+            ${code}
+            <span>${this.title}</span>
+          </div>
+
+          <div id="buttons-tray">
+            ${getTrayButtonTemplate('Copy Query', copyContent, undefined, 'copyt-query-code-btn', this.copyQuery)}
+          </div>
+
+          <gscape-button 
+            id="toggle-panel-button"
+            size="s" 
+            type="subtle"
+            @click=${this.hide}
+            title="Close"
+          > 
+            <span slot="icon">${ui.icons.close}</span>
+          </gscape-button>
         </div>
-      </gscape-head>
-      <div class="widget-body">
-        <div class="sparql-code" title="Click to copy query" @click=${this.copyQuery}>${this.text.trim()}</div>
+
+        <div class="sparql-code-wrapper" title="Click to copy query" @click=${this.copyQuery}>
+          ${this.text === emptyQueryMsg()
+            ? html`<div class="sparql-code">${this.text.trim()}</div>`
+            : html`
+              ${this.arePrefixesVisible
+                ? html`
+                  <div class="sparql-code">${this.queryPrefixes}</div>
+                `
+                : null
+              }
+              <gscape-button type="subtle" title="Show Prefixes" size="s" @click="${this.togglePrefixes}">
+                <span slot="icon">${ellipsis}</span>
+              </gscape-button>
+              <div class="sparql-code">${this.queryText}</div>
+            `
+      }
+        </div>
       </div>
     `
   }
 
-  firstUpdated() {
-    super.firstUpdated()
-    this.header.left_icon = code
+  private togglePrefixes() {
+    this.arePrefixesVisible = !this.arePrefixesVisible
   }
+
 
   copyQuery() {
     navigator.clipboard.writeText(this.text).then(_ => {
@@ -77,19 +104,18 @@ export default class SparqlDialog extends (UI.GscapeDialog as any) {
     })
   }
 
-  show() {
-    super.show()
+  protected firstUpdated(_changedProperties: PropertyValueMap<any> | Map<PropertyKey, unknown>) {
+    super.firstUpdated(_changedProperties)
+    this.hide()
   }
 
-  hide() {
-    super.hide()
+  private get queryPrefixes() {
+    return this.text.substring(0, this.text.search('SELECT')).trim()
   }
 
-  set text(text) {
-    this._text = text 
+  private get queryText() {
+    return this.text.substring(this.text.search('SELECT')).trim()
   }
-
-  get text() { return this._text}
 }
 
 

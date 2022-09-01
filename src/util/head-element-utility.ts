@@ -1,5 +1,5 @@
 import { EntityTypeEnum, HeadElement } from "../api/swagger"
-import { guessDataType } from "../ontology-graph"
+import { getGscape } from "../ontology-graph"
 import * as GEUtility from "./graph-element-utility"
 
 export function getHeadElementWithDatatype(headElement: HeadElement) {
@@ -9,9 +9,10 @@ export function getHeadElementWithDatatype(headElement: HeadElement) {
     if (relatedGraphElem) {
       const relatedGraphElemIri = GEUtility.getIri(relatedGraphElem)
       if (relatedGraphElemIri) {
+        const grapholEntity = getGscape().ontology.getEntity(relatedGraphElemIri)
         headElementCopy['entityType'] = GEUtility.getEntityType(relatedGraphElem)
         headElementCopy['dataType'] = headElementCopy['entityType'] === EntityTypeEnum.DataProperty
-          ? guessDataType(relatedGraphElemIri)
+          ? grapholEntity.datatype
           : null
         return headElementCopy
       }

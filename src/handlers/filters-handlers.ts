@@ -24,7 +24,10 @@ filterDialog.onSubmit(async (id, op, params) => {
 
   if (id === undefined || id === null) {
     // add filter
-    if (!tempQueryBody.filters) tempQueryBody.filters = []
+    if (!tempQueryBody.filters) {
+      tempQueryBody.filters = []
+    }
+    
     id = tempQueryBody.filters.push(newFilter) - 1
     handlePromise(filterApi.newFilter(id, tempQueryBody, model.getRequestOptions())).then(newBody => {
       filterDialog._id = id

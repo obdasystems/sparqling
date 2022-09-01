@@ -1,7 +1,7 @@
 import { CollectionReturnValue } from "cytoscape"
+import { EntityNameType } from "grapholscape"
 import { Entity, EntityTypeEnum, GraphElement, Optional } from "../../api/swagger"
-import { getFiltersOnVariable, getQueryBody } from "../../model"
-import { DisplayedNameType } from "../displayed-name-type"
+import { getFiltersOnVariable } from "../../model"
 import cy, { getDisplayedNameType, getLanguage } from './cy'
 import { getElementById, getElements } from "./getters"
 import { addOrRemoveFilterIcon, removeHasFilterIcon } from "./has-filter-icon"
@@ -211,13 +211,13 @@ function getDataObj(graphElement: GraphElement, i?: number) {
   }
 }
 
-function getDisplayedName(data: object) {
-  let labels = data[DisplayedNameType.label]
+function getDisplayedName(data: Entity) {
+  let labels = data.labels
   const displayedNameType = getDisplayedNameType()
 
-  if (displayedNameType === DisplayedNameType.label && labels)
+  if (displayedNameType === EntityNameType.LABEL && labels)
     // use first language found if the actual one is not available
-    return labels[getLanguage] || labels[Object.keys(labels)[0]]
+    return labels[getLanguage()] || labels[Object.keys(labels)[0]]
   else
-    return data[displayedNameType] || data[DisplayedNameType.prefixed] || data[DisplayedNameType.full]
+    return data[displayedNameType] || data.iri
 }
