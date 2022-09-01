@@ -17,10 +17,9 @@ export default (theme: GrapholscapeTheme) => [
   {
     selector: '.highlighted',
     style: {
-      'underlay-color': theme.getColour(ColoursNames.success_muted),
+      'underlay-color': theme.colours["sparqling-highlight"] || theme.getColour(ColoursNames.success_muted),
       'underlay-padding': '8px',
       'underlay-opacity': 1,
-      'border-color': theme.getColour(ColoursNames.success),
       'border-opacity': 1,
     }
   },
