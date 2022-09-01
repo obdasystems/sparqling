@@ -2532,26 +2532,26 @@ function setSparqlingRunning(value) {
  * Copyright 2019 Google LLC
  * SPDX-License-Identifier: BSD-3-Clause
  */
-const t$1=window.ShadowRoot&&(void 0===window.ShadyCSS||window.ShadyCSS.nativeShadow)&&"adoptedStyleSheets"in Document.prototype&&"replace"in CSSStyleSheet.prototype,e$2=Symbol(),n$3=new WeakMap;class s$3{constructor(t,n,s){if(this._$cssResult$=!0,s!==e$2)throw Error("CSSResult is not constructable. Use `unsafeCSS` or `css` instead.");this.cssText=t,this.t=n;}get styleSheet(){let e=this.o;const s=this.t;if(t$1&&void 0===e){const t=void 0!==s&&1===s.length;t&&(e=n$3.get(s)),void 0===e&&((this.o=e=new CSSStyleSheet).replaceSync(this.cssText),t&&n$3.set(s,e));}return e}toString(){return this.cssText}}const o$3=t=>new s$3("string"==typeof t?t:t+"",void 0,e$2),r$2=(t,...n)=>{const o=1===t.length?t[0]:n.reduce(((e,n,s)=>e+(t=>{if(!0===t._$cssResult$)return t.cssText;if("number"==typeof t)return t;throw Error("Value passed to 'css' function must be a 'css' function result: "+t+". Use 'unsafeCSS' to pass non-literal values, but take care to ensure page security.")})(n)+t[s+1]),t[0]);return new s$3(o,t,e$2)},i$1=(e,n)=>{t$1?e.adoptedStyleSheets=n.map((t=>t instanceof CSSStyleSheet?t:t.styleSheet)):n.forEach((t=>{const n=document.createElement("style"),s=window.litNonce;void 0!==s&&n.setAttribute("nonce",s),n.textContent=t.cssText,e.appendChild(n);}));},S$1=t$1?t=>t:t=>t instanceof CSSStyleSheet?(t=>{let e="";for(const n of t.cssRules)e+=n.cssText;return o$3(e)})(t):t;
+const t$1=window,e$2=t$1.ShadowRoot&&(void 0===t$1.ShadyCSS||t$1.ShadyCSS.nativeShadow)&&"adoptedStyleSheets"in Document.prototype&&"replace"in CSSStyleSheet.prototype,s$3=Symbol(),n$3=new WeakMap;class o$3{constructor(t,e,n){if(this._$cssResult$=!0,n!==s$3)throw Error("CSSResult is not constructable. Use `unsafeCSS` or `css` instead.");this.cssText=t,this.t=e;}get styleSheet(){let t=this.o;const s=this.t;if(e$2&&void 0===t){const e=void 0!==s&&1===s.length;e&&(t=n$3.get(s)),void 0===t&&((this.o=t=new CSSStyleSheet).replaceSync(this.cssText),e&&n$3.set(s,t));}return t}toString(){return this.cssText}}const r$2=t=>new o$3("string"==typeof t?t:t+"",void 0,s$3),i$1=(t,...e)=>{const n=1===t.length?t[0]:e.reduce(((e,s,n)=>e+(t=>{if(!0===t._$cssResult$)return t.cssText;if("number"==typeof t)return t;throw Error("Value passed to 'css' function must be a 'css' function result: "+t+". Use 'unsafeCSS' to pass non-literal values, but take care to ensure page security.")})(s)+t[n+1]),t[0]);return new o$3(n,t,s$3)},S$1=(s,n)=>{e$2?s.adoptedStyleSheets=n.map((t=>t instanceof CSSStyleSheet?t:t.styleSheet)):n.forEach((e=>{const n=document.createElement("style"),o=t$1.litNonce;void 0!==o&&n.setAttribute("nonce",o),n.textContent=e.cssText,s.appendChild(n);}));},c$1=e$2?t=>t:t=>t instanceof CSSStyleSheet?(t=>{let e="";for(const s of t.cssRules)e+=s.cssText;return r$2(e)})(t):t;
 
 /**
  * @license
  * Copyright 2017 Google LLC
  * SPDX-License-Identifier: BSD-3-Clause
- */var s$2;const e$1=window.trustedTypes,r$1=e$1?e$1.emptyScript:"",h$1=window.reactiveElementPolyfillSupport,o$2={toAttribute(t,i){switch(i){case Boolean:t=t?r$1:null;break;case Object:case Array:t=null==t?t:JSON.stringify(t);}return t},fromAttribute(t,i){let s=t;switch(i){case Boolean:s=null!==t;break;case Number:s=null===t?null:Number(t);break;case Object:case Array:try{s=JSON.parse(t);}catch(t){s=null;}}return s}},n$2=(t,i)=>i!==t&&(i==i||t==t),l$2={attribute:!0,type:String,converter:o$2,reflect:!1,hasChanged:n$2};class a$1 extends HTMLElement{constructor(){super(),this._$Ei=new Map,this.isUpdatePending=!1,this.hasUpdated=!1,this._$El=null,this.u();}static addInitializer(t){var i;null!==(i=this.h)&&void 0!==i||(this.h=[]),this.h.push(t);}static get observedAttributes(){this.finalize();const t=[];return this.elementProperties.forEach(((i,s)=>{const e=this._$Ep(s,i);void 0!==e&&(this._$Ev.set(e,s),t.push(e));})),t}static createProperty(t,i=l$2){if(i.state&&(i.attribute=!1),this.finalize(),this.elementProperties.set(t,i),!i.noAccessor&&!this.prototype.hasOwnProperty(t)){const s="symbol"==typeof t?Symbol():"__"+t,e=this.getPropertyDescriptor(t,s,i);void 0!==e&&Object.defineProperty(this.prototype,t,e);}}static getPropertyDescriptor(t,i,s){return {get(){return this[i]},set(e){const r=this[t];this[i]=e,this.requestUpdate(t,r,s);},configurable:!0,enumerable:!0}}static getPropertyOptions(t){return this.elementProperties.get(t)||l$2}static finalize(){if(this.hasOwnProperty("finalized"))return !1;this.finalized=!0;const t=Object.getPrototypeOf(this);if(t.finalize(),this.elementProperties=new Map(t.elementProperties),this._$Ev=new Map,this.hasOwnProperty("properties")){const t=this.properties,i=[...Object.getOwnPropertyNames(t),...Object.getOwnPropertySymbols(t)];for(const s of i)this.createProperty(s,t[s]);}return this.elementStyles=this.finalizeStyles(this.styles),!0}static finalizeStyles(i){const s=[];if(Array.isArray(i)){const e=new Set(i.flat(1/0).reverse());for(const i of e)s.unshift(S$1(i));}else void 0!==i&&s.push(S$1(i));return s}static _$Ep(t,i){const s=i.attribute;return !1===s?void 0:"string"==typeof s?s:"string"==typeof t?t.toLowerCase():void 0}u(){var t;this._$E_=new Promise((t=>this.enableUpdating=t)),this._$AL=new Map,this._$Eg(),this.requestUpdate(),null===(t=this.constructor.h)||void 0===t||t.forEach((t=>t(this)));}addController(t){var i,s;(null!==(i=this._$ES)&&void 0!==i?i:this._$ES=[]).push(t),void 0!==this.renderRoot&&this.isConnected&&(null===(s=t.hostConnected)||void 0===s||s.call(t));}removeController(t){var i;null===(i=this._$ES)||void 0===i||i.splice(this._$ES.indexOf(t)>>>0,1);}_$Eg(){this.constructor.elementProperties.forEach(((t,i)=>{this.hasOwnProperty(i)&&(this._$Ei.set(i,this[i]),delete this[i]);}));}createRenderRoot(){var t;const s=null!==(t=this.shadowRoot)&&void 0!==t?t:this.attachShadow(this.constructor.shadowRootOptions);return i$1(s,this.constructor.elementStyles),s}connectedCallback(){var t;void 0===this.renderRoot&&(this.renderRoot=this.createRenderRoot()),this.enableUpdating(!0),null===(t=this._$ES)||void 0===t||t.forEach((t=>{var i;return null===(i=t.hostConnected)||void 0===i?void 0:i.call(t)}));}enableUpdating(t){}disconnectedCallback(){var t;null===(t=this._$ES)||void 0===t||t.forEach((t=>{var i;return null===(i=t.hostDisconnected)||void 0===i?void 0:i.call(t)}));}attributeChangedCallback(t,i,s){this._$AK(t,s);}_$EO(t,i,s=l$2){var e,r;const h=this.constructor._$Ep(t,s);if(void 0!==h&&!0===s.reflect){const n=(null!==(r=null===(e=s.converter)||void 0===e?void 0:e.toAttribute)&&void 0!==r?r:o$2.toAttribute)(i,s.type);this._$El=t,null==n?this.removeAttribute(h):this.setAttribute(h,n),this._$El=null;}}_$AK(t,i){var s,e;const r=this.constructor,h=r._$Ev.get(t);if(void 0!==h&&this._$El!==h){const t=r.getPropertyOptions(h),n=t.converter,l=null!==(e=null!==(s=null==n?void 0:n.fromAttribute)&&void 0!==s?s:"function"==typeof n?n:null)&&void 0!==e?e:o$2.fromAttribute;this._$El=h,this[h]=l(i,t.type),this._$El=null;}}requestUpdate(t,i,s){let e=!0;void 0!==t&&(((s=s||this.constructor.getPropertyOptions(t)).hasChanged||n$2)(this[t],i)?(this._$AL.has(t)||this._$AL.set(t,i),!0===s.reflect&&this._$El!==t&&(void 0===this._$EC&&(this._$EC=new Map),this._$EC.set(t,s))):e=!1),!this.isUpdatePending&&e&&(this._$E_=this._$Ej());}async _$Ej(){this.isUpdatePending=!0;try{await this._$E_;}catch(t){Promise.reject(t);}const t=this.scheduleUpdate();return null!=t&&await t,!this.isUpdatePending}scheduleUpdate(){return this.performUpdate()}performUpdate(){var t;if(!this.isUpdatePending)return;this.hasUpdated,this._$Ei&&(this._$Ei.forEach(((t,i)=>this[i]=t)),this._$Ei=void 0);let i=!1;const s=this._$AL;try{i=this.shouldUpdate(s),i?(this.willUpdate(s),null===(t=this._$ES)||void 0===t||t.forEach((t=>{var i;return null===(i=t.hostUpdate)||void 0===i?void 0:i.call(t)})),this.update(s)):this._$Ek();}catch(t){throw i=!1,this._$Ek(),t}i&&this._$AE(s);}willUpdate(t){}_$AE(t){var i;null===(i=this._$ES)||void 0===i||i.forEach((t=>{var i;return null===(i=t.hostUpdated)||void 0===i?void 0:i.call(t)})),this.hasUpdated||(this.hasUpdated=!0,this.firstUpdated(t)),this.updated(t);}_$Ek(){this._$AL=new Map,this.isUpdatePending=!1;}get updateComplete(){return this.getUpdateComplete()}getUpdateComplete(){return this._$E_}shouldUpdate(t){return !0}update(t){void 0!==this._$EC&&(this._$EC.forEach(((t,i)=>this._$EO(i,this[i],t))),this._$EC=void 0),this._$Ek();}updated(t){}firstUpdated(t){}}a$1.finalized=!0,a$1.elementProperties=new Map,a$1.elementStyles=[],a$1.shadowRootOptions={mode:"open"},null==h$1||h$1({ReactiveElement:a$1}),(null!==(s$2=globalThis.reactiveElementVersions)&&void 0!==s$2?s$2:globalThis.reactiveElementVersions=[]).push("1.3.3");
+ */var s$2;const e$1=window,r$1=e$1.trustedTypes,h$1=r$1?r$1.emptyScript:"",o$2=e$1.reactiveElementPolyfillSupport,n$2={toAttribute(t,i){switch(i){case Boolean:t=t?h$1:null;break;case Object:case Array:t=null==t?t:JSON.stringify(t);}return t},fromAttribute(t,i){let s=t;switch(i){case Boolean:s=null!==t;break;case Number:s=null===t?null:Number(t);break;case Object:case Array:try{s=JSON.parse(t);}catch(t){s=null;}}return s}},a$1=(t,i)=>i!==t&&(i==i||t==t),l$2={attribute:!0,type:String,converter:n$2,reflect:!1,hasChanged:a$1};class d$1 extends HTMLElement{constructor(){super(),this._$Ei=new Map,this.isUpdatePending=!1,this.hasUpdated=!1,this._$El=null,this.u();}static addInitializer(t){var i;null!==(i=this.h)&&void 0!==i||(this.h=[]),this.h.push(t);}static get observedAttributes(){this.finalize();const t=[];return this.elementProperties.forEach(((i,s)=>{const e=this._$Ep(s,i);void 0!==e&&(this._$Ev.set(e,s),t.push(e));})),t}static createProperty(t,i=l$2){if(i.state&&(i.attribute=!1),this.finalize(),this.elementProperties.set(t,i),!i.noAccessor&&!this.prototype.hasOwnProperty(t)){const s="symbol"==typeof t?Symbol():"__"+t,e=this.getPropertyDescriptor(t,s,i);void 0!==e&&Object.defineProperty(this.prototype,t,e);}}static getPropertyDescriptor(t,i,s){return {get(){return this[i]},set(e){const r=this[t];this[i]=e,this.requestUpdate(t,r,s);},configurable:!0,enumerable:!0}}static getPropertyOptions(t){return this.elementProperties.get(t)||l$2}static finalize(){if(this.hasOwnProperty("finalized"))return !1;this.finalized=!0;const t=Object.getPrototypeOf(this);if(t.finalize(),this.elementProperties=new Map(t.elementProperties),this._$Ev=new Map,this.hasOwnProperty("properties")){const t=this.properties,i=[...Object.getOwnPropertyNames(t),...Object.getOwnPropertySymbols(t)];for(const s of i)this.createProperty(s,t[s]);}return this.elementStyles=this.finalizeStyles(this.styles),!0}static finalizeStyles(i){const s=[];if(Array.isArray(i)){const e=new Set(i.flat(1/0).reverse());for(const i of e)s.unshift(c$1(i));}else void 0!==i&&s.push(c$1(i));return s}static _$Ep(t,i){const s=i.attribute;return !1===s?void 0:"string"==typeof s?s:"string"==typeof t?t.toLowerCase():void 0}u(){var t;this._$E_=new Promise((t=>this.enableUpdating=t)),this._$AL=new Map,this._$Eg(),this.requestUpdate(),null===(t=this.constructor.h)||void 0===t||t.forEach((t=>t(this)));}addController(t){var i,s;(null!==(i=this._$ES)&&void 0!==i?i:this._$ES=[]).push(t),void 0!==this.renderRoot&&this.isConnected&&(null===(s=t.hostConnected)||void 0===s||s.call(t));}removeController(t){var i;null===(i=this._$ES)||void 0===i||i.splice(this._$ES.indexOf(t)>>>0,1);}_$Eg(){this.constructor.elementProperties.forEach(((t,i)=>{this.hasOwnProperty(i)&&(this._$Ei.set(i,this[i]),delete this[i]);}));}createRenderRoot(){var t;const s=null!==(t=this.shadowRoot)&&void 0!==t?t:this.attachShadow(this.constructor.shadowRootOptions);return S$1(s,this.constructor.elementStyles),s}connectedCallback(){var t;void 0===this.renderRoot&&(this.renderRoot=this.createRenderRoot()),this.enableUpdating(!0),null===(t=this._$ES)||void 0===t||t.forEach((t=>{var i;return null===(i=t.hostConnected)||void 0===i?void 0:i.call(t)}));}enableUpdating(t){}disconnectedCallback(){var t;null===(t=this._$ES)||void 0===t||t.forEach((t=>{var i;return null===(i=t.hostDisconnected)||void 0===i?void 0:i.call(t)}));}attributeChangedCallback(t,i,s){this._$AK(t,s);}_$EO(t,i,s=l$2){var e;const r=this.constructor._$Ep(t,s);if(void 0!==r&&!0===s.reflect){const h=(void 0!==(null===(e=s.converter)||void 0===e?void 0:e.toAttribute)?s.converter:n$2).toAttribute(i,s.type);this._$El=t,null==h?this.removeAttribute(r):this.setAttribute(r,h),this._$El=null;}}_$AK(t,i){var s;const e=this.constructor,r=e._$Ev.get(t);if(void 0!==r&&this._$El!==r){const t=e.getPropertyOptions(r),h="function"==typeof t.converter?{fromAttribute:t.converter}:void 0!==(null===(s=t.converter)||void 0===s?void 0:s.fromAttribute)?t.converter:n$2;this._$El=r,this[r]=h.fromAttribute(i,t.type),this._$El=null;}}requestUpdate(t,i,s){let e=!0;void 0!==t&&(((s=s||this.constructor.getPropertyOptions(t)).hasChanged||a$1)(this[t],i)?(this._$AL.has(t)||this._$AL.set(t,i),!0===s.reflect&&this._$El!==t&&(void 0===this._$EC&&(this._$EC=new Map),this._$EC.set(t,s))):e=!1),!this.isUpdatePending&&e&&(this._$E_=this._$Ej());}async _$Ej(){this.isUpdatePending=!0;try{await this._$E_;}catch(t){Promise.reject(t);}const t=this.scheduleUpdate();return null!=t&&await t,!this.isUpdatePending}scheduleUpdate(){return this.performUpdate()}performUpdate(){var t;if(!this.isUpdatePending)return;this.hasUpdated,this._$Ei&&(this._$Ei.forEach(((t,i)=>this[i]=t)),this._$Ei=void 0);let i=!1;const s=this._$AL;try{i=this.shouldUpdate(s),i?(this.willUpdate(s),null===(t=this._$ES)||void 0===t||t.forEach((t=>{var i;return null===(i=t.hostUpdate)||void 0===i?void 0:i.call(t)})),this.update(s)):this._$Ek();}catch(t){throw i=!1,this._$Ek(),t}i&&this._$AE(s);}willUpdate(t){}_$AE(t){var i;null===(i=this._$ES)||void 0===i||i.forEach((t=>{var i;return null===(i=t.hostUpdated)||void 0===i?void 0:i.call(t)})),this.hasUpdated||(this.hasUpdated=!0,this.firstUpdated(t)),this.updated(t);}_$Ek(){this._$AL=new Map,this.isUpdatePending=!1;}get updateComplete(){return this.getUpdateComplete()}getUpdateComplete(){return this._$E_}shouldUpdate(t){return !0}update(t){void 0!==this._$EC&&(this._$EC.forEach(((t,i)=>this._$EO(i,this[i],t))),this._$EC=void 0),this._$Ek();}updated(t){}firstUpdated(t){}}d$1.finalized=!0,d$1.elementProperties=new Map,d$1.elementStyles=[],d$1.shadowRootOptions={mode:"open"},null==o$2||o$2({ReactiveElement:d$1}),(null!==(s$2=e$1.reactiveElementVersions)&&void 0!==s$2?s$2:e$1.reactiveElementVersions=[]).push("1.4.1");
 
 /**
  * @license
  * Copyright 2017 Google LLC
  * SPDX-License-Identifier: BSD-3-Clause
  */
-var t;const i=globalThis.trustedTypes,s$1=i?i.createPolicy("lit-html",{createHTML:t=>t}):void 0,e=`lit$${(Math.random()+"").slice(9)}$`,o$1="?"+e,n$1=`<${o$1}>`,l$1=document,h=(t="")=>l$1.createComment(t),r=t=>null===t||"object"!=typeof t&&"function"!=typeof t,d=Array.isArray,u=t=>{var i;return d(t)||"function"==typeof(null===(i=t)||void 0===i?void 0:i[Symbol.iterator])},c=/<(?:(!--|\/[^a-zA-Z])|(\/?[a-zA-Z][^>\s]*)|(\/?$))/g,v=/-->/g,a=/>/g,f=/>|[ 	\n\r](?:([^\s"'>=/]+)([ 	\n\r]*=[ 	\n\r]*(?:[^ 	\n\r"'`<>=]|("|')|))|$)/g,_=/'/g,m=/"/g,g=/^(?:script|style|textarea|title)$/i,p=t=>(i,...s)=>({_$litType$:t,strings:i,values:s}),$=p(1),y=p(2),b=Symbol.for("lit-noChange"),w=Symbol.for("lit-nothing"),T=new WeakMap,x=(t,i,s)=>{var e,o;const n=null!==(e=null==s?void 0:s.renderBefore)&&void 0!==e?e:i;let l=n._$litPart$;if(void 0===l){const t=null!==(o=null==s?void 0:s.renderBefore)&&void 0!==o?o:null;n._$litPart$=l=new N(i.insertBefore(h(),t),t,void 0,null!=s?s:{});}return l._$AI(t),l},A=l$1.createTreeWalker(l$1,129,null,!1),C=(t,i)=>{const o=t.length-1,l=[];let h,r=2===i?"<svg>":"",d=c;for(let i=0;i<o;i++){const s=t[i];let o,u,p=-1,$=0;for(;$<s.length&&(d.lastIndex=$,u=d.exec(s),null!==u);)$=d.lastIndex,d===c?"!--"===u[1]?d=v:void 0!==u[1]?d=a:void 0!==u[2]?(g.test(u[2])&&(h=RegExp("</"+u[2],"g")),d=f):void 0!==u[3]&&(d=f):d===f?">"===u[0]?(d=null!=h?h:c,p=-1):void 0===u[1]?p=-2:(p=d.lastIndex-u[2].length,o=u[1],d=void 0===u[3]?f:'"'===u[3]?m:_):d===m||d===_?d=f:d===v||d===a?d=c:(d=f,h=void 0);const y=d===f&&t[i+1].startsWith("/>")?" ":"";r+=d===c?s+n$1:p>=0?(l.push(o),s.slice(0,p)+"$lit$"+s.slice(p)+e+y):s+e+(-2===p?(l.push(void 0),i):y);}const u=r+(t[o]||"<?>")+(2===i?"</svg>":"");if(!Array.isArray(t)||!t.hasOwnProperty("raw"))throw Error("invalid template strings array");return [void 0!==s$1?s$1.createHTML(u):u,l]};class E{constructor({strings:t,_$litType$:s},n){let l;this.parts=[];let r=0,d=0;const u=t.length-1,c=this.parts,[v,a]=C(t,s);if(this.el=E.createElement(v,n),A.currentNode=this.el.content,2===s){const t=this.el.content,i=t.firstChild;i.remove(),t.append(...i.childNodes);}for(;null!==(l=A.nextNode())&&c.length<u;){if(1===l.nodeType){if(l.hasAttributes()){const t=[];for(const i of l.getAttributeNames())if(i.endsWith("$lit$")||i.startsWith(e)){const s=a[d++];if(t.push(i),void 0!==s){const t=l.getAttribute(s.toLowerCase()+"$lit$").split(e),i=/([.?@])?(.*)/.exec(s);c.push({type:1,index:r,name:i[2],strings:t,ctor:"."===i[1]?M:"?"===i[1]?H:"@"===i[1]?I:S});}else c.push({type:6,index:r});}for(const i of t)l.removeAttribute(i);}if(g.test(l.tagName)){const t=l.textContent.split(e),s=t.length-1;if(s>0){l.textContent=i?i.emptyScript:"";for(let i=0;i<s;i++)l.append(t[i],h()),A.nextNode(),c.push({type:2,index:++r});l.append(t[s],h());}}}else if(8===l.nodeType)if(l.data===o$1)c.push({type:2,index:r});else {let t=-1;for(;-1!==(t=l.data.indexOf(e,t+1));)c.push({type:7,index:r}),t+=e.length-1;}r++;}}static createElement(t,i){const s=l$1.createElement("template");return s.innerHTML=t,s}}function P(t,i,s=t,e){var o,n,l,h;if(i===b)return i;let d=void 0!==e?null===(o=s._$Cl)||void 0===o?void 0:o[e]:s._$Cu;const u=r(i)?void 0:i._$litDirective$;return (null==d?void 0:d.constructor)!==u&&(null===(n=null==d?void 0:d._$AO)||void 0===n||n.call(d,!1),void 0===u?d=void 0:(d=new u(t),d._$AT(t,s,e)),void 0!==e?(null!==(l=(h=s)._$Cl)&&void 0!==l?l:h._$Cl=[])[e]=d:s._$Cu=d),void 0!==d&&(i=P(t,d._$AS(t,i.values),d,e)),i}class V{constructor(t,i){this.v=[],this._$AN=void 0,this._$AD=t,this._$AM=i;}get parentNode(){return this._$AM.parentNode}get _$AU(){return this._$AM._$AU}p(t){var i;const{el:{content:s},parts:e}=this._$AD,o=(null!==(i=null==t?void 0:t.creationScope)&&void 0!==i?i:l$1).importNode(s,!0);A.currentNode=o;let n=A.nextNode(),h=0,r=0,d=e[0];for(;void 0!==d;){if(h===d.index){let i;2===d.type?i=new N(n,n.nextSibling,this,t):1===d.type?i=new d.ctor(n,d.name,d.strings,this,t):6===d.type&&(i=new L(n,this,t)),this.v.push(i),d=e[++r];}h!==(null==d?void 0:d.index)&&(n=A.nextNode(),h++);}return o}m(t){let i=0;for(const s of this.v)void 0!==s&&(void 0!==s.strings?(s._$AI(t,s,i),i+=s.strings.length-2):s._$AI(t[i])),i++;}}class N{constructor(t,i,s,e){var o;this.type=2,this._$AH=w,this._$AN=void 0,this._$AA=t,this._$AB=i,this._$AM=s,this.options=e,this._$Cg=null===(o=null==e?void 0:e.isConnected)||void 0===o||o;}get _$AU(){var t,i;return null!==(i=null===(t=this._$AM)||void 0===t?void 0:t._$AU)&&void 0!==i?i:this._$Cg}get parentNode(){let t=this._$AA.parentNode;const i=this._$AM;return void 0!==i&&11===t.nodeType&&(t=i.parentNode),t}get startNode(){return this._$AA}get endNode(){return this._$AB}_$AI(t,i=this){t=P(this,t,i),r(t)?t===w||null==t||""===t?(this._$AH!==w&&this._$AR(),this._$AH=w):t!==this._$AH&&t!==b&&this.$(t):void 0!==t._$litType$?this.T(t):void 0!==t.nodeType?this.k(t):u(t)?this.S(t):this.$(t);}M(t,i=this._$AB){return this._$AA.parentNode.insertBefore(t,i)}k(t){this._$AH!==t&&(this._$AR(),this._$AH=this.M(t));}$(t){this._$AH!==w&&r(this._$AH)?this._$AA.nextSibling.data=t:this.k(l$1.createTextNode(t)),this._$AH=t;}T(t){var i;const{values:s,_$litType$:e}=t,o="number"==typeof e?this._$AC(t):(void 0===e.el&&(e.el=E.createElement(e.h,this.options)),e);if((null===(i=this._$AH)||void 0===i?void 0:i._$AD)===o)this._$AH.m(s);else {const t=new V(o,this),i=t.p(this.options);t.m(s),this.k(i),this._$AH=t;}}_$AC(t){let i=T.get(t.strings);return void 0===i&&T.set(t.strings,i=new E(t)),i}S(t){d(this._$AH)||(this._$AH=[],this._$AR());const i=this._$AH;let s,e=0;for(const o of t)e===i.length?i.push(s=new N(this.M(h()),this.M(h()),this,this.options)):s=i[e],s._$AI(o),e++;e<i.length&&(this._$AR(s&&s._$AB.nextSibling,e),i.length=e);}_$AR(t=this._$AA.nextSibling,i){var s;for(null===(s=this._$AP)||void 0===s||s.call(this,!1,!0,i);t&&t!==this._$AB;){const i=t.nextSibling;t.remove(),t=i;}}setConnected(t){var i;void 0===this._$AM&&(this._$Cg=t,null===(i=this._$AP)||void 0===i||i.call(this,t));}}class S{constructor(t,i,s,e,o){this.type=1,this._$AH=w,this._$AN=void 0,this.element=t,this.name=i,this._$AM=e,this.options=o,s.length>2||""!==s[0]||""!==s[1]?(this._$AH=Array(s.length-1).fill(new String),this.strings=s):this._$AH=w;}get tagName(){return this.element.tagName}get _$AU(){return this._$AM._$AU}_$AI(t,i=this,s,e){const o=this.strings;let n=!1;if(void 0===o)t=P(this,t,i,0),n=!r(t)||t!==this._$AH&&t!==b,n&&(this._$AH=t);else {const e=t;let l,h;for(t=o[0],l=0;l<o.length-1;l++)h=P(this,e[s+l],i,l),h===b&&(h=this._$AH[l]),n||(n=!r(h)||h!==this._$AH[l]),h===w?t=w:t!==w&&(t+=(null!=h?h:"")+o[l+1]),this._$AH[l]=h;}n&&!e&&this.C(t);}C(t){t===w?this.element.removeAttribute(this.name):this.element.setAttribute(this.name,null!=t?t:"");}}class M extends S{constructor(){super(...arguments),this.type=3;}C(t){this.element[this.name]=t===w?void 0:t;}}const k=i?i.emptyScript:"";class H extends S{constructor(){super(...arguments),this.type=4;}C(t){t&&t!==w?this.element.setAttribute(this.name,k):this.element.removeAttribute(this.name);}}class I extends S{constructor(t,i,s,e,o){super(t,i,s,e,o),this.type=5;}_$AI(t,i=this){var s;if((t=null!==(s=P(this,t,i,0))&&void 0!==s?s:w)===b)return;const e=this._$AH,o=t===w&&e!==w||t.capture!==e.capture||t.once!==e.once||t.passive!==e.passive,n=t!==w&&(e===w||o);o&&this.element.removeEventListener(this.name,this,e),n&&this.element.addEventListener(this.name,this,t),this._$AH=t;}handleEvent(t){var i,s;"function"==typeof this._$AH?this._$AH.call(null!==(s=null===(i=this.options)||void 0===i?void 0:i.host)&&void 0!==s?s:this.element,t):this._$AH.handleEvent(t);}}class L{constructor(t,i,s){this.element=t,this.type=6,this._$AN=void 0,this._$AM=i,this.options=s;}get _$AU(){return this._$AM._$AU}_$AI(t){P(this,t);}}const z=window.litHtmlPolyfillSupport;null==z||z(E,N),(null!==(t=globalThis.litHtmlVersions)&&void 0!==t?t:globalThis.litHtmlVersions=[]).push("2.2.6");
+var t;const i=window,s$1=i.trustedTypes,e=s$1?s$1.createPolicy("lit-html",{createHTML:t=>t}):void 0,o$1=`lit$${(Math.random()+"").slice(9)}$`,n$1="?"+o$1,l$1=`<${n$1}>`,h=document,r=(t="")=>h.createComment(t),d=t=>null===t||"object"!=typeof t&&"function"!=typeof t,u=Array.isArray,c=t=>u(t)||"function"==typeof(null==t?void 0:t[Symbol.iterator]),v=/<(?:(!--|\/[^a-zA-Z])|(\/?[a-zA-Z][^>\s]*)|(\/?$))/g,a=/-->/g,f=/>/g,_=RegExp(">|[ \t\n\f\r](?:([^\\s\"'>=/]+)([ \t\n\f\r]*=[ \t\n\f\r]*(?:[^ \t\n\f\r\"'`<>=]|(\"|')|))|$)","g"),m=/'/g,p=/"/g,$=/^(?:script|style|textarea|title)$/i,g=t=>(i,...s)=>({_$litType$:t,strings:i,values:s}),y=g(1),w=g(2),x=Symbol.for("lit-noChange"),b=Symbol.for("lit-nothing"),T=new WeakMap,A=(t,i,s)=>{var e,o;const n=null!==(e=null==s?void 0:s.renderBefore)&&void 0!==e?e:i;let l=n._$litPart$;if(void 0===l){const t=null!==(o=null==s?void 0:s.renderBefore)&&void 0!==o?o:null;n._$litPart$=l=new S(i.insertBefore(r(),t),t,void 0,null!=s?s:{});}return l._$AI(t),l},E=h.createTreeWalker(h,129,null,!1),C=(t,i)=>{const s=t.length-1,n=[];let h,r=2===i?"<svg>":"",d=v;for(let i=0;i<s;i++){const s=t[i];let e,u,c=-1,g=0;for(;g<s.length&&(d.lastIndex=g,u=d.exec(s),null!==u);)g=d.lastIndex,d===v?"!--"===u[1]?d=a:void 0!==u[1]?d=f:void 0!==u[2]?($.test(u[2])&&(h=RegExp("</"+u[2],"g")),d=_):void 0!==u[3]&&(d=_):d===_?">"===u[0]?(d=null!=h?h:v,c=-1):void 0===u[1]?c=-2:(c=d.lastIndex-u[2].length,e=u[1],d=void 0===u[3]?_:'"'===u[3]?p:m):d===p||d===m?d=_:d===a||d===f?d=v:(d=_,h=void 0);const y=d===_&&t[i+1].startsWith("/>")?" ":"";r+=d===v?s+l$1:c>=0?(n.push(e),s.slice(0,c)+"$lit$"+s.slice(c)+o$1+y):s+o$1+(-2===c?(n.push(void 0),i):y);}const u=r+(t[s]||"<?>")+(2===i?"</svg>":"");if(!Array.isArray(t)||!t.hasOwnProperty("raw"))throw Error("invalid template strings array");return [void 0!==e?e.createHTML(u):u,n]};class P{constructor({strings:t,_$litType$:i},e){let l;this.parts=[];let h=0,d=0;const u=t.length-1,c=this.parts,[v,a]=C(t,i);if(this.el=P.createElement(v,e),E.currentNode=this.el.content,2===i){const t=this.el.content,i=t.firstChild;i.remove(),t.append(...i.childNodes);}for(;null!==(l=E.nextNode())&&c.length<u;){if(1===l.nodeType){if(l.hasAttributes()){const t=[];for(const i of l.getAttributeNames())if(i.endsWith("$lit$")||i.startsWith(o$1)){const s=a[d++];if(t.push(i),void 0!==s){const t=l.getAttribute(s.toLowerCase()+"$lit$").split(o$1),i=/([.?@])?(.*)/.exec(s);c.push({type:1,index:h,name:i[2],strings:t,ctor:"."===i[1]?R:"?"===i[1]?H:"@"===i[1]?I:M});}else c.push({type:6,index:h});}for(const i of t)l.removeAttribute(i);}if($.test(l.tagName)){const t=l.textContent.split(o$1),i=t.length-1;if(i>0){l.textContent=s$1?s$1.emptyScript:"";for(let s=0;s<i;s++)l.append(t[s],r()),E.nextNode(),c.push({type:2,index:++h});l.append(t[i],r());}}}else if(8===l.nodeType)if(l.data===n$1)c.push({type:2,index:h});else {let t=-1;for(;-1!==(t=l.data.indexOf(o$1,t+1));)c.push({type:7,index:h}),t+=o$1.length-1;}h++;}}static createElement(t,i){const s=h.createElement("template");return s.innerHTML=t,s}}function V(t,i,s=t,e){var o,n,l,h;if(i===x)return i;let r=void 0!==e?null===(o=s._$Cl)||void 0===o?void 0:o[e]:s._$Cu;const u=d(i)?void 0:i._$litDirective$;return (null==r?void 0:r.constructor)!==u&&(null===(n=null==r?void 0:r._$AO)||void 0===n||n.call(r,!1),void 0===u?r=void 0:(r=new u(t),r._$AT(t,s,e)),void 0!==e?(null!==(l=(h=s)._$Cl)&&void 0!==l?l:h._$Cl=[])[e]=r:s._$Cu=r),void 0!==r&&(i=V(t,r._$AS(t,i.values),r,e)),i}class N{constructor(t,i){this.v=[],this._$AN=void 0,this._$AD=t,this._$AM=i;}get parentNode(){return this._$AM.parentNode}get _$AU(){return this._$AM._$AU}p(t){var i;const{el:{content:s},parts:e}=this._$AD,o=(null!==(i=null==t?void 0:t.creationScope)&&void 0!==i?i:h).importNode(s,!0);E.currentNode=o;let n=E.nextNode(),l=0,r=0,d=e[0];for(;void 0!==d;){if(l===d.index){let i;2===d.type?i=new S(n,n.nextSibling,this,t):1===d.type?i=new d.ctor(n,d.name,d.strings,this,t):6===d.type&&(i=new L(n,this,t)),this.v.push(i),d=e[++r];}l!==(null==d?void 0:d.index)&&(n=E.nextNode(),l++);}return o}m(t){let i=0;for(const s of this.v)void 0!==s&&(void 0!==s.strings?(s._$AI(t,s,i),i+=s.strings.length-2):s._$AI(t[i])),i++;}}class S{constructor(t,i,s,e){var o;this.type=2,this._$AH=b,this._$AN=void 0,this._$AA=t,this._$AB=i,this._$AM=s,this.options=e,this._$C_=null===(o=null==e?void 0:e.isConnected)||void 0===o||o;}get _$AU(){var t,i;return null!==(i=null===(t=this._$AM)||void 0===t?void 0:t._$AU)&&void 0!==i?i:this._$C_}get parentNode(){let t=this._$AA.parentNode;const i=this._$AM;return void 0!==i&&11===t.nodeType&&(t=i.parentNode),t}get startNode(){return this._$AA}get endNode(){return this._$AB}_$AI(t,i=this){t=V(this,t,i),d(t)?t===b||null==t||""===t?(this._$AH!==b&&this._$AR(),this._$AH=b):t!==this._$AH&&t!==x&&this.$(t):void 0!==t._$litType$?this.T(t):void 0!==t.nodeType?this.k(t):c(t)?this.O(t):this.$(t);}S(t,i=this._$AB){return this._$AA.parentNode.insertBefore(t,i)}k(t){this._$AH!==t&&(this._$AR(),this._$AH=this.S(t));}$(t){this._$AH!==b&&d(this._$AH)?this._$AA.nextSibling.data=t:this.k(h.createTextNode(t)),this._$AH=t;}T(t){var i;const{values:s,_$litType$:e}=t,o="number"==typeof e?this._$AC(t):(void 0===e.el&&(e.el=P.createElement(e.h,this.options)),e);if((null===(i=this._$AH)||void 0===i?void 0:i._$AD)===o)this._$AH.m(s);else {const t=new N(o,this),i=t.p(this.options);t.m(s),this.k(i),this._$AH=t;}}_$AC(t){let i=T.get(t.strings);return void 0===i&&T.set(t.strings,i=new P(t)),i}O(t){u(this._$AH)||(this._$AH=[],this._$AR());const i=this._$AH;let s,e=0;for(const o of t)e===i.length?i.push(s=new S(this.S(r()),this.S(r()),this,this.options)):s=i[e],s._$AI(o),e++;e<i.length&&(this._$AR(s&&s._$AB.nextSibling,e),i.length=e);}_$AR(t=this._$AA.nextSibling,i){var s;for(null===(s=this._$AP)||void 0===s||s.call(this,!1,!0,i);t&&t!==this._$AB;){const i=t.nextSibling;t.remove(),t=i;}}setConnected(t){var i;void 0===this._$AM&&(this._$C_=t,null===(i=this._$AP)||void 0===i||i.call(this,t));}}class M{constructor(t,i,s,e,o){this.type=1,this._$AH=b,this._$AN=void 0,this.element=t,this.name=i,this._$AM=e,this.options=o,s.length>2||""!==s[0]||""!==s[1]?(this._$AH=Array(s.length-1).fill(new String),this.strings=s):this._$AH=b;}get tagName(){return this.element.tagName}get _$AU(){return this._$AM._$AU}_$AI(t,i=this,s,e){const o=this.strings;let n=!1;if(void 0===o)t=V(this,t,i,0),n=!d(t)||t!==this._$AH&&t!==x,n&&(this._$AH=t);else {const e=t;let l,h;for(t=o[0],l=0;l<o.length-1;l++)h=V(this,e[s+l],i,l),h===x&&(h=this._$AH[l]),n||(n=!d(h)||h!==this._$AH[l]),h===b?t=b:t!==b&&(t+=(null!=h?h:"")+o[l+1]),this._$AH[l]=h;}n&&!e&&this.P(t);}P(t){t===b?this.element.removeAttribute(this.name):this.element.setAttribute(this.name,null!=t?t:"");}}class R extends M{constructor(){super(...arguments),this.type=3;}P(t){this.element[this.name]=t===b?void 0:t;}}const k=s$1?s$1.emptyScript:"";class H extends M{constructor(){super(...arguments),this.type=4;}P(t){t&&t!==b?this.element.setAttribute(this.name,k):this.element.removeAttribute(this.name);}}class I extends M{constructor(t,i,s,e,o){super(t,i,s,e,o),this.type=5;}_$AI(t,i=this){var s;if((t=null!==(s=V(this,t,i,0))&&void 0!==s?s:b)===x)return;const e=this._$AH,o=t===b&&e!==b||t.capture!==e.capture||t.once!==e.once||t.passive!==e.passive,n=t!==b&&(e===b||o);o&&this.element.removeEventListener(this.name,this,e),n&&this.element.addEventListener(this.name,this,t),this._$AH=t;}handleEvent(t){var i,s;"function"==typeof this._$AH?this._$AH.call(null!==(s=null===(i=this.options)||void 0===i?void 0:i.host)&&void 0!==s?s:this.element,t):this._$AH.handleEvent(t);}}class L{constructor(t,i,s){this.element=t,this.type=6,this._$AN=void 0,this._$AM=i,this.options=s;}get _$AU(){return this._$AM._$AU}_$AI(t){V(this,t);}}const Z=i.litHtmlPolyfillSupport;null==Z||Z(P,S),(null!==(t=i.litHtmlVersions)&&void 0!==t?t:i.litHtmlVersions=[]).push("2.3.1");
 
 /**
  * @license
  * Copyright 2017 Google LLC
  * SPDX-License-Identifier: BSD-3-Clause
- */var l,o;class s extends a$1{constructor(){super(...arguments),this.renderOptions={host:this},this._$Do=void 0;}createRenderRoot(){var t,e;const i=super.createRenderRoot();return null!==(t=(e=this.renderOptions).renderBefore)&&void 0!==t||(e.renderBefore=i.firstChild),i}update(t){const i=this.render();this.hasUpdated||(this.renderOptions.isConnected=this.isConnected),super.update(t),this._$Do=x(i,this.renderRoot,this.renderOptions);}connectedCallback(){var t;super.connectedCallback(),null===(t=this._$Do)||void 0===t||t.setConnected(!0);}disconnectedCallback(){var t;super.disconnectedCallback(),null===(t=this._$Do)||void 0===t||t.setConnected(!1);}render(){return b}}s.finalized=!0,s._$litElement$=!0,null===(l=globalThis.litElementHydrateSupport)||void 0===l||l.call(globalThis,{LitElement:s});const n=globalThis.litElementPolyfillSupport;null==n||n({LitElement:s});(null!==(o=globalThis.litElementVersions)&&void 0!==o?o:globalThis.litElementVersions=[]).push("3.2.1");
+ */var l,o;class s extends d$1{constructor(){super(...arguments),this.renderOptions={host:this},this._$Do=void 0;}createRenderRoot(){var t,e;const i=super.createRenderRoot();return null!==(t=(e=this.renderOptions).renderBefore)&&void 0!==t||(e.renderBefore=i.firstChild),i}update(t){const i=this.render();this.hasUpdated||(this.renderOptions.isConnected=this.isConnected),super.update(t),this._$Do=A(i,this.renderRoot,this.renderOptions);}connectedCallback(){var t;super.connectedCallback(),null===(t=this._$Do)||void 0===t||t.setConnected(!0);}disconnectedCallback(){var t;super.disconnectedCallback(),null===(t=this._$Do)||void 0===t||t.setConnected(!1);}render(){return x}}s.finalized=!0,s._$litElement$=!0,null===(l=globalThis.litElementHydrateSupport)||void 0===l||l.call(globalThis,{LitElement:s});const n=globalThis.litElementPolyfillSupport;null==n||n({LitElement:s});(null!==(o=globalThis.litElementVersions)&&void 0!==o?o:globalThis.litElementVersions=[]).push("3.2.2");
 
 function getFormTemplate(formComponent, operators) {
     var _a;
@@ -2559,9 +2559,9 @@ function getFormTemplate(formComponent, operators) {
     const dt = formComponent.datatype || "Datatype";
     // const addInputButton = new UI.GscapeButton(UI.icons.plus, "Add input value")
     // addInputButton.id = "add-input-btn"
-    return $ `
+    return y `
     <div class="section">
-      ${formComponent.formTitle ? $ `<div class="header">${formComponent.formTitle}</div>` : null}
+      ${formComponent.formTitle ? y `<div class="header">${formComponent.formTitle}</div>` : null}
       <form id="form-dialog" class="form" action="javascript:void(0)" onsubmit="this.handleSubmit">
         <div class="selects-wrapper">
           <div id="select-operator">
@@ -2569,7 +2569,7 @@ function getFormTemplate(formComponent, operators) {
             ${getSelect(op, operators)}
           </div>
           ${formComponent.parametersType === VarOrConstantTypeEnum.Constant
-        ? $ `
+        ? y `
               <div id="select-datatype">
                 <label>Datatype</label>
                 ${getSelect(dt, Object.values(VarOrConstantConstantTypeEnum), formComponent.datatype !== undefined)}
@@ -2580,13 +2580,13 @@ function getFormTemplate(formComponent, operators) {
           ${(_a = formComponent.parametersIriOrConstants) === null || _a === void 0 ? void 0 : _a.map((parameter, index) => getInput(index, formComponent.datatype, parameter.value, "Set input value"))}
           ${formComponent.operator === FilterExpressionOperatorEnum.In ||
         formComponent.operator === FilterExpressionOperatorEnum.NotIn
-        ? $ `
+        ? y `
               <div>
                 <gscape-button id="add-input-btn" type="subtle" title="Add input value">
                   <span slot="icon">${ui.icons.plus}</span>
                 </gscape-button>
                 ${formComponent.parameters && formComponent.parameters.length > 3 // at least 3 custom inputs to remove one
-            ? $ `
+            ? y `
                     <gscape-button id="remove-input-btn" type="subtle" title="Remove input value">
                       <span slot="icon">${ui.icons.minus}</span>
                     </gscape-button>
@@ -2606,7 +2606,7 @@ function getInput(index, datatype, value, titleText = '') {
         value = (value === null || value === void 0 ? void 0 : value.split('T')[0]) || 'value'; // Take only date from ISO format 2022-01-01T00:00:....
     }
     let placeholder = value || 'value';
-    return $ `
+    return y `
     <input
       type="${getInputType(datatype)}"
       placeholder="${placeholder}"
@@ -2618,14 +2618,14 @@ function getInput(index, datatype, value, titleText = '') {
 }
 function getSelect(defaultOpt, options, disabled = false) {
     const isDefaultAlreadySet = options.includes(defaultOpt);
-    return $ `
+    return y `
     <select required ?disabled=${disabled}>
-      ${isDefaultAlreadySet ? null : $ `<option value="" hidden selected>${defaultOpt}</option>`}
+      ${isDefaultAlreadySet ? null : y `<option value="" hidden selected>${defaultOpt}</option>`}
       ${options.map(op => {
         if (op === defaultOpt)
-            return $ `<option value="${op}" selected>${op}</option>`;
+            return y `<option value="${op}" selected>${op}</option>`;
         else
-            return $ `<option value="${op}">${op}</option>`;
+            return y `<option value="${op}">${op}</option>`;
     })}
     </select>
   `;
@@ -2684,7 +2684,7 @@ function validateSelectElement(select) {
     return returnValue;
 }
 
-var formStyle = r$2 `
+var formStyle = i$1 `
   :host {
     position: absolute;
     top: 100px;
@@ -2785,7 +2785,7 @@ var formStyle = r$2 `
   }
 `;
 
-var sparqlingWidgetStyle = r$2 `
+var sparqlingWidgetStyle = i$1 `
   .top-bar {
     font-size: 12px;
     display: flex;
@@ -3044,59 +3044,59 @@ SparqlingFormDialog.styles = [
     sparqlingWidgetStyle
 ];
 
-const rubbishBin = y `<svg fill="currentColor" xmlns="http://www.w3.org/2000/svg" height="20" width="20"><path d="M6.5 17q-.625 0-1.062-.438Q5 16.125 5 15.5v-10H4V4h4V3h4v1h4v1.5h-1v10q0 .625-.438 1.062Q14.125 17 13.5 17Zm7-11.5h-7v10h7ZM8 14h1.5V7H8Zm2.5 0H12V7h-1.5Zm-4-8.5v10Z"/></svg>`;
-const code = y `<svg fill="currentColor" xmlns="http://www.w3.org/2000/svg" height="20" width="20"><path d="M12 16v-1.5h1.75q.312 0 .531-.219.219-.219.219-.531v-1.5q0-.854.573-1.469.573-.614 1.427-.719v-.083q-.854-.167-1.427-.771-.573-.604-.573-1.458v-1.5q0-.312-.219-.531-.219-.219-.531-.219H12V4h1.75q.938 0 1.594.656Q16 5.312 16 6.25v1.5q0 .312.219.531.219.219.531.219H18v3h-1.25q-.312 0-.531.219-.219.219-.219.531v1.5q0 .938-.656 1.594-.656.656-1.594.656Zm-5.75 0q-.938 0-1.594-.656Q4 14.688 4 13.75v-1.5q0-.312-.219-.531-.219-.219-.531-.219H2v-3h1.25q.312 0 .531-.219Q4 8.062 4 7.75v-1.5q0-.938.656-1.594Q5.312 4 6.25 4H8v1.5H6.25q-.312 0-.531.219-.219.219-.219.531v1.5q0 .875-.573 1.49-.573.614-1.427.718v.084q.854.083 1.427.708.573.625.573 1.5v1.5q0 .312.219.531.219.219.531.219H8V16Z"/></svg>`;
+const rubbishBin = w `<svg fill="currentColor" xmlns="http://www.w3.org/2000/svg" height="20" width="20"><path d="M6.5 17q-.625 0-1.062-.438Q5 16.125 5 15.5v-10H4V4h4V3h4v1h4v1.5h-1v10q0 .625-.438 1.062Q14.125 17 13.5 17Zm7-11.5h-7v10h7ZM8 14h1.5V7H8Zm2.5 0H12V7h-1.5Zm-4-8.5v10Z"/></svg>`;
+const code = w `<svg fill="currentColor" xmlns="http://www.w3.org/2000/svg" height="20" width="20"><path d="M12 16v-1.5h1.75q.312 0 .531-.219.219-.219.219-.531v-1.5q0-.854.573-1.469.573-.614 1.427-.719v-.083q-.854-.167-1.427-.771-.573-.604-.573-1.458v-1.5q0-.312-.219-.531-.219-.219-.531-.219H12V4h1.75q.938 0 1.594.656Q16 5.312 16 6.25v1.5q0 .312.219.531.219.219.531.219H18v3h-1.25q-.312 0-.531.219-.219.219-.219.531v1.5q0 .938-.656 1.594-.656.656-1.594.656Zm-5.75 0q-.938 0-1.594-.656Q4 14.688 4 13.75v-1.5q0-.312-.219-.531-.219-.219-.531-.219H2v-3h1.25q.312 0 .531-.219Q4 8.062 4 7.75v-1.5q0-.938.656-1.594Q5.312 4 6.25 4H8v1.5H6.25q-.312 0-.531.219-.219.219-.219.531v1.5q0 .875-.573 1.49-.573.614-1.427.718v.084q.854.083 1.427.708.573.625.573 1.5v1.5q0 .312.219.531.219.219.531.219H8V16Z"/></svg>`;
 // https://github.com/Templarian/MaterialDesign/blob/master/svg/table-eye.svg
-const tableEye = y `<svg fill="currentColor" viewBox="0 0 24 24" style="height: 20px; width: 20px; padding:2px; box-sizing: border-box"><path d="M17 16.88C17.56 16.88 18 17.32 18 17.88S17.56 18.88 17 18.88 16 18.43 16 17.88 16.44 16.88 17 16.88M17 13.88C19.73 13.88 22.06 15.54 23 17.88C22.06 20.22 19.73 21.88 17 21.88S11.94 20.22 11 17.88C11.94 15.54 14.27 13.88 17 13.88M17 15.38C15.62 15.38 14.5 16.5 14.5 17.88S15.62 20.38 17 20.38 19.5 19.26 19.5 17.88 18.38 15.38 17 15.38M18 3H4C2.9 3 2 3.9 2 5V17C2 18.1 2.9 19 4 19H9.42C9.26 18.68 9.12 18.34 9 18C9.12 17.66 9.26 17.32 9.42 17H4V13H10V15.97C10.55 15.11 11.23 14.37 12 13.76V13H13.15C14.31 12.36 15.62 12 17 12C18.06 12 19.07 12.21 20 12.59V5C20 3.9 19.1 3 18 3M10 11H4V7H10V11M18 11H12V7H18V11Z" /></svg>`;
+const tableEye = w `<svg fill="currentColor" viewBox="0 0 24 24" style="height: 20px; width: 20px; padding:2px; box-sizing: border-box"><path d="M17 16.88C17.56 16.88 18 17.32 18 17.88S17.56 18.88 17 18.88 16 18.43 16 17.88 16.44 16.88 17 16.88M17 13.88C19.73 13.88 22.06 15.54 23 17.88C22.06 20.22 19.73 21.88 17 21.88S11.94 20.22 11 17.88C11.94 15.54 14.27 13.88 17 13.88M17 15.38C15.62 15.38 14.5 16.5 14.5 17.88S15.62 20.38 17 20.38 19.5 19.26 19.5 17.88 18.38 15.38 17 15.38M18 3H4C2.9 3 2 3.9 2 5V17C2 18.1 2.9 19 4 19H9.42C9.26 18.68 9.12 18.34 9 18C9.12 17.66 9.26 17.32 9.42 17H4V13H10V15.97C10.55 15.11 11.23 14.37 12 13.76V13H13.15C14.31 12.36 15.62 12 17 12C18.06 12 19.07 12.21 20 12.59V5C20 3.9 19.1 3 18 3M10 11H4V7H10V11M18 11H12V7H18V11Z" /></svg>`;
 // https://github.com/Templarian/MaterialDesign/blob/master/svg/asterisk.svg
-const asterisk = y `<svg fill="currentColor" viewBox="0 0 24 24" height="20px" width="20px"><path d="M11,3H13V10.27L19.29,6.64L20.29,8.37L14,12L20.3,15.64L19.3,17.37L13,13.72V21H11V13.73L4.69,17.36L3.69,15.63L10,12L3.72,8.36L4.72,6.63L11,10.26V3Z" /></svg>`;
+const asterisk = w `<svg fill="currentColor" viewBox="0 0 24 24" height="20px" width="20px"><path d="M11,3H13V10.27L19.29,6.64L20.29,8.37L14,12L20.3,15.64L19.3,17.37L13,13.72V21H11V13.73L4.69,17.36L3.69,15.63L10,12L3.72,8.36L4.72,6.63L11,10.26V3Z" /></svg>`;
 // https://cygri.github.io/rdf-logos/
-const rdfLogo = y `<svg viewBox="0 0 943 1019" style="fill: currentColor; display: inline-block; height: 20px; width: 20px; padding:2px; box-sizing: border-box"><path fill-rule="evenodd" d="M845,668c-6-3-13-6-19-9l5-0c0,0-42-18-45-152 c-4-133,40-156,40-156l-0,0c33-17,61-43,79-78c48-91,14-203-77-252 C729-26,617,8,569,99c-20,37-25,78-19,117l-2-3c0,0,11,48-103,119 c-113,71-165,35-165,35l3,5c-3-2-6-4-10-6C183,317,70,352,22,443 c-48,91-14,203,77,252c68,36,147,26,204-19l-1,2c0,0,41-34,160,30 c94,50,108,100,110,118c-2,69,33,137,98,171c91,48,203,14,252-77 C970,829,935,717,845,668z M635,693c-15,5-58,11-148-37 c-98-53-113-97-115-110c1-16,1-32-2-48l1,1c0,0-8-43,104-112 c100-62,146-50,154-47c5,4,11,7,17,10c11,6,23,11,35,14 c14,13,39,50,42,149c3,99-26,137-42,150C664,671,648,681,635,693z   M622,81c-54,59-55,146-3,196c-26-25-25-77,1-126 c3-4,13-15,27-10c1,0,2,1,3,1c3,1,7,1,10,1 c22-1,38-19,37-41c-0-10-4-18-11-25c50-33,107-37,131-15l1,0 C765,12,677,21,622,81z   M78,431c-54,59-55,146-03,196c-26-25-25-77,1-126 c3-4,13-15,27-10c1,0,2,1,3,1c3,1,7,1,10,1 c22-1,38-19,37-41c-0-10-4-18-11-25c50-33,107-37,131-15l1,0 C221,363,133,371,78,431z   M654,728c-54,59-55,146-3,196c-26-25-25-77,1-126 c3-4,13-15,27-10c1,0,2,1,3,1c3,1,7,1,10,1 c22-1,38-19,37-41c-0-10-4-18-11-25c50-33,107-37,131-15l1,0 C797,659,709,668,654,728z"></path></svg>`;
-const crosshair = y `<svg fill="currentcolor" xmlns="http://www.w3.org/2000/svg" height="20" width="20"><path d="M9.333 18.5v-1.458q-2.541-.271-4.323-2.052-1.781-1.782-2.052-4.323H1.5V9.333h1.458Q3.229 6.792 5.01 5.01q1.782-1.781 4.323-2.052V1.5h1.334v1.458q2.541.271 4.323 2.052 1.781 1.782 2.052 4.323H18.5v1.334h-1.458q-.271 2.541-2.052 4.323-1.782 1.781-4.323 2.052V18.5ZM10 15.729q2.396 0 4.062-1.667 1.667-1.666 1.667-4.062 0-2.396-1.667-4.062Q12.396 4.271 10 4.271q-2.396 0-4.062 1.667Q4.271 7.604 4.271 10q0 2.396 1.667 4.062Q7.604 15.729 10 15.729Zm0-2.75q-1.229 0-2.104-.875T7.021 10q0-1.229.875-2.104T10 7.021q1.229 0 2.104.875T12.979 10q0 1.229-.875 2.104T10 12.979Zm0-1.333q.667 0 1.156-.49.49-.489.49-1.156 0-.667-.49-1.156-.489-.49-1.156-.49-.667 0-1.156.49-.49.489-.49 1.156 0 .667.49 1.156.489.49 1.156.49Zm.021-1.667Z"/></svg>`;
+const rdfLogo = w `<svg viewBox="0 0 943 1019" style="fill: currentColor; display: inline-block; height: 20px; width: 20px; padding:2px; box-sizing: border-box"><path fill-rule="evenodd" d="M845,668c-6-3-13-6-19-9l5-0c0,0-42-18-45-152 c-4-133,40-156,40-156l-0,0c33-17,61-43,79-78c48-91,14-203-77-252 C729-26,617,8,569,99c-20,37-25,78-19,117l-2-3c0,0,11,48-103,119 c-113,71-165,35-165,35l3,5c-3-2-6-4-10-6C183,317,70,352,22,443 c-48,91-14,203,77,252c68,36,147,26,204-19l-1,2c0,0,41-34,160,30 c94,50,108,100,110,118c-2,69,33,137,98,171c91,48,203,14,252-77 C970,829,935,717,845,668z M635,693c-15,5-58,11-148-37 c-98-53-113-97-115-110c1-16,1-32-2-48l1,1c0,0-8-43,104-112 c100-62,146-50,154-47c5,4,11,7,17,10c11,6,23,11,35,14 c14,13,39,50,42,149c3,99-26,137-42,150C664,671,648,681,635,693z   M622,81c-54,59-55,146-3,196c-26-25-25-77,1-126 c3-4,13-15,27-10c1,0,2,1,3,1c3,1,7,1,10,1 c22-1,38-19,37-41c-0-10-4-18-11-25c50-33,107-37,131-15l1,0 C765,12,677,21,622,81z   M78,431c-54,59-55,146-03,196c-26-25-25-77,1-126 c3-4,13-15,27-10c1,0,2,1,3,1c3,1,7,1,10,1 c22-1,38-19,37-41c-0-10-4-18-11-25c50-33,107-37,131-15l1,0 C221,363,133,371,78,431z   M654,728c-54,59-55,146-3,196c-26-25-25-77,1-126 c3-4,13-15,27-10c1,0,2,1,3,1c3,1,7,1,10,1 c22-1,38-19,37-41c-0-10-4-18-11-25c50-33,107-37,131-15l1,0 C797,659,709,668,654,728z"></path></svg>`;
+const crosshair = w `<svg fill="currentcolor" xmlns="http://www.w3.org/2000/svg" height="20" width="20"><path d="M9.333 18.5v-1.458q-2.541-.271-4.323-2.052-1.781-1.782-2.052-4.323H1.5V9.333h1.458Q3.229 6.792 5.01 5.01q1.782-1.781 4.323-2.052V1.5h1.334v1.458q2.541.271 4.323 2.052 1.781 1.782 2.052 4.323H18.5v1.334h-1.458q-.271 2.541-2.052 4.323-1.782 1.781-4.323 2.052V18.5ZM10 15.729q2.396 0 4.062-1.667 1.667-1.666 1.667-4.062 0-2.396-1.667-4.062Q12.396 4.271 10 4.271q-2.396 0-4.062 1.667Q4.271 7.604 4.271 10q0 2.396 1.667 4.062Q7.604 15.729 10 15.729Zm0-2.75q-1.229 0-2.104-.875T7.021 10q0-1.229.875-2.104T10 7.021q1.229 0 2.104.875T12.979 10q0 1.229-.875 2.104T10 12.979Zm0-1.333q.667 0 1.156-.49.49-.489.49-1.156 0-.667-.49-1.156-.489-.49-1.156-.49-.667 0-1.156.49-.49.489-.49 1.156 0 .667.49 1.156.489.49 1.156.49Zm.021-1.667Z"/></svg>`;
 // https://materialdesignicons.com/icon/lightbulb-question
-const lightbulb = y `<svg fill="currentcolor" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" height="20" width="20" style="padding:1px; box-sizing:border-box"><path d="m18.292 8.375-.521-1.187-1.188-.521 1.188-.542.521-1.167.541 1.167L20 6.667l-1.167.521Zm-2.459-3.292-.812-1.729-1.729-.812 1.729-.813L15.833 0l.813 1.729 1.729.813-1.729.812ZM7.5 18.333q-.688 0-1.177-.489-.49-.49-.49-1.177h3.313q0 .687-.479 1.177-.479.489-1.167.489Zm-3.333-2.416v-1.75h6.645v1.75Zm.229-2.5q-1.458-.855-2.302-2.302-.844-1.448-.844-3.157 0-2.646 1.802-4.468Q4.854 1.667 7.5 1.667q2.604 0 4.417 1.823 1.812 1.822 1.812 4.468 0 1.709-.844 3.157-.843 1.447-2.302 2.302Zm.542-1.75h5.124Q11 11 11.49 10.042q.489-.959.489-2.084 0-1.896-1.291-3.218Q9.396 3.417 7.5 3.417q-1.896 0-3.198 1.323Q3 6.062 3 7.958q0 1.125.5 2.084.5.958 1.438 1.625Zm2.562 0Z"/></svg>`;
+const lightbulb = w `<svg fill="currentcolor" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" height="20" width="20" style="padding:1px; box-sizing:border-box"><path d="m18.292 8.375-.521-1.187-1.188-.521 1.188-.542.521-1.167.541 1.167L20 6.667l-1.167.521Zm-2.459-3.292-.812-1.729-1.729-.812 1.729-.813L15.833 0l.813 1.729 1.729.813-1.729.812ZM7.5 18.333q-.688 0-1.177-.489-.49-.49-.49-1.177h3.313q0 .687-.479 1.177-.479.489-1.167.489Zm-3.333-2.416v-1.75h6.645v1.75Zm.229-2.5q-1.458-.855-2.302-2.302-.844-1.448-.844-3.157 0-2.646 1.802-4.468Q4.854 1.667 7.5 1.667q2.604 0 4.417 1.823 1.812 1.822 1.812 4.468 0 1.709-.844 3.157-.843 1.447-2.302 2.302Zm.542-1.75h5.124Q11 11 11.49 10.042q.489-.959.489-2.084 0-1.896-1.291-3.218Q9.396 3.417 7.5 3.417q-1.896 0-3.198 1.323Q3 6.062 3 7.958q0 1.125.5 2.084.5.958 1.438 1.625Zm2.562 0Z"/></svg>`;
 // https://materialdesignicons.com/icon/filter-plus
-const addFilter$1 = y `<svg  fill="currentColor" viewBox="0 0 24 24" height="20px" width="20px" style="padding: 1px; box-sizing:border-box"><path d="M12 12V19.88C12.04 20.18 11.94 20.5 11.71 20.71C11.32 21.1 10.69 21.1 10.3 20.71L8.29 18.7C8.06 18.47 7.96 18.16 8 17.87V12H7.97L2.21 4.62C1.87 4.19 1.95 3.56 2.38 3.22C2.57 3.08 2.78 3 3 3H17C17.22 3 17.43 3.08 17.62 3.22C18.05 3.56 18.13 4.19 17.79 4.62L12.03 12H12M15 17H18V14H20V17H23V19H20V22H18V19H15V17Z" /></svg>`;
+const addFilter$1 = w `<svg  fill="currentColor" viewBox="0 0 24 24" height="20px" width="20px" style="padding: 1px; box-sizing:border-box"><path d="M12 12V19.88C12.04 20.18 11.94 20.5 11.71 20.71C11.32 21.1 10.69 21.1 10.3 20.71L8.29 18.7C8.06 18.47 7.96 18.16 8 17.87V12H7.97L2.21 4.62C1.87 4.19 1.95 3.56 2.38 3.22C2.57 3.08 2.78 3 3 3H17C17.22 3 17.43 3.08 17.62 3.22C18.05 3.56 18.13 4.19 17.79 4.62L12.03 12H12M15 17H18V14H20V17H23V19H20V22H18V19H15V17Z" /></svg>`;
 // https://materialdesignicons.com/icon/pencil
-const edit = y `<svg fill="currentColor" viewBox="0 0 24 24" height="20px" width="20px"><path d="M20.71,7.04C21.1,6.65 21.1,6 20.71,5.63L18.37,3.29C18,2.9 17.35,2.9 16.96,3.29L15.12,5.12L18.87,8.87M3,17.25V21H6.75L17.81,9.93L14.06,6.18L3,17.25Z" /></svg>`;
+const edit = w `<svg fill="currentColor" viewBox="0 0 24 24" height="20px" width="20px"><path d="M20.71,7.04C21.1,6.65 21.1,6 20.71,5.63L18.37,3.29C18,2.9 17.35,2.9 16.96,3.29L15.12,5.12L18.87,8.87M3,17.25V21H6.75L17.81,9.93L14.06,6.18L3,17.25Z" /></svg>`;
 // https://materialdesignicons.com/icon/playlist-edit
-const editList = y `<svg fill="currentColor" viewBox="0 0 24 24" height="20px" width="20px"><path d="M2,6V8H14V6H2M2,10V12H14V10H2M20.04,10.13C19.9,10.13 19.76,10.19 19.65,10.3L18.65,11.3L20.7,13.35L21.7,12.35C21.92,12.14 21.92,11.79 21.7,11.58L20.42,10.3C20.31,10.19 20.18,10.13 20.04,10.13M18.07,11.88L12,17.94V20H14.06L20.12,13.93L18.07,11.88M2,14V16H10V14H2Z" /></svg>`;
+const editList = w `<svg fill="currentColor" viewBox="0 0 24 24" height="20px" width="20px"><path d="M2,6V8H14V6H2M2,10V12H14V10H2M20.04,10.13C19.9,10.13 19.76,10.19 19.65,10.3L18.65,11.3L20.7,13.35L21.7,12.35C21.92,12.14 21.92,11.79 21.7,11.58L20.42,10.3C20.31,10.19 20.18,10.13 20.04,10.13M18.07,11.88L12,17.94V20H14.06L20.12,13.93L18.07,11.88M2,14V16H10V14H2Z" /></svg>`;
 // https://materialdesignicons.com/icon/filter
-const filter = y `<svg fill="currentColor" viewBox="0 0 24 24" height="20px" width="20px"><path d="M14,12V19.88C14.04,20.18 13.94,20.5 13.71,20.71C13.32,21.1 12.69,21.1 12.3,20.71L10.29,18.7C10.06,18.47 9.96,18.16 10,17.87V12H9.97L4.21,4.62C3.87,4.19 3.95,3.56 4.38,3.22C4.57,3.08 4.78,3 5,3V3H19V3C19.22,3 19.43,3.08 19.62,3.22C20.05,3.56 20.13,4.19 19.79,4.62L14.03,12H14Z" /></svg>`;
+const filter = w `<svg fill="currentColor" viewBox="0 0 24 24" height="20px" width="20px"><path d="M14,12V19.88C14.04,20.18 13.94,20.5 13.71,20.71C13.32,21.1 12.69,21.1 12.3,20.71L10.29,18.7C10.06,18.47 9.96,18.16 10,17.87V12H9.97L4.21,4.62C3.87,4.19 3.95,3.56 4.38,3.22C4.57,3.08 4.78,3 5,3V3H19V3C19.22,3 19.43,3.08 19.62,3.22C20.05,3.56 20.13,4.19 19.79,4.62L14.03,12H14Z" /></svg>`;
 // https://materialdesignicons.com/icon/table-column-plus-after
-const tableColumnPlus = y `<svg fill="currentColor" viewBox="0 0 24 24" height="20px" width="20px"><path d="M11,2A2,2 0 0,1 13,4V20A2,2 0 0,1 11,22H2V2H11M4,10V14H11V10H4M4,16V20H11V16H4M4,4V8H11V4H4M15,11H18V8H20V11H23V13H20V16H18V13H15V11Z" /></svg>`;
-const questionMarkDashed = y `<svg fill="currentColor" viewBox="0 0 24 24" height="20px" width="20px"><path d="M13 2.03V4.05C17.39 4.59 20.5 8.58 19.96 12.97C19.5 16.61 16.64 19.5 13 19.93V21.93C18.5 21.38 22.5 16.5 21.95 11C21.5 6.25 17.73 2.5 13 2.03M11 2.06C9.05 2.25 7.19 3 5.67 4.26L7.1 5.74C8.22 4.84 9.57 4.26 11 4.06V2.06M4.26 5.67C3 7.19 2.25 9.04 2.05 11H4.05C4.24 9.58 4.8 8.23 5.69 7.1L4.26 5.67M2.06 13C2.26 14.96 3.03 16.81 4.27 18.33L5.69 16.9C4.81 15.77 4.24 14.42 4.06 13H2.06M7.1 18.37L5.67 19.74C7.18 21 9.04 21.79 11 22V20C9.58 19.82 8.23 19.25 7.1 18.37M20 4H44M13 18H11V16H13V18M13 15H11C11 11.75 14 12 14 10C14 8.9 13.1 8 12 8S10 8.9 10 10H8C8 7.79 9.79 6 12 6S16 7.79 16 10C16 12.5 13 12.75 13 15Z" /></svg>`;
+const tableColumnPlus = w `<svg fill="currentColor" viewBox="0 0 24 24" height="20px" width="20px"><path d="M11,2A2,2 0 0,1 13,4V20A2,2 0 0,1 11,22H2V2H11M4,10V14H11V10H4M4,16V20H11V16H4M4,4V8H11V4H4M15,11H18V8H20V11H23V13H20V16H18V13H15V11Z" /></svg>`;
+const questionMarkDashed = w `<svg fill="currentColor" viewBox="0 0 24 24" height="20px" width="20px"><path d="M13 2.03V4.05C17.39 4.59 20.5 8.58 19.96 12.97C19.5 16.61 16.64 19.5 13 19.93V21.93C18.5 21.38 22.5 16.5 21.95 11C21.5 6.25 17.73 2.5 13 2.03M11 2.06C9.05 2.25 7.19 3 5.67 4.26L7.1 5.74C8.22 4.84 9.57 4.26 11 4.06V2.06M4.26 5.67C3 7.19 2.25 9.04 2.05 11H4.05C4.24 9.58 4.8 8.23 5.69 7.1L4.26 5.67M2.06 13C2.26 14.96 3.03 16.81 4.27 18.33L5.69 16.9C4.81 15.77 4.24 14.42 4.06 13H2.06M7.1 18.37L5.67 19.74C7.18 21 9.04 21.79 11 22V20C9.58 19.82 8.23 19.25 7.1 18.37M20 4H44M13 18H11V16H13V18M13 15H11C11 11.75 14 12 14 10C14 8.9 13.1 8 12 8S10 8.9 10 10H8C8 7.79 9.79 6 12 6S16 7.79 16 10C16 12.5 13 12.75 13 15Z" /></svg>`;
 // https://materialdesignicons.com/icon/content-copy
-const copyContent = y `<svg fill="currentColor" viewBox="0 0 24 24" height="20px" width="20px" style="padding: 1px; box-sizing:border-box"><path d="M19,21H8V7H19M19,5H8A2,2 0 0,0 6,7V21A2,2 0 0,0 8,23H19A2,2 0 0,0 21,21V7A2,2 0 0,0 19,5M16,1H4A2,2 0 0,0 2,3V17H4V3H16V1Z" /></svg>`;
+const copyContent = w `<svg fill="currentColor" viewBox="0 0 24 24" height="20px" width="20px" style="padding: 1px; box-sizing:border-box"><path d="M19,21H8V7H19M19,5H8A2,2 0 0,0 6,7V21A2,2 0 0,0 8,23H19A2,2 0 0,0 21,21V7A2,2 0 0,0 19,5M16,1H4A2,2 0 0,0 2,3V17H4V3H16V1Z" /></svg>`;
 // https://materialdesignicons.com/icon/alpha-s-circle
 //export const sparqlingIcon = svg`<svg fill="currentColor" viewBox="0 0 24 24" height="20px" width="20px"><path d="M11,7A2,2 0 0,0 9,9V11A2,2 0 0,0 11,13H13V15H9V17H13A2,2 0 0,0 15,15V13A2,2 0 0,0 13,11H11V9H15V7H11M12,2A10,10 0 0,1 22,12A10,10 0 0,1 12,22A10,10 0 0,1 2,12A10,10 0 0,1 12,2Z" /></svg>`
 // https://materialdesignicons.com/icon/play-circle-outline
-const playOutlined = y `<svg fill="currentColor" viewBox="0 0 24 24" height="20px" width="20px"><path d="M12,20C7.59,20 4,16.41 4,12C4,7.59 7.59,4 12,4C16.41,4 20,7.59 20,12C20,16.41 16.41,20 12,20M12,2A10,10 0 0,0 2,12A10,10 0 0,0 12,22A10,10 0 0,0 22,12A10,10 0 0,0 12,2M10,16.5L16,12L10,7.5V16.5Z" /></svg>`;
+const playOutlined = w `<svg fill="currentColor" viewBox="0 0 24 24" height="20px" width="20px"><path d="M12,20C7.59,20 4,16.41 4,12C4,7.59 7.59,4 12,4C16.41,4 20,7.59 20,12C20,16.41 16.41,20 12,20M12,2A10,10 0 0,0 2,12A10,10 0 0,0 12,22A10,10 0 0,0 22,12A10,10 0 0,0 12,2M10,16.5L16,12L10,7.5V16.5Z" /></svg>`;
 // https://materialdesignicons.com/icon/refresh
-const refresh = y `<svg fill="currentColor" viewBox="0 0 24 24" height="20px" width="20px"><path d="M17.65,6.35C16.2,4.9 14.21,4 12,4A8,8 0 0,0 4,12A8,8 0 0,0 12,20C15.73,20 18.84,17.45 19.73,14H17.65C16.83,16.33 14.61,18 12,18A6,6 0 0,1 6,12A6,6 0 0,1 12,6C13.66,6 15.14,6.69 16.22,7.78L13,11H20V4L17.65,6.35Z" /></svg>`;
-const dragHandler = y `<svg fill="currentColor" xmlns="http://www.w3.org/2000/svg" height="20" width="20"><path d="M7.5 15.688q-.5 0-.844-.355-.344-.354-.344-.833 0-.5.355-.844.354-.344.833-.344.5 0 .844.355.344.354.344.833 0 .5-.355.844-.354.344-.833.344Zm5 0q-.5 0-.844-.355-.344-.354-.344-.833 0-.5.355-.844.354-.344.833-.344.5 0 .844.355.344.354.344.833 0 .5-.355.844-.354.344-.833.344Zm-5-4.5q-.5 0-.844-.355-.344-.354-.344-.833 0-.5.355-.844.354-.344.833-.344.5 0 .844.355.344.354.344.833 0 .5-.355.844-.354.344-.833.344Zm5 0q-.5 0-.844-.355-.344-.354-.344-.833 0-.5.355-.844.354-.344.833-.344.5 0 .844.355.344.354.344.833 0 .5-.355.844-.354.344-.833.344Zm-5-4.5q-.5 0-.844-.355-.344-.354-.344-.833 0-.5.355-.844.354-.344.833-.344.5 0 .844.355.344.354.344.833 0 .5-.355.844-.354.344-.833.344Zm5 0q-.5 0-.844-.355-.344-.354-.344-.833 0-.5.355-.844.354-.344.833-.344.5 0 .844.355.344.354.344.833 0 .5-.355.844-.354.344-.833.344Z"/></svg>`;
+const refresh = w `<svg fill="currentColor" viewBox="0 0 24 24" height="20px" width="20px"><path d="M17.65,6.35C16.2,4.9 14.21,4 12,4A8,8 0 0,0 4,12A8,8 0 0,0 12,20C15.73,20 18.84,17.45 19.73,14H17.65C16.83,16.33 14.61,18 12,18A6,6 0 0,1 6,12A6,6 0 0,1 12,6C13.66,6 15.14,6.69 16.22,7.78L13,11H20V4L17.65,6.35Z" /></svg>`;
+const dragHandler = w `<svg fill="currentColor" xmlns="http://www.w3.org/2000/svg" height="20" width="20"><path d="M7.5 15.688q-.5 0-.844-.355-.344-.354-.344-.833 0-.5.355-.844.354-.344.833-.344.5 0 .844.355.344.354.344.833 0 .5-.355.844-.354.344-.833.344Zm5 0q-.5 0-.844-.355-.344-.354-.344-.833 0-.5.355-.844.354-.344.833-.344.5 0 .844.355.344.354.344.833 0 .5-.355.844-.354.344-.833.344Zm-5-4.5q-.5 0-.844-.355-.344-.354-.344-.833 0-.5.355-.844.354-.344.833-.344.5 0 .844.355.344.354.344.833 0 .5-.355.844-.354.344-.833.344Zm5 0q-.5 0-.844-.355-.344-.354-.344-.833 0-.5.355-.844.354-.344.833-.344.5 0 .844.355.344.354.344.833 0 .5-.355.844-.354.344-.833.344Zm-5-4.5q-.5 0-.844-.355-.344-.354-.344-.833 0-.5.355-.844.354-.344.833-.344.5 0 .844.355.344.354.344.833 0 .5-.355.844-.354.344-.833.344Zm5 0q-.5 0-.844-.355-.344-.354-.344-.833 0-.5.355-.844.354-.344.833-.344.5 0 .844.355.344.354.344.833 0 .5-.355.844-.354.344-.833.344Z"/></svg>`;
 // https://materialdesignicons.com/icon/function
-const functionIcon = y `<svg fill="currentColor" viewBox="0 0 24 24" height="20px" width="20px"><path d="M15.6,5.29C14.5,5.19 13.53,6 13.43,7.11L13.18,10H16V12H13L12.56,17.07C12.37,19.27 10.43,20.9 8.23,20.7C6.92,20.59 5.82,19.86 5.17,18.83L6.67,17.33C6.91,18.07 7.57,18.64 8.4,18.71C9.5,18.81 10.47,18 10.57,16.89L11,12H8V10H11.17L11.44,6.93C11.63,4.73 13.57,3.1 15.77,3.3C17.08,3.41 18.18,4.14 18.83,5.17L17.33,6.67C17.09,5.93 16.43,5.36 15.6,5.29Z" /></svg>`;
+const functionIcon = w `<svg fill="currentColor" viewBox="0 0 24 24" height="20px" width="20px"><path d="M15.6,5.29C14.5,5.19 13.53,6 13.43,7.11L13.18,10H16V12H13L12.56,17.07C12.37,19.27 10.43,20.9 8.23,20.7C6.92,20.59 5.82,19.86 5.17,18.83L6.67,17.33C6.91,18.07 7.57,18.64 8.4,18.71C9.5,18.81 10.47,18 10.57,16.89L11,12H8V10H11.17L11.44,6.93C11.63,4.73 13.57,3.1 15.77,3.3C17.08,3.41 18.18,4.14 18.83,5.17L17.33,6.67C17.09,5.93 16.43,5.36 15.6,5.29Z" /></svg>`;
 // https://materialdesignicons.com/icon/sort-alphabetical-variant
-const sortIcon = y `<svg fill="currentColor" viewBox="0 0 24 24" height="20px" width="20px"><path d="M9.25,5L12.5,1.75L15.75,5H9.25M15.75,19L12.5,22.25L9.25,19H15.75M8.89,14.3H6L5.28,17H2.91L6,7H9L12.13,17H9.67L8.89,14.3M6.33,12.68H8.56L7.93,10.56L7.67,9.59L7.42,8.63H7.39L7.17,9.6L6.93,10.58L6.33,12.68M13.05,17V15.74L17.8,8.97V8.91H13.5V7H20.73V8.34L16.09,15V15.08H20.8V17H13.05Z" /></svg>`;
+const sortIcon = w `<svg fill="currentColor" viewBox="0 0 24 24" height="20px" width="20px"><path d="M9.25,5L12.5,1.75L15.75,5H9.25M15.75,19L12.5,22.25L9.25,19H15.75M8.89,14.3H6L5.28,17H2.91L6,7H9L12.13,17H9.67L8.89,14.3M6.33,12.68H8.56L7.93,10.56L7.67,9.59L7.42,8.63H7.39L7.17,9.6L6.93,10.58L6.33,12.68M13.05,17V15.74L17.8,8.97V8.91H13.5V7H20.73V8.34L16.09,15V15.08H20.8V17H13.05Z" /></svg>`;
 // https://materialdesignicons.com/icon/sort-alphabetical-ascending
-const sortAscendingIcon = y `<svg fill="currentColor" viewBox="0 0 24 24" height="20px" width="20px"><path d="M19 17H22L18 21L14 17H17V3H19M11 13V15L7.67 19H11V21H5V19L8.33 15H5V13M9 3H7C5.9 3 5 3.9 5 5V11H7V9H9V11H11V5C11 3.9 10.11 3 9 3M9 7H7V5H9Z" /></svg>`;
+const sortAscendingIcon = w `<svg fill="currentColor" viewBox="0 0 24 24" height="20px" width="20px"><path d="M19 17H22L18 21L14 17H17V3H19M11 13V15L7.67 19H11V21H5V19L8.33 15H5V13M9 3H7C5.9 3 5 3.9 5 5V11H7V9H9V11H11V5C11 3.9 10.11 3 9 3M9 7H7V5H9Z" /></svg>`;
 // https://materialdesignicons.com/icon/sort-alphabetical-descending
-const sortDescendingIcon = y `<svg fill="currentColor" viewBox="0 0 24 24" height="20px" width="20px"><path d="M19 7H22L18 3L14 7H17V21H19M11 13V15L7.67 19H11V21H5V19L8.33 15H5V13M9 3H7C5.9 3 5 3.9 5 5V11H7V9H9V11H11V5C11 3.9 10.11 3 9 3M9 7H7V5H9Z" /></svg>`;
+const sortDescendingIcon = w `<svg fill="currentColor" viewBox="0 0 24 24" height="20px" width="20px"><path d="M19 7H22L18 3L14 7H17V21H19M11 13V15L7.67 19H11V21H5V19L8.33 15H5V13M9 3H7C5.9 3 5 3.9 5 5V11H7V9H9V11H11V5C11 3.9 10.11 3 9 3M9 7H7V5H9Z" /></svg>`;
 // https://materialdesignicons.com/icon/sigma
-const sigma = y `<svg fill="currentColor" viewBox="0 0 24 24" height="20px" width="20px"><path d="M18,6H8.83L14.83,12L8.83,18H18V20H6V18L12,12L6,6V4H18V6Z" /></svg>`;
+const sigma = w `<svg fill="currentColor" viewBox="0 0 24 24" height="20px" width="20px"><path d="M18,6H8.83L14.83,12L8.83,18H18V20H6V18L12,12L6,6V4H18V6Z" /></svg>`;
 // https://materialdesignicons.com/icon/gesture-double-tap
-const dbClick = y `<svg fill="currentColor" viewBox="0 0 24 24" height="20px" width="20px"><path d="M10,9A1,1 0 0,1 11,8A1,1 0 0,1 12,9V13.47L13.21,13.6L18.15,15.79C18.68,16.03 19,16.56 19,17.14V21.5C18.97,22.32 18.32,22.97 17.5,23H11C10.62,23 10.26,22.85 10,22.57L5.1,18.37L5.84,17.6C6.03,17.39 6.3,17.28 6.58,17.28H6.8L10,19V9M11,5A4,4 0 0,1 15,9C15,10.5 14.2,11.77 13,12.46V11.24C13.61,10.69 14,9.89 14,9A3,3 0 0,0 11,6A3,3 0 0,0 8,9C8,9.89 8.39,10.69 9,11.24V12.46C7.8,11.77 7,10.5 7,9A4,4 0 0,1 11,5M11,3A6,6 0 0,1 17,9C17,10.7 16.29,12.23 15.16,13.33L14.16,12.88C15.28,11.96 16,10.56 16,9A5,5 0 0,0 11,4A5,5 0 0,0 6,9C6,11.05 7.23,12.81 9,13.58V14.66C6.67,13.83 5,11.61 5,9A6,6 0 0,1 11,3Z" /></svg>`;
+const dbClick = w `<svg fill="currentColor" viewBox="0 0 24 24" height="20px" width="20px"><path d="M10,9A1,1 0 0,1 11,8A1,1 0 0,1 12,9V13.47L13.21,13.6L18.15,15.79C18.68,16.03 19,16.56 19,17.14V21.5C18.97,22.32 18.32,22.97 17.5,23H11C10.62,23 10.26,22.85 10,22.57L5.1,18.37L5.84,17.6C6.03,17.39 6.3,17.28 6.58,17.28H6.8L10,19V9M11,5A4,4 0 0,1 15,9C15,10.5 14.2,11.77 13,12.46V11.24C13.61,10.69 14,9.89 14,9A3,3 0 0,0 11,6A3,3 0 0,0 8,9C8,9.89 8.39,10.69 9,11.24V12.46C7.8,11.77 7,10.5 7,9A4,4 0 0,1 11,5M11,3A6,6 0 0,1 17,9C17,10.7 16.29,12.23 15.16,13.33L14.16,12.88C15.28,11.96 16,10.56 16,9A5,5 0 0,0 11,4A5,5 0 0,0 6,9C6,11.05 7.23,12.81 9,13.58V14.66C6.67,13.83 5,11.61 5,9A6,6 0 0,1 11,3Z" /></svg>`;
 // https://materialdesignicons.com/icon/counter
-const counter = y `<svg fill="currentColor" viewBox="0 0 24 24" height="20px" width="20px"><path d="M4,4H20A2,2 0 0,1 22,6V18A2,2 0 0,1 20,20H4A2,2 0 0,1 2,18V6A2,2 0 0,1 4,4M4,6V18H11V6H4M20,18V6H18.76C19,6.54 18.95,7.07 18.95,7.13C18.88,7.8 18.41,8.5 18.24,8.75L15.91,11.3L19.23,11.28L19.24,12.5L14.04,12.47L14,11.47C14,11.47 17.05,8.24 17.2,7.95C17.34,7.67 17.91,6 16.5,6C15.27,6.05 15.41,7.3 15.41,7.3L13.87,7.31C13.87,7.31 13.88,6.65 14.25,6H13V18H15.58L15.57,17.14L16.54,17.13C16.54,17.13 17.45,16.97 17.46,16.08C17.5,15.08 16.65,15.08 16.5,15.08C16.37,15.08 15.43,15.13 15.43,15.95H13.91C13.91,15.95 13.95,13.89 16.5,13.89C19.1,13.89 18.96,15.91 18.96,15.91C18.96,15.91 19,17.16 17.85,17.63L18.37,18H20M8.92,16H7.42V10.2L5.62,10.76V9.53L8.76,8.41H8.92V16Z" /></svg>`;
+const counter = w `<svg fill="currentColor" viewBox="0 0 24 24" height="20px" width="20px"><path d="M4,4H20A2,2 0 0,1 22,6V18A2,2 0 0,1 20,20H4A2,2 0 0,1 2,18V6A2,2 0 0,1 4,4M4,6V18H11V6H4M20,18V6H18.76C19,6.54 18.95,7.07 18.95,7.13C18.88,7.8 18.41,8.5 18.24,8.75L15.91,11.3L19.23,11.28L19.24,12.5L14.04,12.47L14,11.47C14,11.47 17.05,8.24 17.2,7.95C17.34,7.67 17.91,6 16.5,6C15.27,6.05 15.41,7.3 15.41,7.3L13.87,7.31C13.87,7.31 13.88,6.65 14.25,6H13V18H15.58L15.57,17.14L16.54,17.13C16.54,17.13 17.45,16.97 17.46,16.08C17.5,15.08 16.65,15.08 16.5,15.08C16.37,15.08 15.43,15.13 15.43,15.95H13.91C13.91,15.95 13.95,13.89 16.5,13.89C19.1,13.89 18.96,15.91 18.96,15.91C18.96,15.91 19,17.16 17.85,17.63L18.37,18H20M8.92,16H7.42V10.2L5.62,10.76V9.53L8.76,8.41H8.92V16Z" /></svg>`;
 // https://materialdesignicons.com/icon/progress-close
-const dashedCross = y `<svg fill="currentColor" viewBox="0 0 24 24" height="20px" width="20px"><path d="M13 2.03V4.05C17.39 4.59 20.5 8.58 19.96 12.97C19.5 16.61 16.64 19.5 13 19.93V21.93C18.5 21.38 22.5 16.5 21.95 11C21.5 6.25 17.73 2.5 13 2.03M11 2.06C9.05 2.25 7.19 3 5.67 4.26L7.1 5.74C8.22 4.84 9.57 4.26 11 4.06V2.06M4.26 5.67C3 7.19 2.25 9.04 2.05 11H4.05C4.24 9.58 4.8 8.23 5.69 7.1L4.26 5.67M2.06 13C2.26 14.96 3.03 16.81 4.27 18.33L5.69 16.9C4.81 15.77 4.24 14.42 4.06 13H2.06M7.1 18.37L5.67 19.74C7.18 21 9.04 21.79 11 22V20C9.58 19.82 8.23 19.25 7.1 18.37M14.59 8L12 10.59L9.41 8L8 9.41L10.59 12L8 14.59L9.41 16L12 13.41L14.59 16L16 14.59L13.41 12L16 9.41L14.59 8Z" /></svg>`;
-const kebab = y `<svg fill="currentColor" xmlns="http://www.w3.org/2000/svg" height="20" width="20"><path d="M5.688 11.083q-.459 0-.771-.323-.313-.322-.313-.76 0-.458.323-.771.323-.312.761-.312.458 0 .77.323.313.322.313.76 0 .458-.313.771-.312.312-.77.312Zm4.312 0q-.458 0-.771-.323-.312-.322-.312-.76 0-.458.323-.771.322-.312.76-.312.458 0 .771.323.312.322.312.76 0 .458-.323.771-.322.312-.76.312Zm4.312 0q-.458 0-.77-.323-.313-.322-.313-.76 0-.458.313-.771.312-.312.77-.312.459 0 .771.323.313.322.313.76 0 .458-.323.771-.323.312-.761.312Z"/></svg>`;
-const expandMore = y `<svg fill="currentColor" xmlns="http://www.w3.org/2000/svg" height="20" width="20"><path d="m10 12.792-4.708-4.73.77-.77L10 11.229l3.938-3.937.77.77Z"/></svg>`;
-const expandLess = y `<svg fill="currentColor" xmlns="http://www.w3.org/2000/svg" height="20" width="20"><path d="m6.062 12.729-.77-.791L10 7.229l4.708 4.709-.77.791L10 8.792Z"/></svg>`;
-const placeItem = y `<svg fill="currentColor" xmlns="http://www.w3.org/2000/svg" height="20" width="20"><path d="M4.5 17.083q-.667 0-1.125-.458-.458-.458-.458-1.125V7.833q0-.666.458-1.125.458-.458 1.125-.458h2.896v1.333H4.5q-.083 0-.167.084-.083.083-.083.166V15.5q0 .083.083.167.084.083.167.083h11q.083 0 .167-.083.083-.084.083-.167V7.833q0-.083-.083-.166-.084-.084-.167-.084h-2.896V6.25H15.5q.667 0 1.125.458.458.459.458 1.125V15.5q0 .667-.458 1.125-.458.458-1.125.458Zm5.5-4.041L6.938 9.979l.937-.937L9.333 10.5V.625h1.334V10.5l1.458-1.458.937.937Z"/></svg>`;
-const error = y `<svg fill="currentColor" xmlns="http://www.w3.org/2000/svg" height="20" width="20"><path d="M10 13.771q.25 0 .417-.167.166-.166.166-.416 0-.25-.166-.417-.167-.167-.417-.167-.25 0-.417.167-.166.167-.166.417 0 .25.166.416.167.167.417.167Zm-.542-2.709h1.084v-5H9.458ZM10 17.583q-1.562 0-2.948-.593-1.385-.594-2.417-1.625-1.031-1.032-1.625-2.417-.593-1.386-.593-2.948 0-1.583.593-2.958.594-1.375 1.625-2.407Q5.667 3.604 7.052 3.01 8.438 2.417 10 2.417q1.583 0 2.958.593 1.375.594 2.407 1.625 1.031 1.032 1.625 2.417.593 1.386.593 2.948t-.593 2.948q-.594 1.385-1.625 2.417-1.032 1.031-2.417 1.625-1.386.593-2.948.593Zm0-1.083q2.708 0 4.604-1.896T16.5 10q0-2.708-1.896-4.604T10 3.5q-2.708 0-4.604 1.896T3.5 10q0 2.708 1.896 4.604T10 16.5Zm0-6.5Z"/></svg>`;
-const ellipsis = y `<svg fill="currentColor" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 16 16" width="16" height="16"><path fill-rule="evenodd" d="M0 5.75C0 4.784.784 4 1.75 4h12.5c.966 0 1.75.784 1.75 1.75v4.5A1.75 1.75 0 0114.25 12H1.75A1.75 1.75 0 010 10.25v-4.5zM4 7a1 1 0 100 2 1 1 0 000-2zm3 1a1 1 0 112 0 1 1 0 01-2 0zm5-1a1 1 0 100 2 1 1 0 000-2z"></path></svg>`;
+const dashedCross = w `<svg fill="currentColor" viewBox="0 0 24 24" height="20px" width="20px"><path d="M13 2.03V4.05C17.39 4.59 20.5 8.58 19.96 12.97C19.5 16.61 16.64 19.5 13 19.93V21.93C18.5 21.38 22.5 16.5 21.95 11C21.5 6.25 17.73 2.5 13 2.03M11 2.06C9.05 2.25 7.19 3 5.67 4.26L7.1 5.74C8.22 4.84 9.57 4.26 11 4.06V2.06M4.26 5.67C3 7.19 2.25 9.04 2.05 11H4.05C4.24 9.58 4.8 8.23 5.69 7.1L4.26 5.67M2.06 13C2.26 14.96 3.03 16.81 4.27 18.33L5.69 16.9C4.81 15.77 4.24 14.42 4.06 13H2.06M7.1 18.37L5.67 19.74C7.18 21 9.04 21.79 11 22V20C9.58 19.82 8.23 19.25 7.1 18.37M14.59 8L12 10.59L9.41 8L8 9.41L10.59 12L8 14.59L9.41 16L12 13.41L14.59 16L16 14.59L13.41 12L16 9.41L14.59 8Z" /></svg>`;
+const kebab = w `<svg fill="currentColor" xmlns="http://www.w3.org/2000/svg" height="20" width="20"><path d="M5.688 11.083q-.459 0-.771-.323-.313-.322-.313-.76 0-.458.323-.771.323-.312.761-.312.458 0 .77.323.313.322.313.76 0 .458-.313.771-.312.312-.77.312Zm4.312 0q-.458 0-.771-.323-.312-.322-.312-.76 0-.458.323-.771.322-.312.76-.312.458 0 .771.323.312.322.312.76 0 .458-.323.771-.322.312-.76.312Zm4.312 0q-.458 0-.77-.323-.313-.322-.313-.76 0-.458.313-.771.312-.312.77-.312.459 0 .771.323.313.322.313.76 0 .458-.323.771-.323.312-.761.312Z"/></svg>`;
+const expandMore = w `<svg fill="currentColor" xmlns="http://www.w3.org/2000/svg" height="20" width="20"><path d="m10 12.792-4.708-4.73.77-.77L10 11.229l3.938-3.937.77.77Z"/></svg>`;
+const expandLess = w `<svg fill="currentColor" xmlns="http://www.w3.org/2000/svg" height="20" width="20"><path d="m6.062 12.729-.77-.791L10 7.229l4.708 4.709-.77.791L10 8.792Z"/></svg>`;
+const placeItem = w `<svg fill="currentColor" xmlns="http://www.w3.org/2000/svg" height="20" width="20"><path d="M4.5 17.083q-.667 0-1.125-.458-.458-.458-.458-1.125V7.833q0-.666.458-1.125.458-.458 1.125-.458h2.896v1.333H4.5q-.083 0-.167.084-.083.083-.083.166V15.5q0 .083.083.167.084.083.167.083h11q.083 0 .167-.083.083-.084.083-.167V7.833q0-.083-.083-.166-.084-.084-.167-.084h-2.896V6.25H15.5q.667 0 1.125.458.458.459.458 1.125V15.5q0 .667-.458 1.125-.458.458-1.125.458Zm5.5-4.041L6.938 9.979l.937-.937L9.333 10.5V.625h1.334V10.5l1.458-1.458.937.937Z"/></svg>`;
+const error = w `<svg fill="currentColor" xmlns="http://www.w3.org/2000/svg" height="20" width="20"><path d="M10 13.771q.25 0 .417-.167.166-.166.166-.416 0-.25-.166-.417-.167-.167-.417-.167-.25 0-.417.167-.166.167-.166.417 0 .25.166.416.167.167.417.167Zm-.542-2.709h1.084v-5H9.458ZM10 17.583q-1.562 0-2.948-.593-1.385-.594-2.417-1.625-1.031-1.032-1.625-2.417-.593-1.386-.593-2.948 0-1.583.593-2.958.594-1.375 1.625-2.407Q5.667 3.604 7.052 3.01 8.438 2.417 10 2.417q1.583 0 2.958.593 1.375.594 2.407 1.625 1.031 1.032 1.625 2.417.593 1.386.593 2.948t-.593 2.948q-.594 1.385-1.625 2.417-1.032 1.031-2.417 1.625-1.386.593-2.948.593Zm0-1.083q2.708 0 4.604-1.896T16.5 10q0-2.708-1.896-4.604T10 3.5q-2.708 0-4.604 1.896T3.5 10q0 2.708 1.896 4.604T10 16.5Zm0-6.5Z"/></svg>`;
+const ellipsis = w `<svg fill="currentColor" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 16 16" width="16" height="16"><path fill-rule="evenodd" d="M0 5.75C0 4.784.784 4 1.75 4h12.5c.966 0 1.75.784 1.75 1.75v4.5A1.75 1.75 0 0114.25 12H1.75A1.75 1.75 0 010 10.25v-4.5zM4 7a1 1 0 100 2 1 1 0 000-2zm3 1a1 1 0 112 0 1 1 0 01-2 0zm5-1a1 1 0 100 2 1 1 0 000-2z"></path></svg>`;
 
 var _a, _b;
 class FilterDialog extends (_b = SparqlingFormDialog) {
@@ -3107,7 +3107,7 @@ class FilterDialog extends (_b = SparqlingFormDialog) {
     }
     render() {
         this.title = `${this.modality} filter for ${this.variableName}`;
-        return $ `
+        return y `
       <div class="gscape-panel">
         <div class="top-bar">
           <div id="widget-header" class="bold-text">
@@ -3130,7 +3130,7 @@ class FilterDialog extends (_b = SparqlingFormDialog) {
           
           <div class="bottom-buttons">
             ${this.modality === Modality.EDIT
-            ? $ `
+            ? y `
                 <gscape-button type="subtle" title="Delete" style="margin-right: auto" id="delete-button" @click=${this.handleDeleteClick}>
                   <span slot="icon">${rubbishBin}</span>
                 </gscape-button>
@@ -3158,7 +3158,7 @@ FilterDialog.styles = Reflect.get(_b, "styles", _a);
 customElements.define('sparqling-filter-dialog', FilterDialog);
 
 function getElemWithOperatorStyle() {
-    return r$2 `
+    return i$1 `
     .elem-with-operator {
       display: flex;
       gap: 10px;
@@ -3189,7 +3189,7 @@ function getElemWithOperatorStyle() {
 }
 
 function getTrayButtonTemplate(title, icon, alternateIcon, id, clickHandler = (e) => { }) {
-    return $ `
+    return y `
     <gscape-button
       id=${id}
       size="s"
@@ -3199,14 +3199,14 @@ function getTrayButtonTemplate(title, icon, alternateIcon, id, clickHandler = (e
     >
       <span slot="icon">${icon}</span>
       ${alternateIcon
-        ? $ `<span slot="alt-icon">${alternateIcon}</span>`
+        ? y `<span slot="alt-icon">${alternateIcon}</span>`
         : null}
     </gscape-button>
   `;
 }
 
 function getElemWithOperatorList(list, editElemCallback, deleteElemCallback) {
-    return $ `
+    return y `
     ${list === null || list === void 0 ? void 0 : list.map((elemWithOperator) => {
         var _a, _b;
         const elem = elemWithOperator.value || elemWithOperator;
@@ -3226,12 +3226,12 @@ function getElemWithOperatorList(list, editElemCallback, deleteElemCallback) {
         //   deleteButton.onClick = () => deleteElemCallback(elemWithOperator.id)
         //   deleteButton.classList.add('danger')
         // }
-        return $ `
+        return y `
         <div class="elem-with-operator">
           <div class="chip" title="${operatorFullName}">${operator}</div>
 
           ${parameters
-            ? $ `
+            ? y `
               <div class="parameters">
                 ${parameters === null || parameters === void 0 ? void 0 : parameters.map((param, index) => {
                 if (index === 0)
@@ -3240,7 +3240,7 @@ function getElemWithOperatorList(list, editElemCallback, deleteElemCallback) {
                 if (param.constantType === VarOrConstantConstantTypeEnum.DateTime) {
                     value = (value === null || value === void 0 ? void 0 : value.split('T')[0]) || value; // Take only date from ISO format 2022-01-01T00:00:....
                 }
-                return $ `
+                return y `
                     <div class="parameter ellipsed">
                       ${value}
                     </div>
@@ -3284,7 +3284,7 @@ class FilterListDialog extends ui.BaseMixin(s) {
             ui.baseStyle,
             sparqlingWidgetStyle,
             getElemWithOperatorStyle(),
-            r$2 `
+            i$1 `
         :host {
           position: absolute;
           top: 30%;
@@ -3311,7 +3311,7 @@ class FilterListDialog extends ui.BaseMixin(s) {
     }
     render() {
         this.title = `Defined Filters for ${this.variable}`;
-        return $ `
+        return y `
       <div class="gscape-panel">
         <div class="top-bar">
           <div id="widget-header" class="bold-text">
@@ -3385,9 +3385,9 @@ class HighlightsList extends ui.BaseMixin(ui.DropPanelMixin(s)) {
         this.searchEntityComponent.onEntityFilterToggle(() => this.setHighlights());
     }
     render() {
-        return $ `
+        return y `
       ${this.isPanelClosed()
-            ? $ `
+            ? y `
           <div>
             <gscape-button 
               id="toggle-panel-button"
@@ -3399,7 +3399,7 @@ class HighlightsList extends ui.BaseMixin(ui.DropPanelMixin(s)) {
             </gscape-button>
           </div>
         `
-            : $ `
+            : y `
           <div class="gscape-panel" id="drop-panel">
             <div class="top-bar">
               <div id="widget-header" class="bold-text">
@@ -3419,12 +3419,12 @@ class HighlightsList extends ui.BaseMixin(ui.DropPanelMixin(s)) {
             ${this.searchEntityComponent}
             <div class="list">
               ${this.highlights
-                ? $ `
+                ? y `
                   ${this.dataProperties.map((dataPropertyIri) => this.getEntitySuggestionTemplate(dataPropertyIri, EntityTypeEnum.DataProperty))}
                   ${this.objectProperties.map(objectPropertyHighlight => this.getObjectPropertySuggestionTemplate(objectPropertyHighlight))}
                   ${this.classes.map((classIri) => this.getEntitySuggestionTemplate(classIri, EntityTypeEnum.Class))}
                 `
-                : $ `
+                : y `
                   <div class="blank-slate">
                     ${ui.icons.searchOff}
                     <div class="header">No suggestions available</div>
@@ -3439,7 +3439,7 @@ class HighlightsList extends ui.BaseMixin(ui.DropPanelMixin(s)) {
     }
     getObjectPropertySuggestionTemplate(objectPropertyHighlight) {
         var _a;
-        return $ `
+        return y `
       <details class="ellipsed entity-list-item" iri=${objectPropertyHighlight.objectPropertyIRI} title=${objectPropertyHighlight.objectPropertyIRI}>
         <summary class="actionable">
           <span class="entity-icon">${ui.icons.objectPropertyIcon}</span>
@@ -3468,7 +3468,7 @@ class HighlightsList extends ui.BaseMixin(ui.DropPanelMixin(s)) {
                 entityIcon = ui.icons.objectPropertyIcon;
                 break;
         }
-        return $ `
+        return y `
       <div iri=${entityIri} entity-type="${entityType}" class="ellipsed entity-list-item">
         <span class="entity-icon">${entityIcon}</span>
         <span class="entity-name actionable" @click=${this.handleEntityNameClick}>${entityIri}</span>
@@ -3579,7 +3579,7 @@ HighlightsList.styles = [
     ui.baseStyle,
     ui.entityListItemStyle,
     sparqlingWidgetStyle,
-    r$2 `
+    i$1 `
       :host {
         position:initial;
         pointer-events:initial;
@@ -3651,7 +3651,7 @@ class RelatedClassSelection extends ui.BaseMixin(s) {
     }
     render() {
         var _a;
-        return $ `
+        return y `
       <div class="gscape-panel">
         <div class="header">Add Object Property</div>
         <div class="gscape-panel-body">
@@ -3666,7 +3666,7 @@ class RelatedClassSelection extends ui.BaseMixin(s) {
           </div>
           <div id="right-panel" class="list">
             ${(_a = this.list) === null || _a === void 0 ? void 0 : _a.map((classItem, i) => {
-            return $ `<span class="actionable" index="${i}" @click=${this.handleSelection}>${classItem}</span>`;
+            return y `<span class="actionable" index="${i}" @click=${this.handleSelection}>${classItem}</span>`;
         })}
           </div>
         </div>
@@ -3704,7 +3704,7 @@ RelatedClassSelection.properties = {
 };
 RelatedClassSelection.styles = [
     ui.baseStyle,
-    r$2 `
+    i$1 `
       :host {
         position: absolute;
         min-width: 100px;
@@ -3929,7 +3929,7 @@ class SparqlDialog extends ui.BaseMixin(s) {
         this.arePrefixesVisible = false;
     }
     render() {
-        return $ `
+        return y `
       <div class="gscape-panel">
         <div class="top-bar">
           <div id="widget-header" class="bold-text">
@@ -3954,10 +3954,10 @@ class SparqlDialog extends ui.BaseMixin(s) {
 
         <div class="sparql-code-wrapper" title="Click to copy query" @click=${this.copyQuery}>
           ${this.text === emptyQueryMsg()
-            ? $ `<div class="sparql-code">${this.text.trim()}</div>`
-            : $ `
+            ? y `<div class="sparql-code">${this.text.trim()}</div>`
+            : y `
               ${this.arePrefixesVisible
-                ? $ `
+                ? y `
                   <div class="sparql-code">${this.queryPrefixes}</div>
                 `
                 : null}
@@ -3992,7 +3992,7 @@ class SparqlDialog extends ui.BaseMixin(s) {
 SparqlDialog.styles = [
     ui.baseStyle,
     sparqlingWidgetStyle,
-    r$2 `
+    i$1 `
       :host {
         position: absolute;
         top: 100px;
@@ -4025,7 +4025,7 @@ SparqlDialog.properties = {
 };
 customElements.define('sparqling-sparql-dialog', SparqlDialog);
 
-var sparqlingIcon = y `
+var sparqlingIcon = w `
 <?xml version="1.0" encoding="UTF-8" standalone="no"?>
 <svg
    version="1.1"
@@ -4055,9 +4055,9 @@ class SparqlingStartRunButtons extends ui.BaseMixin(s) {
         this.classList.add(ui.BOTTOM_RIGHT_WIDGET_CLASS.toString());
     }
     render() {
-        return $ `
+        return y `
     ${this.canQueryRun
-            ? $ `
+            ? y `
           <gscape-button
             @click="${this._onQueryRunCallback}"
             type="subtle"
@@ -4070,8 +4070,8 @@ class SparqlingStartRunButtons extends ui.BaseMixin(s) {
             : null}
 
     ${this.isLoading
-            ? $ `<div class="lds-ring btn-m" title="Sparqling is loading"><div></div><div></div><div></div><div></div></div>`
-            : $ `
+            ? y `<div class="lds-ring btn-m" title="Sparqling is loading"><div></div><div></div><div></div><div></div></div>`
+            : y `
         <gscape-button
           @click="${this.handleStartButtonCLick}" 
           type="subtle"
@@ -4114,7 +4114,7 @@ SparqlingStartRunButtons.properties = {
 SparqlingStartRunButtons.styles = [
     ui.GscapeButtonStyle,
     ui.baseStyle,
-    r$2 `
+    i$1 `
       :host {
         order: 8;
       }
@@ -4163,7 +4163,7 @@ class FunctionDialog extends SparqlingFormDialog {
     }
     render() {
         this.title = `${this.modality} function for ${this.variableName}`;
-        return $ `
+        return y `
       <div class="gscape-panel">
         <div class="top-bar">
           <div id="widget-header" class="bold-text">
@@ -4263,7 +4263,7 @@ class AggregationDialog extends SparqlingFormDialog {
     }
     render() {
         this.title = `${this.modality} aggregate function for ${this.variableName}`;
-        return $ `
+        return y `
       <div class="gscape-panel">
         <div class="top-bar">
           <div id="widget-header" class="bold-text">
@@ -4295,7 +4295,7 @@ class AggregationDialog extends SparqlingFormDialog {
           </div>
           
           ${!this.definingHaving
-            ? $ `
+            ? y `
                 <gscape-button title="Add Having" label="Filter Groups - Having" @click=${this.handleHavingButtonClick}>
                   <span slot="icon">${addFilter$1}</span>
                 </gscape-button>
@@ -4372,7 +4372,7 @@ class ErrorsDialog extends ui.BaseMixin(s) {
         this.errorText = '';
     }
     render() {
-        return $ `
+        return y `
       <div class="gscape-panel">
         <div class="top-bar">
           <div id="widget-header" class="bold-text">
@@ -4407,7 +4407,7 @@ ErrorsDialog.properties = {
 ErrorsDialog.styles = [
     ui.baseStyle,
     sparqlingWidgetStyle,
-    r$2 `
+    i$1 `
       :host {
         position: absolute;
         top: 100px;
@@ -5015,9 +5015,9 @@ class QueryGraphWidget extends ui.BaseMixin(ui.DropPanelMixin(s)) {
         this.bgpContainer = bgpContainer;
     }
     render() {
-        return $ `
+        return y `
       ${this.isPanelClosed()
-            ? $ `
+            ? y `
           <div class="top-bar traslated-down">
             <gscape-button 
               id="toggle-panel-button"
@@ -5029,7 +5029,7 @@ class QueryGraphWidget extends ui.BaseMixin(ui.DropPanelMixin(s)) {
             </gscape-button>
           </div>
         `
-            : $ `
+            : y `
           <div class="gscape-panel" id="drop-panel">
             <div class="top-bar">
               <div id="widget-header" class="bold-text">
@@ -5060,7 +5060,7 @@ class QueryGraphWidget extends ui.BaseMixin(ui.DropPanelMixin(s)) {
 
 
             ${this.isBGPEmpty
-                ? $ `
+                ? y `
                 <div class="blank-slate sparqling-blank-slate">
                   ${dbClick}
                   <div class="header">${emptyGraphMsg()}</div>
@@ -5117,7 +5117,7 @@ QueryGraphWidget.properties = {
 QueryGraphWidget.styles = [
     ui.baseStyle,
     sparqlingWidgetStyle,
-    r$2 `
+    i$1 `
       :host {
         width: calc(50%);
         height: 30%;
@@ -5320,38 +5320,57 @@ var max = Math.max;
 var min = Math.min;
 var round = Math.round;
 
-function getBoundingClientRect(element, includeScale) {
+function getUAString() {
+  var uaData = navigator.userAgentData;
+
+  if (uaData != null && uaData.brands) {
+    return uaData.brands.map(function (item) {
+      return item.brand + "/" + item.version;
+    }).join(' ');
+  }
+
+  return navigator.userAgent;
+}
+
+function isLayoutViewport() {
+  return !/^((?!chrome|android).)*safari/i.test(getUAString());
+}
+
+function getBoundingClientRect(element, includeScale, isFixedStrategy) {
   if (includeScale === void 0) {
     includeScale = false;
   }
 
-  var rect = element.getBoundingClientRect();
+  if (isFixedStrategy === void 0) {
+    isFixedStrategy = false;
+  }
+
+  var clientRect = element.getBoundingClientRect();
   var scaleX = 1;
   var scaleY = 1;
 
-  if (isHTMLElement(element) && includeScale) {
-    var offsetHeight = element.offsetHeight;
-    var offsetWidth = element.offsetWidth; // Do not attempt to divide by 0, otherwise we get `Infinity` as scale
-    // Fallback to 1 in case both values are `0`
-
-    if (offsetWidth > 0) {
-      scaleX = round(rect.width) / offsetWidth || 1;
-    }
-
-    if (offsetHeight > 0) {
-      scaleY = round(rect.height) / offsetHeight || 1;
-    }
+  if (includeScale && isHTMLElement(element)) {
+    scaleX = element.offsetWidth > 0 ? round(clientRect.width) / element.offsetWidth || 1 : 1;
+    scaleY = element.offsetHeight > 0 ? round(clientRect.height) / element.offsetHeight || 1 : 1;
   }
 
+  var _ref = isElement$1(element) ? getWindow(element) : window,
+      visualViewport = _ref.visualViewport;
+
+  var addVisualOffsets = !isLayoutViewport() && isFixedStrategy;
+  var x = (clientRect.left + (addVisualOffsets && visualViewport ? visualViewport.offsetLeft : 0)) / scaleX;
+  var y = (clientRect.top + (addVisualOffsets && visualViewport ? visualViewport.offsetTop : 0)) / scaleY;
+  var width = clientRect.width / scaleX;
+  var height = clientRect.height / scaleY;
   return {
-    width: rect.width / scaleX,
-    height: rect.height / scaleY,
-    top: rect.top / scaleY,
-    right: rect.right / scaleX,
-    bottom: rect.bottom / scaleY,
-    left: rect.left / scaleX,
-    x: rect.left / scaleX,
-    y: rect.top / scaleY
+    width: width,
+    height: height,
+    top: y,
+    right: x + width,
+    bottom: y + height,
+    left: x,
+    x: x,
+    y: y
   };
 }
 
@@ -5446,8 +5465,8 @@ function getTrueOffsetParent(element) {
 
 
 function getContainingBlock(element) {
-  var isFirefox = navigator.userAgent.toLowerCase().indexOf('firefox') !== -1;
-  var isIE = navigator.userAgent.indexOf('Trident') !== -1;
+  var isFirefox = /firefox/i.test(getUAString());
+  var isIE = /Trident/i.test(getUAString());
 
   if (isIE && isHTMLElement(element)) {
     // In IE 9, 10 and 11 fixed elements containing block is always established by the viewport
@@ -5868,31 +5887,21 @@ function getWindowScrollBarX(element) {
   return getBoundingClientRect(getDocumentElement(element)).left + getWindowScroll(element).scrollLeft;
 }
 
-function getViewportRect(element) {
+function getViewportRect(element, strategy) {
   var win = getWindow(element);
   var html = getDocumentElement(element);
   var visualViewport = win.visualViewport;
   var width = html.clientWidth;
   var height = html.clientHeight;
   var x = 0;
-  var y = 0; // NB: This isn't supported on iOS <= 12. If the keyboard is open, the popper
-  // can be obscured underneath it.
-  // Also, `html.clientHeight` adds the bottom bar height in Safari iOS, even
-  // if it isn't open, so if this isn't available, the popper will be detected
-  // to overflow the bottom of the screen too early.
+  var y = 0;
 
   if (visualViewport) {
     width = visualViewport.width;
-    height = visualViewport.height; // Uses Layout Viewport (like Chrome; Safari does not currently)
-    // In Chrome, it returns a value very close to 0 (+/-) but contains rounding
-    // errors due to floating point numbers, so we need to check precision.
-    // Safari returns a number <= 0, usually < -1 when pinch-zoomed
-    // Feature detection fails in mobile emulation mode in Chrome.
-    // Math.abs(win.innerWidth / visualViewport.scale - visualViewport.width) <
-    // 0.001
-    // Fallback here: "Not Safari" userAgent
+    height = visualViewport.height;
+    var layoutViewport = isLayoutViewport();
 
-    if (!/^((?!chrome|android).)*safari/i.test(navigator.userAgent)) {
+    if (layoutViewport || !layoutViewport && strategy === 'fixed') {
       x = visualViewport.offsetLeft;
       y = visualViewport.offsetTop;
     }
@@ -5986,8 +5995,8 @@ function rectToClientRect(rect) {
   });
 }
 
-function getInnerBoundingClientRect(element) {
-  var rect = getBoundingClientRect(element);
+function getInnerBoundingClientRect(element, strategy) {
+  var rect = getBoundingClientRect(element, false, strategy === 'fixed');
   rect.top = rect.top + element.clientTop;
   rect.left = rect.left + element.clientLeft;
   rect.bottom = rect.top + element.clientHeight;
@@ -5999,8 +6008,8 @@ function getInnerBoundingClientRect(element) {
   return rect;
 }
 
-function getClientRectFromMixedType(element, clippingParent) {
-  return clippingParent === viewport ? rectToClientRect(getViewportRect(element)) : isElement$1(clippingParent) ? getInnerBoundingClientRect(clippingParent) : rectToClientRect(getDocumentRect(getDocumentElement(element)));
+function getClientRectFromMixedType(element, clippingParent, strategy) {
+  return clippingParent === viewport ? rectToClientRect(getViewportRect(element, strategy)) : isElement$1(clippingParent) ? getInnerBoundingClientRect(clippingParent, strategy) : rectToClientRect(getDocumentRect(getDocumentElement(element)));
 } // A "clipping parent" is an overflowable container with the characteristic of
 // clipping (or hiding) overflowing elements with a position different from
 // `initial`
@@ -6023,18 +6032,18 @@ function getClippingParents(element) {
 // clipping parents
 
 
-function getClippingRect(element, boundary, rootBoundary) {
+function getClippingRect(element, boundary, rootBoundary, strategy) {
   var mainClippingParents = boundary === 'clippingParents' ? getClippingParents(element) : [].concat(boundary);
   var clippingParents = [].concat(mainClippingParents, [rootBoundary]);
   var firstClippingParent = clippingParents[0];
   var clippingRect = clippingParents.reduce(function (accRect, clippingParent) {
-    var rect = getClientRectFromMixedType(element, clippingParent);
+    var rect = getClientRectFromMixedType(element, clippingParent, strategy);
     accRect.top = max(rect.top, accRect.top);
     accRect.right = min(rect.right, accRect.right);
     accRect.bottom = min(rect.bottom, accRect.bottom);
     accRect.left = max(rect.left, accRect.left);
     return accRect;
-  }, getClientRectFromMixedType(element, firstClippingParent));
+  }, getClientRectFromMixedType(element, firstClippingParent, strategy));
   clippingRect.width = clippingRect.right - clippingRect.left;
   clippingRect.height = clippingRect.bottom - clippingRect.top;
   clippingRect.x = clippingRect.left;
@@ -6115,6 +6124,8 @@ function detectOverflow(state, options) {
   var _options = options,
       _options$placement = _options.placement,
       placement = _options$placement === void 0 ? state.placement : _options$placement,
+      _options$strategy = _options.strategy,
+      strategy = _options$strategy === void 0 ? state.strategy : _options$strategy,
       _options$boundary = _options.boundary,
       boundary = _options$boundary === void 0 ? clippingParents : _options$boundary,
       _options$rootBoundary = _options.rootBoundary,
@@ -6129,7 +6140,7 @@ function detectOverflow(state, options) {
   var altContext = elementContext === popper ? reference : popper;
   var popperRect = state.rects.popper;
   var element = state.elements[altBoundary ? altContext : elementContext];
-  var clippingClientRect = getClippingRect(isElement$1(element) ? element : element.contextElement || getDocumentElement(state.elements.popper), boundary, rootBoundary);
+  var clippingClientRect = getClippingRect(isElement$1(element) ? element : element.contextElement || getDocumentElement(state.elements.popper), boundary, rootBoundary, strategy);
   var referenceClientRect = getBoundingClientRect(state.elements.reference);
   var popperOffsets = computeOffsets({
     reference: referenceClientRect,
@@ -6643,7 +6654,7 @@ function getCompositeRect(elementOrVirtualElement, offsetParent, isFixed) {
   var isOffsetParentAnElement = isHTMLElement(offsetParent);
   var offsetParentIsScaled = isHTMLElement(offsetParent) && isElementScaled(offsetParent);
   var documentElement = getDocumentElement(offsetParent);
-  var rect = getBoundingClientRect(elementOrVirtualElement, offsetParentIsScaled);
+  var rect = getBoundingClientRect(elementOrVirtualElement, offsetParentIsScaled, isFixed);
   var scroll = {
     scrollLeft: 0,
     scrollTop: 0
@@ -9190,7 +9201,7 @@ class HeadElementComponent extends ui.BaseMixin(ui.DropPanelMixin(s)) {
         //   this.orderByButton.icon = sortIcon
         //   this.orderByButton.highlighted = false
         // }
-        return $ `
+        return y `
       <div>
         <div id="field-head">
           <div id="drag-handler" draggable="true">
@@ -9211,7 +9222,7 @@ class HeadElementComponent extends ui.BaseMixin(ui.DropPanelMixin(s)) {
             ${getTrayButtonTemplate('More actions', kebab, undefined, 'cxt-menu-action', () => this.showCxtMenu())}
           </div>
           ${this.hasAnythingInBody || this.ordering !== 0
-            ? $ `
+            ? y `
               <div id="state-tray">
                 ${this.function ? functionIcon : null}
                 ${this.ordering && this.ordering !== 0 ? this.orderIcon : null}
@@ -9221,7 +9232,7 @@ class HeadElementComponent extends ui.BaseMixin(ui.DropPanelMixin(s)) {
             `
             : null}
           ${this.hasAnythingInBody
-            ? $ `
+            ? y `
               <div id="toggle-panel">
                 ${getTrayButtonTemplate('Expand', expandMore, expandLess, 'expand-action', this.togglePanel)}
               </div>
@@ -9230,7 +9241,7 @@ class HeadElementComponent extends ui.BaseMixin(ui.DropPanelMixin(s)) {
         </div>
         <div id="drop-panel" class="hide">
           ${this.groupBy
-            ? $ `
+            ? y `
               <div class="section">
                 <div class="section-header bold-text">Aggregation</div>
                 <div class="filters-function-list">
@@ -9245,7 +9256,7 @@ class HeadElementComponent extends ui.BaseMixin(ui.DropPanelMixin(s)) {
             : null}
 
           ${this.function
-            ? $ `
+            ? y `
               <div class="section">
                 <div class="section-header bold-text">Function</div>
                 <div class="filters-function-list">
@@ -9256,7 +9267,7 @@ class HeadElementComponent extends ui.BaseMixin(ui.DropPanelMixin(s)) {
             : null}
           
           ${((_b = this.filters) === null || _b === void 0 ? void 0 : _b.length) > 0
-            ? $ `
+            ? y `
               <div class="section">
                 <div class="section-header bold-text">Filters</div>
                 <div class="filters-function-list">
@@ -9302,14 +9313,14 @@ class HeadElementComponent extends ui.BaseMixin(ui.DropPanelMixin(s)) {
     }
     getSelect(sectionName, name, defaultOpt, options) {
         const isDefaultAlreadySet = Object.values(options).includes(defaultOpt);
-        return $ `
+        return y `
       <select name="${name}" sectionName="${sectionName}">
-        ${isDefaultAlreadySet ? null : $ `<option selected>${defaultOpt}</option>`}
+        ${isDefaultAlreadySet ? null : y `<option selected>${defaultOpt}</option>`}
         ${Object.keys(options).map(key => {
             if (options[key] === defaultOpt)
-                return $ `<option value="${key}" selected>${options[key]}</option>`;
+                return y `<option value="${key}" selected>${options[key]}</option>`;
             else
-                return $ `<option value="${key}">${options[key]}</option>`;
+                return y `<option value="${key}">${options[key]}</option>`;
         })}
           </select>
     `;
@@ -9399,7 +9410,7 @@ HeadElementComponent.properties = {
 HeadElementComponent.styles = [
     ui.baseStyle,
     getElemWithOperatorStyle(),
-    r$2 `
+    i$1 `
       :host {
         display:block;
         height: fit-content;
@@ -9510,9 +9521,9 @@ class QueryHeadWidget extends ui.BaseMixin(ui.DropPanelMixin(s)) {
         };
     }
     render() {
-        return $ `
+        return y `
       ${this.isPanelClosed()
-            ? $ `
+            ? y `
           <div class="top-bar traslated-down">
             <gscape-button 
               id="toggle-panel-button"
@@ -9524,7 +9535,7 @@ class QueryHeadWidget extends ui.BaseMixin(ui.DropPanelMixin(s)) {
             </gscape-button>
           </div>
         `
-            : $ `
+            : y `
           <div class="gscape-panel" id="drop-panel" style="width: 100%; overflow-y:clip">
             <div class="top-bar">
               <div id="widget-header" class="bold-text">
@@ -9543,21 +9554,21 @@ class QueryHeadWidget extends ui.BaseMixin(ui.DropPanelMixin(s)) {
             </div>
 
           ${isCountStarActive()
-                ? $ `
+                ? y `
               <div class="blank-slate sparqling-blank-slate">
                 ${counter}
                 <div class="header">${countStarMsg()}</div>
               </div>
             `
                 : this.headElements.length === 0
-                    ? $ `
+                    ? y `
                 <div class="blank-slate sparqling-blank-slate">
                   ${asterisk}
                   <div class="header">${emptyHeadMsg()}</div>
                   <div class="tip description" title="${emptyHeadTipMsg()}">${tipWhy()}</div>
                 </div>
               `
-                    : $ `
+                    : y `
                 <div id="elems-wrapper" @dragover=${allowDrop} @drop=${allowDrop}>
                   ${this.headElements.map(headElement => new HeadElementComponent(headElement))}
                 </div>
@@ -9647,7 +9658,7 @@ QueryHeadWidget.properties = {
 QueryHeadWidget.styles = [
     ui.baseStyle,
     sparqlingWidgetStyle,
-    r$2 `
+    i$1 `
       :host {
         position:initial;
         min-height: 30%;
@@ -9911,10 +9922,10 @@ class ContextMenuWidget extends ui.BaseMixin(s) {
         this.onCommandRun = () => { };
     }
     render() {
-        return $ `
+        return y `
     <div class="gscape-panel">
       ${this.commands.map((command, id) => {
-            return $ `
+            return y `
           <div class="command-entry actionable" command-id="${id}" @click=${this.handleCommandClick}>
             <span class="command-icon">${command.icon}</span>
             <span class="command-text">${command.content}</span>
@@ -9934,7 +9945,7 @@ ContextMenuWidget.properties = {
 };
 ContextMenuWidget.styles = [
     ui.baseStyle,
-    r$2 `
+    i$1 `
       :host {
         position: initial;
         display: flex;
