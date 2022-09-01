@@ -10,7 +10,7 @@
     "watch": "cross-env NODE_ENV=development rollup -c -w",
     "serve": "ws -d ./public -o",
     "apigen": "openapi-generator-cli generate -g typescript-axios -o ./src/api/swagger -i https://api.swaggerhub.com/apis/OBDASystems/swagger-sparqling_ws/1.0.0",
-    "inject-grapholscape": "cpy ./node_modules/grapholscape/dist/grapholscape.min.js ./public/js",
+    "inject-grapholscape": "cpy ./node_modules/grapholscape/dist/grapholscape.min.js ./public/js --flat",
     "clean": "rimraf ./dist ./public/js/sparqling*.js",
     "version": "npm run build && git add -A"
   },
@@ -22,39 +22,38 @@
   "author": "OBDA Systems",
   "license": "MIT",
   "devDependencies": {
-    "@openapitools/openapi-generator-cli": "^2.4.26",
-    "@rollup/plugin-commonjs": "^21.0.0",
+    "@openapitools/openapi-generator-cli": "^2.5.1",
+    "@rollup/plugin-commonjs": "^22.0.2",
     "@rollup/plugin-json": "^4.1.0",
-    "@rollup/plugin-node-resolve": "^13.0.5",
-    "@rollup/plugin-replace": "^3.0.0",
-    "@rollup/plugin-typescript": "^8.3.0",
-    "@types/cytoscape": "^3.19.2",
-    "@types/jest": "^27.0.3",
-    "cpy-cli": "^3.1.1",
+    "@rollup/plugin-node-resolve": "^13.3.0",
+    "@rollup/plugin-replace": "^4.0.0",
+    "@rollup/plugin-typescript": "^8.4.0",
+    "@types/cytoscape": "^3.19.7",
+    "@types/jest": "^29.0.0",
+    "cpy-cli": "^4.2.0",
     "cross-env": "^7.0.3",
-    "local-web-server": "^5.1.1",
+    "local-web-server": "^5.2.1",
     "npm-run-all": "^4.1.5",
     "rimraf": "^3.0.2",
-    "rollup": "^2.58.0",
-    "rollup-plugin-license": "^2.6.0",
-    "rollup-plugin-size-snapshot": "^0.12.0",
+    "rollup": "^2.79.0",
+    "rollup-plugin-license": "^2.8.1",
     "rollup-plugin-terser": "^7.0.2",
-    "tslib": "^2.3.1",
-    "typescript": "^4.5.2"
+    "tslib": "^2.4.0",
+    "typescript": "^4.8.2"
   },
   "dependencies": {
-    "axios": "^0.21.1",
-    "cytoscape": "^3.20.2",
-    "cytoscape-cola": "^2.5.0",
-    "cytoscape-compound-drag-and-drop": "^1.0.0",
+    "axios": "^0.27.2",
+    "cytoscape": "^3.22.1",
+    "cytoscape-cola": "^2.5.1",
+    "cytoscape-compound-drag-and-drop": "^1.1.0",
     "cytoscape-context-menus": "^4.1.0",
     "cytoscape-cxtmenu": "^3.4.0",
     "cytoscape-klay": "^3.1.4",
     "cytoscape-popper": "^2.0.0",
-    "lit": "^2.2.2",
+    "lit": "^2.3.1",
     "tippy.js": "^6.3.7"
   },
   "peerDependencies": {
-    "grapholscape": "^3.0.0"
+    "grapholscape": "^3.0.1"
   }
 }

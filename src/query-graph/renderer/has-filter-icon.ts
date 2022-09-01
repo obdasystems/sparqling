@@ -1,4 +1,4 @@
-import { SingularData } from "cytoscape"
+import { NodeCollection } from "cytoscape"
 import tippy, { sticky } from "tippy.js"
 import { filter } from "../../widgets/assets/icons"
 import cy from "./cy"
@@ -16,7 +16,7 @@ const hasFilterIcon = `
     ${filter.strings.join('').replace(/20px/g, '15px',)}
   </div>`
 
-export function addHasFilterIcon(node: SingularData) {
+export function addHasFilterIcon(node: NodeCollection) {
   const dummyDomElement = document.createElement('div')
   const container = cy.container()
   if (container?.firstElementChild) {
@@ -38,16 +38,16 @@ export function addHasFilterIcon(node: SingularData) {
   }
 }
 
-export function removeHasFilterIcon(node: SingularData) {
+export function removeHasFilterIcon(node: NodeCollection) {
   node['tippy']?.destroy()
   node['tippy'] = null
 }
 
-export function shouldHaveFilterIcon(node: SingularData) {
+export function shouldHaveFilterIcon(node: NodeCollection) {
   return node?.data().hasFilters && !node['tippy']
 }
 
-export function addOrRemoveFilterIcon(node: SingularData) {
+export function addOrRemoveFilterIcon(node: NodeCollection) {
   if (shouldHaveFilterIcon(node)) {
     addHasFilterIcon(node)
   } else if (!node?.data().hasFilters) {

@@ -4,7 +4,6 @@ import replace from '@rollup/plugin-replace'
 import typescript from '@rollup/plugin-typescript'
 
 import { terser } from 'rollup-plugin-terser'
-import { sizeSnapshot } from 'rollup-plugin-size-snapshot'
 import license from 'rollup-plugin-license'
 import path from 'path'
 import json from '@rollup/plugin-json'
@@ -109,7 +108,6 @@ const build_production = [
         allowSyntheticDefaultImports: true,
         target: 'es6'
       }),
-      sizeSnapshot(),
       terser(),
       license(licenseHeaderOptions)
     ],
