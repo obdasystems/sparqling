@@ -9,7 +9,7 @@ export default (theme: GrapholscapeTheme) => {
     {
       selector: '*',
       style: {
-        'color': theme.colours.label,
+        'color': theme.getColour(ColoursNames.label),
         'border-width': '1px',
       }
     },
@@ -17,8 +17,8 @@ export default (theme: GrapholscapeTheme) => {
       selector: `node[type = "${Class}"]`,
       style: {
         'shape': 'round-rectangle',
-        'background-color': theme.colours.class,
-        'border-color': theme.colours["class-contrast"],
+        'background-color': theme.getColour(ColoursNames.class),
+        'border-color': theme.getColour(ColoursNames.class_contrast),
         'text-halign': 'center',
         'text-valign': 'center',
         'width': '60px',
@@ -53,7 +53,7 @@ export default (theme: GrapholscapeTheme) => {
       style: {
         'curve-style': 'straight',
         'target-arrow-shape': 'none',
-        'line-color': theme.colours["data-property"],
+        'line-color': theme.getColour(ColoursNames.data_property_contrast),
       },
     },
 
@@ -63,17 +63,17 @@ export default (theme: GrapholscapeTheme) => {
         'shape': 'ellipse',
         'height': 10,
         'width': 10,
-        'background-color': theme.colours["data-property"],
-        'border-color': theme.colours["data-property-contrast"],
+        'background-color': theme.getColour(ColoursNames.data_property),
+        'border-color': theme.getColour(ColoursNames.data_property_contrast),
       },
     },
 
     {
       selector: `edge[type = "${ObjectProperty}"], edge[type = "${InverseObjectProperty}"]`,
       style: {
-        'line-color': theme.colours["object-property-contrast"],
-        'target-arrow-color': theme.colours["object-property-contrast"],
-        'source-arrow-color': theme.colours["object-property-contrast"],
+        'line-color': theme.getColour(ColoursNames.object_property_contrast),
+        'target-arrow-color': theme.getColour(ColoursNames.object_property_contrast),
+        'source-arrow-color': theme.getColour(ColoursNames.object_property_contrast),
         'text-max-width': '60px'
       }
     },
@@ -90,9 +90,9 @@ export default (theme: GrapholscapeTheme) => {
     {
       selector: '.cdnd-drop-target',
       style: {
-        'background-color': theme.colours["bg-inset"],
+        'background-color': theme.getColour(ColoursNames.bg_inset),
         'border-style': 'dashed',
-        'border-color': theme.colours["accent-muted"],
+        'border-color': theme.getColour(ColoursNames.accent_muted),
         'shape': 'round-rectangle',
         'label': 'Release to join these classes',
         'font-size': '12px',
