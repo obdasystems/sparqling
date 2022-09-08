@@ -1,6 +1,7 @@
 import { ui } from "grapholscape"
 import { html } from 'lit'
 import { FilterExpressionOperatorEnum, VarOrConstantConstantTypeEnum, VarOrConstantTypeEnum } from "../../api/swagger"
+import { iriExamplesTemplate } from "../query-result-template"
 import SparqlingFormDialog from "./base-form-dialog"
 
 export function getFormTemplate(formComponent: SparqlingFormDialog, operators: string[]) {
@@ -49,9 +50,23 @@ export function getFormTemplate(formComponent: SparqlingFormDialog, operators: s
             `
             : null
           }
+
+          ${formComponent.operator && formComponent.parametersType !== VarOrConstantTypeEnum.Constant
+            ? html`
+              <gscape-button 
+                id="show-examples" 
+                label="Show/Hide Examples"
+                size='s' 
+                title="Show/Hide examples"
+              >
+              </gscape-button>
+            `
+            : null
+          }
         </div>
       </form>
     </div>
+    ${formComponent.examples ? iriExamplesTemplate(formComponent.examples) : null }
     <div id="message-tray"></div>
   `
 }

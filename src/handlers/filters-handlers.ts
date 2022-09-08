@@ -1,7 +1,10 @@
 import { FilterExpressionOperatorEnum, QueryGraph, QueryGraphFilterApi } from "../api/swagger"
+import { getClassIriExamples } from "../main"
 import { handlePromise } from "../main/handle-promises"
 import onNewBody from "../main/on-new-body"
 import * as model from '../model'
+import { getFirstActiveEndpoint } from "../model"
+import { getGraphElementByID, getIri } from "../util/graph-element-utility"
 import { filterDialog, filterListDialog } from "../widgets"
 import { Modality } from "../widgets/forms/base-form-dialog"
 
@@ -80,3 +83,14 @@ export function showFilterDialogEditingMode(filterId: number) {
     filterListDialog.hide()
   }
 }
+
+
+filterDialog.onSeeExamples(async variable => {
+  const graphElementId = getGraphElementByID(variable.value || '')
+  if (graphElementId) {
+    const iri = getIri(graphElementId)
+    if (iri) {
+      getClassIriExamples(iri).then(examples => filterDialog.examples = examples)
+    }
+  }
+})

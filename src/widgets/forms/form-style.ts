@@ -11,12 +11,14 @@ export default css`
   .dialog-body {
     display: flex;
     flex-direction: column;
-    gap: 30px;
+    gap: 10px;
     align-items: center;
     min-width: 350px;
     max-width: 450px;
     padding: 8px;
     margin-top: 8px;
+    min-height: 150px;
+    justify-content: space-between;
   }
 
   .form, .inputs-wrapper {

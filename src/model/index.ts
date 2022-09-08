@@ -2,6 +2,7 @@ export * from './query-body'
 export * from './filters'
 export * from './request-options'
 export * from './loading-state'
+export * from './endpoints'
 
 let file: File
 let isInitialised = false

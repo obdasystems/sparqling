@@ -6,6 +6,7 @@ import { checkmark, rubbishBin } from '../assets/icons'
 import validateForm, { validateSelectElement } from './validate-form'
 import formStyle from './form-style'
 import sparqlingWidgetStyle from '../sparqling-widget-style'
+import { queryResultTemplateStyle } from '../query-result-template'
 
 export enum Modality {
   DEFINE = 'Define',
@@ -25,6 +26,8 @@ export default class SparqlingFormDialog extends ui.BaseMixin(LitElement) implem
   public variableName?: string
   protected deleteCallback = (filterId: any) => { }
   protected submitCallback: any
+  protected seeExamplesCallback = () => { }
+  public examples: string[] | undefined
   public formTitle?: string
 
   static properties = {
@@ -33,20 +36,15 @@ export default class SparqlingFormDialog extends ui.BaseMixin(LitElement) implem
     modality: { attribute: false },
     datatype: { attribute: false },
     aggregateOperator: { attribute: false },
+    examples: { attribute: false },
   }
 
   static styles = [
     ui.baseStyle,
     formStyle,
+    queryResultTemplateStyle,
     sparqlingWidgetStyle
   ]
-
-  constructor() {
-    super()
-    // this.saveButton.onClick = () => this.handleSubmit()
-    // this.deleteButton.onClick = () => this.deleteCallback(this._id)
-    // this.deleteButton.classList.add('danger')
-  }
 
   protected handleSubmit() {
     if (this.formElement && validateForm(this.formElement)) {
@@ -102,12 +100,6 @@ export default class SparqlingFormDialog extends ui.BaseMixin(LitElement) implem
     }
   }
 
-  // show = () => {
-  //   super.show()
-
-  //   this.isDatatypeSelectorDisabled = this.datatype ? true : false
-  // }
-
   addInputValue(number = 1) {
     for (let i = 0; i < number; i++) {
       this.parameters?.push({
@@ -151,6 +143,10 @@ export default class SparqlingFormDialog extends ui.BaseMixin(LitElement) implem
     const removeInputButton = this.shadowRoot?.querySelector('#remove-input-btn') as HTMLElement
     if (removeInputButton)
       removeInputButton.onclick = () => this.removeInputValue()
+
+    const seeExamplesButton = this.shadowRoot?.querySelector('#show-examples') as HTMLElement
+    if (seeExamplesButton)
+      seeExamplesButton.onclick = () => this.seeExamplesCallback()
   }
 
   addMessage(msg: string, msgType: string) {
@@ -171,6 +167,17 @@ export default class SparqlingFormDialog extends ui.BaseMixin(LitElement) implem
     const text = customText || 'Correctly Saved'
     this.addMessage(text, 'correct-message')
     setTimeout(() => this.resetMessages(), 2000)
+  }
+
+  onSeeExamples(callback: (variable: VarOrConstant) => void) {
+    this.seeExamplesCallback = () => {
+      if (this.variable && !this.examples)
+        callback(this.variable)
+      else {
+        // if examples are already present, then show/hide them
+        this.iriExamplesTable.classList.toggle('hide')
+      }
+    }
   }
 
   protected onValidSubmit() {
@@ -212,5 +219,9 @@ export default class SparqlingFormDialog extends ui.BaseMixin(LitElement) implem
 
   protected get formElement() {
     return this.shadowRoot?.querySelector('form')
+  }
+
+  get iriExamplesTable() {
+    return this.shadowRoot?.querySelector('#iri-examples') as HTMLTableElement
   }
 }

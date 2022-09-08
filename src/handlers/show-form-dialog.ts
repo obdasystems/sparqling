@@ -42,6 +42,7 @@ export default function(element: HeadElement | GraphElement, formDialog: Sparqli
   }]
   
   formDialog.variableName = variableName || graphElement.id
+  formDialog.examples = undefined
   formDialog.show()
 }
 

@@ -12,11 +12,12 @@ function getErrorMessage(response) {
     return response.message
 }
 
-export function handlePromise(promise: AxiosPromise<Highlights>, showError?: boolean): Promise<Highlights>
-export function handlePromise(promise: AxiosPromise<QueryGraph>, showError?: boolean): Promise<QueryGraph>
-export function handlePromise(promise: Promise<AxiosResponse<void>>, showError?: boolean): Promise<void>
-export function handlePromise(promise: Promise<AxiosResponse<string>>, showError?: boolean): Promise<string>
-export function handlePromise(promise: AxiosPromise<any>, showError = true): Promise<any> {
+export function handlePromise(promise: Promise<AxiosResponse<Highlights, any>>, showError?: boolean): Promise<Highlights>
+export function handlePromise(promise: Promise<AxiosResponse<QueryGraph, any>>, showError?: boolean): Promise<QueryGraph>
+export function handlePromise(promise: Promise<AxiosResponse<void, any>>, showError?: boolean): Promise<void>
+export function handlePromise(promise: Promise<AxiosResponse<string, any>>, showError?: boolean): Promise<string>
+export function handlePromise(promise: Promise<AxiosResponse<any, any>>, showError?: boolean): Promise<any>
+export function handlePromise(promise: Promise<AxiosResponse<unknown, unknown>>, showError = true): Promise<unknown> {
   return new Promise(executor)
 
   function executor(resolve) {
