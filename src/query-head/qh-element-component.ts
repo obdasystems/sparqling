@@ -410,14 +410,14 @@ export default class HeadElementComponent extends ui.BaseMixin(ui.DropPanelMixin
 
     if (!this.groupBy) {
       result.push({
-        content: 'Add aggregation function',
+        content: 'Add Aggregation Function',
         icon: sigma,
         select: () => this.addAggregationCallback(this._id)
       })
     }
 
     result.push({
-      content: 'Delete field',
+      content: 'Delete Field',
       icon: rubbishBin,
       select: () => this.onDelete(this._id)
     })
