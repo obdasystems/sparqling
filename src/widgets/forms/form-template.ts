@@ -1,7 +1,9 @@
 import { ui } from "grapholscape"
 import { html } from 'lit'
 import { FilterExpressionOperatorEnum, VarOrConstantConstantTypeEnum, VarOrConstantTypeEnum } from "../../api/swagger"
-import { iriExamplesTemplate } from "../query-result-template"
+import { isStandalone } from "../../model"
+import { getLoadingSpinner } from "../loading-spinner"
+import { queryResultTemplate } from "../query-result-template"
 import SparqlingFormDialog from "./base-form-dialog"
 
 export function getFormTemplate(formComponent: SparqlingFormDialog, operators: string[]) {
@@ -51,7 +53,7 @@ export function getFormTemplate(formComponent: SparqlingFormDialog, operators: s
             : null
           }
 
-          ${formComponent.operator && formComponent.parametersType !== VarOrConstantTypeEnum.Constant
+          ${formComponent.acceptExamples && formComponent.parametersType !== VarOrConstantTypeEnum.Constant
             ? html`
               <gscape-button 
                 id="show-examples" 
@@ -66,7 +68,8 @@ export function getFormTemplate(formComponent: SparqlingFormDialog, operators: s
         </div>
       </form>
     </div>
-    ${formComponent.examples ? iriExamplesTemplate(formComponent.examples) : null }
+    ${formComponent.loadingExamples ? getLoadingSpinner() : null }
+    ${formComponent.examples ? queryResultTemplate(formComponent.examples) : null }
     <div id="message-tray"></div>
   `
 }

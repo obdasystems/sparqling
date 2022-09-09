@@ -1,4 +1,5 @@
 import { GraphElement, HeadElement, VarOrConstantConstantTypeEnum, VarOrConstantTypeEnum } from "../api/swagger"
+import { isStandalone } from "../model"
 import { getGscape } from "../ontology-graph"
 import * as GEUtility from "../util/graph-element-utility"
 import SparqlingFormDialog, { Modality } from "../widgets/forms/base-form-dialog"
@@ -43,6 +44,8 @@ export default function(element: HeadElement | GraphElement, formDialog: Sparqli
   
   formDialog.variableName = variableName || graphElement.id
   formDialog.examples = undefined
+  formDialog.acceptExamples = !isStandalone() && GEUtility.isClass(graphElement)
+  formDialog.loadingExamples = false
   formDialog.show()
 }
 

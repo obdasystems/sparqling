@@ -1,7 +1,9 @@
 import { Function, QueryGraphHeadApi } from "../api/swagger"
+import { showIriExamplesInForm } from "../main"
 import { handlePromise } from "../main/handle-promises"
 import onNewBody from "../main/on-new-body"
 import * as model from '../model'
+import { getGraphElementByID, getIri } from "../util/graph-element-utility"
 import { functionDialog } from "../widgets"
 
 functionDialog.onSubmit(async (id, op, params) => {
@@ -25,6 +27,16 @@ functionDialog.onSubmit(async (id, op, params) => {
         onNewBody(newBody)
         functionDialog.setAsCorrect()
       })
+    }
+  }
+})
+
+functionDialog.onSeeExamples(async variable => {
+  const graphElementId = getGraphElementByID(variable.value || '')
+  if (graphElementId) {
+    const iri = getIri(graphElementId)
+    if (iri) {
+      showIriExamplesInForm(iri, functionDialog)
     }
   }
 })

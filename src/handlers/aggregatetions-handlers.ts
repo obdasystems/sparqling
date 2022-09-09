@@ -1,7 +1,9 @@
 import { QueryGraphHeadApi } from "../api/swagger";
+import { showIriExamplesInForm } from "../main";
 import { handlePromise } from "../main/handle-promises";
 import onNewBody from "../main/on-new-body";
 import * as model from "../model";
+import { getGraphElementByID, getIri } from "../util/graph-element-utility";
 import { aggregationDialog } from "../widgets";
 
 aggregationDialog.onSubmit((headElementId, aggregateOperator, distinct, havingOperator, havingParameters) => {
@@ -28,5 +30,16 @@ aggregationDialog.onSubmit((headElementId, aggregateOperator, distinct, havingOp
       onNewBody(newBody)
       aggregationDialog.setAsCorrect()
     })
+  }
+})
+
+
+aggregationDialog.onSeeExamples(async variable => {
+  const graphElementId = getGraphElementByID(variable.value || '')
+  if (graphElementId) {
+    const iri = getIri(graphElementId)
+    if (iri) {
+      showIriExamplesInForm(iri, aggregationDialog)
+    }
   }
 })

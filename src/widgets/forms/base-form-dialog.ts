@@ -7,6 +7,8 @@ import validateForm, { validateSelectElement } from './validate-form'
 import formStyle from './form-style'
 import sparqlingWidgetStyle from '../sparqling-widget-style'
 import { queryResultTemplateStyle } from '../query-result-template'
+import { QueryResult } from '../../main'
+import { loadingSpinnerStyle } from '../loading-spinner'
 
 export enum Modality {
   DEFINE = 'Define',
@@ -27,8 +29,11 @@ export default class SparqlingFormDialog extends ui.BaseMixin(LitElement) implem
   protected deleteCallback = (filterId: any) => { }
   protected submitCallback: any
   protected seeExamplesCallback = () => { }
-  public examples: string[] | undefined
   public formTitle?: string
+
+  public acceptExamples = false
+  public examples?: QueryResult
+  public loadingExamples = false
 
   static properties = {
     operator: { attribute: false },
@@ -37,12 +42,15 @@ export default class SparqlingFormDialog extends ui.BaseMixin(LitElement) implem
     datatype: { attribute: false },
     aggregateOperator: { attribute: false },
     examples: { attribute: false },
+    loadingExamples: { attribute: false, type: Boolean },
+    acceptExamples: { attribute: false, type: Boolean }
   }
 
   static styles = [
     ui.baseStyle,
     formStyle,
     queryResultTemplateStyle,
+    loadingSpinnerStyle,
     sparqlingWidgetStyle
   ]
 
@@ -171,8 +179,10 @@ export default class SparqlingFormDialog extends ui.BaseMixin(LitElement) implem
 
   onSeeExamples(callback: (variable: VarOrConstant) => void) {
     this.seeExamplesCallback = () => {
-      if (this.variable && !this.examples)
+      if (this.variable && !this.examples) {
+        this.loadingExamples = true
         callback(this.variable)
+      }
       else {
         // if examples are already present, then show/hide them
         this.iriExamplesTable.classList.toggle('hide')
@@ -222,6 +232,6 @@ export default class SparqlingFormDialog extends ui.BaseMixin(LitElement) implem
   }
 
   get iriExamplesTable() {
-    return this.shadowRoot?.querySelector('#iri-examples') as HTMLTableElement
+    return this.shadowRoot?.querySelector('#query-results') as HTMLTableElement
   }
 }
