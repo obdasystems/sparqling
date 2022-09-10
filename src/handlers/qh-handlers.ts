@@ -1,13 +1,17 @@
+import axios from 'axios'
 import { QueryGraphHeadApiFactory } from '../api/swagger'
+import { getNewQueryRequestOptions } from '../main'
 import { handlePromise } from '../main/handle-promises'
 import onNewBody from '../main/on-new-body'
+import handleEndpointSelection from '../main/preview-query/handle-endpoint-selection'
+import QueryPoller, { QueryPollerStatus } from '../main/preview-query/query-poller'
 import * as model from '../model'
 import { getTempQueryBody } from '../model'
 import * as ontologyGraph from '../ontology-graph'
 import * as queryGraph from '../query-graph'
 import * as queryHead from '../query-head'
 import { getGraphElementByID, getIri } from '../util/graph-element-utility'
-import { aggregationDialog, filterDialog, functionDialog } from '../widgets'
+import { aggregationDialog, filterDialog, functionDialog, previewDialog } from '../widgets'
 import { deleteFilter, showFilterDialogEditingMode } from './filters-handlers'
 import showFormDialog from './show-form-dialog'
 
@@ -116,3 +120,32 @@ queryHead.onAddAggregation(headElementId => {
       (aggregationDialog.distinctCheckboxElem as HTMLInputElement).checked = false
   }
 })
+
+queryHead.widget.onPreviewButtonClick = () => {
+  if (queryHead.widget.previewButton?.disabled) return // TODO: Remove when grapholscape button will handle this
+
+  handleEndpointSelection(queryHead.widget.previewButton, async endpoint => {
+    if (!endpoint) return
+
+    const queryStartResponse = await handlePromise(axios.request<any>(getNewQueryRequestOptions(endpoint, model.getQueryBody().sparql)))
+
+    const queryPoller = new QueryPoller(endpoint, queryStartResponse.executionId, 10)
+
+    previewDialog.result = undefined
+    previewDialog.isLoading = true
+    previewDialog.show()
+
+    queryPoller.onNewResults = (result) => {
+      if (queryPoller.status !== QueryPollerStatus.RUNNING) {
+        previewDialog.isLoading = false
+      }
+      previewDialog.result = result
+    }
+
+    queryPoller.onTimeoutExpiration = queryPoller.onStop = () => {
+      previewDialog.isLoading = false
+    }
+
+    queryPoller.start()
+  })
+}

@@ -70,8 +70,9 @@ function getCore(gscape: Grapholscape, file: string | Blob) {
       uiContainer.appendChild(widgets.filterDialog)
       uiContainer.appendChild(widgets.filterListDialog)
       uiContainer.appendChild(widgets.functionDialog)
-      uiContainer.appendChild(widgets.errorsDialog)
       uiContainer.appendChild(widgets.aggregationDialog)
+      uiContainer.appendChild(widgets.previewDialog)
+      uiContainer.appendChild(widgets.errorsDialog)
 
       uiContainer?.querySelector('.gscape-ui-buttons-tray')?.appendChild(widgets.startRunButtons)
     }

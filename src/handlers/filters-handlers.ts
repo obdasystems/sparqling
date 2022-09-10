@@ -1,11 +1,8 @@
-import axios from "axios"
 import { FilterExpressionOperatorEnum, QueryGraph, QueryGraphFilterApi } from "../api/swagger"
-import { getNewQueryRequestOptions, showIriExamplesInForm } from "../main"
+import { showIriExamplesInForm } from "../main"
 import { handlePromise } from "../main/handle-promises"
 import onNewBody from "../main/on-new-body"
-import QueryPoller, { QueryPollerStatus } from "../main/preview-query/query-poller"
 import * as model from '../model'
-import { getFirstActiveEndpoint } from "../model"
 import { getGraphElementByID, getIri } from "../util/graph-element-utility"
 import { filterDialog, filterListDialog } from "../widgets"
 import { Modality } from "../widgets/forms/base-form-dialog"

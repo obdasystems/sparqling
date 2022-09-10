@@ -1,3 +1,4 @@
+import { ui } from "grapholscape"
 import { HeadElement, QueryGraph } from "../api/swagger"
 import core from "../core"
 import * as model from "../model"
@@ -25,6 +26,10 @@ export default function onNewBody(newBody: QueryGraph) {
   }
   startRunButtons.canQueryRun = newBody.graph && !model.isStandalone() && core.onQueryRun !== undefined
 
+  if (queryHead.widget.previewButton) {
+    queryHead.widget.previewButton.disabled = !newBody.graph || model.isStandalone()
+  }
+
   let body = model.setQueryBody(newBody)
   queryGraph.widget.isBGPEmpty = body.graph === null || body.graph === undefined
   queryGraph.render(body.graph)
@@ -40,15 +45,15 @@ export default function onNewBody(newBody: QueryGraph) {
 
   sparqlDialog.text = body?.sparql ? body.sparql : emptyQueryMsg()
 
-    distinctToggle.disabled =
-      countStarToggle.disabled =
-      limitInput.disabled =
-      offsetInput.disabled =
-        newBody?.graph ? false : true
+  distinctToggle.disabled =
+    countStarToggle.disabled =
+    limitInput.disabled =
+    offsetInput.disabled =
+    newBody?.graph ? false : true
 
-    if (!distinctToggle.disabled)
-      distinctToggle.classList.add('actionable')
+  if (!distinctToggle.disabled)
+    distinctToggle.classList.add('actionable')
 
-    if (!countStarToggle.disabled)
-      countStarToggle.classList.add('actionable')
+  if (!countStarToggle.disabled)
+    countStarToggle.classList.add('actionable')
 }

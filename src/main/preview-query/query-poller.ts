@@ -15,6 +15,7 @@ export enum QueryPollerStatus {
   TIMEOUT_EXPIRED = 0,
   DONE = 1,
   RUNNING = 2,
+  IDLE = 3,
 }
 
 export default class QueryPoller {
@@ -25,8 +26,13 @@ export default class QueryPoller {
   private lastRequestFulfilled: boolean = true
   private timeout: NodeJS.Timeout
   private _result: QueryResult
-  private _newResultsCallback = (result: QueryResult) => { }
-  private _timeoutExpiredCallback = () => { }
+  
+  // Callbacks
+  onNewResults = (result: QueryResult) => { }
+  onTimeoutExpiration = () => { }
+  onStop = () => { }
+
+  status = QueryPollerStatus.IDLE
 
   static readonly TIMEOUT_LENGTH = 5000
   static readonly INTERVAL_LENGTH = 1000
@@ -38,13 +44,14 @@ export default class QueryPoller {
   }
 
   private poll() {
+    this.status = QueryPollerStatus.RUNNING
     handlePromise(axios.request<any>(this.queryResultRequestOptions)).then((result: QueryResult) => {
       this._result = result
       this.lastRequestFulfilled = true
       if (result.results.length >= this.limit) {
         this.stop()
       }
-      this._newResultsCallback(result)
+      this.onNewResults(result)
     })
   }
 
@@ -56,24 +63,26 @@ export default class QueryPoller {
       }
     }, QueryPoller.INTERVAL_LENGTH)
 
-    this.timeout = setTimeout(() => this.stop(true), QueryPoller.TIMEOUT_LENGTH)
+    this.timeout = setTimeout(() => {
+      if (this.result.results.length === 0) {
+        this.stop(true)
+      } else {
+        this.stop()
+      }
+    }, QueryPoller.TIMEOUT_LENGTH)
   }
 
   stop(timeoutExpired = false) {
     if (timeoutExpired) {
+      this.status = QueryPollerStatus.TIMEOUT_EXPIRED
       console.warn(`[Sparqling] Timeout expired for query with id = [${this.executionID}]`)
-      this._timeoutExpiredCallback()
+      this.onTimeoutExpiration()
+    } else {
+      this.status = QueryPollerStatus.DONE
     }
     clearInterval(this.interval)
     clearTimeout(this.timeout)
-  }
-
-  onNewResults(callback: (result: QueryResult) => void) {
-    this._newResultsCallback = callback
-  }
-
-  onTimeoutExpiration(callback: () => void) {
-    this._timeoutExpiredCallback = callback
+    this.onStop()
   }
 
   get result() { return this._result }
@@ -87,16 +96,5 @@ export default class QueryPoller {
     }
 
     return queryResultsRequestOptions
-  }
-
-  get status() {
-    if (this.timeout as unknown as number === 0) {
-      return QueryPollerStatus.TIMEOUT_EXPIRED
-    } else {
-      if (this.result.results.length >= this.limit)
-        return QueryPollerStatus.DONE
-      else
-        return QueryPollerStatus.RUNNING
-    }
   }
 }

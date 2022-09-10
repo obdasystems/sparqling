@@ -7,6 +7,7 @@ import SparqlingStartRunButtons from "./start-run-buttons"
 import FunctionDialog from "./forms/functions/function-dialog"
 import AggregationDialog from "./forms/aggregation-functions/aggregation-functions-dialog"
 import ErrorsDialog from "./errors-dialog"
+import SparqlingQueryResults from "./query-results-preview"
 
 export const sparqlDialog = new SparqlDialog()
 
@@ -18,6 +19,7 @@ export const functionDialog = new FunctionDialog()
 export const aggregationDialog = new AggregationDialog()
 export const startRunButtons = new SparqlingStartRunButtons()
 export const errorsDialog = new ErrorsDialog()
+export const previewDialog = new SparqlingQueryResults()
 
 export { default as limitInput } from './limit'
 export { default as offsetInput } from './offset'

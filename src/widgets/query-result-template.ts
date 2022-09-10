@@ -1,11 +1,8 @@
+import { ui } from "grapholscape";
 import { css, html } from "lit";
 import { QueryResult } from "../main";
 
-export function queryResultTemplate(queryResult: QueryResult) {
-  queryResult.results.forEach(resultRow => {
-    console.log(`<tr>${resultRow.forEach(resultItem => `<td>${resultItem.value}</td>`)}</tr>`)
-  })
-
+export function queryResultTemplate(queryResult: QueryResult) {  
   return html`
     <table id="query-results">
       <tr>${queryResult.headTerms.map(columnName => html`<th>${columnName}</th>`)}</tr>
@@ -13,6 +10,15 @@ export function queryResultTemplate(queryResult: QueryResult) {
         return html`<tr>${resultRow.map(resultItem => html`<td>${resultItem.value}</td>`)}</tr>`
       })}
     </table>
+    ${queryResult.results.length === 0
+      ? html`
+      <div class="blank-slate">
+        ${ui.icons.searchOff}
+        <div class="header">No results available</div>
+      </div>
+      `
+      : null
+    }
   `
 }
 
@@ -23,6 +29,7 @@ export const queryResultTemplateStyle = css`
     border-radius: var(--gscape-border-radius);
     border: solid 1px var(--gscape-color-border-subtle);
     border-collapse: collapse;
+    white-space: pre;
   }
 
   #query-results th {

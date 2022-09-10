@@ -68,8 +68,8 @@ export function getFormTemplate(formComponent: SparqlingFormDialog, operators: s
         </div>
       </form>
     </div>
-    ${formComponent.loadingExamples ? getLoadingSpinner() : null }
     ${formComponent.examples ? queryResultTemplate(formComponent.examples) : null }
+    ${formComponent.loadingExamples ? getLoadingSpinner() : null }
     <div id="message-tray"></div>
   `
 }

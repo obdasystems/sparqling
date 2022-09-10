@@ -3,15 +3,17 @@ import { css, html, LitElement } from 'lit'
 import { HeadElement } from '../api/swagger'
 import { isCountStarActive } from '../model'
 import { attachCxtMenuTo } from '../widgets'
-import { asterisk, counter, tableEye } from '../widgets/assets/icons'
+import { asterisk, code, counter, kebab, preview, tableEye } from '../widgets/assets/icons'
 import { countStarMsg, emptyHeadMsg, emptyHeadTipMsg, tipWhy } from '../widgets/assets/texts'
 import sparqlingWidgetStyle from '../widgets/sparqling-widget-style'
+import getTrayButtonTemplate from '../widgets/tray-button-template'
 import { allowDrop } from './drag-sorting'
 import HeadElementComponent, { HeadElementCallback, HeadElementRenameCallback } from './qh-element-component'
 
 export default class QueryHeadWidget extends ui.BaseMixin(ui.DropPanelMixin(LitElement)) {
-  title = 'Query Results'
+  public title = 'Query Columns'
   public headElements: HeadElement[] = []
+  public allowPreview = false
   private deleteElementCallback: HeadElementCallback
   private renameElementCallback: HeadElementRenameCallback
   private localizeElementCallback: HeadElementCallback
@@ -23,7 +25,8 @@ export default class QueryHeadWidget extends ui.BaseMixin(ui.DropPanelMixin(LitE
   private addAggregationCallback: HeadElementCallback
   
   static properties = {
-    headElements: { type: Object, attribute: false }
+    headElements: { type: Object, attribute: false },
+    allowPreview: { type: Boolean, attribute: false},
   }
 
   static styles = [
@@ -67,6 +70,7 @@ export default class QueryHeadWidget extends ui.BaseMixin(ui.DropPanelMixin(LitE
       }
     `
   ]
+  onPreviewButtonClick: ((e: MouseEvent) => void) | undefined
 
   constructor() {
     super()
@@ -94,6 +98,15 @@ export default class QueryHeadWidget extends ui.BaseMixin(ui.DropPanelMixin(LitE
                 ${tableEye}
                 <span>${this.title}</span>
               </div>
+
+              ${this.allowPreview
+                ? html`
+                  <div id="buttons-tray">
+                    ${getTrayButtonTemplate('Get Query Preview', preview, undefined, 'preview-btn', this.onPreviewButtonClick)}
+                  </div>
+                `
+                : null
+              }
 
               <gscape-button 
                 id="toggle-panel-button"
@@ -219,8 +232,13 @@ export default class QueryHeadWidget extends ui.BaseMixin(ui.DropPanelMixin(LitE
   }
 
   protected firstUpdated() {
+    if (this.previewButton) {
+      this.previewButton.disabled = true
+    }
     this.hide()
   }
+
+  get previewButton() { return this.shadowRoot?.querySelector('#preview-btn') as ui.GscapeButton | undefined }
 
   //createRenderRoot() { return this as any }
 }

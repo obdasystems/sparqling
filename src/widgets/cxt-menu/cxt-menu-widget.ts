@@ -54,10 +54,11 @@ export default class ContextMenuWidget extends ui.BaseMixin(LitElement) {
   render() {
     return html`
     <div class="gscape-panel">
+      <div>${this.title}</div>
       ${this.commands.map((command, id) => {
         return html`
           <div class="command-entry actionable" command-id="${id}" @click=${this.handleCommandClick}>
-            <span class="command-icon">${command.icon}</span>
+            ${command.icon ? html`<span class="command-icon">${command.icon}</span>` : null }
             <span class="command-text">${command.content}</span>
           <div>
         `
