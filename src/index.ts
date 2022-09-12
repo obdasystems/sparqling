@@ -9,6 +9,7 @@ import * as widgets from './widgets'
 import * as handlers from './handlers'
 import { SparqlingRequestOptions } from './model/request-options'
 import clearQuery from './main/clear-query'
+import { initGrapholscapeHandlers } from './main'
 
 /**
  * Initialise sparqling on a grapholscape instance
@@ -30,7 +31,6 @@ export function sparqling(gscape: Grapholscape, file: string | Blob, requestOpti
     if (requestOptions.version !== currentRequestOptions.params.version || requestOptions.basePath !== model.getBasePath()) {
       clearQuery()
       sparqlingCore.stop()
-      model.setInitialised(false) // need to initialise everything again
     }
     model.setRequestOptions(requestOptions)
   }
@@ -41,21 +41,13 @@ function getCore(gscape: Grapholscape, file: string | Blob) {
   if (file && gscape) {
     let ontologyFile = new File([file], `${gscape.ontology.name}-from-string.graphol`)
 
-    // model.setStandalone(basePath !== undefined || basePath !== null)
     model.setOntologyFile(ontologyFile)
 
-    // if (basePath) {
-    //   model.setBasePath(basePath)
-    // }
-
-    //sparqlingContainer.appendChild(gscapeContainer)
-    //const gscape = await fullGrapholscape(file, gscapeContainer, { owl_translator: false })
-
     const actualGrapholscape = ontologyGraph.getGscape()
-    if (actualGrapholscape !== gscape)
-      model.setInitialised(false)
-
-    ontologyGraph.setGrapholscapeInstance(gscape)
+    if (actualGrapholscape !== gscape) {
+      ontologyGraph.setGrapholscapeInstance(gscape)
+      initGrapholscapeHandlers()
+    }
 
     leftColumnContainer.appendChild(queryHead.widget)
     leftColumnContainer.appendChild(widgets.highlightsList)
@@ -79,7 +71,12 @@ function getCore(gscape: Grapholscape, file: string | Blob) {
     queryGraph.setDisplayedNameType(gscape.entityNameType, gscape.language)
     queryGraph.setTheme(gscape.theme)
 
-    handlers // hack, just mention the handlers to make the module be evaluated 
+    handlers // hack, just mention the handlers to make the module be evaluated
+
+    if (model.isSparqlingRunning() && model.getQueryBody()) {
+      // be sure grapholscape's highlights gets updated with the actual query state
+      ontologyGraph.refreshHighlights()
+    }
 
     return core
   } else {
