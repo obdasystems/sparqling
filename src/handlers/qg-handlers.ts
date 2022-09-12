@@ -109,9 +109,10 @@ queryGraph.onElementClick((graphElement, iri) => {
   // move ontology graph to show origin graphol node or any other iri occurrence
   const originGrapholNodeOccurrence = model.getOriginGrapholNodes().get(graphElement.id + iri)
   if (originGrapholNodeOccurrence) {
-    gscape.centerOnElement(originGrapholNodeOccurrence.elementId, originGrapholNodeOccurrence.diagramId)
+    gscape.centerOnElement(originGrapholNodeOccurrence.elementId, originGrapholNodeOccurrence.diagramId, 1.5)
+    gscape.selectElement(originGrapholNodeOccurrence.elementId)
   } else {
-    gscape.centerOnEntity(iri)
+    gscape.selectEntity(iri)
   }
 
   if (GEUtility.isClass(graphElement)) {
@@ -126,9 +127,6 @@ queryGraph.onElementClick((graphElement, iri) => {
       ontologyGraph.highlightSuggestions(iri)
     }
   }
-  const entityDetailsWidget = gscape.widgets.get(ui.WidgetEnum.ENTITY_DETAILS) as any
-  if (entityDetailsWidget)
-    entityDetailsWidget.grapholEntity = gscape.ontology.getEntity(iri)
 
   // keep focus on selected class
   const activeElement = model.getActiveElement()

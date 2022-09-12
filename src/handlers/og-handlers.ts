@@ -77,6 +77,7 @@ export function handleObjectPropertySelection(branch: Branch, relatedClassEntity
   const gscape = getGscape()
   lastObjProperty = branch
   gscape.centerOnElement(relatedClassEntityOccurrence.elementId, relatedClassEntityOccurrence.diagramId)
+  gscape.selectElement(relatedClassEntityOccurrence.elementId)
   
   const relatedClassCyElement = gscape.ontology
     .getDiagram(relatedClassEntityOccurrence.diagramId)
