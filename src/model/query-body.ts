@@ -41,9 +41,9 @@ export function getHeadElementByID(headElementId: string, queryBody = body): Hea
 }
 
 export function isCountStarActive(): boolean {
-  return body?.head?.length === 1 && body?.head[0]?.graphElementId === null
+  return body?.count_star || false
 }
 
-export function getCountStarHeadElement(): HeadElement | undefined {
-  return isCountStarActive() ? body?.head[0] : undefined
+export function isDistinctActive(): boolean {
+  return body?.distinct || false
 }

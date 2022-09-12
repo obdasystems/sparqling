@@ -1,50 +1,21 @@
-import { QueryGraphExtraApi, QueryGraphHeadApi } from "../api/swagger";
+import { QueryGraphExtraApi } from "../api/swagger";
 import { handlePromise } from "../main/handle-promises";
 import onNewBody from "../main/on-new-body";
-import { getBasePath, getQueryBody, getRequestOptions, isCountStarActive } from "../model";
-import { distinctToggle } from "../widgets";
+import { getBasePath, getQueryBody, getRequestOptions, isCountStarActive, isDistinctActive } from "../model";
 import { validateInputElement } from "../widgets/forms/validate-form";
 
 export function handleDistinctChange() {
-  if (!isCountStarActive()) {
-    setMainDistinct(distinctToggle.checked)
-  } else {
-    const qExtraApi = new QueryGraphExtraApi(undefined, getBasePath())
-    handlePromise(qExtraApi.countStarQueryGraph(distinctToggle.checked, getQueryBody(), getRequestOptions())).then(newBody => onNewBody(newBody))
-  }
-}
-
-export function setMainDistinct(value: boolean) {
   const qExtraApi = new QueryGraphExtraApi(undefined, getBasePath())
-  handlePromise(qExtraApi.distinctQueryGraph(value, getQueryBody(), getRequestOptions())).then(newBody => {
+  handlePromise(qExtraApi.distinctQueryGraph(!isDistinctActive(), getQueryBody(), getRequestOptions())).then(newBody => {
     onNewBody(newBody)
   })
 }
 
 export function handleCountStarChange() {
-  const queryBody = getQueryBody()
   const qExtraApi = new QueryGraphExtraApi(undefined, getBasePath())
-  const distinct = !distinctToggle.checked
-
-  if (isCountStarActive()) {
-    // remove headElement associated to count star
-    const qHeadApi = new QueryGraphHeadApi(undefined, getBasePath())
-    const countStarHeadElement = queryBody.head[0]
-
-    if (countStarHeadElement?.id) {
-      handlePromise(qHeadApi.deleteHeadTerm(countStarHeadElement.id, queryBody, getRequestOptions())).then(newBody => {
-        onNewBody(newBody)
-        setMainDistinct(distinct)
-      })
-    }
-
-  } else {
-    // add count star
-    handlePromise(qExtraApi.countStarQueryGraph(distinct, queryBody, getRequestOptions())).then(newBody => {
-      onNewBody(newBody)
-      setMainDistinct(false)
-    })
-  }
+  handlePromise(qExtraApi.countStarQueryGraph(!isCountStarActive(), getQueryBody(), getRequestOptions())).then(newBody => {
+    onNewBody(newBody)
+  })
 }
 
 export function handleOffsetChange(evt: Event) {
