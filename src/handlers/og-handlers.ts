@@ -1,6 +1,6 @@
 import { CollectionReturnValue } from "cytoscape"
 import { EntityOccurrence, GrapholTypesEnum, Iri } from "grapholscape"
-import { Branch, GraphElement, QueryGraph, QueryGraphBGPApi } from "../api/swagger"
+import { Branch, GraphElement, QueryGraph, QueryGraphBGPApi, QueryGraphExtraApi } from "../api/swagger"
 import { handlePromise } from "../main/handle-promises"
 import onNewBody from "../main/on-new-body"
 import * as model from "../model"
@@ -122,7 +122,9 @@ export async function handleConceptSelection(cyEntity: CollectionReturnValue | s
       actualBody, model.getRequestOptions()))
   } else if (!actualBody?.graph) {
     // initial selection
-    newQueryGraph = handlePromise(qgBGPApi.getQueryGraph(clickedIRI, model.getRequestOptions()))
+    const tempNewQueryGraph = await handlePromise(qgBGPApi.getQueryGraph(clickedIRI, model.getRequestOptions()))
+    const qgExtraApi = new QueryGraphExtraApi(undefined, model.getBasePath())
+    newQueryGraph = handlePromise(qgExtraApi.distinctQueryGraph(true, tempNewQueryGraph, model.getRequestOptions()))
   }
   lastObjProperty = null
   return newQueryGraph

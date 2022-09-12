@@ -7,10 +7,10 @@ import { validateInputElement } from "../widgets/forms/validate-form";
 
 export function handleDistinctChange() {
   if (!isCountStarActive()) {
-    setMainDistinct(!distinctToggle.checked)
+    setMainDistinct(distinctToggle.checked)
   } else {
     const qExtraApi = new QueryGraphExtraApi(undefined, getBasePath())
-    handlePromise(qExtraApi.countStarQueryGraph(!distinctToggle.checked, getQueryBody(), getRequestOptions())).then(newBody => onNewBody(newBody))
+    handlePromise(qExtraApi.countStarQueryGraph(distinctToggle.checked, getQueryBody(), getRequestOptions())).then(newBody => onNewBody(newBody))
   }
 }
 

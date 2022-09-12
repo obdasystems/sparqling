@@ -3,7 +3,7 @@ import { handleDistinctChange } from "../handlers/extra-handlers"
 
 const distinctToggle = new ui.GscapeToggle()
 
-distinctToggle.label = 'Duplicates'
+distinctToggle.label = 'Distinct'
 distinctToggle.labelPosition = ui.GscapeToggle.ToggleLabelPosition.LEFT
 distinctToggle.classList.add('actionable')
 distinctToggle.disabled = true
