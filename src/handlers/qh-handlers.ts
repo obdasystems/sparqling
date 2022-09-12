@@ -11,7 +11,7 @@ import * as ontologyGraph from '../ontology-graph'
 import * as queryGraph from '../query-graph'
 import * as queryHead from '../query-head'
 import { getGraphElementByID, getIri } from '../util/graph-element-utility'
-import { aggregationDialog, filterDialog, functionDialog, previewDialog } from '../widgets'
+import { aggregationDialog, filterDialog, functionDialog, previewDialog, startRunButtons } from '../widgets'
 import { deleteFilter, showFilterDialogEditingMode } from './filters-handlers'
 import showFormDialog from './show-form-dialog'
 
@@ -121,19 +121,22 @@ queryHead.onAddAggregation(headElementId => {
   }
 })
 
-queryHead.widget.onPreviewButtonClick = () => {
+queryHead.widget.onPreviewButtonClick = async () => {
   if (queryHead.widget.previewButton?.disabled) return // TODO: Remove when grapholscape button will handle this
 
-  handleEndpointSelection(queryHead.widget.previewButton, async endpoint => {
-    if (!endpoint) return
+  previewDialog.result = undefined
+  previewDialog.show()
+
+  handleEndpointSelection(async (endpoint) => {
+    if (!endpoint) {
+      return
+    }
+
+    previewDialog.isLoading = true
 
     const queryStartResponse = await handlePromise(axios.request<any>(getNewQueryRequestOptions(endpoint, model.getQueryBody().sparql)))
 
     const queryPoller = new QueryPoller(endpoint, queryStartResponse.executionId, 10)
-
-    previewDialog.result = undefined
-    previewDialog.isLoading = true
-    previewDialog.show()
 
     queryPoller.onNewResults = (result) => {
       if (queryPoller.status !== QueryPollerStatus.RUNNING) {

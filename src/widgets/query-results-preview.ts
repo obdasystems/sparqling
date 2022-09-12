@@ -45,6 +45,11 @@ export default class SparqlingQueryResults extends ui.BaseMixin(LitElement) {
       .gscape-panel {
         max-height: 450px;
       }
+
+      .danger {
+        color: var(--gscape-color-danger);
+        padding: 8px;
+      }
     `
   ]
 
@@ -69,6 +74,7 @@ export default class SparqlingQueryResults extends ui.BaseMixin(LitElement) {
       </div>
 
       <div class="dialog-body">
+        ${!this.result && !this.isLoading ? html`<div class="danger">Select Endpoint</div>` : null }
         ${this.result ? queryResultTemplate(this.result) : null }
         ${this.isLoading ? getLoadingSpinner() : null }
       </div>

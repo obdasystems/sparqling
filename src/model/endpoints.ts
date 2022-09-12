@@ -1,8 +1,7 @@
-import axios, { AxiosResponse } from "axios"
-import { getRequestOptions, isStandalone } from "./request-options"
+import axios from "axios"
 import { handlePromise } from "../main/handle-promises"
-import { QueryGraph } from "../api/swagger"
 import { Command } from "../widgets/cxt-menu/cxt-menu-widget"
+import { getRequestOptions, isStandalone } from "./request-options"
 
 export type MastroEndpoint = {
   description: string
@@ -73,9 +72,11 @@ export async function updateEndpoints() {
 
   Object.assign(mwsGetRunningEndpointsOptions, getRequestOptions())
 
-  await handlePromise(axios.request<any>(mwsGetRunningEndpointsOptions)).then(response => {
-    endpoints = response.endpoints
-  })
+  endpoints = (await handlePromise(axios.request<any>(mwsGetRunningEndpointsOptions))).endpoints
+
+  if (!selectedEndpoint || !endpoints.map(e => e.name).includes(selectedEndpoint.name)) {
+    selectedEndpoint = endpoints[0]
+  }
 }
 
 export async function isEndpointRunning(endpoint: MastroEndpoint) {

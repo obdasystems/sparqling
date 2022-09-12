@@ -8,7 +8,6 @@ import * as queryGraph from '../query-graph'
 import sparqlingStyle from '../ontology-graph/style'
 
 export default function init() {
-  // if (model.isSparqlingInitialised()) return
   const gscape = getGscape()
   ontologyGraph.addStylesheet(gscape.renderer.cy, sparqlingStyle(gscape.theme))
 
@@ -28,8 +27,6 @@ export default function init() {
   gscape.on(LifecycleEvent.DiagramChange, () => onChangeDiagramOrRenderer(gscape))
 
   gscape.on(LifecycleEvent.RendererChange, () => onChangeDiagramOrRenderer(gscape))
-
-  model.setInitialised(true)
 }
 
 function onChangeDiagramOrRenderer(gscape: Grapholscape) {

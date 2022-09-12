@@ -1,5 +1,5 @@
 import core from "../core";
-import { getQueryBody } from "../model";
+import { getEndpoints, getQueryBody, getSelectedEndpoint, setSelectedEndpoint, updateEndpoints } from "../model";
 import { startRunButtons } from "../widgets";
 import start from "../main/start";
 import stop from "../main/stop";
@@ -24,3 +24,17 @@ startRunButtons.onQueryRun(() => {
   if (core.onQueryRun)
     core.onQueryRun(getQueryBody()?.sparql)
 })
+
+startRunButtons.onEndpointChange((newEndpointName) => {
+  const newEndpoint = getEndpoints().find(e => e.name === newEndpointName)
+  if (newEndpoint) {
+    setSelectedEndpoint(newEndpoint)
+    startRunButtons.selectedEndpointName = newEndpoint.name
+  }
+})
+
+startRunButtons.onTogglePanel = () => {
+  updateEndpoints()
+  startRunButtons.endpoints = getEndpoints()
+  startRunButtons.selectedEndpointName = getSelectedEndpoint()?.name
+}

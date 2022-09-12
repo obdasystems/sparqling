@@ -40,6 +40,8 @@ export default function () {
     showUI()
     model.setSparqlingRunning(true)
     startRunButtons.canQueryRun = model.getQueryBody()?.graph && !model.isStandalone() && core.onQueryRun !== undefined
+    startRunButtons.endpoints = model.getEndpoints()
+    startRunButtons.selectedEndpointName = model.getSelectedEndpoint()?.name
     startRunButtons.requestUpdate()
     const selectedGraphElement = model.getActiveElement()?.graphElement
     if (selectedGraphElement) {

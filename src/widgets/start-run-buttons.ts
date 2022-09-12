@@ -1,24 +1,30 @@
 import { html, css, LitElement } from 'lit'
-import { playOutlined } from './assets/icons'
+import { mastroEndpointIcon, playOutlined } from './assets/icons'
 import sparqlingIcon from './assets/sparqling-icon'
 import * as model from '../model'
 import { ui } from 'grapholscape'
 import { getLoadingSpinner, loadingSpinnerStyle } from './loading-spinner'
+import { MastroEndpoint } from '../model'
 
-export default class SparqlingStartRunButtons extends ui.BaseMixin(LitElement) {
+export default class SparqlingStartRunButtons extends ui.BaseMixin(ui.DropPanelMixin(LitElement)) {
   private isLoading: boolean = false
 
   public startSparqlingButton: any
   public runQueryButton: any
   public canQueryRun: boolean = false
+  public endpoints: MastroEndpoint[] = []
+  public selectedEndpointName?: string
 
   private _onSparqlingStartCallback = () => { }
   private _onSparqlingStopCallback = () => { }
   private _onQueryRunCallback = () => { }
+  private _onEndpointChangeCallback = (newEndpointName: string) => { }
 
   static properties = {
     canQueryRun: { type: Boolean, attribute: false },
     isLoading: { type: Boolean, attribute: false },
+    endpoints: { type: Object, attribute: false },
+    selectedEndpointName: { type: String, attribute: false }
   }
 
   static styles = [
@@ -28,6 +34,12 @@ export default class SparqlingStartRunButtons extends ui.BaseMixin(LitElement) {
     css`
       :host {
         order: 8;
+        position: relative;
+      }
+
+      #drop-panel {
+        bottom: unset;
+        top: 0px;
       }
     `,
   ]
@@ -49,6 +61,40 @@ export default class SparqlingStartRunButtons extends ui.BaseMixin(LitElement) {
             <span slot="icon">${playOutlined}</span>
           </gscape-button>
           <div class="hr"></div>
+          <gscape-button
+            @click=${this.togglePanel}
+            type="subtle"
+            title="Select Mastro Endpoint"
+          >
+            <span slot="icon">${mastroEndpointIcon}</span>
+          </gscape-button>
+          <div class="hr"></div>
+
+          <div class="gscape-panel gscape-panel-in-tray drop-left hide" id="drop-panel">
+            <div class="header">Endpoint Selector</div>
+            <div class="content-wrapper">
+              ${this.endpoints.map(endpoint => {
+                return html`
+                  <gscape-action-list-item
+                    @click=${this.handleEndpointClick}
+                    label="${endpoint.name}"
+                    ?selected = "${this.selectedEndpointName === endpoint.name}"
+                  >
+                  </gscape-action-list-item>
+                `
+              })}
+
+              ${this.endpoints.length === 0
+                ? html`
+                  <div class="blank-slate">
+                    ${ui.icons.searchOff}
+                    <div class="header">No endpoint available</div>
+                  </div>
+                `
+                : null
+              }
+            </div>
+          </div>
         `
       : null
     }
@@ -80,6 +126,35 @@ export default class SparqlingStartRunButtons extends ui.BaseMixin(LitElement) {
 
   onQueryRun(callback: () => void) {
     this._onQueryRunCallback = callback
+  }
+
+  onEndpointChange(callback: (newEndpointName: string) => void) {
+    this._onEndpointChangeCallback = callback
+  }
+
+  requestEndpointSelection() {
+    return new Promise<MastroEndpoint>((resolve, reject) => {
+      const oldEndpointChangeCallback = this._onEndpointChangeCallback
+      this.openPanel()
+
+      // change callback to fulfill the request's promise with the new endpoint
+      this.onEndpointChange((newEndpointName) => {
+        const endpoint = this.endpoints.find(e => e.name === newEndpointName)
+        if (endpoint) {
+          resolve(endpoint)
+        } else {
+          reject()
+        }
+
+        oldEndpointChangeCallback(newEndpointName)
+        this._onEndpointChangeCallback = oldEndpointChangeCallback // reset callback to previous one
+      })
+    })
+  }
+
+  private handleEndpointClick(e: { currentTarget: { label: string | undefined } }) {
+    if (e.currentTarget.label && e.currentTarget.label !== this.selectedEndpointName)
+      this._onEndpointChangeCallback(e.currentTarget.label)
   }
 
   private handleStartButtonCLick() {
