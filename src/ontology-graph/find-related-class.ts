@@ -4,7 +4,7 @@ import getGscape from "./get-gscape"
 import { relatedClassDialog } from "../widgets"
 import EventPosition from "../util/event-position"
 import { isHighlighted } from "./highlights"
-import { EntityOccurrence, Iri, RendererStatesEnum } from "grapholscape"
+import { EntityOccurrence, Iri } from "grapholscape"
 import { getEntityOccurrence } from "./util"
 import { getActiveElement } from "../model"
 
@@ -14,9 +14,6 @@ export function showRelatedClassesWidget(objPropertyIri: string, position: Event
   const actualHighlights = getActualHighlights()
   if (!actualHighlights || !isHighlighted(objPropertyIri)) return
   const gscape = getGscape()
-
-  if (gscape.renderState !== RendererStatesEnum.GRAPHOL && gscape.renderState !== RendererStatesEnum.GRAPHOL_LITE)
-    return
 
   const objPropertyEntity = gscape.ontology.getEntity(objPropertyIri)
 
