@@ -20,7 +20,6 @@ export async function handleEntitySelection(entityIriString: string, entityType:
 
   if (activeElement && graphElementHasIri(activeElement.graphElement, entityIriString) && !lastObjProperty) {
     if (!ontologyGraph.isIriSelected(entityIri)) {
-      ontologyGraph.resetHighlights()
       ontologyGraph.highlightSuggestions(entityIriString)
     }
     return
@@ -56,7 +55,6 @@ export async function handleEntitySelection(entityIriString: string, entityType:
         // Get nodes not present in the old graph
         const newGraphElements = getdiffNew(model.getQueryBody()?.graph, newBody.graph)
         const newSelectedGraphElement = setOriginNode(entityOccurrence, newGraphElements, entityIriString)
-        ontologyGraph.resetHighlights()
         ontologyGraph.highlightSuggestions(entityIriString)
         onNewBody(newBody)
 

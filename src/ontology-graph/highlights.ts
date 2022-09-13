@@ -7,7 +7,7 @@ import { highlightsList } from "../widgets"
 import getGscape from "./get-gscape"
 import { handlePromise } from "../main/handle-promises"
 import getPrefixedIri from "../util/get-prefixed-iri"
-import { RendererStatesEnum } from "grapholscape"
+import { EntityOccurrence, RendererStatesEnum } from "grapholscape"
 
 let actualHighlights: Highlights | undefined
 export const HIGHLIGHT_CLASS = 'highlighted'
@@ -20,19 +20,16 @@ export const getActualHighlights = () => actualHighlights
 
 export function highlightIRI(iri: string) {
   const gscape = getGscape()
-  
-  const iriOccurrences = gscape.ontology.getEntityOccurrences(iri)?.get(RendererStatesEnum.GRAPHOL)
+
+  let iriOccurrences = gscape.ontology.getEntityOccurrences(iri)?.get(RendererStatesEnum.GRAPHOL)
+  if (iriOccurrences) {
+    addHighlightedClassToEntityOccurrences(iriOccurrences) 
+  }
   if (gscape.renderState !== RendererStatesEnum.GRAPHOL) {
     const occurrencesInActualRendererState = gscape.ontology.getEntityOccurrences(iri)?.get(gscape.renderState)
-    if (occurrencesInActualRendererState)
-      iriOccurrences?.push(...occurrencesInActualRendererState)
-  }
-
-  if (iriOccurrences) {
-    iriOccurrences.forEach(occurrence => {
-      if (occurrence.diagramId === gscape.diagramId)
-      gscape.renderer.cy?.$id(occurrence.elementId).addClass(HIGHLIGHT_CLASS)
-    })
+    if (occurrencesInActualRendererState) {
+      addHighlightedClassToEntityOccurrences(occurrencesInActualRendererState)
+    }
   }
 }
 
@@ -112,4 +109,12 @@ function transformHighlightsToPrefixedIRIs(): Highlights {
     return branch
   })
   return transformedHighlights
+}
+
+function addHighlightedClassToEntityOccurrences(entityOccurrences: EntityOccurrence[]) {
+  const gscape = getGscape()
+  entityOccurrences.forEach(occurrence => {
+    if (occurrence.diagramId === gscape.diagramId)
+      gscape.renderer.cy?.$id(occurrence.elementId).addClass(HIGHLIGHT_CLASS)
+  })
 }
