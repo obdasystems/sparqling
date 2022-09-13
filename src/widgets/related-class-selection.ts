@@ -176,6 +176,10 @@ export default class RelatedClassSelection extends ui.BaseMixin(LitElement) {
     }
   }
 
+  onmouseout = () => {
+    this.hide()
+  }
+
   private get reverse() {
     return this.reverseArrow ? '-reverse' : null
   }
