@@ -85,12 +85,12 @@ export default css`
     cursor: not-allowed;
   }
 
-  *:invalid {
+  input:invalid, select:invalid {
     border-color: var(--gscape-color-danger);
     background-color: var(--gscape-color-danger-muted);
   }
 
-  *:invalid:focus {
+  input:invalid:focus, select:invalid:focus {
     box-shadow: var(--gscape-color-danger) 0px 0px 0px 1px inset;
     border-color: var(--gscape-color-danger);
   }
