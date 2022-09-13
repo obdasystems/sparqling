@@ -2,10 +2,11 @@ import { ui } from 'grapholscape';
 import { css, html, LitElement } from 'lit';
 import { Filter, Function, GroupByElement, HeadElement, VarOrConstantConstantTypeEnum } from '../api/swagger';
 import { getFiltersOnVariable } from '../model';
-import { addFilter, crosshair, dragHandler, expandLess, expandMore, filter as filterIcon, functionIcon, kebab, rubbishBin, sigma, sortAscendingIcon, sortDescendingIcon, sortIcon } from '../widgets/assets/icons';
+import { checkmark, addFilter, crosshair, dragHandler, expandLess, expandMore, filter as filterIcon, functionIcon, kebab, rubbishBin, sigma, sortAscendingIcon, sortDescendingIcon, sortIcon } from '../widgets/assets/icons';
 import { Command } from '../widgets/cxt-menu/cxt-menu-widget';
 import { getElemWithOperatorStyle } from '../widgets/forms/elem-with-operator-style';
 import { getElemWithOperatorList } from '../widgets/forms/elems-with-operator-list-template';
+import sparqlingWidgetStyle from '../widgets/sparqling-widget-style';
 import getTrayButtonTemplate from '../widgets/tray-button-template';
 import { onDragEnd, onDragOver, onDragStart } from './drag-sorting';
 
@@ -50,6 +51,7 @@ export default class HeadElementComponent extends ui.BaseMixin(ui.DropPanelMixin
   static styles = [
     ui.baseStyle,
     getElemWithOperatorStyle(),
+    sparqlingWidgetStyle,
     css`
       :host {
         display:block;
@@ -153,27 +155,6 @@ export default class HeadElementComponent extends ui.BaseMixin(ui.DropPanelMixin
     super()
 
     this.headElement = headElement
-    // this.deleteButton = new UI.GscapeButton(rubbishBin, 'Delete Field')
-    // this.deleteButton.onClick = () => { }
-    // this.deleteButton.classList.add('danger')
-    // this.toggleBodyButton = new UI.GscapeButton(UI.icons.triangle_down, 'Show More', UI.icons.triangle_up)
-    // this.toggleBodyButton.onClick = () => (this as any).toggleBody()
-    // this.toggleBodyButton.style.boxShadow = 'none'
-
-    // this.localizeButton = new UI.GscapeButton(crosshair, 'Find in Query Graph')
-    // this.localizeButton.onClick = () => this.localizeCallback(this._id)
-
-    // this.addFilterButton = new UI.GscapeButton(addFilter, 'Add Filter')
-    // this.addFilterButton.onClick = () => this.addFilterCallback(this._id)
-
-    // this.addFunctionButton = new UI.GscapeButton(functionIcon, 'Add Function')
-    // this.addFunctionButton.onClick = () => this.addFunctionCallback(this._id)
-
-    // this.orderByButton = new UI.GscapeButton(null, 'Order By')
-    // this.orderByButton.onClick = () => this.orderByCallback(this._id)
-
-    // this.addAggregationButton = new UI.GscapeButton(sigma, 'Add Aggregation Function')
-    // this.addAggregationButton.onClick = () => this.addAggregationCallback(this._id)
 
     this.ondragstart = (evt) => onDragStart(evt)
     this.ondragover = (evt) => onDragOver(evt)
@@ -182,16 +163,6 @@ export default class HeadElementComponent extends ui.BaseMixin(ui.DropPanelMixin
   }
 
   render() {
-    // if (this.ordering > 0) {
-    //   this.orderByButton.icon = sortAscendingIcon
-    //   this.orderByButton.highlighted = true
-    // } else if (this.ordering < 0) {
-    //   this.orderByButton.icon = sortDescendingIcon
-    //   this.orderByButton.highlighted = true
-    // } else {
-    //   this.orderByButton.icon = sortIcon
-    //   this.orderByButton.highlighted = false
-    // }
     return html`
       <div>
         <div id="field-head">
@@ -202,9 +173,11 @@ export default class HeadElementComponent extends ui.BaseMixin(ui.DropPanelMixin
             <input
               id="${ALIAS_INPUT_ID}"
               @focusout="${this.handleInputChange}"
+              @keyup=${this.checkAliasValidity}
               placeholder="${this.alias || this.graphElementId}"
               value="${this.alias || this.graphElementId}"
               title="Rename Field"
+              pattern="^[A-Za-z][A-Za-z0-9_]*$"
             />
           </div>
           <div id="actions">
@@ -333,12 +306,39 @@ export default class HeadElementComponent extends ui.BaseMixin(ui.DropPanelMixin
     `
   }
 
-  handleInputChange(evt: FocusEvent) {
+  private handleInputChange(evt: Event) {
     let target = evt.currentTarget as HTMLInputElement
+
+    if (!target.checkValidity()) {
+      target.reportValidity()
+      return
+    }
+
+    if (this.alias && target.value === this.graphElementId) {
+      target.setCustomValidity('Please use an alias different from variable name')
+      target.reportValidity()
+      return
+    }
+
     if (this.alias !== target.value && target.value.length > 0 && target.value !== this.graphElementId) {
       this.onRename(this._id, target.value)
     } else {
       target.value = this.alias || this.graphElementId
+    }
+  }
+
+  private checkAliasValidity(evt: KeyboardEvent) {
+    const target = evt.currentTarget as HTMLInputElement
+
+    target.setCustomValidity('')
+
+    if (!target.checkValidity()) {
+      target.setCustomValidity('Only letters, numbers and underscore')
+      //target.value = target.value.substring(0, target.value.length - 1)
+      target.reportValidity()
+      return
+    } else if (evt.key === "Enter" || evt.key === "Escape") {
+      target.blur()
     }
   }
 

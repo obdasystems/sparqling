@@ -84,4 +84,14 @@ export default css`
   [disabled] {
     cursor: not-allowed;
   }
+
+  *:invalid {
+    border-color: var(--gscape-color-danger);
+    background-color: var(--gscape-color-danger-muted);
+  }
+
+  *:invalid:focus {
+    box-shadow: var(--gscape-color-danger) 0px 0px 0px 1px inset;
+    border-color: var(--gscape-color-danger);
+  }
 `

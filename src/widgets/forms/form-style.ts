@@ -82,17 +82,6 @@ export default css`
     color: var(--gscape-color-danger);
   }
 
-
-  form *:invalid {
-    border-color: var(--gscape-color-danger);
-    background-color: var(--gscape-color-danger-muted);
-  }
-
-  form *:invalid:focus {
-    box-shadow: var(--gscape-color-danger) 0px 0px 0px 1px inset;
-    border-color: var(--gscape-color-danger);
-  }
-
   form abbr {
     margin: 0 5px;
   }
