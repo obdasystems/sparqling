@@ -1,10 +1,11 @@
 import { CollectionReturnValue } from "cytoscape"
-import { EntityOccurrence, GrapholTypesEnum, Iri } from "grapholscape"
-import { Branch, GraphElement, QueryGraph, QueryGraphBGPApi, QueryGraphExtraApi } from "../api/swagger"
+import { EntityOccurrence, GrapholTypesEnum, Iri, RendererStatesEnum } from "grapholscape"
+import { Branch, Entity, GraphElement, QueryGraph, QueryGraphBGPApi, QueryGraphExtraApi } from "../api/swagger"
 import { handlePromise } from "../main/handle-promises"
 import onNewBody from "../main/on-new-body"
 import * as model from "../model"
 import * as ontologyGraph from "../ontology-graph"
+import { onRelatedClassSelection } from "../ontology-graph"
 import getGscape from "../ontology-graph/get-gscape"
 import * as queryGraph from "../query-graph"
 import { getdiffNew, graphElementHasIri, isClass } from "../util/graph-element-utility"
@@ -27,10 +28,25 @@ export async function handleEntitySelection(entityIriString: string, entityType:
 
   switch (entityType) {
     case GrapholTypesEnum.OBJECT_PROPERTY: {
-      // let result = await handleObjectPropertySelection(cyEntity)
-      // if (result && result.connectedClass) {
-      //   gscape.centerOnNode(result.connectedClass.id(), 1.8)
-      // }
+      if (gscape.renderState === RendererStatesEnum.FLOATY) {
+        const cyObjProperty = gscape.renderer.cy?.$id(entityOccurrence.elementId)
+        if (cyObjProperty) {
+          const relatedClass = cyObjProperty.target() // object properties are edges in floaty
+          const relatedClassEntityOccurrence: EntityOccurrence = {
+            elementId: relatedClass.id(),
+            diagramId: gscape.diagramId,
+          }
+
+          const objectPropertyBranch = ontologyGraph.getActualHighlights()?.objectProperties?.find((b: Branch) => {
+            if (b.objectPropertyIRI)
+              return entityIri.equals(b.objectPropertyIRI)
+          })
+
+          if (objectPropertyBranch) {
+            handleObjectPropertySelection(objectPropertyBranch, relatedClassEntityOccurrence)
+          }
+        }
+      }
       break
     }
     case GrapholTypesEnum.CLASS: {
