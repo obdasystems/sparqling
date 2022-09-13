@@ -164,6 +164,7 @@ export default class RelatedClassSelection extends ui.BaseMixin(LitElement) {
       if (index !== null) {
         let listItem = this.list[index]
         this.onSelection(listItem)
+        this.hide()
       }
     }
   }
