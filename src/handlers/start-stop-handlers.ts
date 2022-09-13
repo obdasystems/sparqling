@@ -33,8 +33,8 @@ startRunButtons.onEndpointChange((newEndpointName) => {
   }
 })
 
-startRunButtons.onTogglePanel = () => {
-  updateEndpoints()
+startRunButtons.onTogglePanel = async () => {
+  await updateEndpoints()
   startRunButtons.endpoints = getEndpoints()
   startRunButtons.selectedEndpointName = getSelectedEndpoint()?.name
 }
