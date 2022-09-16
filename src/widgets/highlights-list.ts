@@ -38,6 +38,13 @@ export default class HighlightsList extends ui.BaseMixin(ui.DropPanelMixin(LitEl
         overflow-y: clip;
       }
 
+      .content-wrapper {
+        display: flex;
+        flex-direction: column;
+        scrollbar-width: inherit;
+        height: 100%;
+      }
+
       .list {
         overflow: hidden auto;
         scrollbar-width: inherit;
@@ -153,23 +160,24 @@ export default class HighlightsList extends ui.BaseMixin(ui.DropPanelMixin(LitEl
                 <span slot="icon">${ui.icons.minus}</span>
               </gscape-button>
             </div>
-            ${this.searchEntityComponent}
-            <div class="list">
-              ${this.highlights
-                ? html`
-                  ${this.dataProperties.map((dataPropertyIri) => this.getEntitySuggestionTemplate(dataPropertyIri, EntityTypeEnum.DataProperty))}
-                  ${this.objectProperties.map(objectPropertyHighlight => this.getObjectPropertySuggestionTemplate(objectPropertyHighlight))}
-                  ${this.classes.map((classIri) => this.getEntitySuggestionTemplate(classIri, EntityTypeEnum.Class))}
-                `
-                : html`
-                  <div class="blank-slate">
-                    ${ui.icons.searchOff}
-                    <div class="header">No suggestions available</div>
-                    <div class="description">Add elements to the query and we will provide you next steps suggestions</div>
-                  </div>
-                `
-              }
-              
+            <div class="content-wrapper">
+              ${this.searchEntityComponent}
+              <div class="list">
+                ${this.highlights
+                  ? html`
+                    ${this.dataProperties.map((dataPropertyIri) => this.getEntitySuggestionTemplate(dataPropertyIri, EntityTypeEnum.DataProperty))}
+                    ${this.objectProperties.map(objectPropertyHighlight => this.getObjectPropertySuggestionTemplate(objectPropertyHighlight))}
+                    ${this.classes.map((classIri) => this.getEntitySuggestionTemplate(classIri, EntityTypeEnum.Class))}
+                  `
+                  : html`
+                    <div class="blank-slate">
+                      ${ui.icons.searchOff}
+                      <div class="header">No suggestions available</div>
+                      <div class="description">Add elements to the query and we will provide you next steps suggestions</div>
+                    </div>
+                  `
+                }
+              </div>
             </div>
           </div>
         `
