@@ -1,5 +1,5 @@
 import { ui } from 'grapholscape'
-import { css, html, LitElement } from 'lit'
+import { css, html, LitElement, PropertyValueMap } from 'lit'
 import { countStarToggle } from '../widgets'
 import { code, dbClick, rdfLogo, refresh } from '../widgets/assets/icons'
 import { emptyGraphMsg, emptyGraphTipMsg, tipWhatIsQueryGraph } from '../widgets/assets/texts'
@@ -8,7 +8,7 @@ import limitInput from '../widgets/limit'
 import offsetInput from '../widgets/offset'
 import sparqlignWidgetStyle from '../widgets/sparqling-widget-style'
 import getTrayButtonTemplate from '../widgets/tray-button-template'
-import cy from './renderer/cy'
+import { cy } from './renderer/'
 
 /**
  * Widget extending base grapholscape widget which uses Lit-element inside
@@ -165,6 +165,27 @@ export default class QueryGraphWidget extends ui.BaseMixin(ui.DropPanelMixin(Lit
 
   set isBGPEmpty(value: boolean) {
     this._isBGPEmpty = value
+  }
+
+  protected updated(_changedProperties: PropertyValueMap<any> | Map<PropertyKey, unknown>): void {
+    /**
+     * // BUG: when the BGP container gets removed from the widget and then later on
+     * added back because of an insertion in the query, if we performed a cy.mount()
+     * (i.e. coming back from incremental we need to mount cy on bgpContainer)
+     * then the mount breaks somehow. Maybe some operations performed by lit-element
+     * on the div conflicts with cytoscape's mounting operations.
+     * 
+     * TEMP FIX: wait for the update lifecycle to be completed and then mount again
+     * being sure lit-element won't touch the container anymore until next clear query.
+     */
+    if (_changedProperties.has('_isBGPEmpty')) {
+      // if BGP is not empty but it was empty before the update, then re-mount to be sure
+      // to fix conflicts.
+      if (!this.isBGPEmpty && _changedProperties.get('_isBGPEmpty')) {
+        cy.mount(this.bgpContainer)
+        cy.resize()
+      }
+    }
   }
 
   get isBGPEmpty() {

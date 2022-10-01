@@ -1,4 +1,4 @@
-import { Grapholscape } from 'grapholscape'
+import { Grapholscape, ui } from 'grapholscape'
 import core from './core'
 import * as model from './model'
 import * as ontologyGraph from './ontology-graph'
@@ -10,6 +10,7 @@ import * as handlers from './handlers'
 import { SparqlingRequestOptions } from './model/request-options'
 import clearQuery from './main/clear-query'
 import { initGrapholscapeHandlers } from './main'
+import { cy as queryGraphCy } from './query-graph/renderer/'
 
 /**
  * Initialise sparqling on a grapholscape instance
@@ -18,6 +19,7 @@ import { initGrapholscapeHandlers } from './main'
  * @returns a core object, see ./core.ts
  */
 export function sparqlingStandalone(gscape: Grapholscape, file: string | Blob) {
+  window['sCy'] = queryGraphCy
   return getCore(gscape, file)
 }
 
@@ -45,6 +47,13 @@ function getCore(gscape: Grapholscape, file: string | Blob) {
 
     const actualGrapholscape = ontologyGraph.getGscape()
     if (actualGrapholscape !== gscape) {
+
+      // Remove restart button in incremental renderer, if present
+      const rendererSelector = gscape.widgets.get(ui.WidgetEnum.RENDERER_SELECTOR) as any
+      if (rendererSelector) {
+        rendererSelector.onIncrementalRefresh = null
+      }
+
       ontologyGraph.setGrapholscapeInstance(gscape)
       initGrapholscapeHandlers()
     }

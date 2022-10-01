@@ -1,5 +1,5 @@
 import { CollectionReturnValue, EventObject } from "cytoscape"
-import cy from "./cy"
+import { cy } from "./cy"
 
 let joinStartCondition: (nodeId: string) => boolean
 let joinAllowedCondition: (nodeId1: string, nodeId2: string) => boolean

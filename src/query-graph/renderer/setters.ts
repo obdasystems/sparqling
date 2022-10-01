@@ -1,5 +1,5 @@
 import { EntityNameType, GrapholscapeTheme } from "grapholscape"
-import cy, { setStateDisplayedNameType, setLanguage } from "./cy"
+import { cy, setStateDisplayedNameType, setLanguage } from "./cy"
 import { updateDisplayedNames } from "./graph-manipulation"
 import getStylesheet from "./style"
 

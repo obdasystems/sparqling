@@ -1,4 +1,4 @@
-import cy from "./cy"
+import { cy } from "./cy"
 
 /**
  * Get an elem by its id

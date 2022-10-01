@@ -1,17 +1,24 @@
-import { Core } from "cytoscape"
-import { LifecycleEvent, EntityNameType, GrapholscapeTheme, Grapholscape, GrapholTypesEnum } from "grapholscape"
+import cytoscape, { Core } from "cytoscape"
+import { LifecycleEvent, EntityNameType, GrapholscapeTheme, Grapholscape, GrapholTypesEnum, RendererStatesEnum, ui, FloatyRendererState, GrapholRendererState, IncrementalRendererState, LiteRendererState } from "grapholscape"
 import { OntologyGraphHandlers } from "../handlers"
 import { getGscape, refreshHighlights } from "../ontology-graph"
 import * as model from '../model'
 import * as ontologyGraph from '../ontology-graph'
 import * as queryGraph from '../query-graph'
 import sparqlingStyle from '../ontology-graph/style'
+import SparqlingIncrementalRendererState from "../query-graph/renderer/incremental-renderer"
+import { cy as queryGraphCy } from "../query-graph/renderer/"
+import { bgpContainer } from "../util/get-container"
 
 export default function init() {
   const gscape = getGscape()
-  ontologyGraph.addStylesheet(gscape.renderer.cy, sparqlingStyle(gscape.theme))
+  ontologyGraph.addStylesheet(gscape.renderer.cy, sparqlingStyle(gscape.theme));
 
-  if (gscape.renderer.cy)
+  (gscape.widgets.get(ui.WidgetEnum.RENDERER_SELECTOR) as any).onRendererStateSelection = (rendererState) => {
+    handleRendererStateSelection(rendererState, gscape)
+  }
+
+  if (gscape.renderer.cy && gscape.renderState !== RendererStatesEnum.INCREMENTAL)
     setHandlers(gscape.renderer.cy)
 
   gscape.on(LifecycleEvent.LanguageChange, (newLanguage: string) => queryGraph.setLanguage(newLanguage))
@@ -30,7 +37,8 @@ export default function init() {
 }
 
 function onChangeDiagramOrRenderer(gscape: Grapholscape) {
-  if (gscape.renderer.cy) {
+  if (gscape.renderer.cy && gscape.renderState !== RendererStatesEnum.INCREMENTAL) {
+    console.log('c')
     setHandlers(gscape.renderer.cy)
     ontologyGraph.addStylesheet(gscape.renderer.cy, sparqlingStyle(gscape.theme))
   }
@@ -52,6 +60,56 @@ function setHandlers(cy: Core) {
 
   cy.on('dblclick', `[iri]`, e => {
     if (model.isSparqlingRunning())
-      OntologyGraphHandlers.handleEntitySelection(e.target.data().iri, e.target.data().type, { elementId: e.target.id(), diagramId: getGscape().diagramId})
+      OntologyGraphHandlers.handleEntitySelection(e.target.data().iri, e.target.data().type, { elementId: e.target.id(), diagramId: getGscape().diagramId })
   })
+}
+
+function handleRendererStateSelection(rendererState: RendererStatesEnum, grapholscape: Grapholscape) {
+  const previousState = grapholscape.renderState
+  if (rendererState !== grapholscape.renderState) {
+
+    switch (rendererState) {
+      case RendererStatesEnum.GRAPHOL:
+        grapholscape.setRenderer(new GrapholRendererState())
+        break
+
+      case RendererStatesEnum.GRAPHOL_LITE:
+        grapholscape.setRenderer(new LiteRendererState())
+        break
+
+      case RendererStatesEnum.FLOATY:
+        grapholscape.setRenderer(new FloatyRendererState())
+        break
+    }
+
+    const diagramSelector = grapholscape.widgets.get(ui.WidgetEnum.DIAGRAM_SELECTOR) as unknown as ui.IBaseMixin
+    const entitySelector = grapholscape.widgets.get(ui.WidgetEnum.ENTITY_SELECTOR) as unknown as ui.IBaseMixin
+
+    if (rendererState === RendererStatesEnum.INCREMENTAL) {
+      const incrementalRendererState = new SparqlingIncrementalRendererState(queryGraphCy)
+      
+      grapholscape.setRenderer(incrementalRendererState);
+      entitySelector.hide()
+      //initIncremental(incrementalRendererState, grapholscape);
+
+      diagramSelector.hide()
+
+      // if (grapholscape.renderer.cy?.elements().size() === 0) {
+      //   entitySelector.show()
+      // }
+    } else {
+      diagramSelector.show()
+      entitySelector.hide()
+
+      if (previousState === RendererStatesEnum.INCREMENTAL) {
+        queryGraphCy.unmount()
+        queryGraphCy.mount(bgpContainer)
+        queryGraphCy.resize()
+        queryGraphCy.fit()
+        
+        grapholscape.renderer.mount()
+        onChangeDiagramOrRenderer(grapholscape)
+      }
+    }
+  }
 }

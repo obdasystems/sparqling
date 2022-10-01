@@ -13,8 +13,7 @@ cytoscape.use(klay)
 cytoscape.use(compoundDragAndDrop)
 cytoscape.use(popper)
 
-const cy = cytoscape({
-  style: [] as Stylesheet[],
+export const cy = cytoscape({
   wheelSensitivity: 0.4,
   maxZoom: 2,
 })
@@ -53,8 +52,6 @@ cy.on('cxttap', `node, edge[type = "${EntityTypeEnum.ObjectProperty}"], edge[typ
 
 let displayedNameType: EntityNameType
 let language: string
-
-export default cy
 
 export function setStateDisplayedNameType(newDisplayNameType: EntityNameType) {
   displayedNameType = newDisplayNameType || displayedNameType
