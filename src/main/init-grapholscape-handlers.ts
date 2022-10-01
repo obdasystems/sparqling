@@ -1,5 +1,5 @@
 import cytoscape, { Core } from "cytoscape"
-import { LifecycleEvent, EntityNameType, GrapholscapeTheme, Grapholscape, GrapholTypesEnum, RendererStatesEnum, ui, FloatyRendererState, GrapholRendererState, IncrementalRendererState, LiteRendererState } from "grapholscape"
+import { LifecycleEvent, EntityNameType, GrapholscapeTheme, Grapholscape, GrapholTypesEnum, RendererStatesEnum, ui, FloatyRendererState, GrapholRendererState, IncrementalRendererState, LiteRendererState, setGraphEventHandlers } from "grapholscape"
 import { OntologyGraphHandlers } from "../handlers"
 import { getGscape, refreshHighlights } from "../ontology-graph"
 import * as model from '../model'
@@ -38,7 +38,6 @@ export default function init() {
 
 function onChangeDiagramOrRenderer(gscape: Grapholscape) {
   if (gscape.renderer.cy && gscape.renderState !== RendererStatesEnum.INCREMENTAL) {
-    console.log('c')
     setHandlers(gscape.renderer.cy)
     ontologyGraph.addStylesheet(gscape.renderer.cy, sparqlingStyle(gscape.theme))
   }
@@ -108,6 +107,9 @@ function handleRendererStateSelection(rendererState: RendererStatesEnum, graphol
         queryGraphCy.fit()
         
         grapholscape.renderer.mount()
+        if (grapholscape.renderer.diagram) {
+          setGraphEventHandlers(grapholscape.renderer.diagram, grapholscape.lifecycle, grapholscape.ontology)
+        }
         onChangeDiagramOrRenderer(grapholscape)
       }
     }
