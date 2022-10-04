@@ -120,6 +120,14 @@ export function onSeeFilters(callback: (graphElem: GraphElement) => void) {
   })
 }
 
+export function onShowExamples(callback: (graphElement: GraphElement) => void) {
+  bgp.onShowExamples(id => {
+    const graphElement = GEUtility.getGraphElementByID(id)
+    if (graphElement)
+      callback(graphElement)
+  })
+}
+
 export function onJoin(callback: (graphElem1: GraphElement, graphElem2: GraphElement) => void) {
   bgp.onJoin((node1ID, node2ID) => {
     let graphElem1 = GEUtility.getGraphElementByID(node1ID)

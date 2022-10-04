@@ -1,6 +1,6 @@
 import { Iri, ui } from 'grapholscape'
 import { QueryGraph, QueryGraphBGPApiFactory, QueryGraphHeadApiFactory, QueryGraphOptionalApiFactory } from '../api/swagger'
-import { clearQuery } from '../main'
+import { clearQuery, showQueryResultInDialog } from '../main'
 import { handlePromise } from '../main/handle-promises'
 import onNewBody from '../main/on-new-body'
 import * as model from '../model'
@@ -177,6 +177,13 @@ queryGraph.onSeeFilters(graphElement => {
 
     filterListDialog.variable = graphElement.id
     filterListDialog.show()
+  }
+})
+
+queryGraph.onShowExamples(graphElement => {
+  const iri = GEUtility.getIri(graphElement)
+  if (iri) {
+    showQueryResultInDialog(iri)
   }
 })
 
