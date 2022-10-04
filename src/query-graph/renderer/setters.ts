@@ -11,5 +11,8 @@ export function setDisplayedNameType(newDisplayedNameType: EntityNameType, newla
 }
 
 export function setTheme(newTheme: GrapholscapeTheme) {
+
+  // TODO If incremental, add incremental stylesheet
+
   cy.style(getStylesheet(newTheme))
 }

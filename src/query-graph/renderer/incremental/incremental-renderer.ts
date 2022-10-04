@@ -1,6 +1,6 @@
 import { NodeSingular, Stylesheet } from "cytoscape";
 import { GrapholNode, GrapholscapeTheme, GrapholTypesEnum, IncrementalDiagram, IncrementalRendererState, Ontology, Renderer } from "grapholscape";
-import style from "./style";
+import style from "../style";
 
 export default class SparqlingIncrementalRendererState extends IncrementalRendererState {
   private sparqlingCy: cytoscape.Core

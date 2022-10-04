@@ -10,9 +10,6 @@ import getPrefixedIri from "../util/get-prefixed-iri"
 import { EntityOccurrence, RendererStatesEnum } from "grapholscape"
 
 let actualHighlights: Highlights | undefined
-export const HIGHLIGHT_CLASS = 'highlighted'
-export const FADED_ClASS = 'faded'
-export const SPARQLING_SELECTED = 'sparqling-selected'
 
 // highlightsList.onSuggestionLocalization(iri => getGscape().centerOnEntity(iri))
 
@@ -49,9 +46,9 @@ export function resetHighlights() {
 
   gscape.ontology.diagrams.forEach(diagram => {
     for (let [_, diagramRepresentation] of diagram.representations) {
-      diagramRepresentation.cy.$(`.${SPARQLING_SELECTED}`).removeClass(SPARQLING_SELECTED)
-      diagramRepresentation.cy.$(`.${HIGHLIGHT_CLASS}`).removeClass(HIGHLIGHT_CLASS)
-      diagramRepresentation.cy.$(`.${FADED_ClASS}`).removeClass(FADED_ClASS).selectify()
+      diagramRepresentation.cy.$(`.${model.SPARQLING_SELECTED}`).removeClass(model.SPARQLING_SELECTED)
+      diagramRepresentation.cy.$(`.${model.HIGHLIGHT_CLASS}`).removeClass(model.HIGHLIGHT_CLASS)
+      diagramRepresentation.cy.$(`.${model.FADED_ClASS}`).removeClass(model.FADED_ClASS).selectify()
     }
   })
   actualHighlights = undefined
@@ -89,12 +86,12 @@ function performHighlights(clickedIRI: string) {
     for (const occurrence of iriOccurrences) {
       const diagram = gscape.ontology.getDiagram(occurrence.diagramId)
       const occurrenceCyElement = diagram?.representations.get(gscape.renderState)?.cy.$id(occurrence.elementId)
-      occurrenceCyElement?.addClass(SPARQLING_SELECTED)
+      occurrenceCyElement?.addClass(model.SPARQLING_SELECTED)
     }
 
     const highlightedElems = gscape.renderer.cy?.$('.highlighted, .sparqling-selected') || cytoscape().collection()
     const fadedElems = gscape.renderer.cy?.elements().difference(highlightedElems)
-    fadedElems?.addClass(FADED_ClASS)
+    fadedElems?.addClass(model.FADED_ClASS)
   }
   //fadedElems.unselectify()
 }
@@ -115,6 +112,6 @@ function addHighlightedClassToEntityOccurrences(entityOccurrences: EntityOccurre
   const gscape = getGscape()
   entityOccurrences.forEach(occurrence => {
     if (occurrence.diagramId === gscape.diagramId)
-      gscape.renderer.cy?.$id(occurrence.elementId).addClass(HIGHLIGHT_CLASS)
+      gscape.renderer.cy?.$id(occurrence.elementId).addClass(model.HIGHLIGHT_CLASS)
   })
 }

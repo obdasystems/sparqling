@@ -1,14 +1,12 @@
-import cytoscape, { Core } from "cytoscape"
-import { LifecycleEvent, EntityNameType, GrapholscapeTheme, Grapholscape, GrapholTypesEnum, RendererStatesEnum, ui, FloatyRendererState, GrapholRendererState, IncrementalRendererState, LiteRendererState, setGraphEventHandlers } from "grapholscape"
+import { Core } from "cytoscape"
+import { EntityNameType, FloatyRendererState, GrapholRendererState, Grapholscape, GrapholscapeTheme, GrapholTypesEnum, LifecycleEvent, LiteRendererState, RendererStatesEnum, ui } from "grapholscape"
 import { OntologyGraphHandlers } from "../handlers"
-import { getGscape, refreshHighlights } from "../ontology-graph"
 import * as model from '../model'
 import * as ontologyGraph from '../ontology-graph'
-import * as queryGraph from '../query-graph'
+import { getGscape, refreshHighlights } from "../ontology-graph"
 import sparqlingStyle from '../ontology-graph/style'
-import SparqlingIncrementalRendererState from "../query-graph/renderer/incremental-renderer"
-import { cy as queryGraphCy } from "../query-graph/renderer/"
-import { bgpContainer } from "../util/get-container"
+import * as queryGraph from '../query-graph'
+import { startIncremental, stopIncremental } from "./incremental"
 
 export default function init() {
   const gscape = getGscape()
@@ -81,35 +79,12 @@ function handleRendererStateSelection(rendererState: RendererStatesEnum, graphol
         break
     }
 
-    const diagramSelector = grapholscape.widgets.get(ui.WidgetEnum.DIAGRAM_SELECTOR) as unknown as ui.IBaseMixin
-    const entitySelector = grapholscape.widgets.get(ui.WidgetEnum.ENTITY_SELECTOR) as unknown as ui.IBaseMixin
-
     if (rendererState === RendererStatesEnum.INCREMENTAL) {
-      const incrementalRendererState = new SparqlingIncrementalRendererState(queryGraphCy)
-      
-      grapholscape.setRenderer(incrementalRendererState);
-      entitySelector.hide()
-      //initIncremental(incrementalRendererState, grapholscape);
-
-      diagramSelector.hide()
-
-      // if (grapholscape.renderer.cy?.elements().size() === 0) {
-      //   entitySelector.show()
-      // }
+      startIncremental()
     } else {
-      diagramSelector.show()
-      entitySelector.hide()
+      stopIncremental(previousState)
 
       if (previousState === RendererStatesEnum.INCREMENTAL) {
-        queryGraphCy.unmount()
-        queryGraphCy.mount(bgpContainer)
-        queryGraphCy.resize()
-        queryGraphCy.fit()
-        
-        grapholscape.renderer.mount()
-        if (grapholscape.renderer.diagram) {
-          setGraphEventHandlers(grapholscape.renderer.diagram, grapholscape.lifecycle, grapholscape.ontology)
-        }
         onChangeDiagramOrRenderer(grapholscape)
       }
     }

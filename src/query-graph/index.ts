@@ -87,6 +87,15 @@ export function getSelectedGraphElement() {
   return GEUtility.getGraphElementByID(bgp.getElements().filter('.sparqling-selected')[0]?.id())
 }
 
+// // *************************************** INCREMENTAL *************************************** //
+export { 
+  onIncrementalClassSelection, 
+  onIncrementalObjectPropertySelection,
+  addClassSuggestion,
+  addObjectPropertySuggestion,
+  addDataPropertySuggestion,
+} from './renderer'
+
 // // ******************************* GRAPH INTERACTION CALLBACKS ******************************* //
 export function onAddHead(callback: (graphElem: GraphElement) => void) {
   bgp.onAddHead(id => {
