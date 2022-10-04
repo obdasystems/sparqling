@@ -6,7 +6,7 @@ import SparqlingFormDialog, { Modality } from "../widgets/forms/base-form-dialog
 import FilterDialog from "../widgets/forms/filters/filter-dialog"
 
 
-export default function(element: HeadElement | GraphElement, formDialog: SparqlingFormDialog) {
+export default function (element: HeadElement | GraphElement, formDialog: SparqlingFormDialog) {
   let graphElement: GraphElement | undefined
   let variableName: string | undefined
 
@@ -34,17 +34,18 @@ export default function(element: HeadElement | GraphElement, formDialog: Sparqli
   } else {
     formDialog._id = element.id
   }
-  
+
   formDialog.operator = undefined
   formDialog.parameters = [{
     type: VarOrConstantTypeEnum.Var,
     constantType: getGscape().ontology.getEntity(graphElementIri).datatype as VarOrConstantConstantTypeEnum,
     value: graphElement.id
   }]
-  
+
   formDialog.variableName = variableName || graphElement.id
   formDialog.examples = undefined
-  formDialog.acceptExamples = !isStandalone() && GEUtility.isClass(graphElement)
+  formDialog.acceptExamples = !isStandalone() && (GEUtility.isClass(graphElement) || GEUtility.isDataProperty(graphElement))
+  console.log(formDialog.acceptExamples)
   formDialog.loadingExamples = false
   formDialog.show()
 }
@@ -53,13 +54,13 @@ export default function(element: HeadElement | GraphElement, formDialog: Sparqli
 function isHeadElement(element: any): element is HeadElement {
   if ((element as HeadElement).graphElementId)
     return true
-  else 
+  else
     return false
 }
 
 function isGraphElement(element: any): element is GraphElement {
   if ((element as GraphElement).entities)
     return true
-  else 
+  else
     return false
 } 

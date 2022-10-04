@@ -53,7 +53,7 @@ export function getFormTemplate(formComponent: SparqlingFormDialog, operators: s
             : null
           }
 
-          ${formComponent.acceptExamples && formComponent.parametersType !== VarOrConstantTypeEnum.Constant
+          ${formComponent.acceptExamples
             ? html`
               <gscape-button 
                 id="show-examples" 

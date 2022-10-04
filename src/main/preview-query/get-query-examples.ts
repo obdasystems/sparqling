@@ -1,5 +1,7 @@
 import axios from "axios"
 import * as model from "../../model"
+import { getQueryBody } from "../../model"
+import { findGraphElement, getGraphElementByIRI, getIri, isClass, isDataProperty } from "../../util/graph-element-utility"
 import SparqlingFormDialog from "../../widgets/forms/base-form-dialog"
 import { handlePromise } from "../handle-promises"
 import handleEndpointSelection from "./handle-endpoint-selection"
@@ -21,8 +23,23 @@ export async function showIriExamplesInForm(iri: string, formDialog: SparqlingFo
       headers: JSON.parse(localStorage.getItem('headers') || '')
     }))
 
-    const queryString = prefixes.map((p: { name: any; namespace: any }) => `PREFIX ${p.name} <${p.namespace}>`).join('\n') +
-      `\nSELECT * WHERE { ?Examples  rdf:type <${iri}> } LIMIT 10`
+    let queryString = prefixes.map((p: { name: any; namespace: any }) => `PREFIX ${p.name} <${p.namespace}>`).join('\n')
+    
+    const graphElement = getGraphElementByIRI(iri)
+    if (graphElement) {
+      if (isClass(graphElement)) {
+        queryString += `\nSELECT * WHERE { ?Examples  rdf:type <${iri}> } LIMIT 10`
+      } else if (isDataProperty(graphElement)) {
+        const classGraphElement = findGraphElement(getQueryBody()?.graph, (ge) => ge.children?.includes(graphElement) || false)
+        if (classGraphElement) {
+          const classIri = getIri(classGraphElement)
+          queryString += `\nSELECT ?Examples WHERE { ?x rdf:type <${classIri}>; <${iri}> ?Examples;  } LIMIT 10`
+        } else {
+          queryString += `\nSELECT ?Examples WHERE { ?x  <${iri}> ?Examples;  } LIMIT 10`
+        }
+        
+      }
+    }
 
     const queryStartResponse = await handlePromise(axios.request<any>(getNewQueryRequestOptions(endpoint, queryString)))
 
