@@ -48,7 +48,7 @@ export function resetHighlights() {
     for (let [_, diagramRepresentation] of diagram.representations) {
       diagramRepresentation.cy.$(`.${model.SPARQLING_SELECTED}`).removeClass(model.SPARQLING_SELECTED)
       diagramRepresentation.cy.$(`.${model.HIGHLIGHT_CLASS}`).removeClass(model.HIGHLIGHT_CLASS)
-      diagramRepresentation.cy.$(`.${model.FADED_ClASS}`).removeClass(model.FADED_ClASS).selectify()
+      diagramRepresentation.cy.$(`.${model.FADED_CLASS}`).removeClass(model.FADED_CLASS).selectify()
     }
   })
   actualHighlights = undefined
@@ -91,7 +91,7 @@ function performHighlights(clickedIRI: string) {
 
     const highlightedElems = gscape.renderer.cy?.$('.highlighted, .sparqling-selected') || cytoscape().collection()
     const fadedElems = gscape.renderer.cy?.elements().difference(highlightedElems)
-    fadedElems?.addClass(model.FADED_ClASS)
+    fadedElems?.addClass(model.FADED_CLASS)
   }
   //fadedElems.unselectify()
 }

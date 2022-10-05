@@ -5,6 +5,8 @@ import { SparqlingIncrementalRendererState, cy as queryGraphCy } from '../query-
 import { bgpContainer } from '../util/get-container';
 import addSuggestionsInIncremental from './add-suggestions-in-incremental';
 
+export { addSuggestionsInIncremental }
+
 const getDiagramSelector = () => getGscape().widgets.get(ui.WidgetEnum.DIAGRAM_SELECTOR) as unknown as ui.IBaseMixin
 const getEntitySelector = () => getGscape().widgets.get(ui.WidgetEnum.ENTITY_SELECTOR) as unknown as ui.IBaseMixin
 
@@ -19,6 +21,8 @@ export function startIncremental() {
 
   const activeElement = model.getActiveElement()
   if (activeElement) {
+    if (activeElement.graphElement.id)
+      incrementalRendererState.activeClass = queryGraphCy.$id(activeElement.graphElement.id)
     addSuggestionsInIncremental(activeElement.iri.fullIri)
   }
 }

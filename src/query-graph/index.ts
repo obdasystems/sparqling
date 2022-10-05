@@ -91,9 +91,7 @@ export function getSelectedGraphElement() {
 export { 
   onIncrementalClassSelection, 
   onIncrementalObjectPropertySelection,
-  addClassSuggestion,
-  addObjectPropertySuggestion,
-  addDataPropertySuggestion,
+  resetSuggestions,
 } from './renderer'
 
 // // ******************************* GRAPH INTERACTION CALLBACKS ******************************* //

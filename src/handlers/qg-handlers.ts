@@ -55,12 +55,14 @@ queryGraph.onDelete((graphElement, iri) => {
           }
         }
         
-        ontologyGraph.resetHighlights()
-        gscape.unselect()
+        if (model.isIncrementalActive()) {
+          ontologyGraph.resetHighlights()
+          gscape.unselect()
 
-        if (newSelectedGEIri) {
-          gscape.centerOnEntity(newSelectedGEIri)
-          ontologyGraph.highlightSuggestions(newSelectedGEIri)
+          if (newSelectedGEIri) {
+            gscape.centerOnEntity(newSelectedGEIri)
+            ontologyGraph.highlightSuggestions(newSelectedGEIri)
+          }
         }
 
         if (newSelectedGE?.id) {
@@ -124,7 +126,8 @@ queryGraph.onElementClick((graphElement, iri) => {
       })
 
       // Highlight suggestions for the actual clicked iri (might be a child node)
-      ontologyGraph.highlightSuggestions(iri)
+      if (!model.isIncrementalActive())
+        ontologyGraph.highlightSuggestions(iri)
     }
   }
 

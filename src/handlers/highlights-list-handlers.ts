@@ -8,7 +8,6 @@ import { handleEntitySelection, handleObjectPropertySelection } from "./og-handl
 highlightsList.onSuggestionLocalization((entityIri) => getGscape().centerOnEntity(entityIri))
 
 highlightsList.onSuggestionAddToQuery((entityIri, entityType, relatedClass) => {
-  console.log(entityIri)
   switch (entityType) {
     case EntityTypeEnum.Class:
     case EntityTypeEnum.DataProperty:

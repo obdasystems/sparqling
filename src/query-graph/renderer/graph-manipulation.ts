@@ -117,8 +117,8 @@ export function selectNode(nodeId: string): cytoscape.CollectionReturnValue {
  * Arrange nodes in nice positions
  */
 export function arrange() {
-  const dataPropertySelector = `node[type = "${EntityTypeEnum.DataProperty}"]`
-  const classSelector = `node[type = "${EntityTypeEnum.Class}"]`
+  const dataPropertySelector = `node[type = "${EntityTypeEnum.DataProperty}"][!isSuggestion]`
+  const classSelector = `node[type = "${EntityTypeEnum.Class}"][!isSuggestion]`
 
   if (getElements().length <= 1) {
     /**

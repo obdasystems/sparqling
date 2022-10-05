@@ -39,7 +39,9 @@ function onChangeDiagramOrRenderer(gscape: Grapholscape) {
     setHandlers(gscape.renderer.cy)
     ontologyGraph.addStylesheet(gscape.renderer.cy, sparqlingStyle(gscape.theme))
   }
-  refreshHighlights()
+
+  if (gscape.renderState !== RendererStatesEnum.INCREMENTAL)
+    refreshHighlights()
 }
 
 function setHandlers(cy: Core) {

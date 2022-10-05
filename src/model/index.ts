@@ -10,7 +10,7 @@ let isRunning = false
 let isIncremental = false
 
 export const HIGHLIGHT_CLASS = 'highlighted'
-export const FADED_ClASS = 'faded'
+export const FADED_CLASS = 'faded'
 export const SPARQLING_SELECTED = 'sparqling-selected'
 
 export function getOntologyFile() {

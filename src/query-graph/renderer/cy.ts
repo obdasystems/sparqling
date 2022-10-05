@@ -1,17 +1,18 @@
-import cytoscape, { Stylesheet } from "cytoscape"
-import klay from 'cytoscape-klay'
+import cytoscape, { NodeSingular } from "cytoscape"
+import cola from 'cytoscape-cola'
 import compoundDragAndDrop from 'cytoscape-compound-drag-and-drop'
+import klay from 'cytoscape-klay'
 import popper from 'cytoscape-popper'
-import { bgpContainer } from "../../util/get-container"
 import { EntityNameType } from "grapholscape"
 import { EntityTypeEnum } from "../../api/swagger"
-import { attachCxtMenuTo, cxtMenuWidget, getCxtMenuProps } from "../../widgets"
+import { bgpContainer } from "../../util/get-container"
+import { attachCxtMenuTo } from "../../widgets"
 import { getCommandsForElement } from "./cxt-menu-commands"
-import tippy from "tippy.js"
 
 cytoscape.use(klay)
 cytoscape.use(compoundDragAndDrop)
 cytoscape.use(popper)
+cytoscape.use(cola)
 
 export const cy = cytoscape({
   wheelSensitivity: 0.4,
@@ -34,7 +35,7 @@ cy.on('render', () => {
   } catch {}
 })
 
-cy.on('mouseover', '[iri]', () => {
+cy.on('mouseover', '[iri], [?isSuggestion]', () => {
   const container = cy.container()
   if (container)
     container.style.cursor = 'pointer'
@@ -46,7 +47,7 @@ cy.on('mouseout', () => {
     container.style.cursor = 'unset'
 })
 
-cy.on('cxttap', `node, edge[type = "${EntityTypeEnum.ObjectProperty}"], edge[type = "${EntityTypeEnum.InverseObjectProperty}"]`, e => {
+cy.on('cxttap', `[iri][!isSuggestion]`, e => {
   attachCxtMenuTo(e.target.popperRef(), getCommandsForElement(e.target))
 })
 

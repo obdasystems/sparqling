@@ -1,5 +1,5 @@
 import { Stylesheet } from "cytoscape"
-import { ColoursNames, GrapholscapeTheme } from "grapholscape"
+import { ColoursNames, GrapholscapeTheme, GrapholTypesEnum } from "grapholscape"
 import { EntityTypeEnum } from "../../api/swagger"
 
 const { DataProperty, Class, ObjectProperty, InverseObjectProperty } = EntityTypeEnum
@@ -7,14 +7,14 @@ const { DataProperty, Class, ObjectProperty, InverseObjectProperty } = EntityTyp
 export default (theme: GrapholscapeTheme) => {
   return [
     {
-      selector: '*',
+      selector: '*[!isSuggestion]',
       style: {
         'color': theme.getColour(ColoursNames.label),
         'border-width': '1px',
       }
     },
     {
-      selector: `node[type = "${Class}"]`,
+      selector: `node[type = "${Class}"][!isSuggestion]`,
       style: {
         'shape': 'round-rectangle',
         'background-color': theme.getColour(ColoursNames.class),
@@ -25,7 +25,7 @@ export default (theme: GrapholscapeTheme) => {
       },
     },
     {
-      selector: 'edge',
+      selector: 'edge[!isSuggestion]',
       style: {
         'line-style': 'solid',
         'target-arrow-shape': 'triangle',
@@ -38,7 +38,7 @@ export default (theme: GrapholscapeTheme) => {
     },
 
     {
-      selector: '[displayed_name]',
+      selector: '[displayed_name][!isSuggestion]',
       style: {
         'text-wrap': 'wrap',
         'text-max-width': '80px',
@@ -49,7 +49,7 @@ export default (theme: GrapholscapeTheme) => {
     },
 
     {
-      selector: `edge[type = "${DataProperty}"]`,
+      selector: `edge[type = "${DataProperty}"][!isSuggestion]`,
       style: {
         'curve-style': 'straight',
         'target-arrow-shape': 'none',
@@ -58,7 +58,7 @@ export default (theme: GrapholscapeTheme) => {
     },
 
     {
-      selector: `node[type = "${DataProperty}"]`,
+      selector: `node[type = "${DataProperty}"][!isSuggestion]`,
       style: {
         'shape': 'ellipse',
         'height': 10,
@@ -69,7 +69,7 @@ export default (theme: GrapholscapeTheme) => {
     },
 
     {
-      selector: `edge[type = "${ObjectProperty}"], edge[type = "${InverseObjectProperty}"]`,
+      selector: `edge[type = "${ObjectProperty}"][!isSuggestion], edge[type = "${InverseObjectProperty}"][!isSuggestion]`,
       style: {
         'line-color': theme.getColour(ColoursNames.object_property_contrast),
         'target-arrow-color': theme.getColour(ColoursNames.object_property_contrast),
@@ -79,7 +79,7 @@ export default (theme: GrapholscapeTheme) => {
     },
 
     {
-      selector: `edge[type = "${InverseObjectProperty}"]`,
+      selector: `edge[type = "${InverseObjectProperty}"][!isSuggestion]`,
       style: {
         'target-arrow-shape': 'none',
         'source-arrow-shape': 'triangle',
@@ -88,7 +88,7 @@ export default (theme: GrapholscapeTheme) => {
     },
 
     {
-      selector: '.cdnd-drop-target',
+      selector: '.cdnd-drop-target[!isSuggestion]',
       style: {
         'background-color': theme.getColour(ColoursNames.bg_inset),
         'border-style': 'dashed',
@@ -124,6 +124,31 @@ export default (theme: GrapholscapeTheme) => {
       selector: '$node > node', // parent of a node, compound nodes
       style: {
         'label': '',
+      }
+    },
+
+    // ----------------- incremental suggestions ----------------
+    {
+      selector: '.faded',
+      style: {
+        'opacity': 0.4,
+      }
+    },
+
+    {
+      selector: `node[?isSuggestion][type = "${GrapholTypesEnum.CLASS}"]`,
+      style: {
+        'width': 60,
+        'height': 60,
+      }
+    },
+
+    {
+      selector: `node[?isSuggestion][type = "${GrapholTypesEnum.DATA_PROPERTY}"]`,
+      style: {
+        'width': 10,
+        'height': 10,
+        'border-width': 1,
       }
     },
 
