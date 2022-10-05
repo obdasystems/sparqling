@@ -26,7 +26,7 @@ export default (theme: GrapholscapeTheme) => {
       },
     },
     {
-      selector: 'edge[!isSuggestion]',
+      selector: 'edge',
       style: {
         'line-style': 'solid',
         'target-arrow-shape': 'triangle',
@@ -39,7 +39,7 @@ export default (theme: GrapholscapeTheme) => {
     },
 
     {
-      selector: '[displayed_name][!isSuggestion]',
+      selector: '[displayed_name]',
       style: {
         'text-wrap': 'wrap',
         'text-max-width': '80px',
@@ -125,31 +125,6 @@ export default (theme: GrapholscapeTheme) => {
       selector: '$node > node', // parent of a node, compound nodes
       style: {
         'label': '',
-      }
-    },
-
-    // ----------------- incremental suggestions ----------------
-    {
-      selector: '.faded',
-      style: {
-        'opacity': 0.4,
-      }
-    },
-
-    {
-      selector: `node[?isSuggestion][type = "${GrapholTypesEnum.CLASS}"]`,
-      style: {
-        'width': 60,
-        'height': 60,
-      }
-    },
-
-    {
-      selector: `node[?isSuggestion][type = "${GrapholTypesEnum.DATA_PROPERTY}"]`,
-      style: {
-        'width': 10,
-        'height': 10,
-        'border-width': 1,
       }
     },
 

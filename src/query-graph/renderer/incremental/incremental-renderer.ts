@@ -2,6 +2,7 @@ import { NodeSingular, SingularElementReturnValue, Stylesheet } from "cytoscape"
 import { GrapholNode, GrapholscapeTheme, GrapholTypesEnum, IncrementalDiagram, IncrementalRendererState, Ontology, Renderer } from "grapholscape";
 import { HIGHLIGHT_CLASS, SPARQLING_SELECTED } from "../../../model";
 import style from "../style";
+import getIncrementalStyle from "./style";
 
 export default class SparqlingIncrementalRendererState extends IncrementalRendererState {
   private sparqlingCy: cytoscape.Core
@@ -32,7 +33,7 @@ export default class SparqlingIncrementalRendererState extends IncrementalRender
   transformOntology(ontology: Ontology): void {}
 
   getGraphStyle(theme: GrapholscapeTheme): Stylesheet[] {
-    return super.getGraphStyle(theme).concat(style(theme))
+    return style(theme).concat(getIncrementalStyle(theme))
   }
 
   runLayout() {
