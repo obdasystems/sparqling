@@ -6,6 +6,7 @@ import SparqlingIncrementalRendererState from './incremental-renderer'
 export { SparqlingIncrementalRendererState }
 
 let onClassSelectionCallback = (classIri: string) => { }
+let onDataPropertySelectionCallback = (dataPropertyIri: string) => { }
 let onObjectPropertySelectionCallback = (objectPropertyIri: string, relatedClassiri: string, isDirect: boolean) => { }
 
 cy.on('dbltap', `node[?isSuggestion]`, (evt) => {
@@ -13,6 +14,10 @@ cy.on('dbltap', `node[?isSuggestion]`, (evt) => {
     switch(evt.target.data().type) {
       case GrapholTypesEnum.CLASS:
         onClassSelectionCallback(evt.target.data().iri)
+        break
+
+      case GrapholTypesEnum.DATA_PROPERTY:
+        onDataPropertySelectionCallback(evt.target.data().iri)
     }
   }
     
@@ -36,6 +41,10 @@ cy.on('mouseout', '[?isSuggestion]', evt => {
 
 export function onIncrementalClassSelection(callback: (classIri: string) => void) {
   onClassSelectionCallback = callback
+}
+
+export function onIncrementalDataPropertySelection(callback: (dataPropertyIri: string) => void) {
+  onDataPropertySelectionCallback = callback
 }
 
 export function onIncrementalObjectPropertySelection(callback: (objectPropertyIri: string, relatedClassiri: string, isDirect: boolean) => void) {

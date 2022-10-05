@@ -40,6 +40,20 @@ queryGraph.onIncrementalClassSelection((classIri: string) => {
   }
 })
 
+queryGraph.onIncrementalDataPropertySelection(dataPropertyIri => {
+  const qgBGPApi = new QueryGraphBGPApi(undefined, model.getBasePath())
+  const activeClass = model.getActiveElement()
+
+  if (activeClass?.graphElement.id) {
+    handlePromise(qgBGPApi.putQueryGraphDataProperty(
+      activeClass.graphElement.id, '',
+      dataPropertyIri,
+      model.getQueryBody(),
+      model.getRequestOptions(),
+    )).then(newQueryBody => onNewBody(newQueryBody))
+  }
+})
+
 queryGraph.onIncrementalObjectPropertySelection((objectPropertyIri, relatedClassIri, isDirect) => {
   const qgBGPApi = new QueryGraphBGPApi(undefined, model.getBasePath())
   const activeClass = model.getActiveElement()

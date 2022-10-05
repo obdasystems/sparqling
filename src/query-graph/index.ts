@@ -89,7 +89,8 @@ export function getSelectedGraphElement() {
 
 // // *************************************** INCREMENTAL *************************************** //
 export { 
-  onIncrementalClassSelection, 
+  onIncrementalClassSelection,
+  onIncrementalDataPropertySelection, 
   onIncrementalObjectPropertySelection,
   resetSuggestions,
 } from './renderer'
