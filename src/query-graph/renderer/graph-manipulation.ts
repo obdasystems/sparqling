@@ -206,7 +206,7 @@ function getDataObj(graphElement: GraphElement, i?: number) {
     const filtersNumber = getFiltersOnVariable(graphElement.id)?.length
     data.hasFilters = filtersNumber && filtersNumber > 0 ? true : false
     data.displayed_name = getDisplayedName(data)
-    
+    data.width = 60
     return data
   }
 }

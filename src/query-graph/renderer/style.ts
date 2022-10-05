@@ -21,7 +21,8 @@ export default (theme: GrapholscapeTheme) => {
         'border-color': theme.getColour(ColoursNames.class_contrast),
         'text-halign': 'center',
         'text-valign': 'center',
-        'width': '60px',
+        'width': 60,
+        'height': 30
       },
     },
     {
