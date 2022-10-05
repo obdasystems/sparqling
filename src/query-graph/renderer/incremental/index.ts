@@ -44,4 +44,5 @@ export function onIncrementalObjectPropertySelection(callback: (objectPropertyIr
 
 export function resetSuggestions() {
   cy.elements('[?isSuggestion]').remove()
+  cy.elements().unlock()
 }

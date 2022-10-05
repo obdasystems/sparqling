@@ -1,7 +1,7 @@
 import { RendererStatesEnum, setGraphEventHandlers, ui } from 'grapholscape';
 import * as model from '../model'
 import { getGscape } from '../ontology-graph';
-import { SparqlingIncrementalRendererState, cy as queryGraphCy } from '../query-graph/renderer';
+import { SparqlingIncrementalRendererState, cy as queryGraphCy, resetSuggestions } from '../query-graph/renderer';
 import { bgpContainer } from '../util/get-container';
 import addSuggestionsInIncremental from './add-suggestions-in-incremental';
 
@@ -28,6 +28,9 @@ export function startIncremental() {
 }
 
 export function stopIncremental(previousRendererState: RendererStatesEnum) {
+  model.setIncremental(false)
+  resetSuggestions()
+  
   getDiagramSelector().show()
   getEntitySelector().hide()
 
