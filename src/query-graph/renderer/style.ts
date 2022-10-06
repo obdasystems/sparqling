@@ -7,10 +7,11 @@ const { DataProperty, Class, ObjectProperty, InverseObjectProperty } = EntityTyp
 export default (theme: GrapholscapeTheme) => {
   return [
     {
-      selector: '*[!isSuggestion]',
+      selector: '*',
       style: {
         'color': theme.getColour(ColoursNames.label),
         'border-width': '1px',
+        'font-size': '8px',
       }
     },
     {
@@ -26,7 +27,7 @@ export default (theme: GrapholscapeTheme) => {
       },
     },
     {
-      selector: 'edge',
+      selector: 'edge[!isSuggestion]',
       style: {
         'line-style': 'solid',
         'target-arrow-shape': 'triangle',
@@ -45,12 +46,11 @@ export default (theme: GrapholscapeTheme) => {
         'text-max-width': '80px',
         'text-overflow-wrap': 'anywhere',
         'label': 'data(displayed_name)',
-        'font-size': '8px'
       },
     },
 
     {
-      selector: `edge[type = "${DataProperty}"][!isSuggestion]`,
+      selector: `edge[type = "${DataProperty}"]`,
       style: {
         'curve-style': 'straight',
         'target-arrow-shape': 'none',
@@ -70,7 +70,7 @@ export default (theme: GrapholscapeTheme) => {
     },
 
     {
-      selector: `edge[type = "${ObjectProperty}"][!isSuggestion], edge[type = "${InverseObjectProperty}"][!isSuggestion]`,
+      selector: `edge[type = "${ObjectProperty}"], edge[type = "${InverseObjectProperty}"]`,
       style: {
         'line-color': theme.getColour(ColoursNames.object_property_contrast),
         'target-arrow-color': theme.getColour(ColoursNames.object_property_contrast),
@@ -80,7 +80,7 @@ export default (theme: GrapholscapeTheme) => {
     },
 
     {
-      selector: `edge[type = "${InverseObjectProperty}"][!isSuggestion]`,
+      selector: `edge[type = "${InverseObjectProperty}"]`,
       style: {
         'target-arrow-shape': 'none',
         'source-arrow-shape': 'triangle',

@@ -11,7 +11,7 @@ export default class SparqlingIncrementalRendererState extends IncrementalRender
   constructor(cyInstance: cytoscape.Core) {
     super()
     this.sparqlingCy = cyInstance
-    this.floatyLayoutOptions.fit = false
+    this.floatyLayoutOptions.edgeLength = () => 150
   }
 
   createNewDiagram() {
@@ -33,7 +33,7 @@ export default class SparqlingIncrementalRendererState extends IncrementalRender
   transformOntology(ontology: Ontology): void {}
 
   getGraphStyle(theme: GrapholscapeTheme): Stylesheet[] {
-    return style(theme).concat(getIncrementalStyle(theme))
+    return super.getGraphStyle(theme).concat(style(theme)).concat(getIncrementalStyle(theme))
   }
 
   runLayout() {

@@ -1,5 +1,5 @@
 import { Iri } from 'grapholscape'
-import { QueryGraphBGPApi } from '../api/swagger'
+import { GraphElement, QueryGraph, QueryGraphBGPApi } from '../api/swagger'
 import { addSuggestionsInIncremental } from '../main/incremental'
 import { handlePromise } from '../main/handle-promises'
 import onNewBody from '../main/on-new-body'
@@ -7,6 +7,7 @@ import * as model from '../model'
 import { getGscape } from '../ontology-graph'
 import * as queryGraph from '../query-graph'
 import { getdiffNew, graphElementHasIri } from '../util/graph-element-utility'
+import { updateEndpoints } from '../model'
 
 
 queryGraph.onIncrementalClassSelection((classIri: string) => {
@@ -20,22 +21,9 @@ queryGraph.onIncrementalClassSelection((classIri: string) => {
       classIri,
       model.getQueryBody(),
       model.getRequestOptions()
-    )).then(async newQueryGraph => {
-      onNewBody(newQueryGraph)
-      const newGraphElements = getdiffNew(oldQueryGraph, newQueryGraph.graph)
-      // The node to select is the one having the clickedIri among the new nodes
-      const newActiveElement = newGraphElements.find(ge => graphElementHasIri(ge, classIri))
-      if (newActiveElement && newActiveElement.id) {
-        const grapholscape = getGscape()
-
-        queryGraph.selectElement(newActiveElement.id)
-        model.setActiveElement({
-          graphElement: newActiveElement,
-          iri: new Iri(classIri, getGscape().ontology.namespaces),
-        })
-
-        grapholscape.renderer.renderState['activeClass'] = grapholscape.renderer.cy?.$id(newActiveElement.id)
-      }
+    )).then(async newQueryBody => {
+      onNewBody(newQueryBody)
+      updateActiveElement(classIri, oldQueryGraph, newQueryBody.graph)
     })
   }
 })
@@ -57,6 +45,7 @@ queryGraph.onIncrementalDataPropertySelection(dataPropertyIri => {
 queryGraph.onIncrementalObjectPropertySelection((objectPropertyIri, relatedClassIri, isDirect) => {
   const qgBGPApi = new QueryGraphBGPApi(undefined, model.getBasePath())
   const activeClass = model.getActiveElement()
+  const oldQueryBody = model.getQueryBody()
 
   if (activeClass?.graphElement.id) {
     handlePromise(qgBGPApi.putQueryGraphObjectProperty(
@@ -65,6 +54,26 @@ queryGraph.onIncrementalObjectPropertySelection((objectPropertyIri, relatedClass
       isDirect,
       model.getQueryBody(),
       model.getRequestOptions()
-    )).then(newQueryGraph => onNewBody(newQueryGraph))
+    )).then(newQueryBody => {
+      onNewBody(newQueryBody)
+      updateActiveElement(relatedClassIri, oldQueryBody.graph, newQueryBody.graph)
+    })
   }
 })
+
+function updateActiveElement(newSelectedIri: string, oldQueryGraph: GraphElement, newQueryGraph: GraphElement) {
+  const newGraphElements = getdiffNew(oldQueryGraph, newQueryGraph)
+  // The node to select is the one having the clickedIri among the new nodes
+  const newActiveElement = newGraphElements.find(ge => graphElementHasIri(ge, newSelectedIri))
+  if (newActiveElement && newActiveElement.id) {
+    const grapholscape = getGscape()
+
+    queryGraph.selectElement(newActiveElement.id)
+    model.setActiveElement({
+      graphElement: newActiveElement,
+      iri: new Iri(newSelectedIri, getGscape().ontology.namespaces),
+    })
+
+    grapholscape.renderer.renderState['activeClass'] = grapholscape.renderer.cy?.$id(newActiveElement.id)
+  }
+}

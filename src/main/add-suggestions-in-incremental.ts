@@ -1,10 +1,14 @@
 import { NodeSingular } from "cytoscape"
-import { GrapholTypesEnum, RendererStatesEnum } from "grapholscape"
+import { GrapholEdge, GrapholNode, GrapholTypesEnum, RendererStatesEnum } from "grapholscape"
 import * as model from "../model"
 import { getGscape } from "../ontology-graph"
 
 export default async function (classIri: string) {
   const highlights = await model.computeHighlights(classIri)
+  const activeElement = model.getActiveElement()
+
+  if (!activeElement?.graphElement.id) return
+
   const grapholscape = getGscape()
 
   highlights.classes?.forEach((classIri, i) => {
@@ -14,10 +18,57 @@ export default async function (classIri: string) {
   })
 
   highlights.dataProperties?.forEach((dataPropertyIri, i) => {
-    const newSuggestionId =  `data-property-suggestion-${i}`
+    const newSuggestionId = `data-property-suggestion-${i}`
     addEntitySuggestion(dataPropertyIri, newSuggestionId)
     addEdgeForEntitySuggestion(newSuggestionId, GrapholTypesEnum.DATA_PROPERTY)
   })
+
+  highlights.objectProperties?.forEach((queryBranch, i) => {
+    if (!queryBranch.objectPropertyIRI) return
+
+    const grapholEntity = grapholscape.ontology.getEntity(queryBranch.objectPropertyIRI)
+    const entityOccurrences = grapholEntity.occurrences.get(RendererStatesEnum.GRAPHOL)
+
+    if (!entityOccurrences) return
+
+    const originalGrapholElement = grapholscape.ontology.getGrapholElement(entityOccurrences[0].elementId, entityOccurrences[0].diagramId)
+
+    // add related classes nodes
+    queryBranch.relatedClasses?.forEach((relatedClassIri, j) => {
+      const newSuggestionId = `related-class-suggestion-${i}-${j}`
+      addEntitySuggestion(relatedClassIri, newSuggestionId)
+
+      const objectPropertyGrapholElement = new GrapholEdge(`obj-property-suggestion-${i}-${j}`)
+      objectPropertyGrapholElement.type = GrapholTypesEnum.OBJECT_PROPERTY
+
+      if (queryBranch.direct) {
+        objectPropertyGrapholElement.targetId = newSuggestionId
+        if (!activeElement.graphElement.id) return
+        objectPropertyGrapholElement.sourceId = activeElement.graphElement.id
+      } else {
+        if (!activeElement.graphElement.id) return
+        objectPropertyGrapholElement.targetId = activeElement.graphElement.id
+        objectPropertyGrapholElement.sourceId = newSuggestionId
+      }
+
+      objectPropertyGrapholElement.displayedName = originalGrapholElement.displayedName
+
+      const cyElem = objectPropertyGrapholElement.getCytoscapeRepr(grapholEntity)[0]
+
+      const newAddedSuggestion = grapholscape.renderer.cy?.add(cyElem)
+      if (newAddedSuggestion) {
+        newAddedSuggestion?.data('isSuggestion', true)
+        newAddedSuggestion?.addClass(model.FADED_CLASS)
+      }
+    })
+  })
+
+  // highlights.objectProperties?.forEach((queryBranch, i) => {
+  //   if (!queryBranch.objectPropertyIRI) return
+  //   const newSuggestionId = queryBranch.objectPropertyIRI
+  //   addEntitySuggestion(queryBranch.objectPropertyIRI, newSuggestionId)
+  //   addEdgeForEntitySuggestion(newSuggestionId, GrapholTypesEnum.OBJECT_PROPERTY)
+  // })
 
   grapholscape.renderer.renderState.runLayout()
 }
@@ -30,6 +81,7 @@ function addEntitySuggestion(iri: string, id: string) {
   if (entityOccurrences) {
     const grapholElement = grapholscape.ontology.getGrapholElement(entityOccurrences[0].elementId, entityOccurrences[0].diagramId).clone()
     const cyElem = grapholElement.getCytoscapeRepr(grapholEntity)[0]
+    console.log((grapholElement as GrapholNode).shape)
     cyElem.data.id = id
     const newAddedSuggestion: NodeSingular | undefined = grapholscape.renderer.cy?.add(cyElem)
     if (newAddedSuggestion) {

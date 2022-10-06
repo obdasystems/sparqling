@@ -3,13 +3,14 @@ import { Stylesheet } from "cytoscape"
 
 export default function getIncrementalStyle(theme: GrapholscapeTheme) {
   return [
-    {
-      selector: '[?isSuggestion][displayedName]',
-      style: {
-        'label': 'data(displayedName)',
-        'border-width': 1,
-      }
-    },
+    // {
+    //   selector: '[?isSuggestion][displayedName]',
+    //   style: {
+    //     'label': 'data(displayedName)',
+    //     'border-width': 1,
+    //   }
+    // },
+
     {
       selector: '.faded',
       style: {
@@ -21,12 +22,13 @@ export default function getIncrementalStyle(theme: GrapholscapeTheme) {
       style: {
         'width': 60,
         'height': 60,
-        'background-color': theme.getColour(ColoursNames.class),
-        'border-color': theme.getColour(ColoursNames.class_contrast),
-        'text-margin-x': 0,
-        'text-margin-y': 0,
-        'text-valign': 'center',
-        'text-halign': 'center',
+        // 'background-color': theme.getColour(ColoursNames.class),
+        // 'border-color': theme.getColour(ColoursNames.class_contrast),
+        // 'text-margin-x': 0,
+        // 'text-margin-y': 0,
+        // 'text-valign': 'center',
+        // 'text-halign': 'center',
+        // 'shape': 'ellipse',
       }
     },
 
@@ -35,19 +37,40 @@ export default function getIncrementalStyle(theme: GrapholscapeTheme) {
       style: {
         'width': 10,
         'height': 10,
-        'background-color': theme.getColour(ColoursNames.data_property),
-        'border-color': theme.getColour(ColoursNames.data_property_contrast),
+        // 'background-color': theme.getColour(ColoursNames.data_property),
+        // 'border-color': theme.getColour(ColoursNames.data_property_contrast),
       }
     },
 
-    {
-      selector: `edge[type = "${GrapholTypesEnum.DATA_PROPERTY}"]`,
-      style: {
-        'line-style': 'solid',
-        'target-arrow-shape': 'none',
-        'line-color': theme.getColour(ColoursNames.data_property_contrast),
-      }
-    },
+    // {
+    //   selector: `edge[type = "${GrapholTypesEnum.DATA_PROPERTY}"]`,
+    //   style: {
+    //     'target-arrow-shape': 'none',
+    //     'line-color': theme.getColour(ColoursNames.data_property_contrast),
+    //   }
+    // },
+
+    // {
+    //   selector: `edge[type = "${GrapholTypesEnum.OBJECT_PROPERTY}"]`,
+    //   style: {
+    //     'target-arrow-shape': 'none',
+    //     'line-color': theme.getColour(ColoursNames.object_property_contrast),
+    //     'width': 4,
+    //   }
+    // },
+    
+    // {
+    //   selector: `node[type = "${GrapholTypesEnum.OBJECT_PROPERTY}"]`,
+    //   style: {
+    //     'shape': 'diamond',
+    //     'height': 45,
+    //     'width': 60,
+    //     'background-color': theme.getColour(ColoursNames.object_property),
+    //     'border-color': theme.getColour(ColoursNames.object_property_contrast),
+    //     'text-valign': 'center',
+    //     'text-halign': 'center',
+    //   }
+    // },
 
   ] as Stylesheet[]
 }
