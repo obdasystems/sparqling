@@ -1,6 +1,7 @@
-import { Iri, ui } from 'grapholscape'
+import { Iri } from 'grapholscape'
 import { QueryGraph, QueryGraphBGPApiFactory, QueryGraphHeadApiFactory, QueryGraphOptionalApiFactory } from '../api/swagger'
 import { clearQuery } from '../main'
+import { startFullpage, stopFullpage } from '../main/fullpage'
 import { handlePromise } from '../main/handle-promises'
 import onNewBody from '../main/on-new-body'
 import * as model from '../model'
@@ -54,8 +55,8 @@ queryGraph.onDelete((graphElement, iri) => {
             })
           }
         }
-        
-        if (model.isIncrementalActive()) {
+
+        if (!model.isFullPageActive()) {
           ontologyGraph.resetHighlights()
           gscape.unselect()
 
@@ -126,7 +127,7 @@ queryGraph.onElementClick((graphElement, iri) => {
       })
 
       // Highlight suggestions for the actual clicked iri (might be a child node)
-      if (!model.isIncrementalActive())
+      if (!model.isFullPageActive())
         ontologyGraph.highlightSuggestions(iri)
     }
   }
@@ -186,3 +187,7 @@ queryGraph.onSeeFilters(graphElement => {
 queryGraph.widget.onSparqlButtonClick = () => sparqlDialog.isVisible ? sparqlDialog.hide() : sparqlDialog.show()
 
 queryGraph.widget.onQueryClear = () => { clearQuery() }
+
+queryGraph.widget.onFullPageToggle = () => {
+  model.isFullPageActive() ? stopFullpage() : startFullpage()
+}

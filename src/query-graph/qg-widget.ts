@@ -1,5 +1,5 @@
 import { ui } from 'grapholscape'
-import { css, html, LitElement, PropertyValueMap } from 'lit'
+import { css, html, LitElement, PropertyValueMap, svg } from 'lit'
 import { countStarToggle } from '../widgets'
 import { code, dbClick, rdfLogo, refresh } from '../widgets/assets/icons'
 import { emptyGraphMsg, emptyGraphTipMsg, tipWhatIsQueryGraph } from '../widgets/assets/texts'
@@ -19,6 +19,8 @@ export default class QueryGraphWidget extends ui.BaseMixin(ui.DropPanelMixin(Lit
   
   onQueryClear = () => { }
   onSparqlButtonClick = () => { }
+  onFullPageToggle = () => { }
+
   title = 'Query Graph'
 
   static properties = {
@@ -94,6 +96,7 @@ export default class QueryGraphWidget extends ui.BaseMixin(ui.DropPanelMixin(Lit
 
                 ${getTrayButtonTemplate('Sparql', code, undefined, 'sparql-code-btn', this.onSparqlButtonClick)}
                 ${getTrayButtonTemplate('Clear Query', refresh, undefined, 'clear-query-btn', this.onQueryClear)}
+                ${getTrayButtonTemplate('Full Page', svg`${ui.icons.enterFullscreen}`, svg`${ui.icons.exitFullscreen}`, 'full-page-btn', this.onFullPageToggle)}
               </div>
 
               <gscape-button 

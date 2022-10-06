@@ -47,13 +47,6 @@ function getCore(gscape: Grapholscape, file: string | Blob) {
 
     const actualGrapholscape = ontologyGraph.getGscape()
     if (actualGrapholscape !== gscape) {
-
-      // Remove restart button in incremental renderer, if present
-      const rendererSelector = gscape.widgets.get(ui.WidgetEnum.RENDERER_SELECTOR) as any
-      if (rendererSelector) {
-        rendererSelector.onIncrementalRefresh = null
-      }
-
       ontologyGraph.setGrapholscapeInstance(gscape)
       initGrapholscapeHandlers()
     }

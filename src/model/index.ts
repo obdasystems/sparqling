@@ -7,7 +7,7 @@ export * from './highlights'
 
 let file: File
 let isRunning = false
-let isIncremental = false
+let isFullPage = false
 
 export const HIGHLIGHT_CLASS = 'highlighted'
 export const FADED_CLASS = 'faded'
@@ -29,10 +29,10 @@ export function setSparqlingRunning(value: boolean) {
   isRunning = value
 }
 
-export function setIncremental(value: boolean) {
-  isIncremental = value
+export function setFullPage(value: boolean) {
+  isFullPage = value
 }
 
-export function isIncrementalActive() {
-  return isIncremental
+export function isFullPageActive() {
+  return isFullPage
 }

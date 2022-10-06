@@ -1,20 +1,16 @@
 import { Core } from "cytoscape"
-import { EntityNameType, FloatyRendererState, GrapholRendererState, Grapholscape, GrapholscapeTheme, GrapholTypesEnum, LifecycleEvent, LiteRendererState, RendererStatesEnum, ui } from "grapholscape"
+import { EntityNameType, Grapholscape, GrapholscapeTheme, GrapholTypesEnum, LifecycleEvent, RendererStatesEnum } from "grapholscape"
 import { OntologyGraphHandlers } from "../handlers"
 import * as model from '../model'
 import * as ontologyGraph from '../ontology-graph'
 import { getGscape, refreshHighlights } from "../ontology-graph"
 import sparqlingStyle from '../ontology-graph/style'
 import * as queryGraph from '../query-graph'
-import { startIncremental, stopIncremental } from "./incremental"
+import { stopFullpage } from "./fullpage"
 
 export default function init() {
   const gscape = getGscape()
   ontologyGraph.addStylesheet(gscape.renderer.cy, sparqlingStyle(gscape.theme));
-
-  (gscape.widgets.get(ui.WidgetEnum.RENDERER_SELECTOR) as any).onRendererStateSelection = (rendererState) => {
-    handleRendererStateSelection(rendererState, gscape)
-  }
 
   if (gscape.renderer.cy && gscape.renderState !== RendererStatesEnum.INCREMENTAL)
     setHandlers(gscape.renderer.cy)
@@ -35,6 +31,10 @@ export default function init() {
 }
 
 function onChangeDiagramOrRenderer(gscape: Grapholscape) {
+  if (model.isFullPageActive()) {
+    stopFullpage()
+  }
+
   if (gscape.renderer.cy && gscape.renderState !== RendererStatesEnum.INCREMENTAL) {
     setHandlers(gscape.renderer.cy)
     ontologyGraph.addStylesheet(gscape.renderer.cy, sparqlingStyle(gscape.theme))
@@ -61,34 +61,4 @@ function setHandlers(cy: Core) {
     if (model.isSparqlingRunning())
       OntologyGraphHandlers.handleEntitySelection(e.target.data().iri, e.target.data().type, { elementId: e.target.id(), diagramId: getGscape().diagramId })
   })
-}
-
-function handleRendererStateSelection(rendererState: RendererStatesEnum, grapholscape: Grapholscape) {
-  const previousState = grapholscape.renderState
-  if (rendererState !== grapholscape.renderState) {
-
-    switch (rendererState) {
-      case RendererStatesEnum.GRAPHOL:
-        grapholscape.setRenderer(new GrapholRendererState())
-        break
-
-      case RendererStatesEnum.GRAPHOL_LITE:
-        grapholscape.setRenderer(new LiteRendererState())
-        break
-
-      case RendererStatesEnum.FLOATY:
-        grapholscape.setRenderer(new FloatyRendererState())
-        break
-    }
-
-    if (rendererState === RendererStatesEnum.INCREMENTAL) {
-      startIncremental()
-    } else {
-      stopIncremental(previousState)
-
-      if (previousState === RendererStatesEnum.INCREMENTAL) {
-        onChangeDiagramOrRenderer(grapholscape)
-      }
-    }
-  }
 }

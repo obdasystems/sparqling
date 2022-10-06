@@ -1,4 +1,3 @@
-import { addSuggestionsInIncremental } from "./incremental"
 import { HeadElement, QueryGraph } from "../api/swagger"
 import core from "../core"
 import * as model from "../model"
@@ -11,9 +10,6 @@ import { countStarToggle, distinctToggle, filterListDialog, limitInput, offsetIn
 import { emptyQueryMsg } from "../widgets/assets/texts"
 
 export default function onNewBody(newBody: QueryGraph) {
-  if (model.isIncrementalActive())
-    queryGraph.resetSuggestions()
-
   // empty query
   if (!newBody.graph) {
     model.setActiveElement(undefined)
@@ -38,13 +34,6 @@ export default function onNewBody(newBody: QueryGraph) {
   const deletedNodeIds = queryGraph.removeNodesNotInQuery()
   deletedNodeIds.forEach(id => model.getOriginGrapholNodes().delete(id))
   queryGraph.renderOptionals(body.optionals)
-
-  if (model.isIncrementalActive()) {
-    const activeElement = model.getActiveElement()
-    if (activeElement) {
-      addSuggestionsInIncremental(activeElement.iri.fullIri)
-    }
-  }
 
   queryHead.render(body.head?.map((headElem: HeadElement) =>
     getHeadElementWithDatatype(headElem)
