@@ -6,7 +6,7 @@ import getGscape from "../ontology-graph/get-gscape"
 import * as queryGraph from "../query-graph"
 import * as queryHead from "../query-head"
 import { getHeadElementWithDatatype } from "../util/head-element-utility"
-import { countStarToggle, distinctToggle, filterListDialog, limitInput, offsetInput, sparqlDialog, startRunButtons } from "../widgets"
+import { classSelector, countStarToggle, distinctToggle, filterListDialog, limitInput, offsetInput, sparqlDialog, startRunButtons } from "../widgets"
 import { emptyQueryMsg } from "../widgets/assets/texts"
 
 export default function onNewBody(newBody: QueryGraph) {
@@ -21,6 +21,10 @@ export default function onNewBody(newBody: QueryGraph) {
 
     limitInput.value = ''
     offsetInput.value = ''
+
+    if (model.isFullPageActive()) {
+      classSelector.show()
+    }
   }
   startRunButtons.canQueryRun = newBody.graph && !model.isStandalone() && core.onQueryRun !== undefined
 

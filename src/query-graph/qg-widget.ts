@@ -16,6 +16,7 @@ import { cy } from './renderer/'
 export default class QueryGraphWidget extends ui.BaseMixin(ui.DropPanelMixin(LitElement)) {
   private bgpContainer: HTMLElement
   private _isBGPEmpty: boolean = true
+  withoutBGP: boolean = false
   
   onQueryClear = () => { }
   onSparqlButtonClick = () => { }
@@ -24,7 +25,8 @@ export default class QueryGraphWidget extends ui.BaseMixin(ui.DropPanelMixin(Lit
   title = 'Query Graph'
 
   static properties = {
-    _isBGPEmpty: { attribute: false, type: Boolean }
+    _isBGPEmpty: { attribute: false, type: Boolean },
+    withoutBGP: { reflect: true, type: Boolean }
   }
 
   static styles = [
@@ -38,6 +40,10 @@ export default class QueryGraphWidget extends ui.BaseMixin(ui.DropPanelMixin(Lit
         left: 50%;
         top: 100%;
         transform: translate(-50%, calc(-100% - 10px));
+      }
+
+      :host([withoutBGP]) {
+        height: unset;
       }
       
       .tip {
@@ -55,6 +61,16 @@ export default class QueryGraphWidget extends ui.BaseMixin(ui.DropPanelMixin(Lit
         border: none;
         border-bottom: solid 1px var(--gscape-color-border-default);
         max-width: 50px;
+      }
+
+      :host([withoutBGP]) > .gscape-panel {
+        padding: 0;
+        overflow: unset;
+      }
+
+      :host([withoutBGP]) > .gscape-panel > .top-bar {
+        position: initial;
+        border-radius: var(--gscape-border-radius);
       }
     `
   ]
@@ -109,16 +125,21 @@ export default class QueryGraphWidget extends ui.BaseMixin(ui.DropPanelMixin(Lit
               </gscape-button>
             </div>
 
-
-            ${this.isBGPEmpty
-            ? html`
-                <div class="blank-slate sparqling-blank-slate">
-                  ${dbClick}
-                  <div class="header">${emptyGraphMsg()}</div>
-                  <div class="tip description" title="${emptyGraphTipMsg()}">${tipWhatIsQueryGraph()}</div>
-                </div>
+            ${!this.withoutBGP
+              ? html`
+                ${this.isBGPEmpty
+                  ? html`
+                      <div class="blank-slate sparqling-blank-slate">
+                        ${dbClick}
+                        <div class="header">${emptyGraphMsg()}</div>
+                        <div class="tip description" title="${emptyGraphTipMsg()}">${tipWhatIsQueryGraph()}</div>
+                      </div>
+                    `
+                  : this.bgpContainer
+                }
               `
-            : this.bgpContainer}
+              : null
+            }
           </div>
 
         `
