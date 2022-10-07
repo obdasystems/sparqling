@@ -20,6 +20,7 @@ export const aggregationDialog = new AggregationDialog()
 export const startRunButtons = new SparqlingStartRunButtons()
 export const errorsDialog = new ErrorsDialog()
 export const previewDialog = new SparqlingQueryResults()
+export * from './class-selector'
 
 export { default as limitInput } from './limit'
 export { default as offsetInput } from './offset'

@@ -185,7 +185,9 @@ export default class QueryGraphWidget extends ui.BaseMixin(ui.DropPanelMixin(Lit
       // if BGP is not empty but it was empty before the update, then re-mount to be sure
       // to fix conflicts.
       if (!this.isBGPEmpty && _changedProperties.get('_isBGPEmpty')) {
-        cy.mount(this.bgpContainer)
+        const container = cy.container()
+        if (container)
+        cy.mount(container)
         cy.resize()
       }
     }

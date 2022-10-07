@@ -9,12 +9,6 @@ import { handlePromise } from "../main/handle-promises"
 import getPrefixedIri from "../util/get-prefixed-iri"
 import { EntityOccurrence, RendererStatesEnum } from "grapholscape"
 
-let actualHighlights: Highlights | undefined
-
-// highlightsList.onSuggestionLocalization(iri => getGscape().centerOnEntity(iri))
-
-export const getActualHighlights = () => actualHighlights
-
 export function highlightIRI(iri: string) {
   const gscape = getGscape()
 
@@ -33,11 +27,9 @@ export function highlightIRI(iri: string) {
 export function highlightSuggestions(clickedIRI: string) {
   if (!clickedIRI) return
   resetHighlights()
-  const ogApi = new OntologyGraphApi(undefined, model.getBasePath())
-  handlePromise(ogApi.highligths(clickedIRI, undefined, model.getRequestOptions())).then(newHighlights => {
-    actualHighlights = newHighlights
+  model.computeHighlights(clickedIRI).then(_ => {
     performHighlights(clickedIRI)
-    highlightsList.allHighlights = transformHighlightsToPrefixedIRIs()
+    highlightsList.allHighlights = model.transformHighlightsToPrefixedIRIs()
   })
 }
 
@@ -51,15 +43,9 @@ export function resetHighlights() {
       diagramRepresentation.cy.$(`.${model.FADED_CLASS}`).removeClass(model.FADED_CLASS).selectify()
     }
   })
-  actualHighlights = undefined
-  highlightsList.allHighlights = undefined
-}
 
-export function isHighlighted(iri: string): boolean {
-  // if ((actualHighlights as AxiosError).isAxiosError) return true
-  return actualHighlights?.classes?.includes(iri) ||
-    actualHighlights?.dataProperties?.includes(iri) ||
-    actualHighlights?.objectProperties?.map(obj => obj.objectPropertyIRI).includes(iri) || false
+  highlightsList.allHighlights = undefined
+  model.clearHighlights()
 }
 
 export function refreshHighlights() {
@@ -71,9 +57,10 @@ export function refreshHighlights() {
 
 function performHighlights(clickedIRI: string) {
   const gscape = getGscape()
-  actualHighlights?.classes?.forEach((iri: string) => highlightIRI(iri))
-  actualHighlights?.dataProperties?.forEach((iri: string) => highlightIRI(iri))
-  actualHighlights?.objectProperties?.forEach((o: any) => highlightIRI(o.objectPropertyIRI))
+  const highlights = model.getActualHighlights()
+  highlights?.classes?.forEach((iri: string) => highlightIRI(iri))
+  highlights?.dataProperties?.forEach((iri: string) => highlightIRI(iri))
+  highlights?.objectProperties?.forEach((o: any) => highlightIRI(o.objectPropertyIRI))
 
   const iriOccurrences = gscape.ontology.getEntityOccurrences(clickedIRI)?.get(RendererStatesEnum.GRAPHOL)
   if (gscape.renderState !== RendererStatesEnum.GRAPHOL) {
@@ -96,17 +83,6 @@ function performHighlights(clickedIRI: string) {
   //fadedElems.unselectify()
 }
 
-function transformHighlightsToPrefixedIRIs(): Highlights {
-  let transformedHighlights: Highlights = JSON.parse(JSON.stringify(actualHighlights))
-  transformedHighlights.classes = transformedHighlights.classes?.map(iri => getPrefixedIri(iri))
-  transformedHighlights.dataProperties = transformedHighlights.dataProperties?.map(iri => getPrefixedIri(iri))
-  transformedHighlights.objectProperties = transformedHighlights.objectProperties?.map(branch => {
-    branch.objectPropertyIRI = getPrefixedIri(branch.objectPropertyIRI || '')
-    branch.relatedClasses = branch.relatedClasses?.map(iri => getPrefixedIri(iri))
-    return branch
-  })
-  return transformedHighlights
-}
 
 function addHighlightedClassToEntityOccurrences(entityOccurrences: EntityOccurrence[]) {
   const gscape = getGscape()

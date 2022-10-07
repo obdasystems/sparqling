@@ -4,6 +4,7 @@ import { Branch, GraphElement, QueryGraph, QueryGraphBGPApi, QueryGraphExtraApi 
 import { handlePromise } from "../main/handle-promises"
 import onNewBody from "../main/on-new-body"
 import * as model from "../model"
+import { isIriHighlighted } from "../model"
 import * as ontologyGraph from "../ontology-graph"
 import getGscape from "../ontology-graph/get-gscape"
 import * as queryGraph from "../query-graph"
@@ -174,5 +175,5 @@ export function setOriginNode(entityOccurrence: EntityOccurrence, graphElements:
 export function setLastObjectProperty(objProperty: Branch) {
   lastObjProperty = objProperty
 }
-function isIriHighlighted(iri: string) { return ontologyGraph.isHighlighted(iri) }
+
 function isIriInQueryGraph(iri: string) { return queryGraph.isIriInQueryGraph(iri) }

@@ -1,18 +1,16 @@
-import { getActualHighlights } from "./highlights"
 import { Branch } from "../api/swagger"
 import getGscape from "./get-gscape"
 import { relatedClassDialog } from "../widgets"
 import EventPosition from "../util/event-position"
-import { isHighlighted } from "./highlights"
 import { EntityOccurrence, Iri } from "grapholscape"
 import { getEntityOccurrence } from "./util"
-import { getActiveElement } from "../model"
+import { getActiveElement, getActualHighlights, isIriHighlighted } from "../model"
 
 let _onRelatedClassSelection = (objectProperty: Branch, relatedClass: EntityOccurrence) => { }
 
 export function showRelatedClassesWidget(objPropertyIri: string, position: EventPosition) {
   const actualHighlights = getActualHighlights()
-  if (!actualHighlights || !isHighlighted(objPropertyIri)) return
+  if (!actualHighlights || !isIriHighlighted(objPropertyIri)) return
   const gscape = getGscape()
 
   const objPropertyEntity = gscape.ontology.getEntity(objPropertyIri)

@@ -1,11 +1,14 @@
-import { setFullPage } from "../model";
+import { getQueryBody, isFullPageActive, setFullPage } from "../model";
 import * as queryGraph from '../query-graph'
 import * as ontologyGraph from '../ontology-graph'
 import { bgpContainer } from "../util/get-container"
 import { ui } from "grapholscape"
 import sparqlingStyle from '../ontology-graph/style'
+import { classSelector, initClassSelector } from "../widgets";
 
 export function stopFullpage() {
+  if (!isFullPageActive()) return
+
   const grapholscape = ontologyGraph.getGscape()
   setFullPage(false)
   queryGraph.setContainer(bgpContainer)
@@ -15,6 +18,8 @@ export function stopFullpage() {
 }
 
 export function startFullpage() {
+  if (isFullPageActive()) return
+
   const grapholscape = ontologyGraph.getGscape()
   setFullPage(true)
 
@@ -23,4 +28,15 @@ export function startFullpage() {
 
   // move query graph inside grapholscape main container
   queryGraph.setContainer(grapholscape.renderer.container)
+
+  const queryBody = getQueryBody()
+
+  if (!queryBody || !queryBody.graph) {
+    // show class selector
+
+    if (classSelector.entityList.length === 0) {
+      initClassSelector()
+    }
+    classSelector.show()
+  }
 }
