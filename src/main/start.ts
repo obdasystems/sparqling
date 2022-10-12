@@ -1,14 +1,10 @@
-import { Core } from 'cytoscape'
-import { GrapholTypesEnum, LifecycleEvent, ui, EntityNameType, GrapholscapeTheme, Grapholscape } from 'grapholscape'
+import { ui } from 'grapholscape'
+import { LitElement } from 'lit'
 import { StandaloneApi } from '../api/swagger'
 import core from '../core'
-import * as OntologyGraphHandlers from '../handlers/og-handlers'
 import * as model from '../model'
 import * as ontologyGraph from '../ontology-graph'
-import { refreshHighlights } from '../ontology-graph'
 import getGscape from '../ontology-graph/get-gscape'
-import sparqlingStyle from '../ontology-graph/style'
-import * as queryGraph from '../query-graph'
 import { widget as queryHeadWidget } from '../query-head'
 import { getIri } from '../util/graph-element-utility'
 import { showUI } from '../util/show-hide-ui'
@@ -36,7 +32,12 @@ export default function () {
   }
 
   function startSparqling() {
-    (getGscape().widgets.get(ui.WidgetEnum.OWL_VISUALIZER) as any).disable()
+    const owlVisualizer = (getGscape().widgets.get(ui.WidgetEnum.OWL_VISUALIZER) as unknown as ui.IBaseMixin);
+    model.setPreviousOwlVisualizerState(owlVisualizer.enabled)
+    owlVisualizer.disable()
+    const settingsWidget = (getGscape().widgets.get(ui.WidgetEnum.SETTINGS) as any);
+    delete settingsWidget.widgetStates[ui.WidgetEnum.OWL_VISUALIZER]
+
     showUI()
     model.setSparqlingRunning(true)
     startRunButtons.canQueryRun = model.getQueryBody()?.graph && !model.isStandalone() && core.onQueryRun !== undefined

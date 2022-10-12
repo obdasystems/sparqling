@@ -8,6 +8,7 @@ export * from './highlights'
 let file: File
 let isRunning = false
 let isFullPage = false
+export let previousOwlVisualizerState: boolean
 
 export const HIGHLIGHT_CLASS = 'highlighted'
 export const FADED_CLASS = 'faded'
@@ -35,4 +36,12 @@ export function setFullPage(value: boolean) {
 
 export function isFullPageActive() {
   return isFullPage
+}
+
+export function setPreviousOwlVisualizerState(value: boolean) {
+  previousOwlVisualizerState = value
+}
+
+export function getPreviousOwlVisualizerState() {
+  return previousOwlVisualizerState
 }

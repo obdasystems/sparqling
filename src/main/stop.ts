@@ -15,6 +15,10 @@ export default function () {
     model.setSparqlingRunning(false)
     startRunButtons.canQueryRun = false
     startRunButtons.requestUpdate()
+
+    if (model.getPreviousOwlVisualizerState()) {
+      (getGscape().widgets.get(ui.WidgetEnum.OWL_VISUALIZER) as any).enable()
+    }
     core.onStop()
   }
 }

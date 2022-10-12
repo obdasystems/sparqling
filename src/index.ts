@@ -23,7 +23,7 @@ export function sparqlingStandalone(gscape: Grapholscape, file: string | Blob) {
   return getCore(gscape, file)
 }
 
-export function sparqling(gscape: Grapholscape, file: string | Blob, requestOptions: SparqlingRequestOptions) {
+export function sparqling(gscape: Grapholscape, file: string | Blob, requestOptions: SparqlingRequestOptions, useOntologyGraph = true) {
   const sparqlingCore = getCore(gscape, file)
 
   if (sparqlingCore) {
@@ -35,6 +35,10 @@ export function sparqling(gscape: Grapholscape, file: string | Blob, requestOpti
       sparqlingCore.stop()
     }
     model.setRequestOptions(requestOptions)
+    if (!useOntologyGraph) {
+      start()
+      startFullpage()
+    }
   }
   return sparqlingCore
 }
