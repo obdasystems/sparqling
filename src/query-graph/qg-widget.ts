@@ -20,7 +20,6 @@ export default class QueryGraphWidget extends ui.BaseMixin(ui.DropPanelMixin(Lit
   
   onQueryClear = () => { }
   onSparqlButtonClick = () => { }
-  onFullPageToggle = () => { }
 
   title = 'Query Graph'
 
@@ -112,7 +111,6 @@ export default class QueryGraphWidget extends ui.BaseMixin(ui.DropPanelMixin(Lit
 
                 ${getTrayButtonTemplate('Sparql', code, undefined, 'sparql-code-btn', this.onSparqlButtonClick)}
                 ${getTrayButtonTemplate('Clear Query', refresh, undefined, 'clear-query-btn', this.onQueryClear)}
-                ${getTrayButtonTemplate('Full Page', svg`${ui.icons.enterFullscreen}`, svg`${ui.icons.exitFullscreen}`, 'full-page-btn', this.onFullPageToggle)}
               </div>
 
               <gscape-button 

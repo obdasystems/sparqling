@@ -187,7 +187,3 @@ queryGraph.onSeeFilters(graphElement => {
 queryGraph.widget.onSparqlButtonClick = () => sparqlDialog.isVisible ? sparqlDialog.hide() : sparqlDialog.show()
 
 queryGraph.widget.onQueryClear = () => { clearQuery() }
-
-queryGraph.widget.onFullPageToggle = () => {
-  model.isFullPageActive() ? stopFullpage() : startFullpage()
-}
