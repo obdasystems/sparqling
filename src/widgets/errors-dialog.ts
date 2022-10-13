@@ -2,8 +2,9 @@ import { ui } from "grapholscape";
 import { css, html, LitElement, PropertyValueMap } from "lit";
 import { error } from "./assets/icons";
 import sparqlingWidgetStyle from "./sparqling-widget-style";
+import { ModalMixin } from "./util/modal-background";
 
-export default class ErrorsDialog extends ui.BaseMixin(LitElement) {
+export default class ErrorsDialog extends ModalMixin(ui.BaseMixin(LitElement)) {
 
   errorText: string = ''
 

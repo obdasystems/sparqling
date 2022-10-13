@@ -9,6 +9,7 @@ import AggregationDialog from "./forms/aggregation-functions/aggregation-functio
 import ErrorsDialog from "./errors-dialog"
 import SparqlingQueryResults from "./query-results-preview"
 import LoadingDialog from "./loading-dialog"
+import { ui } from "grapholscape"
 
 export const sparqlDialog = new SparqlDialog()
 
@@ -23,6 +24,7 @@ export const errorsDialog = new ErrorsDialog()
 export const previewDialog = new SparqlingQueryResults()
 export const loadingDialog = new LoadingDialog()
 export * from './class-selector'
+export * from './util/modal-background'
 
 export { default as limitInput } from './limit'
 export { default as offsetInput } from './offset'

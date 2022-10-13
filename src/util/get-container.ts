@@ -34,6 +34,7 @@ function getLeftColumnContainer(): HTMLDivElement {
   container.style.marginTop = '70px'
   container.style.pointerEvents = 'none'
   container.style.width = '20%'
+  container.style.zIndex = '1'
 
   return container
 }

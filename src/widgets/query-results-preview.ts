@@ -5,8 +5,9 @@ import { preview } from "./assets/icons";
 import { getLoadingSpinner, loadingSpinnerStyle } from "./loading-spinner";
 import { queryResultTemplate, queryResultTemplateStyle } from "./query-result-template";
 import sparqlingWidgetStyle from "./sparqling-widget-style";
+import { ModalMixin } from "./util/modal-background";
 
-export default class SparqlingQueryResults extends ui.BaseMixin(LitElement) {
+export default class SparqlingQueryResults extends ModalMixin(ui.BaseMixin(LitElement)) {
   result?: QueryResult
   isLoading = false
   title = 'Query Results Preview'
