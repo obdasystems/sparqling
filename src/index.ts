@@ -9,8 +9,10 @@ import * as widgets from './widgets'
 import * as handlers from './handlers'
 import { SparqlingRequestOptions } from './model/request-options'
 import clearQuery from './main/clear-query'
-import { initGrapholscapeHandlers } from './main'
+import { initGrapholscapeHandlers, start } from './main'
 import { cy as queryGraphCy } from './query-graph/renderer/'
+import { startFullpage } from './main/fullpage'
+import showInitialModeSelector from './main/show-initial-mode-selector'
 
 /**
  * Initialise sparqling on a grapholscape instance
@@ -20,7 +22,9 @@ import { cy as queryGraphCy } from './query-graph/renderer/'
  */
 export function sparqlingStandalone(gscape: Grapholscape, file: string | Blob) {
   window['sCy'] = queryGraphCy
-  return getCore(gscape, file)
+  const sparqlingCore = getCore(gscape, file)
+  showInitialModeSelector()
+  return sparqlingCore
 }
 
 export function sparqling(gscape: Grapholscape, file: string | Blob, requestOptions: SparqlingRequestOptions, useOntologyGraph = true) {
