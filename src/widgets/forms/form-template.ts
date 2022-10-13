@@ -106,11 +106,13 @@ export function getSelect(defaultOpt: string, options: string[], disabled = fals
   `
 }
 
-function getInputType(datatype?: VarOrConstantConstantTypeEnum) {
+function getInputType(datatype?: VarOrConstantConstantTypeEnum | string) {
   switch(datatype) {
     case VarOrConstantConstantTypeEnum.DateTime:
       return 'date'
     case VarOrConstantConstantTypeEnum.Decimal:
+    case 'xsd:integer':
+    case 'xsd:int':
       return 'number'
 
     case VarOrConstantConstantTypeEnum.String:
