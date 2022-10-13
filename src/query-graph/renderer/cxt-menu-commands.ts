@@ -1,7 +1,8 @@
 import { SingularElementReturnValue } from "cytoscape"
 import { EntityTypeEnum } from "../../api/swagger"
 import { getHeadElementByID, isCountStarActive } from "../../model"
-import { addFilter as addFilterIcon, editList, dashedCross, questionMarkDashed, rubbishBin, tableColumnPlus } from "../../widgets/assets/icons"
+import { getGraphElementByID, isClass } from "../../util/graph-element-utility"
+import { addFilter as addFilterIcon, editList, dashedCross, questionMarkDashed, rubbishBin, tableColumnPlus, preview } from "../../widgets/assets/icons"
 import { commandAddFilterText, commandAddHeadText, commandDeleteText, commandMakeOptionalText, commandRemoveOptionalText } from "../../widgets/assets/texts"
 import { Command } from "../../widgets/cxt-menu/cxt-menu-widget"
 
@@ -11,6 +12,7 @@ let addFilterCallback: (elemId: string) => void
 let seeFiltersCallback: (elemId: string) => void
 let makeOptionalCallback: (elemId: string) => void
 let removeOptionalCallback: (elemId: string) => void
+let showExamplesCallback: (elemId: string) => void
 
 let _ele: SingularElementReturnValue
 export function getCommandsForElement(elem: SingularElementReturnValue) {
@@ -38,6 +40,10 @@ export function getCommandsForElement(elem: SingularElementReturnValue) {
       }
 
       commands.push(addFilter)
+
+      if (elem.data().type === EntityTypeEnum.Class || elem.data().type === EntityTypeEnum.DataProperty) {
+        commands.push(showExamples)
+      }
 
       if (!elem.incomers().empty() && elem.data().type !== EntityTypeEnum.Class) {
         if (elem.data().optional) {
@@ -86,6 +92,12 @@ const seeFilters: Command = {
   select: () => seeFiltersCallback(_ele.id())
 }
 
+const showExamples: Command = {
+  content: 'Show Examples',
+  icon: preview,
+  select: () => showExamplesCallback(_ele.id())
+}
+
 export function onAddHead(callback: (elemId: string) => void) {
   addHeadCallback = callback
 }
@@ -108,4 +120,8 @@ export function onMakeOptional(callback: (elemId: string) => void) {
 
 export function onRemoveOptional(callback: (elemId: string) => void) {
   removeOptionalCallback = callback
+}
+
+export function onShowExamples(callback: (elemId: string) => void) {
+  showExamplesCallback = callback
 }

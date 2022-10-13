@@ -1,6 +1,6 @@
 import axios from 'axios'
 import { QueryGraphHeadApiFactory } from '../api/swagger'
-import { getNewQueryRequestOptions } from '../main'
+import { getNewQueryRequestOptions, showQueryResultInDialog } from '../main'
 import { handlePromise } from '../main/handle-promises'
 import onNewBody from '../main/on-new-body'
 import handleEndpointSelection from '../main/preview-query/handle-endpoint-selection'
@@ -124,32 +124,5 @@ queryHead.onAddAggregation(headElementId => {
 
 queryHead.widget.onPreviewButtonClick = async () => {
   if (queryHead.widget.previewButton?.disabled) return // TODO: Remove when grapholscape button will handle this
-
-  previewDialog.result = undefined
-  previewDialog.show()
-
-  handleEndpointSelection(async (endpoint) => {
-    if (!endpoint) {
-      return
-    }
-
-    previewDialog.isLoading = true
-
-    const queryStartResponse = await handlePromise(axios.request<any>(getNewQueryRequestOptions(endpoint, model.getQueryBody().sparql)))
-
-    const queryPoller = new QueryPoller(endpoint, queryStartResponse.executionId, 10)
-
-    queryPoller.onNewResults = (result) => {
-      if (queryPoller.status !== QueryPollerStatus.RUNNING) {
-        previewDialog.isLoading = false
-      }
-      previewDialog.result = result
-    }
-
-    queryPoller.onTimeoutExpiration = queryPoller.onStop = () => {
-      previewDialog.isLoading = false
-    }
-
-    queryPoller.start()
-  })
+  showQueryResultInDialog()
 }
