@@ -24,8 +24,11 @@ export default function showInitialModeSelector() {
 
   modeSelector.onOptionSelection = (optionId: string) => {
     if (optionId === 'full-page') {
-      start()
-      startFullpage()
+      start().then(_ => {
+        console.log('done')
+        startFullpage()
+      })
+      
     } else {
       (getGscape().widgets.get(ui.WidgetEnum.INITIAL_RENDERER_SELECTOR) as any).show()
     }

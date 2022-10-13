@@ -8,6 +8,7 @@ import FunctionDialog from "./forms/functions/function-dialog"
 import AggregationDialog from "./forms/aggregation-functions/aggregation-functions-dialog"
 import ErrorsDialog from "./errors-dialog"
 import SparqlingQueryResults from "./query-results-preview"
+import LoadingDialog from "./loading-dialog"
 
 export const sparqlDialog = new SparqlDialog()
 
@@ -20,6 +21,7 @@ export const aggregationDialog = new AggregationDialog()
 export const startRunButtons = new SparqlingStartRunButtons()
 export const errorsDialog = new ErrorsDialog()
 export const previewDialog = new SparqlingQueryResults()
+export const loadingDialog = new LoadingDialog()
 export * from './class-selector'
 
 export { default as limitInput } from './limit'

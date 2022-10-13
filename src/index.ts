@@ -40,8 +40,9 @@ export function sparqling(gscape: Grapholscape, file: string | Blob, requestOpti
     }
     model.setRequestOptions(requestOptions)
     if (!useOntologyGraph) {
-      start()
-      startFullpage()
+      start().then(_ => {
+        startFullpage()
+      })
     }
   }
   return sparqlingCore
@@ -76,6 +77,7 @@ function getCore(gscape: Grapholscape, file: string | Blob) {
       uiContainer.appendChild(widgets.previewDialog)
       uiContainer.appendChild(widgets.errorsDialog)
       uiContainer.appendChild(widgets.classSelector)
+      uiContainer.appendChild(widgets.loadingDialog)
 
       uiContainer?.querySelector('.gscape-ui-buttons-tray')?.appendChild(widgets.startRunButtons)
     }

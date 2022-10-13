@@ -11,18 +11,21 @@ import { showUI } from '../util/show-hide-ui'
 import { startRunButtons } from '../widgets'
 import { handlePromise } from './handle-promises'
 
-export default function () {
+export default async function () {
+  let loadingPromise: Promise<any> = new Promise(() => { })
+
   if (model.isStandalone()) {
     const standaloneApi = new StandaloneApi()
     const ontologyFile = model.getOntologyFile()
 
     // If current ontology is already loaded, do not perform upload again
-    ontologyFile.text().then(ontologyString => {
-      handlePromise(standaloneApi.standaloneOntologyGrapholGet()).then(grapholFile => {
+    await ontologyFile.text().then(async ontologyString => {
+      await handlePromise(standaloneApi.standaloneOntologyGrapholGet()).then(grapholFile => {
         if (ontologyString.trim() === grapholFile.trim()) {
           startSparqling()
         } else {
-          handlePromise(standaloneApi.standaloneOntologyUploadPost(model.getOntologyFile())).then(_ => startSparqling())
+          loadingPromise = handlePromise(standaloneApi.standaloneOntologyUploadPost(model.getOntologyFile()))
+          loadingPromise.then(_ => startSparqling())
         }
       })
     })
@@ -30,6 +33,8 @@ export default function () {
     queryHeadWidget.allowPreview = true
     startSparqling()
   }
+
+  return loadingPromise
 
   function startSparqling() {
     const owlVisualizer = (getGscape().widgets.get(ui.WidgetEnum.OWL_VISUALIZER) as unknown as ui.IBaseMixin);
