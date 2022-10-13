@@ -1,7 +1,7 @@
 import { NodeCollection } from "cytoscape"
 import tippy, { sticky } from "tippy.js"
 import { filter } from "../../widgets/assets/icons"
-import cy from "./cy"
+import { cy } from "./cy"
 
 const hasFilterIcon = `
   <div style="

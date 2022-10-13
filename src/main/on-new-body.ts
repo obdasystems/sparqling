@@ -1,4 +1,3 @@
-import { ui } from "grapholscape"
 import { HeadElement, QueryGraph } from "../api/swagger"
 import core from "../core"
 import * as model from "../model"
@@ -7,11 +6,10 @@ import getGscape from "../ontology-graph/get-gscape"
 import * as queryGraph from "../query-graph"
 import * as queryHead from "../query-head"
 import { getHeadElementWithDatatype } from "../util/head-element-utility"
-import { countStarToggle, distinctToggle, filterListDialog, limitInput, offsetInput, sparqlDialog, startRunButtons } from "../widgets"
+import { classSelector, countStarToggle, distinctToggle, filterListDialog, limitInput, offsetInput, sparqlDialog, startRunButtons } from "../widgets"
 import { emptyQueryMsg } from "../widgets/assets/texts"
 
 export default function onNewBody(newBody: QueryGraph) {
-
   // empty query
   if (!newBody.graph) {
     model.setActiveElement(undefined)
@@ -23,6 +21,10 @@ export default function onNewBody(newBody: QueryGraph) {
 
     limitInput.value = ''
     offsetInput.value = ''
+
+    if (model.isFullPageActive()) {
+      classSelector.show()
+    }
   }
   startRunButtons.canQueryRun = newBody.graph && !model.isStandalone() && core.onQueryRun !== undefined
 

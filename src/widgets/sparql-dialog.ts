@@ -4,8 +4,9 @@ import { code, copyContent, ellipsis } from './assets/icons'
 import { emptyQueryMsg } from './assets/texts'
 import sparqlingWidgetStyle from './sparqling-widget-style'
 import getTrayButtonTemplate from './tray-button-template'
+import { ModalMixin } from './util/modal-background'
 
-export default class SparqlDialog extends ui.BaseMixin(LitElement) {
+export default class SparqlDialog extends ModalMixin(ui.BaseMixin(LitElement)) {
   text: string = emptyQueryMsg()
   //copyButton = new UI.GscapeButton(copyContent, "Copy Query")
   title = 'SPARQL'

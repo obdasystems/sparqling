@@ -1,4 +1,4 @@
-import { Grapholscape } from 'grapholscape'
+import { Grapholscape, ui } from 'grapholscape'
 import core from './core'
 import * as model from './model'
 import * as ontologyGraph from './ontology-graph'
@@ -9,7 +9,10 @@ import * as widgets from './widgets'
 import * as handlers from './handlers'
 import { SparqlingRequestOptions } from './model/request-options'
 import clearQuery from './main/clear-query'
-import { initGrapholscapeHandlers } from './main'
+import { initGrapholscapeHandlers, start } from './main'
+import { cy as queryGraphCy } from './query-graph/renderer/'
+import { startFullpage } from './main/fullpage'
+import showInitialModeSelector from './main/show-initial-mode-selector'
 
 /**
  * Initialise sparqling on a grapholscape instance
@@ -18,10 +21,13 @@ import { initGrapholscapeHandlers } from './main'
  * @returns a core object, see ./core.ts
  */
 export function sparqlingStandalone(gscape: Grapholscape, file: string | Blob) {
-  return getCore(gscape, file)
+  window['sCy'] = queryGraphCy
+  const sparqlingCore = getCore(gscape, file)
+  showInitialModeSelector()
+  return sparqlingCore
 }
 
-export function sparqling(gscape: Grapholscape, file: string | Blob, requestOptions: SparqlingRequestOptions) {
+export function sparqling(gscape: Grapholscape, file: string | Blob, requestOptions: SparqlingRequestOptions, useOntologyGraph = true) {
   const sparqlingCore = getCore(gscape, file)
 
   if (sparqlingCore) {
@@ -33,6 +39,12 @@ export function sparqling(gscape: Grapholscape, file: string | Blob, requestOpti
       sparqlingCore.stop()
     }
     model.setRequestOptions(requestOptions)
+    if (!useOntologyGraph) {
+      start().then(_ => {
+        startFullpage()
+      })
+      gscape.renderer.stopRendering()
+    }
   }
   return sparqlingCore
 }
@@ -51,7 +63,7 @@ function getCore(gscape: Grapholscape, file: string | Blob) {
 
     leftColumnContainer.appendChild(queryHead.widget)
     leftColumnContainer.appendChild(widgets.highlightsList)
-
+    gscape.container.appendChild(widgets.modalBackground)
     // Add query graph and query head widgets to grapholscape instance
     const uiContainer = gscape.container.querySelector('.gscape-ui')
     if (uiContainer) {
@@ -65,6 +77,8 @@ function getCore(gscape: Grapholscape, file: string | Blob) {
       uiContainer.appendChild(widgets.aggregationDialog)
       uiContainer.appendChild(widgets.previewDialog)
       uiContainer.appendChild(widgets.errorsDialog)
+      uiContainer.appendChild(widgets.classSelector)
+      uiContainer.appendChild(widgets.loadingDialog)
 
       uiContainer?.querySelector('.gscape-ui-buttons-tray')?.appendChild(widgets.startRunButtons)
     }

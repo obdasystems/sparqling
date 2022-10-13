@@ -1,5 +1,5 @@
 import { ui } from 'grapholscape'
-import { css, html, LitElement } from 'lit'
+import { css, html, LitElement, PropertyValueMap, svg } from 'lit'
 import { countStarToggle } from '../widgets'
 import { code, dbClick, rdfLogo, refresh } from '../widgets/assets/icons'
 import { emptyGraphMsg, emptyGraphTipMsg, tipWhatIsQueryGraph } from '../widgets/assets/texts'
@@ -8,7 +8,7 @@ import limitInput from '../widgets/limit'
 import offsetInput from '../widgets/offset'
 import sparqlignWidgetStyle from '../widgets/sparqling-widget-style'
 import getTrayButtonTemplate from '../widgets/tray-button-template'
-import cy from './renderer/cy'
+import { cy } from './renderer/'
 
 /**
  * Widget extending base grapholscape widget which uses Lit-element inside
@@ -16,13 +16,16 @@ import cy from './renderer/cy'
 export default class QueryGraphWidget extends ui.BaseMixin(ui.DropPanelMixin(LitElement)) {
   private bgpContainer: HTMLElement
   private _isBGPEmpty: boolean = true
+  withoutBGP: boolean = false
   
   onQueryClear = () => { }
   onSparqlButtonClick = () => { }
+
   title = 'Query Graph'
 
   static properties = {
-    _isBGPEmpty: { attribute: false, type: Boolean }
+    _isBGPEmpty: { attribute: false, type: Boolean },
+    withoutBGP: { reflect: true, type: Boolean }
   }
 
   static styles = [
@@ -36,6 +39,10 @@ export default class QueryGraphWidget extends ui.BaseMixin(ui.DropPanelMixin(Lit
         left: 50%;
         top: 100%;
         transform: translate(-50%, calc(-100% - 10px));
+      }
+
+      :host([withoutBGP]) {
+        height: unset;
       }
       
       .tip {
@@ -53,6 +60,16 @@ export default class QueryGraphWidget extends ui.BaseMixin(ui.DropPanelMixin(Lit
         border: none;
         border-bottom: solid 1px var(--gscape-color-border-default);
         max-width: 50px;
+      }
+
+      :host([withoutBGP]) > .gscape-panel {
+        padding: 0;
+        overflow: unset;
+      }
+
+      :host([withoutBGP]) > .gscape-panel > .top-bar {
+        position: initial;
+        border-radius: var(--gscape-border-radius);
       }
     `
   ]
@@ -106,16 +123,21 @@ export default class QueryGraphWidget extends ui.BaseMixin(ui.DropPanelMixin(Lit
               </gscape-button>
             </div>
 
-
-            ${this.isBGPEmpty
-            ? html`
-                <div class="blank-slate sparqling-blank-slate">
-                  ${dbClick}
-                  <div class="header">${emptyGraphMsg()}</div>
-                  <div class="tip description" title="${emptyGraphTipMsg()}">${tipWhatIsQueryGraph()}</div>
-                </div>
+            ${!this.withoutBGP
+              ? html`
+                ${this.isBGPEmpty
+                  ? html`
+                      <div class="blank-slate sparqling-blank-slate">
+                        ${dbClick}
+                        <div class="header">${emptyGraphMsg()}</div>
+                        <div class="tip description" title="${emptyGraphTipMsg()}">${tipWhatIsQueryGraph()}</div>
+                      </div>
+                    `
+                  : this.bgpContainer
+                }
               `
-            : this.bgpContainer}
+              : null
+            }
           </div>
 
         `
@@ -165,6 +187,29 @@ export default class QueryGraphWidget extends ui.BaseMixin(ui.DropPanelMixin(Lit
 
   set isBGPEmpty(value: boolean) {
     this._isBGPEmpty = value
+  }
+
+  protected updated(_changedProperties: PropertyValueMap<any> | Map<PropertyKey, unknown>): void {
+    /**
+     * // BUG: when the BGP container gets removed from the widget and then later on
+     * added back because of an insertion in the query, if we performed a cy.mount()
+     * (i.e. coming back from incremental we need to mount cy on bgpContainer)
+     * then the mount breaks somehow. Maybe some operations performed by lit-element
+     * on the div conflicts with cytoscape's mounting operations.
+     * 
+     * TEMP FIX: wait for the update lifecycle to be completed and then mount again
+     * being sure lit-element won't touch the container anymore until next clear query.
+     */
+    if (_changedProperties.has('_isBGPEmpty')) {
+      // if BGP is not empty but it was empty before the update, then re-mount to be sure
+      // to fix conflicts.
+      if (!this.isBGPEmpty && _changedProperties.get('_isBGPEmpty')) {
+        const container = cy.container()
+        if (container)
+        cy.mount(container)
+        cy.resize()
+      }
+    }
   }
 
   get isBGPEmpty() {

@@ -52,7 +52,7 @@ export default class SparqlingStartRunButtons extends ui.BaseMixin(ui.DropPanelM
   render() {
     return html`
     ${this.canQueryRun
-      ? html`
+        ? html`
           <gscape-button
             @click="${this._onQueryRunCallback}"
             type="subtle"
@@ -74,7 +74,7 @@ export default class SparqlingStartRunButtons extends ui.BaseMixin(ui.DropPanelM
             <div class="header">Endpoint Selector</div>
             <div class="content-wrapper">
               ${this.endpoints.map(endpoint => {
-                return html`
+          return html`
                   <gscape-action-list-item
                     @click=${this.handleEndpointClick}
                     label="${endpoint.name}"
@@ -82,26 +82,26 @@ export default class SparqlingStartRunButtons extends ui.BaseMixin(ui.DropPanelM
                   >
                   </gscape-action-list-item>
                 `
-              })}
+        })}
 
               ${this.endpoints.length === 0
-                ? html`
+            ? html`
                   <div class="blank-slate">
                     ${ui.icons.searchOff}
                     <div class="header">No endpoint available</div>
                   </div>
                 `
-                : null
-              }
+            : null
+          }
             </div>
           </div>
         `
-      : null
-    }
+        : null
+      }
 
-    ${this.isLoading 
-      ? getLoadingSpinner()
-      : html`
+    ${this.isLoading
+        ? getLoadingSpinner()
+        : html`
         <gscape-button
           @click="${this.handleStartButtonCLick}" 
           type="subtle"
@@ -111,7 +111,7 @@ export default class SparqlingStartRunButtons extends ui.BaseMixin(ui.DropPanelM
           <span slot="icon">${sparqlingIcon}</span>
         </gscape-button>
       `
-    }
+      }
 
     `
   }
@@ -158,6 +158,9 @@ export default class SparqlingStartRunButtons extends ui.BaseMixin(ui.DropPanelM
   }
 
   private handleStartButtonCLick() {
+    if (model.isFullPageActive())
+      return
+
     model.isSparqlingRunning() ? this._onSparqlingStopCallback() : this._onSparqlingStartCallback()
   }
 

@@ -2,7 +2,7 @@ import { CollectionReturnValue } from "cytoscape"
 import { EntityNameType } from "grapholscape"
 import { Entity, EntityTypeEnum, GraphElement, Optional } from "../../api/swagger"
 import { getFiltersOnVariable } from "../../model"
-import cy, { getDisplayedNameType, getLanguage } from './cy'
+import { cy, getDisplayedNameType, getLanguage } from './cy'
 import { getElementById, getElements } from "./getters"
 import { addOrRemoveFilterIcon, removeHasFilterIcon } from "./has-filter-icon"
 import { gridLayoutOpt, klayLayoutOpt, radialLayoutOpt } from "./layout-options"
@@ -117,8 +117,8 @@ export function selectNode(nodeId: string): cytoscape.CollectionReturnValue {
  * Arrange nodes in nice positions
  */
 export function arrange() {
-  const dataPropertySelector = `node[type = "${EntityTypeEnum.DataProperty}"]`
-  const classSelector = `node[type = "${EntityTypeEnum.Class}"]`
+  const dataPropertySelector = `node[type = "${EntityTypeEnum.DataProperty}"][!isSuggestion]`
+  const classSelector = `node[type = "${EntityTypeEnum.Class}"][!isSuggestion]`
 
   if (getElements().length <= 1) {
     /**
@@ -206,7 +206,7 @@ function getDataObj(graphElement: GraphElement, i?: number) {
     const filtersNumber = getFiltersOnVariable(graphElement.id)?.length
     data.hasFilters = filtersNumber && filtersNumber > 0 ? true : false
     data.displayed_name = getDisplayedName(data)
-    
+    data.width = 60
     return data
   }
 }

@@ -1,6 +1,7 @@
 import { GrapholTypesEnum } from "grapholscape"
 import { Branch, EntityTypeEnum } from "../api/swagger"
-import { getActualHighlights, getEntityOccurrence, getGscape } from '../ontology-graph'
+import { getActualHighlights } from "../model"
+import { getEntityOccurrence, getGscape } from '../ontology-graph'
 import getPrefixedIri from "../util/get-prefixed-iri"
 import { highlightsList } from "../widgets"
 import { handleEntitySelection, handleObjectPropertySelection } from "./og-handlers"
@@ -8,7 +9,6 @@ import { handleEntitySelection, handleObjectPropertySelection } from "./og-handl
 highlightsList.onSuggestionLocalization((entityIri) => getGscape().centerOnEntity(entityIri))
 
 highlightsList.onSuggestionAddToQuery((entityIri, entityType, relatedClass) => {
-  console.log(entityIri)
   switch (entityType) {
     case EntityTypeEnum.Class:
     case EntityTypeEnum.DataProperty:

@@ -9,13 +9,14 @@ import sparqlingWidgetStyle from '../sparqling-widget-style'
 import { queryResultTemplateStyle } from '../query-result-template'
 import { QueryResult } from '../../main'
 import { loadingSpinnerStyle } from '../loading-spinner'
+import { ModalMixin } from '../util/modal-background'
 
 export enum Modality {
   DEFINE = 'Define',
   EDIT = 'Edit'
 }
 
-export default class SparqlingFormDialog extends ui.BaseMixin(LitElement) implements FormWidget {
+export default class SparqlingFormDialog extends ModalMixin(ui.BaseMixin(LitElement)) implements FormWidget {
   protected left_icon: TemplateResult
   // protected saveButton = new UI.GscapeButton(checkmark, "Save")
   // protected deleteButton = new UI.GscapeButton(rubbishBin, "Delete")

@@ -1,5 +1,5 @@
 import { Stylesheet } from "cytoscape"
-import { ColoursNames, GrapholscapeTheme } from "grapholscape"
+import { ColoursNames, GrapholscapeTheme, GrapholTypesEnum } from "grapholscape"
 import { EntityTypeEnum } from "../../api/swagger"
 
 const { DataProperty, Class, ObjectProperty, InverseObjectProperty } = EntityTypeEnum
@@ -11,21 +11,23 @@ export default (theme: GrapholscapeTheme) => {
       style: {
         'color': theme.getColour(ColoursNames.label),
         'border-width': '1px',
+        'font-size': '8px',
       }
     },
     {
-      selector: `node[type = "${Class}"]`,
+      selector: `node[type = "${Class}"][!isSuggestion]`,
       style: {
         'shape': 'round-rectangle',
         'background-color': theme.getColour(ColoursNames.class),
         'border-color': theme.getColour(ColoursNames.class_contrast),
         'text-halign': 'center',
         'text-valign': 'center',
-        'width': '60px',
+        'width': 60,
+        'height': 30
       },
     },
     {
-      selector: 'edge',
+      selector: 'edge[!isSuggestion]',
       style: {
         'line-style': 'solid',
         'target-arrow-shape': 'triangle',
@@ -44,7 +46,6 @@ export default (theme: GrapholscapeTheme) => {
         'text-max-width': '80px',
         'text-overflow-wrap': 'anywhere',
         'label': 'data(displayed_name)',
-        'font-size': '8px'
       },
     },
 
@@ -58,7 +59,7 @@ export default (theme: GrapholscapeTheme) => {
     },
 
     {
-      selector: `node[type = "${DataProperty}"]`,
+      selector: `node[type = "${DataProperty}"][!isSuggestion]`,
       style: {
         'shape': 'ellipse',
         'height': 10,
@@ -88,7 +89,7 @@ export default (theme: GrapholscapeTheme) => {
     },
 
     {
-      selector: '.cdnd-drop-target',
+      selector: '.cdnd-drop-target[!isSuggestion]',
       style: {
         'background-color': theme.getColour(ColoursNames.bg_inset),
         'border-style': 'dashed',

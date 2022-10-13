@@ -1,7 +1,7 @@
 import { AxiosPromise, AxiosResponse } from "axios"
 import { Highlights, QueryGraph } from "../api/swagger"
-import { setLoading, increaseLoadingProcesses, decreaseLoadingProcesses, getNumberLoadingProcesses } from "../model"
-import { errorsDialog, startRunButtons } from "../widgets"
+import { setLoading, increaseLoadingProcesses, decreaseLoadingProcesses, getNumberLoadingProcesses, isLoading } from "../model"
+import { errorsDialog, loadingDialog, startRunButtons } from "../widgets"
 
 function isResponseError(response) {
   return !response || response?.code === 1 || response?.type === 'error'
@@ -43,6 +43,11 @@ export function handlePromise(promise: Promise<AxiosResponse<unknown, unknown>>,
 
 export function startLoading() {
   setLoading(true)
+  // Show loading dialog only for long waiting times
+  setTimeout(() => {
+    if (isLoading()) // after awhile if still loading, show loading dialog
+      loadingDialog.show()
+  }, 500)
   increaseLoadingProcesses()
   startRunButtons.startLoadingAnimation()
 }
@@ -52,6 +57,7 @@ export function stopLoading() {
 
   if (getNumberLoadingProcesses() === 0) {
     setLoading(false)
+    loadingDialog.hide()
     startRunButtons.stopLoadingAnimation()
   }
 }

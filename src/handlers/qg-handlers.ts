@@ -1,6 +1,7 @@
-import { Iri, ui } from 'grapholscape'
+import { Iri } from 'grapholscape'
 import { QueryGraph, QueryGraphBGPApiFactory, QueryGraphHeadApiFactory, QueryGraphOptionalApiFactory } from '../api/swagger'
 import { clearQuery, showQueryResultInDialog } from '../main'
+import { startFullpage, stopFullpage } from '../main/fullpage'
 import { handlePromise } from '../main/handle-promises'
 import onNewBody from '../main/on-new-body'
 import * as model from '../model'
@@ -54,13 +55,15 @@ queryGraph.onDelete((graphElement, iri) => {
             })
           }
         }
-        
-        ontologyGraph.resetHighlights()
-        gscape.unselect()
 
-        if (newSelectedGEIri) {
-          gscape.centerOnEntity(newSelectedGEIri)
-          ontologyGraph.highlightSuggestions(newSelectedGEIri)
+        if (!model.isFullPageActive()) {
+          ontologyGraph.resetHighlights()
+          gscape.unselect()
+
+          if (newSelectedGEIri) {
+            gscape.centerOnEntity(newSelectedGEIri)
+            ontologyGraph.highlightSuggestions(newSelectedGEIri)
+          }
         }
 
         if (newSelectedGE?.id) {
@@ -124,7 +127,8 @@ queryGraph.onElementClick((graphElement, iri) => {
       })
 
       // Highlight suggestions for the actual clicked iri (might be a child node)
-      ontologyGraph.highlightSuggestions(iri)
+      if (!model.isFullPageActive())
+        ontologyGraph.highlightSuggestions(iri)
     }
   }
 
