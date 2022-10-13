@@ -43,6 +43,7 @@ export function sparqling(gscape: Grapholscape, file: string | Blob, requestOpti
       start().then(_ => {
         startFullpage()
       })
+      gscape.renderer.stopRendering()
     }
   }
   return sparqlingCore
