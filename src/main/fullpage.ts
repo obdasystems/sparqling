@@ -57,18 +57,18 @@ export function startFullpage() {
     classSelector.show()
   }
 
-  const rendererSelector = grapholscape.widgets.get(ui.WidgetEnum.RENDERER_SELECTOR) as unknown as any
-  const rendererStates: RendererStatesEnum[] = rendererSelector.rendererStates.map(rs => rs.id)
-  if (rendererStates.includes(RendererStatesEnum.INCREMENTAL)) {
-    hadIncremental = true
-    incrementalIndex = rendererStates.indexOf(RendererStatesEnum.INCREMENTAL)
+  // const rendererSelector = grapholscape.widgets.get(ui.WidgetEnum.RENDERER_SELECTOR) as unknown as any
+  // const rendererStates: RendererStatesEnum[] = rendererSelector.rendererStates.map(rs => rs.id)
+  // if (rendererStates.includes(RendererStatesEnum.INCREMENTAL)) {
+  //   hadIncremental = true
+  //   incrementalIndex = rendererStates.indexOf(RendererStatesEnum.INCREMENTAL)
 
-    incrementalViewRendererState = rendererSelector.rendererStates.splice(
-      incrementalIndex,
-      1
-    )[0]
-    rendererSelector.requestUpdate()
-  }
+  //   incrementalViewRendererState = rendererSelector.rendererStates.splice(
+  //     incrementalIndex,
+  //     1
+  //   )[0]
+  //   rendererSelector.requestUpdate()
+  // }
 }
 
 function disableWidgetsForFullpage(grapholscape: Grapholscape) {
