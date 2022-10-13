@@ -1,4 +1,4 @@
-import { ui } from "grapholscape";
+import { GrapholTypesEnum, ui } from "grapholscape";
 import { getGscape } from "../ontology-graph";
 
 export const classSelector = new ui.GscapeEntitySelector()
@@ -8,6 +8,7 @@ export function initClassSelector() {
   const entities = getGscape().ontology.entities
   classSelector.entityList = []
   entities.forEach(entity => {
-    classSelector.entityList.push({ value: entity, viewOccurrences: new Map() })
+    if (entity.is(GrapholTypesEnum.CLASS))
+      classSelector.entityList.push({ value: entity, viewOccurrences: new Map() })
   })
 }
