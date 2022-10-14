@@ -8,13 +8,14 @@ import * as queryHead from "../query-head"
 import { getHeadElementWithDatatype } from "../util/head-element-utility"
 import { classSelector, countStarToggle, distinctToggle, filterListDialog, limitInput, offsetInput, sparqlDialog, startRunButtons } from "../widgets"
 import { emptyQueryMsg } from "../widgets/assets/texts"
+import { clearHighlights } from "./highlights"
 
 export default function onNewBody(newBody: QueryGraph) {
   // empty query
   if (!newBody.graph) {
     model.setActiveElement(undefined)
     model.getOriginGrapholNodes().clear()
-    ontologyGraph.resetHighlights()
+    clearHighlights()
     getGscape().unselect()
     distinctToggle.checked = true
     countStarToggle.checked = false

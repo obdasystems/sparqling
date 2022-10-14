@@ -1,20 +1,15 @@
-import { getQueryBody, isFullPageActive, setFullPage } from "../model";
-import * as queryGraph from '../query-graph'
-import * as ontologyGraph from '../ontology-graph'
-import { bgpContainer } from "../util/get-container"
-import { Grapholscape, RendererStatesEnum, ui } from "grapholscape"
-import sparqlingStyle from '../ontology-graph/style'
-import { classSelector, initClassSelector } from "../widgets";
+import { Grapholscape, ui } from "grapholscape";
+import { getQueryBody, setFullPage } from "../model";
+import * as ontologyGraph from '../ontology-graph';
+import sparqlingStyle from '../ontology-graph/style';
+import * as queryGraph from '../query-graph';
 import { cy } from "../query-graph/renderer";
+import { bgpContainer } from "../util/get-container";
+import { classSelector, initClassSelector } from "../widgets";
 
-let hadIncremental = false
-let incrementalIndex: number
-let incrementalViewRendererState: any
 let widgetStates: { [key in ui.WidgetEnum]?: boolean } 
 
 export function stopFullpage() {
-  if (!isFullPageActive()) return
-
   const grapholscape = ontologyGraph.getGscape()
   setFullPage(false)
   queryGraph.widget.withoutBGP = false
@@ -25,16 +20,10 @@ export function stopFullpage() {
   enableWidgetsForFullpage(grapholscape)
   classSelector.hide()
   ontologyGraph.addStylesheet(grapholscape.renderer.cy, sparqlingStyle(grapholscape.theme))
-
-  if (hadIncremental) {
-    const rendererSelector = grapholscape.widgets.get(ui.WidgetEnum.RENDERER_SELECTOR) as unknown as any
-    rendererSelector.rendererStates.splice(incrementalIndex, 0, incrementalViewRendererState)
-    rendererSelector.requestUpdate()
-  }
 }
 
 export function startFullpage() {
-  if (isFullPageActive()) return
+  // if (isFullPageActive()) return
 
   const grapholscape = ontologyGraph.getGscape()
   setFullPage(true)
@@ -50,10 +39,7 @@ export function startFullpage() {
 
   if (!queryBody || !queryBody.graph) {
     // show class selector
-
-    if (classSelector.entityList.length === 0) {
-      initClassSelector()
-    }
+    initClassSelector()
     classSelector.show()
   }
 

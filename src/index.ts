@@ -9,9 +9,9 @@ import * as widgets from './widgets'
 import * as handlers from './handlers'
 import { SparqlingRequestOptions } from './model/request-options'
 import clearQuery from './main/clear-query'
-import { initGrapholscapeHandlers, start } from './main'
+import { initGrapholscapeHandlers, performHighlights, start } from './main'
 import { cy as queryGraphCy } from './query-graph/renderer/'
-import { startFullpage } from './main/fullpage'
+import { startFullpage, stopFullpage } from './main/fullpage'
 import showInitialModeSelector from './main/show-initial-mode-selector'
 
 /**
@@ -27,7 +27,7 @@ export function sparqlingStandalone(gscape: Grapholscape, file: string | Blob) {
   return sparqlingCore
 }
 
-export function sparqling(gscape: Grapholscape, file: string | Blob, requestOptions: SparqlingRequestOptions, useOntologyGraph = true) {
+export function sparqling(gscape: Grapholscape, file: string | Blob, requestOptions: SparqlingRequestOptions, modality: '') {
   const sparqlingCore = getCore(gscape, file)
 
   if (sparqlingCore) {
@@ -39,12 +39,18 @@ export function sparqling(gscape: Grapholscape, file: string | Blob, requestOpti
       sparqlingCore.stop()
     }
     model.setRequestOptions(requestOptions)
-    if (!useOntologyGraph) {
-      start().then(_ => {
-        startFullpage()
-      })
-      gscape.renderer.stopRendering()
+
+    if (model.isSparqlingRunning() && model.getQueryBody() && model.getActiveElement()) {
+      // be sure grapholscape's highlights gets updated with the actual query state
+      const activeIri = model.getActiveElement()?.iri?.fullIri
+      if (activeIri)
+        performHighlights(activeIri)
     }
+
+    if (model.isFullPageActive()) {
+      stopFullpage()
+    }
+    showInitialModeSelector()
   }
   return sparqlingCore
 }
@@ -86,12 +92,6 @@ function getCore(gscape: Grapholscape, file: string | Blob) {
     queryGraph.setTheme(gscape.theme)
 
     handlers // hack, just mention the handlers to make the module be evaluated
-
-    if (model.isSparqlingRunning() && model.getQueryBody()) {
-      // be sure grapholscape's highlights gets updated with the actual query state
-      ontologyGraph.refreshHighlights()
-    }
-
     return core
   } else {
     return null

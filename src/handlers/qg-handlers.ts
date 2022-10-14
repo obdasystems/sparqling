@@ -1,7 +1,6 @@
 import { Iri } from 'grapholscape'
 import { QueryGraph, QueryGraphBGPApiFactory, QueryGraphHeadApiFactory, QueryGraphOptionalApiFactory } from '../api/swagger'
-import { clearQuery, showQueryResultInDialog } from '../main'
-import { startFullpage, stopFullpage } from '../main/fullpage'
+import { clearQuery, performHighlights, showQueryResultInDialog } from '../main'
 import { handlePromise } from '../main/handle-promises'
 import onNewBody from '../main/on-new-body'
 import * as model from '../model'
@@ -53,16 +52,15 @@ queryGraph.onDelete((graphElement, iri) => {
               graphElement: newSelectedGE,
               iri: new Iri(newSelectedGEIri, gscape.ontology.namespaces)
             })
+            performHighlights(newSelectedGEIri)
           }
         }
 
         if (!model.isFullPageActive()) {
-          ontologyGraph.resetHighlights()
           gscape.unselect()
 
           if (newSelectedGEIri) {
             gscape.centerOnEntity(newSelectedGEIri)
-            ontologyGraph.highlightSuggestions(newSelectedGEIri)
           }
         }
 
@@ -126,14 +124,7 @@ queryGraph.onElementClick((graphElement, iri) => {
         iri: new Iri(iri, gscape.ontology.namespaces)
       })
 
-      // Highlight suggestions for the actual clicked iri (might be a child node)
-      if (model.isFullPageActive()) {
-        model.computeHighlights(iri).then(_ => {
-          highlightsList.allHighlights = model.transformHighlightsToPrefixedIRIs()
-        })
-      } else {
-        ontologyGraph.highlightSuggestions(iri)
-      }
+      performHighlights(iri)
     }
   }
 

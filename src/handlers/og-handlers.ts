@@ -1,6 +1,7 @@
 import { CollectionReturnValue } from "cytoscape"
 import { EntityOccurrence, GrapholTypesEnum, Iri } from "grapholscape"
 import { Branch, GraphElement, QueryGraph, QueryGraphBGPApi, QueryGraphExtraApi } from "../api/swagger"
+import { performHighlights } from "../main"
 import { handlePromise } from "../main/handle-promises"
 import onNewBody from "../main/on-new-body"
 import * as model from "../model"
@@ -20,7 +21,7 @@ export async function handleEntitySelection(entityIriString: string, entityType:
 
   if (activeElement && graphElementHasIri(activeElement.graphElement, entityIriString) && !lastObjProperty) {
     if (!ontologyGraph.isIriSelected(entityIri)) {
-      ontologyGraph.highlightSuggestions(entityIriString)
+      performHighlights(entityIriString)
     }
     return
   }
@@ -40,7 +41,7 @@ export async function handleEntitySelection(entityIriString: string, entityType:
         // Get nodes not present in the old graph
         const newGraphElements = getdiffNew(model.getQueryBody()?.graph, newBody.graph)
         const newSelectedGraphElement = setOriginNode(entityOccurrence, newGraphElements, entityIriString)
-        ontologyGraph.highlightSuggestions(entityIriString)
+        performHighlights(entityIriString)
         onNewBody(newBody)
 
         // after onNewBody because we need to select the element after rendering phase

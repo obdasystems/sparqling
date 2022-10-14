@@ -1,13 +1,7 @@
 import cytoscape from "cytoscape"
-import { OntologyGraphApi } from "../api/swagger"
-import { Highlights } from "../api/swagger"
-import * as model from "../model"
-import { getIri } from "../util/graph-element-utility"
-import { highlightsList } from "../widgets"
-import getGscape from "./get-gscape"
-import { handlePromise } from "../main/handle-promises"
-import getPrefixedIri from "../util/get-prefixed-iri"
 import { EntityOccurrence, RendererStatesEnum } from "grapholscape"
+import * as model from "../model"
+import getGscape from "./get-gscape"
 
 export function highlightIRI(iri: string) {
   const gscape = getGscape()
@@ -24,15 +18,6 @@ export function highlightIRI(iri: string) {
   }
 }
 
-export function highlightSuggestions(clickedIRI: string) {
-  if (!clickedIRI) return
-  resetHighlights()
-  model.computeHighlights(clickedIRI).then(_ => {
-    performHighlights(clickedIRI)
-    highlightsList.allHighlights = model.transformHighlightsToPrefixedIRIs()
-  })
-}
-
 export function resetHighlights() {
   const gscape = getGscape()
 
@@ -43,9 +28,6 @@ export function resetHighlights() {
       diagramRepresentation.cy.$(`.${model.FADED_CLASS}`).removeClass(model.FADED_CLASS).selectify()
     }
   })
-
-  highlightsList.allHighlights = undefined
-  model.clearHighlights()
 }
 
 export function refreshHighlights() {
@@ -55,7 +37,8 @@ export function refreshHighlights() {
   }
 }
 
-function performHighlights(clickedIRI: string) {
+export function performHighlights(clickedIRI: string) {
+  resetHighlights()
   const gscape = getGscape()
   const highlights = model.getActualHighlights()
   highlights?.classes?.forEach((iri: string) => highlightIRI(iri))

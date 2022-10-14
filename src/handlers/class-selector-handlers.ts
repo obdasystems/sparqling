@@ -1,4 +1,5 @@
 import { QueryGraphBGPApi, QueryGraphExtraApi } from "../api/swagger";
+import { performHighlights } from "../main";
 import { handlePromise } from "../main/handle-promises";
 import onNewBody from "../main/on-new-body";
 import { computeHighlights, getBasePath, getRequestOptions, setActiveElement, transformHighlightsToPrefixedIRIs } from "../model";
@@ -23,8 +24,7 @@ classSelector.onClassSelection(async (classIri: string) => {
     classSelector.hide()
     if (newQueryBody.graph.id)
       selectElement(newQueryBody.graph.id)
-    computeHighlights(classEntity.iri.fullIri).then(_ => {
-      highlightsList.allHighlights = transformHighlightsToPrefixedIRIs()
-    })
+    
+    performHighlights(classEntity.iri.fullIri)
   }
 })

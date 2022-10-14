@@ -1,7 +1,8 @@
 import { ui } from "grapholscape";
+import { isFullPageActive, setFullPage } from "../model";
 import { getGscape } from "../ontology-graph";
 import sparqlingIcon from "../widgets/assets/sparqling-icon";
-import { startFullpage } from "./fullpage";
+import { startFullpage, stopFullpage } from "./fullpage";
 import start from "./start";
 
 export default function showInitialModeSelector() {
@@ -30,6 +31,8 @@ export default function showInitialModeSelector() {
       getGscape().renderer.stopRendering()
       
     } else {
+      if (isFullPageActive())
+        stopFullpage();
       (getGscape().widgets.get(ui.WidgetEnum.INITIAL_RENDERER_SELECTOR) as any).show()
     }
   }

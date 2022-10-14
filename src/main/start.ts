@@ -1,15 +1,14 @@
 import { ui } from 'grapholscape'
-import { LitElement } from 'lit'
 import { StandaloneApi } from '../api/swagger'
 import core from '../core'
 import * as model from '../model'
-import * as ontologyGraph from '../ontology-graph'
 import getGscape from '../ontology-graph/get-gscape'
 import { widget as queryHeadWidget } from '../query-head'
 import { getIri } from '../util/graph-element-utility'
 import { showUI } from '../util/show-hide-ui'
 import { startRunButtons } from '../widgets'
 import { handlePromise } from './handle-promises'
+import { performHighlights } from './highlights'
 
 export default async function () {
   let loadingPromise: Promise<any> = Promise.resolve()
@@ -54,7 +53,7 @@ export default async function () {
       const selectedGraphElementIri = getIri(selectedGraphElement)
 
       if (selectedGraphElementIri)
-        ontologyGraph.highlightSuggestions(selectedGraphElementIri)
+        performHighlights(selectedGraphElementIri)
 
     }
     core.onStart()
