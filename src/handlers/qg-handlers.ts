@@ -11,7 +11,7 @@ import * as queryGraph from '../query-graph'
 import * as queryHead from '../query-head'
 import HeadElementComponent from '../query-head/qh-element-component'
 import * as GEUtility from '../util/graph-element-utility'
-import { filterDialog, filterListDialog, sparqlDialog } from '../widgets'
+import { filterDialog, filterListDialog, highlightsList, sparqlDialog } from '../widgets'
 import showFormDialog from './show-form-dialog'
 
 queryGraph.onAddHead(async graphElement => {
@@ -127,8 +127,13 @@ queryGraph.onElementClick((graphElement, iri) => {
       })
 
       // Highlight suggestions for the actual clicked iri (might be a child node)
-      if (!model.isFullPageActive())
+      if (model.isFullPageActive()) {
+        model.computeHighlights(iri).then(_ => {
+          highlightsList.allHighlights = model.transformHighlightsToPrefixedIRIs()
+        })
+      } else {
         ontologyGraph.highlightSuggestions(iri)
+      }
     }
   }
 
