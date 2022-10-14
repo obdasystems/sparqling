@@ -12,7 +12,7 @@ import { startRunButtons } from '../widgets'
 import { handlePromise } from './handle-promises'
 
 export default async function () {
-  let loadingPromise: Promise<any> = new Promise(() => { })
+  let loadingPromise: Promise<any> = Promise.resolve()
 
   if (model.isStandalone()) {
     const standaloneApi = new StandaloneApi()
@@ -31,9 +31,9 @@ export default async function () {
     })
   } else {
     queryHeadWidget.allowPreview = true
-    startSparqling()
   }
 
+  loadingPromise.then(_ => startSparqling())
   return loadingPromise
 
   function startSparqling() {
