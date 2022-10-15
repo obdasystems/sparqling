@@ -6,9 +6,11 @@ classSelector.hide()
 
 export function initClassSelector() {
   const entities = getGscape().ontology.entities
-  classSelector.entityList = []
+  let entitiesViewData: ui.EntityViewData[] = []
   entities.forEach(entity => {
     if (entity.is(GrapholTypesEnum.CLASS))
-      classSelector.entityList.push({ value: entity, viewOccurrences: new Map() })
+      entitiesViewData.push({ value: entity, viewOccurrences: new Map() })
   })
+
+  classSelector.entityList = entitiesViewData
 }
