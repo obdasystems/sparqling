@@ -310,7 +310,7 @@ export default class HighlightsList extends ui.BaseMixin(ui.DropPanelMixin(LitEl
       this.highlights = this.allHighlights
 
 
-    if (this.highlights) {
+    if (this.highlights && !this.searchEntityComponent.areAllFiltersDisabled) {
       let count = 0
       if (this.searchEntityComponent[GrapholTypesEnum.CLASS] !== true) {
         this.highlights.classes = []
