@@ -11,10 +11,15 @@ export default class SparqlingQueryResults extends ModalMixin(ui.BaseMixin(LitEl
   result?: QueryResult
   isLoading = false
   title = 'Query Results Preview'
+  allowSearch: boolean
+  examplesSearchValue?: string
+  private searchExamplesCallback = () => { }
 
   static properties = {
     result: { attribute: false },
-    isLoading: { attribute: false, type: Boolean }
+    isLoading: { attribute: false, type: Boolean },
+    allowSearch: { type: Boolean},
+    exampleSearchValue: { type: String }
   }
 
   static styles = [
@@ -76,16 +81,48 @@ export default class SparqlingQueryResults extends ModalMixin(ui.BaseMixin(LitEl
 
       <div class="dialog-body">
         ${!this.result && !this.isLoading ? html`<div class="danger">Select Endpoint</div>` : null }
-        ${this.result ? queryResultTemplate(this.result) : null }
+        ${this.result
+          ? html`
+            ${this.allowSearch 
+              ? html`
+                <input id="search-examples-input" placeholder="Search Examples" type="text" value=${this.examplesSearchValue} />
+              `
+              : null
+            }
+            ${queryResultTemplate(this.result)}
+          `
+          : null
+        }
         ${this.isLoading ? getLoadingSpinner() : null }
       </div>
     </div>
     `
   }
 
+  onSearchExamples(callback: () => void) {
+    this.searchExamplesCallback = callback
+  }
+
   protected firstUpdated(_changedProperties: PropertyValueMap<any> | Map<PropertyKey, unknown>) {
     super.firstUpdated(_changedProperties)
     this.hide()
+  }
+
+  protected updated(_changedProperties: PropertyValueMap<any> | Map<PropertyKey, unknown>): void {
+    if (this.allowSearch && this.searchExamplesInput) {
+      this.searchExamplesInput.onchange = () => {
+        this.examplesSearchValue = this.searchExamplesInput.value
+      }
+
+      this.searchExamplesInput.onkeyup = (e) => {
+        if (e.key === 'Enter')
+          this.searchExamplesCallback()
+      }
+    }
+  }
+
+  private get searchExamplesInput() {
+    return this.shadowRoot?.querySelector('#search-examples-input') as HTMLInputElement
   }
 }
 

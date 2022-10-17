@@ -68,7 +68,16 @@ export function getFormTemplate(formComponent: SparqlingFormDialog, operators: s
         </div>
       </form>
     </div>
-    ${formComponent.examples ? queryResultTemplate(formComponent.examples) : null }
+    ${formComponent.examples
+      ? html`
+        ${formComponent.parametersType === VarOrConstantTypeEnum.Constant
+          ? html`<input id="search-examples-input" placeholder="Search Examples" type="text" />`
+          : null
+        } 
+        ${queryResultTemplate(formComponent.examples, formComponent.parametersType === VarOrConstantTypeEnum.Constant)}
+      `
+      : null
+    }
     ${formComponent.loadingExamples ? getLoadingSpinner() : null }
     <div id="message-tray"></div>
   `

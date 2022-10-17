@@ -45,7 +45,7 @@ export default function (element: HeadElement | GraphElement, formDialog: Sparql
   formDialog.variableName = variableName || graphElement.id
   formDialog.examples = undefined
   formDialog.acceptExamples = !isStandalone() && (GEUtility.isClass(graphElement) || GEUtility.isDataProperty(graphElement))
-  console.log(formDialog.acceptExamples)
+  formDialog.examplesSearchValue = undefined
   formDialog.loadingExamples = false
   formDialog.show()
 }

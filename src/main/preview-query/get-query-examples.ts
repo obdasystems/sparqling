@@ -18,7 +18,7 @@ export async function showIriExamplesInForm(iri: string, formDialog: SparqlingFo
       return
     }
     
-    const queryString = await getExamplesQueryString(iri, endpoint)
+    const queryString = await getExamplesQueryString(iri, endpoint, formDialog.examplesSearchValue)
     if (!queryString) return
 
     const queryStartResponse = await handlePromise(axios.request<any>(getNewQueryRequestOptions(endpoint, queryString)))
@@ -56,11 +56,24 @@ export function getNewQueryRequestOptions(endpoint: model.MastroEndpoint, queryS
 }
 
 export async function showQueryResultInDialog(iri?: string) {
+  if (iri) {
+    const graphElement = getGraphElementByIRI(iri)
+    if (graphElement) {
+      if (isDataProperty(graphElement)) {
+        previewDialog.allowSearch = true
+        // previewDialog.examplesSearchValue = ''
+      }
+    }
+  }
+
   previewDialog.result = undefined
 
   previewDialog.title = iri ? 'Examples' : 'Query Results Preview'
-
   previewDialog.show()
+
+  previewDialog.onSearchExamples(() => {
+    showQueryResultInDialog(iri)
+  })
 
   handleEndpointSelection(async (endpoint) => {
     if (!endpoint) {
@@ -69,7 +82,7 @@ export async function showQueryResultInDialog(iri?: string) {
 
     previewDialog.isLoading = true
 
-    const queryString = iri ? await getExamplesQueryString(iri, endpoint) : model.getQueryBody().sparql
+    const queryString = iri ? await getExamplesQueryString(iri, endpoint, previewDialog.examplesSearchValue) : model.getQueryBody().sparql
     if (!queryString)
       return
 
@@ -92,7 +105,7 @@ export async function showQueryResultInDialog(iri?: string) {
   })
 }
 
-async function getExamplesQueryString(iri: string, endpoint: MastroEndpoint) {
+async function getExamplesQueryString(iri: string, endpoint: MastroEndpoint, searchValue?: string) {
   const prefixes = await handlePromise(axios.request<any>({
     method: 'get',
     url: localStorage.getItem('mastroUrl') + '/endpoint/' + endpoint.name + '/prefixes',
@@ -104,18 +117,23 @@ async function getExamplesQueryString(iri: string, endpoint: MastroEndpoint) {
   const graphElement = getGraphElementByIRI(iri)
   if (graphElement) {
     if (isClass(graphElement)) {
-      queryString += `\nSELECT * WHERE { ?Examples  rdf:type <${iri}> } LIMIT 10`
+      queryString += `\nSELECT DISTINCT * WHERE { ?Examples  rdf:type <${iri}> }`
     } else if (isDataProperty(graphElement)) {
       const classGraphElement = findGraphElement(getQueryBody()?.graph, (ge) => ge.children?.includes(graphElement) || false)
       if (classGraphElement) {
         const classIri = getIri(classGraphElement)
-        queryString += `\nSELECT ?Examples WHERE { ?x rdf:type <${classIri}>; <${iri}> ?Examples;  } LIMIT 10`
+        queryString += `\nSELECT DISTINCT ?Examples WHERE { ?x rdf:type <${classIri}>; <${iri}> ?Examples;`
       } else {
-        queryString += `\nSELECT ?Examples WHERE { ?x  <${iri}> ?Examples;  } LIMIT 10`
+        queryString += `\nSELECT DISTINCT ?Examples WHERE { ?x  <${iri}> ?Examples;`
       }
-      
+
+      if (searchValue)
+        queryString += `\nFILTER (regex(?Examples, "${searchValue}", 'i'))`
+
+      queryString += ` }`
     }
 
+    queryString += `\nLIMIT 10`
     return queryString
   }
 } 

@@ -2,7 +2,7 @@ import { ui } from "grapholscape";
 import { css, html } from "lit";
 import { QueryResult } from "../main";
 
-export function queryResultTemplate(queryResult: QueryResult) {  
+export function queryResultTemplate(queryResult: QueryResult, includeSearch = false, onSearch?: () => void) {  
   return html`
     <table id="query-results">
       <tr>${queryResult.headTerms.map(columnName => html`<th>${columnName}</th>`)}</tr>

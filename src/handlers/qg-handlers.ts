@@ -10,7 +10,7 @@ import * as queryGraph from '../query-graph'
 import * as queryHead from '../query-head'
 import HeadElementComponent from '../query-head/qh-element-component'
 import * as GEUtility from '../util/graph-element-utility'
-import { filterDialog, filterListDialog, highlightsList, sparqlDialog } from '../widgets'
+import { filterDialog, filterListDialog, highlightsList, previewDialog, sparqlDialog } from '../widgets'
 import showFormDialog from './show-form-dialog'
 
 queryGraph.onAddHead(async graphElement => {
@@ -183,6 +183,7 @@ queryGraph.onSeeFilters(graphElement => {
 queryGraph.onShowExamples(graphElement => {
   const iri = GEUtility.getIri(graphElement)
   if (iri) {
+    previewDialog.examplesSearchValue = undefined
     showQueryResultInDialog(iri)
   }
 })

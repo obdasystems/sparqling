@@ -29,12 +29,14 @@ export default class SparqlingFormDialog extends ModalMixin(ui.BaseMixin(LitElem
   public variableName?: string
   protected deleteCallback = (filterId: any) => { }
   protected submitCallback: any
-  protected seeExamplesCallback = () => { }
   public formTitle?: string
 
+  // Examples
   public acceptExamples = false
   public examples?: QueryResult
   public loadingExamples = false
+  public examplesSearchValue?: string
+  protected seeExamplesCallback = () => { }
 
   static properties = {
     operator: { attribute: false },
@@ -72,7 +74,7 @@ export default class SparqlingFormDialog extends ModalMixin(ui.BaseMixin(LitElem
           this.addInputValue(2 - this.parametersIriOrConstants.length)
         }
         break
-      
+
       case FunctionNameEnum.Ceil:
       case FunctionNameEnum.Floor:
       case FunctionNameEnum.Round:
@@ -155,7 +157,19 @@ export default class SparqlingFormDialog extends ModalMixin(ui.BaseMixin(LitElem
 
     const seeExamplesButton = this.shadowRoot?.querySelector('#show-examples') as HTMLElement
     if (seeExamplesButton)
-      seeExamplesButton.onclick = () => this.seeExamplesCallback()
+      seeExamplesButton.onclick = () => this.handleShowHideExamplesClick()
+
+    if (this.searchExamplesInput) {
+      this.searchExamplesInput.onchange = () => {
+        this.examplesSearchValue = this.searchExamplesInput.value
+      }
+
+      this.searchExamplesInput.onkeyup = (e) => {
+        if (e.key === 'Enter') {
+          this.seeExamplesCallback()
+        }
+      }
+    }
   }
 
   addMessage(msg: string, msgType: string) {
@@ -180,14 +194,19 @@ export default class SparqlingFormDialog extends ModalMixin(ui.BaseMixin(LitElem
 
   onSeeExamples(callback: (variable: VarOrConstant) => void) {
     this.seeExamplesCallback = () => {
-      if (this.variable && !this.examples) {
+      if (this.variable) {
         this.loadingExamples = true
         callback(this.variable)
       }
-      else {
-        // if examples are already present, then show/hide them
-        this.iriExamplesTable.classList.toggle('hide')
-      }
+    }
+  }
+
+  private handleShowHideExamplesClick() {
+    if (this.variable && !this.examples) {
+      this.seeExamplesCallback()
+    } else {
+      this.iriExamplesTable.classList.toggle('hide')
+      this.searchExamplesInput.classList.toggle('hide')
     }
   }
 
@@ -232,7 +251,11 @@ export default class SparqlingFormDialog extends ModalMixin(ui.BaseMixin(LitElem
     return this.shadowRoot?.querySelector('form')
   }
 
-  get iriExamplesTable() {
+  protected get iriExamplesTable() {
     return this.shadowRoot?.querySelector('#query-results') as HTMLTableElement
+  }
+
+  protected get searchExamplesInput() {
+    return this.shadowRoot?.querySelector('#search-examples-input') as HTMLInputElement
   }
 }
