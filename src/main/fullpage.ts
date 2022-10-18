@@ -7,7 +7,7 @@ import { cy } from "../query-graph/renderer";
 import { bgpContainer } from "../util/get-container";
 import { classSelector, initClassSelector } from "../widgets";
 
-let widgetStates: { [key in ui.WidgetEnum]?: boolean } 
+let widgetStates: { [key in ui.WidgetEnum]?: boolean }
 
 export function stopFullpage() {
   const grapholscape = ontologyGraph.getGscape()
@@ -34,6 +34,7 @@ export function startFullpage() {
   // move query graph inside grapholscape main container
   queryGraph.setContainer(grapholscape.renderer.container)
   queryGraph.widget.withoutBGP = true
+  grapholscape.renderer.cy = cy
 
   const queryBody = getQueryBody()
 
@@ -66,7 +67,7 @@ function disableWidgetsForFullpage(grapholscape: Grapholscape) {
   (grapholscape.widgets.get(ui.WidgetEnum.ONTOLOGY_EXPLORER) as unknown as ui.IBaseMixin).disable();
   (grapholscape.widgets.get(ui.WidgetEnum.OWL_VISUALIZER) as unknown as ui.IBaseMixin).disable();
 
-  const actualWidgetStates: { [key in ui.WidgetEnum]?: boolean }  = settingsWidget.widgetStates
+  const actualWidgetStates: { [key in ui.WidgetEnum]?: boolean } = settingsWidget.widgetStates
   delete actualWidgetStates[ui.WidgetEnum.DIAGRAM_SELECTOR]
   delete actualWidgetStates[ui.WidgetEnum.RENDERER_SELECTOR]
   delete actualWidgetStates[ui.WidgetEnum.FILTERS]
