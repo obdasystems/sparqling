@@ -5,7 +5,7 @@ import sparqlingStyle from '../ontology-graph/style';
 import * as queryGraph from '../query-graph';
 import { cy } from "../query-graph/renderer";
 import { bgpContainer } from "../util/get-container";
-import { classSelector, initClassSelector } from "../widgets";
+import { classSelector, highlightsList, initClassSelector } from "../widgets";
 
 let widgetStates: { [key in ui.WidgetEnum]?: boolean }
 
@@ -20,6 +20,7 @@ export function stopFullpage() {
   enableWidgetsForFullpage(grapholscape)
   classSelector.hide()
   ontologyGraph.addStylesheet(grapholscape.renderer.cy, sparqlingStyle(grapholscape.theme))
+  highlightsList.style.marginTop = '60px'
 }
 
 export function startFullpage() {
@@ -43,6 +44,8 @@ export function startFullpage() {
     initClassSelector()
     classSelector.show()
   }
+
+  highlightsList.style.marginTop = '10px'
 
   // const rendererSelector = grapholscape.widgets.get(ui.WidgetEnum.RENDERER_SELECTOR) as unknown as any
   // const rendererStates: RendererStatesEnum[] = rendererSelector.rendererStates.map(rs => rs.id)
