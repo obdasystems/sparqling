@@ -109,7 +109,15 @@
       sparqlingContainer.style.display = 'block'
       document.getElementById('home').style.display = 'none';
 
-      const grapholscape = await Grapholscape.fullGrapholscape(file, sparqlingContainer, { initialRendererSelection: false })
+      const grapholscapeOptions = {
+        renderers: [
+          Grapholscape.RendererStatesEnum.GRAPHOL,
+          Grapholscape.RendererStatesEnum.GRAPHOL_LITE,
+          Grapholscape.RendererStatesEnum.FLOATY
+        ],
+        initialRendererSelection: false,
+      }
+      const grapholscape = await Grapholscape.fullGrapholscape(file, sparqlingContainer, grapholscapeOptions)
       grapholscape.showDiagram(0)
       
       Sparqling.sparqlingStandalone(grapholscape, file)
