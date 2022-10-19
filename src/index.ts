@@ -27,7 +27,7 @@ export function sparqlingStandalone(gscape: Grapholscape, file: string | Blob) {
   return sparqlingCore
 }
 
-export function sparqling(gscape: Grapholscape, file: string | Blob, requestOptions: SparqlingRequestOptions, modality: '') {
+export function sparqling(gscape: Grapholscape, file: string | Blob, requestOptions: SparqlingRequestOptions, useOntologyGraph = true) {
   const sparqlingCore = getCore(gscape, file)
 
   if (sparqlingCore) {
@@ -47,10 +47,19 @@ export function sparqling(gscape: Grapholscape, file: string | Blob, requestOpti
         performHighlights(activeIri)
     }
 
-    if (model.isFullPageActive()) {
-      stopFullpage()
+    if (useOntologyGraph) {
+      if (model.isFullPageActive()) {
+        stopFullpage()
+      }
+      (gscape.widgets.get(ui.WidgetEnum.INITIAL_RENDERER_SELECTOR) as any).show()
+    } else {
+      start().then(_ => {
+        startFullpage()
+      })
+      gscape.renderer.stopRendering()
     }
-    showInitialModeSelector()
+
+    
   }
   return sparqlingCore
 }

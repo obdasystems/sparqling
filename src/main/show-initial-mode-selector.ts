@@ -7,17 +7,17 @@ import start from "./start";
 
 export default function showInitialModeSelector() {
   const modeSelector = new ui.GscapeFullPageSelector()
-  modeSelector.title = 'How do you want to use sparqling?'
+  modeSelector.title = 'How do you want to build your query?'
   modeSelector.options = [
     {
       name: 'Standard',
-      description: 'Use the ontology graph and our suggestions to build your query',
+      // description: 'Use the ontology graph and our suggestions to build your query',
       icon: sparqlingIcon,
       id: 'standard'
     },
     {
-      name: 'Full Page',
-      description: 'You do not need to know the ontology graph. Start from a class and proceed using our suggestions.',
+      name: 'Query Path',
+      // description: 'You do not need to know the ontology graph. Start from a class and proceed using our suggestions.',
       icon: ui.icons.enterFullscreen,
       id: 'full-page'
     },
