@@ -25,6 +25,18 @@ startRunButtons.onQueryRun(() => {
     core.onQueryRun(getQueryBody()?.sparql)
 })
 
+startRunButtons.onQuerySave(() => {
+  if (core.onQuerySave) {
+    core.onQuerySave(getQueryBody())
+  }
+})
+
+startRunButtons.onShowSettings(() => {
+  if (core.onShowSettings) {
+    core.onShowSettings()
+  }
+})
+
 startRunButtons.onEndpointChange((newEndpointName) => {
   const newEndpoint = getEndpoints().find(e => e.name === newEndpointName)
   if (newEndpoint) {

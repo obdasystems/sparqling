@@ -18,6 +18,8 @@ export default class SparqlingStartRunButtons extends ui.BaseMixin(ui.DropPanelM
   private _onSparqlingStartCallback = () => { }
   private _onSparqlingStopCallback = () => { }
   private _onQueryRunCallback = () => { }
+  private _onQuerySaveCallback = () => { }
+  private _onShowSettingsCallback = () => { }
   private _onEndpointChangeCallback = (newEndpointName: string) => { }
 
   static properties = {
@@ -59,6 +61,22 @@ export default class SparqlingStartRunButtons extends ui.BaseMixin(ui.DropPanelM
             title="Send query to SPARQL endpoint"
           >
             <span slot="icon">${playOutlined}</span>
+          </gscape-button>
+          <div class="hr"></div>
+          <gscape-button
+            @click="${this._onQuerySaveCallback}"
+            type="subtle"
+            title="Save query in catalog"
+          >
+            <span slot="icon">${ui.icons.save}</span>
+          </gscape-button>
+          <div class="hr"></div>
+          <gscape-button
+            @click="${this._onShowSettingsCallback}"
+            type="subtle"
+            title="Save query in catalog"
+          >
+            <span slot="icon">${ui.icons.tune}</span>
           </gscape-button>
           <div class="hr"></div>
           <gscape-button
@@ -126,6 +144,14 @@ export default class SparqlingStartRunButtons extends ui.BaseMixin(ui.DropPanelM
 
   onQueryRun(callback: () => void) {
     this._onQueryRunCallback = callback
+  }
+
+  onQuerySave(callback: () => void) {
+    this._onQuerySaveCallback = callback
+  }
+
+  onShowSettings(callback: () => void) {
+    this._onShowSettingsCallback = callback
   }
 
   onEndpointChange(callback: (newEndpointName: string) => void) {
