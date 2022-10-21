@@ -3,6 +3,7 @@ import { startRunButtons } from './widgets'
 import start from './main/start'
 import stop from './main/stop'
 import { QueryGraph } from './api/swagger'
+import loadQuery from './main/load-query'
 
 interface Core {
   getQueryBody: () => QueryGraph,
@@ -28,4 +29,5 @@ export default {
   onStart: () => { },
   start: start,
   stop: stop,
+  loadQuery: loadQuery,
 } as Core
