@@ -1,5 +1,5 @@
 import { html, css, LitElement } from 'lit'
-import { mastroEndpointIcon, playOutlined } from './assets/icons'
+import { description, mastroEndpointIcon, playOutlined } from './assets/icons'
 import sparqlingIcon from './assets/sparqling-icon'
 import * as model from '../model'
 import { ui } from 'grapholscape'
@@ -74,9 +74,9 @@ export default class SparqlingStartRunButtons extends ui.BaseMixin(ui.DropPanelM
           <gscape-button
             @click="${this._onShowSettingsCallback}"
             type="subtle"
-            title="Save query in catalog"
+            title="Edit query metadata"
           >
-            <span slot="icon">${ui.icons.tune}</span>
+            <span slot="icon">${description}</span>
           </gscape-button>
           <div class="hr"></div>
           <gscape-button
