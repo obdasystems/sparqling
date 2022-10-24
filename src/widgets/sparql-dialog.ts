@@ -1,6 +1,8 @@
 import { ui } from 'grapholscape'
 import { html, css, LitElement, PropertyValueMap } from 'lit'
-import { code, copyContent, ellipsis } from './assets/icons'
+import core from '../core'
+import { isStandalone } from '../model'
+import { code, copyContent, editSquare, ellipsis } from './assets/icons'
 import { emptyQueryMsg } from './assets/texts'
 import sparqlingWidgetStyle from './sparqling-widget-style'
 import getTrayButtonTemplate from './tray-button-template'
@@ -59,6 +61,18 @@ export default class SparqlDialog extends ModalMixin(ui.BaseMixin(LitElement)) {
           </div>
 
           <div id="buttons-tray">
+            ${this.text !== emptyQueryMsg() && !isStandalone()
+              ? html`
+                ${getTrayButtonTemplate(
+                  'Use query in SPARQL page',
+                  editSquare, undefined, // icons
+                  'advanced-mode-btn', 
+                  core.redirectToSPARQLPage
+                )}
+              `
+              : null
+            }
+            
             ${getTrayButtonTemplate('Copy Query', copyContent, undefined, 'copyt-query-code-btn', this.copyQuery)}
           </div>
 
