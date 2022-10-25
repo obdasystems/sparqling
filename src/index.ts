@@ -27,25 +27,29 @@ export function sparqlingStandalone(gscape: Grapholscape, file: string | Blob) {
   return sparqlingCore
 }
 
-export function sparqling(gscape: Grapholscape, file: string | Blob, requestOptions: SparqlingRequestOptions, useOntologyGraph = true) {
+export async function sparqling(gscape: Grapholscape, file: string | Blob, requestOptions: SparqlingRequestOptions, useOntologyGraph = true) {
   const sparqlingCore = getCore(gscape, file)
 
   if (sparqlingCore) {
     const currentRequestOptions = model.getRequestOptions()
 
-    // if there's a new ontology, discard the current query and set current instance as not initialised
-    if (requestOptions.version !== currentRequestOptions.params.version || requestOptions.basePath !== model.getBasePath()) {
-      clearQuery()
-      sparqlingCore.stop()
-    }
+    // // if there's a new ontology, discard the current query and set current instance as not initialised
+    // if (requestOptions.version !== currentRequestOptions.params.version || requestOptions.basePath !== model.getBasePath()) {
+    //   clearQuery()
+    //   sparqlingCore.stop()
+    // }
     model.setRequestOptions(requestOptions)
 
-    if (model.isSparqlingRunning() && model.getQueryBody() && model.getActiveElement()) {
-      // be sure grapholscape's highlights gets updated with the actual query state
-      const activeIri = model.getActiveElement()?.iri?.fullIri
-      if (activeIri)
-        performHighlights(activeIri)
-    }
+    if (model.getQueryBody()?.graph)
+      await clearQuery()
+    // sparqlingCore.stop()
+
+    // if (model.isSparqlingRunning() && model.getQueryBody() && model.getActiveElement()) {
+    //   // be sure grapholscape's highlights gets updated with the actual query state
+    //   const activeIri = model.getActiveElement()?.iri?.fullIri
+    //   if (activeIri)
+    //     performHighlights(activeIri)
+    // }
 
     if (useOntologyGraph) {
       if (model.isFullPageActive()) {
@@ -53,13 +57,13 @@ export function sparqling(gscape: Grapholscape, file: string | Blob, requestOpti
       }
       (gscape.widgets.get(ui.WidgetEnum.INITIAL_RENDERER_SELECTOR) as any).show()
     } else {
-      start().then(_ => {
+      if (model.isSparqlingRunning()) {
         startFullpage()
-      })
+      } else {
+        start().then(_ => startFullpage())
+      }
       gscape.renderer.stopRendering()
     }
-
-    
   }
   return sparqlingCore
 }

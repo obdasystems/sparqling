@@ -14,7 +14,7 @@ export default function () {
     clearHighlights();
     (getGscape().widgets.get(ui.WidgetEnum.ENTITY_DETAILS) as any).hide()
     model.setSparqlingRunning(false)
-    model.setFullPage(false)
+    //model.setFullPage(false)
     startRunButtons.canQueryRun = false
     startRunButtons.requestUpdate()
 
