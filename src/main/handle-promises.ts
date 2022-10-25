@@ -34,6 +34,14 @@ export function handlePromise(promise: Promise<AxiosResponse<unknown, unknown>>,
         console.error(error)
         if (showError) {
           errorsDialog.errorText = `${error.name} : ${error.message}`
+          if (error.response) {
+            if (error.response.status === 401) {
+              const lo = document.getElementById("logout")
+              lo?.click()
+            } else {
+              errorsDialog.errorText += `\n\nServer message: ${error.response.data}`
+            }
+          }
           errorsDialog.show()
         }
       })
