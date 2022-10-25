@@ -62,7 +62,6 @@ export async function sparqling(gscape: Grapholscape, file: string | Blob, reque
       } else {
         start().then(_ => startFullpage())
       }
-      gscape.renderer.stopRendering()
     }
   }
   return sparqlingCore

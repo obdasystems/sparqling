@@ -1,20 +1,23 @@
 import { ui } from "grapholscape";
 import { QueryGraph } from "../api/swagger";
-import { getActiveElement, getQueryBody, setActiveElement } from "../model";
+import * as model from "../model";
 import { getGscape } from "../ontology-graph";
 import { getIri } from "../util/graph-element-utility";
-import { classSelector } from "../widgets";
-import clearQuery from "./clear-query";
+import { classSelector, countStarToggle, distinctToggle, limitInput, offsetInput } from "../widgets";
 import { performHighlights } from "./highlights";
 import onNewBody from "./on-new-body";
 import * as queryGraph from "../query-graph"
 
-export default function(queryBody: QueryGraph) {
+export default function (queryBody: QueryGraph) {
+  // Hide selectors
+  classSelector.hide();
+  (getGscape().widgets.get(ui.WidgetEnum.INITIAL_RENDERER_SELECTOR) as any).hide()
+
   const grapholscape = getGscape()
   onNewBody(queryBody)
   const activeElementIri = getIri(queryBody.graph)
   if (activeElementIri) {
-    setActiveElement({
+    model.setActiveElement({
       graphElement: queryBody.graph,
       iri: grapholscape.ontology.getEntity(activeElementIri).iri
     })
@@ -23,7 +26,12 @@ export default function(queryBody: QueryGraph) {
     performHighlights(activeElementIri)
   }
 
-  // Hide selectors
-  classSelector.hide();
-  (getGscape().widgets.get(ui.WidgetEnum.INITIAL_RENDERER_SELECTOR) as any).hide()
+  countStarToggle.checked = model.isCountStarActive()
+  distinctToggle.checked = model.isDistinctActive()
+
+  if (queryBody.limit && queryBody.limit > 0)
+    limitInput.value = queryBody.limit.toString()
+
+  if (queryBody.offset || queryBody.offset === 0)
+    offsetInput.value = queryBody.offset.toString()
 }
