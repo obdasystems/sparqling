@@ -3,6 +3,7 @@ import { getEndpoints, getQueryBody, getSelectedEndpoint, setSelectedEndpoint, u
 import { startRunButtons } from "../widgets";
 import start from "../main/start";
 import stop from "../main/stop";
+import handleEndpointSelection from "../main/preview-query/handle-endpoint-selection";
 
 startRunButtons.onSparqlingStart(() => {
   try {
@@ -19,9 +20,13 @@ startRunButtons.onSparqlingStop(() => {
   core.onStop()
 })
 
-startRunButtons.onQueryRun(() => {
-  if (core.onQueryRun)
-    core.onQueryRun(getQueryBody()?.sparql)
+startRunButtons.onQueryRun(async () => {
+  await handleEndpointSelection(endpoint => {
+    if (endpoint && core.onQueryRun)
+      core.onQueryRun(getQueryBody()?.sparql)
+    else
+      startRunButtons.togglePanel()
+  })
 })
 
 startRunButtons.onQuerySave(() => {
