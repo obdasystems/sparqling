@@ -4,6 +4,7 @@ import start from './main/start'
 import stop from './main/stop'
 import { QueryGraph } from './api/swagger'
 import loadQuery from './main/load-query'
+import { MastroEndpoint } from './model'
 
 interface Core {
   getQueryBody: () => QueryGraph,
@@ -11,6 +12,7 @@ interface Core {
   runQueryButton: any,
   onQueryRun?: (queryString: string) => void,
   onQuerySave?: (queryGraph: QueryGraph) => void,
+  onEndpointSelection?: (endpoint: MastroEndpoint) => void,
   onShowSettings?: () => void,
   redirectToSPARQLPage?: () => void,
   onStart: () => void,
@@ -26,6 +28,7 @@ export default {
   onQueryRun: undefined,
   onQuerySave: undefined,
   onShowSettings: undefined,
+  onEndpointSelection: undefined,
   redirectToSPARQLPage: undefined,
   onStop: () => { },
   onStart: () => { },

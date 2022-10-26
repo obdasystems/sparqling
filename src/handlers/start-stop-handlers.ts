@@ -42,6 +42,10 @@ startRunButtons.onEndpointChange((newEndpointName) => {
   if (newEndpoint) {
     setSelectedEndpoint(newEndpoint)
     startRunButtons.selectedEndpointName = newEndpoint.name
+
+    if (core.onEndpointSelection) {
+      core.onEndpointSelection(newEndpoint)
+    }
   }
 })
 
