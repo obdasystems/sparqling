@@ -51,6 +51,10 @@ export async function sparqling(gscape: Grapholscape, file: string | Blob, reque
     //     performHighlights(activeIri)
     // }
 
+    await model.updateEndpoints()
+    widgets.startRunButtons.endpoints = model.getEndpoints()
+    widgets.startRunButtons.selectedEndpointName = model.getSelectedEndpoint()?.name
+
     if (useOntologyGraph) {
       if (model.isFullPageActive()) {
         stopFullpage()

@@ -75,7 +75,7 @@ export async function updateEndpoints() {
   endpoints = (await handlePromise(axios.request<any>(mwsGetRunningEndpointsOptions))).endpoints
 
   if (!selectedEndpoint || !endpoints.map(e => e.name).includes(selectedEndpoint.name)) {
-    selectedEndpoint = endpoints[0]
+    setSelectedEndpoint(endpoints[0])
   }
 }
 

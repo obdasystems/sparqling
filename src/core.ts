@@ -7,6 +7,7 @@ import loadQuery from './main/load-query'
 import { MastroEndpoint } from './model'
 
 interface Core {
+  getSelectedEndpoint: () => string | undefined,
   getQueryBody: () => QueryGraph,
   startStopButton: any,
   runQueryButton: any,
@@ -23,6 +24,7 @@ interface Core {
 }
 
 export default {
+  getSelectedEndpoint: () => model.getSelectedEndpoint()?.name,
   getQueryBody: model.getQueryBody,
   startStopButton: startRunButtons.startSparqlingButton,
   runQueryButton: startRunButtons.runQueryButton,
