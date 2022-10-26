@@ -7,6 +7,7 @@ import sparqlingIcon from './assets/sparqling-icon'
 import { getLoadingSpinner, loadingSpinnerStyle } from './loading-spinner'
 
 export default class SparqlingStartRunButtons extends ui.BaseMixin(ui.DropPanelMixin(LitElement)) {
+  id = 'sparqling-start-run-widget'
   private isLoading: boolean = false
 
   public startSparqlingButton: any
@@ -14,6 +15,7 @@ export default class SparqlingStartRunButtons extends ui.BaseMixin(ui.DropPanelM
   public canQueryRun: boolean = false
   public endpoints: MastroEndpoint[] = []
   public selectedEndpointName?: string
+  public showResultsEnabled = false
 
   private _onSparqlingStartCallback = () => { }
   private _onSparqlingStopCallback = () => { }
@@ -27,7 +29,8 @@ export default class SparqlingStartRunButtons extends ui.BaseMixin(ui.DropPanelM
     canQueryRun: { type: Boolean, attribute: false },
     isLoading: { type: Boolean, attribute: false },
     endpoints: { type: Object, attribute: false },
-    selectedEndpointName: { type: String, attribute: false }
+    selectedEndpointName: { type: String, attribute: false },
+    showResultsEnabled: { type: Boolean, attribute: false },
   }
 
   static styles = [
@@ -77,15 +80,20 @@ export default class SparqlingStartRunButtons extends ui.BaseMixin(ui.DropPanelM
 
           <div class="hr"></div>
 
-          <gscape-button
-            @click="${this._onShowResults}"
-            type="subtle"
-            title="Show results drawer"
-          >
-            <span slot="icon">${preview}</span>
-          </gscape-button>
+          ${this.showResultsEnabled
+            ? html `
+              <gscape-button
+                @click="${this._onShowResults}"
+                type="subtle"
+                title="Show results drawer"
+              >
+                <span slot="icon">${preview}</span>
+              </gscape-button>
 
-          <div class="hr"></div>
+              <div class="hr"></div>
+            `
+            : null
+          }
 
           <gscape-button
             @click="${this._onShowSettingsCallback}"
