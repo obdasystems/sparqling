@@ -1,10 +1,10 @@
-import { html, css, LitElement } from 'lit'
-import { description, mastroEndpointIcon, playOutlined } from './assets/icons'
-import sparqlingIcon from './assets/sparqling-icon'
-import * as model from '../model'
 import { ui } from 'grapholscape'
-import { getLoadingSpinner, loadingSpinnerStyle } from './loading-spinner'
+import { css, html, LitElement } from 'lit'
+import * as model from '../model'
 import { MastroEndpoint } from '../model'
+import { description, mastroEndpointIcon, playOutlined, preview } from './assets/icons'
+import sparqlingIcon from './assets/sparqling-icon'
+import { getLoadingSpinner, loadingSpinnerStyle } from './loading-spinner'
 
 export default class SparqlingStartRunButtons extends ui.BaseMixin(ui.DropPanelMixin(LitElement)) {
   private isLoading: boolean = false
@@ -21,6 +21,7 @@ export default class SparqlingStartRunButtons extends ui.BaseMixin(ui.DropPanelM
   private _onQuerySaveCallback = () => { }
   private _onShowSettingsCallback = () => { }
   private _onEndpointChangeCallback = (newEndpointName: string) => { }
+  private _onShowResults = () => { }
 
   static properties = {
     canQueryRun: { type: Boolean, attribute: false },
@@ -62,7 +63,9 @@ export default class SparqlingStartRunButtons extends ui.BaseMixin(ui.DropPanelM
           >
             <span slot="icon">${playOutlined}</span>
           </gscape-button>
+
           <div class="hr"></div>
+
           <gscape-button
             @click="${this._onQuerySaveCallback}"
             type="subtle"
@@ -70,7 +73,19 @@ export default class SparqlingStartRunButtons extends ui.BaseMixin(ui.DropPanelM
           >
             <span slot="icon">${ui.icons.save}</span>
           </gscape-button>
+
           <div class="hr"></div>
+
+          <gscape-button
+            @click="${this._onShowResults}"
+            type="subtle"
+            title="Show results drawer"
+          >
+            <span slot="icon">${preview}</span>
+          </gscape-button>
+
+          <div class="hr"></div>
+
           <gscape-button
             @click="${this._onShowSettingsCallback}"
             type="subtle"
@@ -78,7 +93,9 @@ export default class SparqlingStartRunButtons extends ui.BaseMixin(ui.DropPanelM
           >
             <span slot="icon">${description}</span>
           </gscape-button>
+
           <div class="hr"></div>
+
           <gscape-button
             @click=${this.togglePanel}
             type="subtle"
@@ -86,6 +103,7 @@ export default class SparqlingStartRunButtons extends ui.BaseMixin(ui.DropPanelM
           >
             <span slot="icon">${mastroEndpointIcon}</span>
           </gscape-button>
+
           <div class="hr"></div>
 
           <div class="gscape-panel gscape-panel-in-tray drop-left hide" id="drop-panel">
@@ -156,6 +174,10 @@ export default class SparqlingStartRunButtons extends ui.BaseMixin(ui.DropPanelM
 
   onEndpointChange(callback: (newEndpointName: string) => void) {
     this._onEndpointChangeCallback = callback
+  }
+
+  onShowResults(callback: () => void) {
+    this._onShowResults = callback
   }
 
   requestEndpointSelection() {

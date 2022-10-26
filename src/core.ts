@@ -12,6 +12,7 @@ interface Core {
   runQueryButton: any,
   onQueryRun?: (queryString: string) => void,
   onQuerySave?: (queryGraph: QueryGraph) => void,
+  onShowResults?: () => void,
   onEndpointSelection?: (endpoint: MastroEndpoint) => void,
   onShowSettings?: () => void,
   redirectToSPARQLPage?: () => void,

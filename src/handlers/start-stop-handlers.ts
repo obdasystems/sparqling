@@ -8,7 +8,6 @@ startRunButtons.onSparqlingStart(() => {
   try {
     start()
   } catch(error) {
-    console.log('caught')
     console.log(error)
     return
   }
@@ -54,3 +53,9 @@ startRunButtons.onTogglePanel = async () => {
   startRunButtons.endpoints = getEndpoints()
   startRunButtons.selectedEndpointName = getSelectedEndpoint()?.name
 }
+
+startRunButtons.onShowResults(() => {
+  if (core.onShowResults) {
+    core.onShowResults()
+  }
+})
