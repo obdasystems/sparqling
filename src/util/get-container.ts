@@ -1,6 +1,7 @@
 export const grapholscape = getGrapholscapeContainer()
 export const bgpContainer = getBGPContainer()
 export const leftColumnContainer = getLeftColumnContainer()
+export const tippyContainer = getTippyContainer()
 
 function getGrapholscapeContainer(): HTMLDivElement {
   let container: HTMLDivElement = document.createElement('div')
@@ -36,5 +37,10 @@ function getLeftColumnContainer(): HTMLDivElement {
   container.style.width = '20%'
   container.style.zIndex = '1'
 
+  return container
+}
+
+function getTippyContainer(): HTMLDivElement {
+  let container = document.createElement('div')
   return container
 }

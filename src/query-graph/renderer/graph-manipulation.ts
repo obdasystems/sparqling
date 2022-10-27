@@ -1,4 +1,4 @@
-import { CollectionReturnValue } from "cytoscape"
+import { NodeSingular } from "cytoscape"
 import { EntityNameType } from "grapholscape"
 import { Entity, EntityTypeEnum, GraphElement, Optional } from "../../api/swagger"
 import { getFiltersOnVariable } from "../../model"
@@ -28,7 +28,7 @@ export function addNode(node: GraphElement) {
   if (!node || !node.id) return
   const newNodeData = getDataObj(node)
   const existingNode = getElementById(node.id)
-  let newNode: CollectionReturnValue | undefined = undefined
+  let newNode: NodeSingular | undefined = undefined
 
   if (node.entities?.length && node.entities.length > 1 && existingNode?.children().length !== node.entities?.length) {
     node.entities.forEach((child: Entity, i: number) => {

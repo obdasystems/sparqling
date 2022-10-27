@@ -21,6 +21,7 @@ interface Core {
   onStop: () => void,
   start: () => void,
   stop: () => void,
+  loadQuery: (queryGraph: QueryGraph) => void,
 }
 
 export default {

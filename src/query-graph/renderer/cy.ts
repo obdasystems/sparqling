@@ -1,11 +1,10 @@
-import cytoscape, { NodeSingular } from "cytoscape"
+import cytoscape from "cytoscape"
 import cola from 'cytoscape-cola'
 import compoundDragAndDrop from 'cytoscape-compound-drag-and-drop'
 import klay from 'cytoscape-klay'
 import popper from 'cytoscape-popper'
 import { EntityNameType } from "grapholscape"
-import { EntityTypeEnum } from "../../api/swagger"
-import { bgpContainer } from "../../util/get-container"
+import { bgpContainer, tippyContainer } from "../../util/get-container"
 import { attachCxtMenuTo } from "../../widgets"
 import { getCommandsForElement } from "./cxt-menu-commands"
 
@@ -20,6 +19,11 @@ export const cy = cytoscape({
 })
 cy.mount(bgpContainer)
 
+cy.container()?.firstElementChild?.appendChild(tippyContainer)
+
+cy.on('resize', () => {
+  cy.container()?.firstElementChild?.appendChild(tippyContainer)
+})
 /**
  * --- HACKY --- 
  * Allow events not involving buttons to work on cytoscape when it's in a shadow dom.
