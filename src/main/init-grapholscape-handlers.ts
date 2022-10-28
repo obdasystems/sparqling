@@ -1,5 +1,5 @@
 import { Core } from "cytoscape"
-import { EntityNameType, Grapholscape, GrapholscapeTheme, GrapholTypesEnum, LifecycleEvent, RendererStatesEnum } from "grapholscape"
+import { EntityNameType, Grapholscape, GrapholscapeTheme, GrapholTypesEnum, LifecycleEvent, RendererStatesEnum, storeConfigEntry } from "grapholscape"
 import { OntologyGraphHandlers } from "../handlers"
 import * as model from '../model'
 import * as ontologyGraph from '../ontology-graph'
@@ -10,7 +10,8 @@ import { stopFullpage } from "./fullpage"
 
 export default function init() {
   const gscape = getGscape()
-  ontologyGraph.addStylesheet(gscape.renderer.cy, sparqlingStyle(gscape.theme));
+  if (gscape.renderer.cy)
+    ontologyGraph.addStylesheet(gscape.renderer.cy, sparqlingStyle(gscape.theme));
 
   if (gscape.renderer.cy && gscape.renderState !== RendererStatesEnum.INCREMENTAL)
     setHandlers(gscape.renderer.cy)
@@ -22,7 +23,8 @@ export default function init() {
 
   gscape.on(LifecycleEvent.ThemeChange, (newTheme: GrapholscapeTheme) => {
     queryGraph.setTheme(newTheme)
-    ontologyGraph.addStylesheet(gscape.renderer.cy, sparqlingStyle(newTheme))
+    if (gscape.renderer.cy)
+      ontologyGraph.addStylesheet(gscape.renderer.cy, sparqlingStyle(newTheme))
   })
 
   gscape.on(LifecycleEvent.DiagramChange, () => onChangeDiagramOrRenderer(gscape))

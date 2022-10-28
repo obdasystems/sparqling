@@ -1,4 +1,4 @@
-import { ui } from "grapholscape";
+import { GrapholRendererState, RendererStatesEnum, ui } from "grapholscape";
 import { QueryGraph } from "../api/swagger";
 import * as model from "../model";
 import { getGscape } from "../ontology-graph";
@@ -14,6 +14,11 @@ export default function (queryBody: QueryGraph) {
   (getGscape().widgets.get(ui.WidgetEnum.INITIAL_RENDERER_SELECTOR) as any).hide()
 
   const grapholscape = getGscape()
+
+  if (!grapholscape.renderState && !model.isFullPageActive()) {
+    grapholscape.setRenderer(new GrapholRendererState())
+  }
+
   onNewBody(queryBody)
   const activeElementIri = getIri(queryBody.graph)
   if (activeElementIri) {

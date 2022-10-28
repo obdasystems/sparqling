@@ -19,7 +19,8 @@ export function stopFullpage() {
   // (grapholscape.widgets.get(ui.WidgetEnum.DIAGRAM_SELECTOR) as unknown as ui.IBaseMixin).enable()
   enableWidgetsForFullpage(grapholscape)
   classSelector.hide()
-  ontologyGraph.addStylesheet(grapholscape.renderer.cy, sparqlingStyle(grapholscape.theme))
+  if (grapholscape.renderer.cy)
+    ontologyGraph.addStylesheet(grapholscape.renderer.cy, sparqlingStyle(grapholscape.theme))
   highlightsList.style.marginTop = '60px'
 }
 

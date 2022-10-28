@@ -1,4 +1,4 @@
-import { StylesheetStyle } from "cytoscape"
+import { Core, StylesheetStyle } from "cytoscape"
 import { EntityOccurrence, RendererStatesEnum } from "grapholscape"
 import getGscape from "./get-gscape"
 
@@ -24,8 +24,8 @@ export function getEntityOccurrence(entityIri: string): EntityOccurrence | undef
   }
 }
 
-export function addStylesheet(cy: any, stylesheet: StylesheetStyle[]) {
+export function addStylesheet(cy: Core, stylesheet: StylesheetStyle[]) {
   stylesheet.forEach(styleObj => {
-    cy.style().selector(styleObj.selector).style(styleObj.style)
+    (cy.style() as any).selector(styleObj.selector).style(styleObj.style)
   })
 }

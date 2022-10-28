@@ -1,4 +1,4 @@
-import { Grapholscape, ui } from 'grapholscape'
+import { Grapholscape, ui, RendererStatesEnum } from 'grapholscape'
 import core from './core'
 import * as model from './model'
 import * as ontologyGraph from './ontology-graph'
@@ -28,28 +28,18 @@ export function sparqlingStandalone(gscape: Grapholscape, file: string | Blob) {
 }
 
 export async function sparqling(gscape: Grapholscape, file: string | Blob, requestOptions: SparqlingRequestOptions, useOntologyGraph = true) {
+
+  if (gscape.renderState === RendererStatesEnum.INCREMENTAL) {
+    (gscape.widgets.get(ui.WidgetEnum.ENTITY_SELECTOR) as any).hide()
+  }
+
   const sparqlingCore = getCore(gscape, file)
 
   if (sparqlingCore) {
-    const currentRequestOptions = model.getRequestOptions()
-
-    // // if there's a new ontology, discard the current query and set current instance as not initialised
-    // if (requestOptions.version !== currentRequestOptions.params.version || requestOptions.basePath !== model.getBasePath()) {
-    //   clearQuery()
-    //   sparqlingCore.stop()
-    // }
     model.setRequestOptions(requestOptions)
 
     if (model.getQueryBody()?.graph)
       await clearQuery()
-    // sparqlingCore.stop()
-
-    // if (model.isSparqlingRunning() && model.getQueryBody() && model.getActiveElement()) {
-    //   // be sure grapholscape's highlights gets updated with the actual query state
-    //   const activeIri = model.getActiveElement()?.iri?.fullIri
-    //   if (activeIri)
-    //     performHighlights(activeIri)
-    // }
 
     await model.updateEndpoints()
     widgets.startRunButtons.endpoints = model.getEndpoints()
