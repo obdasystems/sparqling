@@ -13,7 +13,6 @@ import HeadElementComponent, { HeadElementCallback, HeadElementRenameCallback } 
 export default class QueryHeadWidget extends ui.BaseMixin(ui.DropPanelMixin(LitElement)) {
   public title = 'Query Columns'
   public headElements: HeadElement[] = []
-  public allowPreview = false
   private deleteElementCallback: HeadElementCallback
   private renameElementCallback: HeadElementRenameCallback
   private localizeElementCallback: HeadElementCallback
@@ -26,7 +25,6 @@ export default class QueryHeadWidget extends ui.BaseMixin(ui.DropPanelMixin(LitE
   
   static properties = {
     headElements: { type: Object, attribute: false },
-    allowPreview: { type: Boolean, attribute: false},
   }
 
   static styles = [
@@ -70,7 +68,6 @@ export default class QueryHeadWidget extends ui.BaseMixin(ui.DropPanelMixin(LitE
       }
     `
   ]
-  onPreviewButtonClick: ((e: MouseEvent) => void) | undefined
 
   constructor() {
     super()
@@ -98,15 +95,6 @@ export default class QueryHeadWidget extends ui.BaseMixin(ui.DropPanelMixin(LitE
                 ${tableEye}
                 <span>${this.title}</span>
               </div>
-
-              ${this.allowPreview
-                ? html`
-                  <div id="buttons-tray">
-                    ${getTrayButtonTemplate('Get Query Preview', preview, undefined, 'preview-btn', this.onPreviewButtonClick)}
-                  </div>
-                `
-                : null
-              }
 
               <gscape-button 
                 id="toggle-panel-button"

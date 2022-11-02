@@ -3,7 +3,6 @@ import { StandaloneApi } from '../api/swagger'
 import core from '../core'
 import * as model from '../model'
 import getGscape from '../ontology-graph/get-gscape'
-import { widget as queryHeadWidget } from '../query-head'
 import { getIri } from '../util/graph-element-utility'
 import { showUI } from '../util/show-hide-ui'
 import { startRunButtons } from '../widgets'
@@ -28,8 +27,6 @@ export default async function () {
         }
       })
     })
-  } else {
-    queryHeadWidget.allowPreview = true
   }
 
   loadingPromise.then(_ => startSparqling())

@@ -121,8 +121,3 @@ queryHead.onAddAggregation(headElementId => {
       (aggregationDialog.distinctCheckboxElem as HTMLInputElement).checked = false
   }
 })
-
-queryHead.widget.onPreviewButtonClick = async () => {
-  if (queryHead.widget.previewButton?.disabled) return // TODO: Remove when grapholscape button will handle this
-  showQueryResultInDialog()
-}
