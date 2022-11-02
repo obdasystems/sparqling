@@ -32,6 +32,7 @@ export default class ErrorsDialog extends ModalMixin(ui.BaseMixin(LitElement)) {
         max-width: 450px;
         padding: 16px 8px;
         background: var(--gscape-color-danger-subtle);
+        white-space: pre-line;
       }
 
       .dialog-body, #widget-header {
@@ -59,9 +60,7 @@ export default class ErrorsDialog extends ModalMixin(ui.BaseMixin(LitElement)) {
           </gscape-button>
         </div>
 
-        <div class="dialog-body">
-          ${this.errorText}
-        </div>
+        <div class="dialog-body">${this.errorText}</div>
       </div>
     `
   }
