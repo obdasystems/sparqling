@@ -64,3 +64,9 @@ startRunButtons.onShowResults(() => {
     core.onShowResults()
   }
 })
+
+startRunButtons.onToggleCatalog(() => {
+  if (core.onToggleCatalog) {
+    core.onToggleCatalog()
+  }
+})

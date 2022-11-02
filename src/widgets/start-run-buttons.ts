@@ -2,7 +2,7 @@ import { ui } from 'grapholscape'
 import { css, html, LitElement } from 'lit'
 import * as model from '../model'
 import { MastroEndpoint } from '../model'
-import { description, mastroEndpointIcon, playOutlined, preview } from './assets/icons'
+import { description, mastroEndpointIcon, playOutlined, preview, toggleCatalog } from './assets/icons'
 import sparqlingIcon from './assets/sparqling-icon'
 import { getLoadingSpinner, loadingSpinnerStyle } from './loading-spinner'
 
@@ -24,6 +24,7 @@ export default class SparqlingStartRunButtons extends ui.BaseMixin(ui.DropPanelM
   private _onShowSettingsCallback = () => { }
   private _onEndpointChangeCallback = (newEndpointName: string) => { }
   private _onShowResults = () => { }
+  private _onToggleCatalog = () => { }
 
   static properties = {
     canQueryRun: { type: Boolean, attribute: false },
@@ -39,124 +40,163 @@ export default class SparqlingStartRunButtons extends ui.BaseMixin(ui.DropPanelM
     loadingSpinnerStyle,
     css`
       :host {
-        order: 8;
-        position: relative;
+        position: absolute;
+        top: 10px;
+        left: 50%;
+        transform: translate(-50%);
+      }
+
+      #widget-body, #widget-header {
+        display: flex;
+        align-items: center;
+        padding: 0;
+        min-width: unset;
+      }
+
+      #widget-header {
+        gap: 8px;
+        margin-left: 8px;
       }
 
       #drop-panel {
-        bottom: unset;
-        top: 0px;
+        margin: 4px auto 0;
       }
+
+      .header {
+        text-align: center;
+      }
+
+      .hr {
+        background-color: var(--gscape-color-border-subtle);
+        width: 1px;
+        height: 1.7em;
+      }   
     `,
   ]
 
-  constructor() {
-    super()
-    this.classList.add(ui.BOTTOM_RIGHT_WIDGET_CLASS.toString())
-  }
-
   render() {
     return html`
-    ${this.canQueryRun
-        ? html`
-          <gscape-button
-            @click="${this._onQueryRunCallback}"
-            type="subtle"
-            title="Send query to SPARQL endpoint"
-          >
-            <span slot="icon">${playOutlined}</span>
-          </gscape-button>
-
-          <div class="hr"></div>
-
-          <gscape-button
-            @click="${this._onQuerySaveCallback}"
-            type="subtle"
-            title="Save query in catalog"
-          >
-            <span slot="icon">${ui.icons.save}</span>
-          </gscape-button>
-
-          <div class="hr"></div>
-
-          ${this.showResultsEnabled
-            ? html `
+      <div id="widget-body" class="gscape-panel">
+        <div id="widget-header">
+          ${model.isStandalone()
+            ? html`
               <gscape-button
-                @click="${this._onShowResults}"
+                @click="${this.handleStartButtonCLick}" 
                 type="subtle"
-                title="Show results drawer"
+                title="Start/Stop Sparqling"
+                ?active=${model.isSparqlingRunning()}
+                label="Sparqling"
               >
-                <span slot="icon">${preview}</span>
+                <span slot="icon">
+                  ${this.isLoading ? getLoadingSpinner() : sparqlingIcon}
+                </span>
               </gscape-button>
+            `
+            : html`
+                ${this.isLoading 
+                  ? html`${getLoadingSpinner()}`
+                  : null
+                }
+                <div class="bold-text">Query Builder</div>
+                <div class="hr"></div>
+            `
+          }
+        </div>
 
-              <div class="hr"></div>
+        ${!model.isStandalone()
+          ? html`            
+            <gscape-button
+              @click=${this._onToggleCatalog}
+              type="subtle"
+              title="Toggle query catalog"
+            >
+              <span slot="icon">${toggleCatalog}</span>
+            </gscape-button>
+
+            <div class="hr"></div>
+
+            <gscape-button
+              @click="${this._onQuerySaveCallback}"
+              type="subtle"
+              title="Save query in catalog"
+            >
+              <span slot="icon">${ui.icons.save}</span>
+            </gscape-button>
+
+            <div class="hr"></div>   
+
+            ${this.showResultsEnabled
+              ? html `
+                <gscape-button
+                  @click="${this._onShowResults}"
+                  type="subtle"
+                  title="Show results drawer"
+                >
+                  <span slot="icon">${preview}</span>
+                </gscape-button>
+
+                <div class="hr"></div>
+              `
+              : null
+            }
+
+            <gscape-button
+              @click="${this._onShowSettingsCallback}"
+              type="subtle"
+              title="Edit query metadata"
+            >
+              <span slot="icon">${description}</span>
+            </gscape-button>
+
+            <div class="hr"></div>
+
+            <gscape-button
+              @click=${this.togglePanel}
+              type="subtle"
+              title="Select Mastro endpoint"
+            >
+              <span slot="icon">${mastroEndpointIcon}</span>
+            </gscape-button>
+
+            <div class="hr"></div>
+
+            <gscape-button
+              @click="${this._onQueryRunCallback}"
+              type="subtle"
+              title="Send query to SPARQL endpoint"
+            >
+              <span slot="icon">${playOutlined}</span>
+            </gscape-button>         
+          `
+          : null
+        }
+      </div>
+
+      <div class="gscape-panel drop-down hide" id="drop-panel">
+        <div class="header">Endpoint Selector</div>
+        <div class="content-wrapper">
+          ${this.endpoints.map(endpoint => {
+            return html`
+              <gscape-action-list-item
+                @click=${this.handleEndpointClick}
+                label="${endpoint.name}"
+                ?selected = "${this.selectedEndpointName === endpoint.name}"
+              >
+              </gscape-action-list-item>
+            `
+          })}
+
+          ${this.endpoints.length === 0
+            ? html`
+              <div class="blank-slate">
+                ${ui.icons.searchOff}
+                <div class="header">No endpoint available</div>
+              </div>
             `
             : null
           }
-
-          <gscape-button
-            @click="${this._onShowSettingsCallback}"
-            type="subtle"
-            title="Edit query metadata"
-          >
-            <span slot="icon">${description}</span>
-          </gscape-button>
-
-          <div class="hr"></div>
-
-          <gscape-button
-            @click=${this.togglePanel}
-            type="subtle"
-            title="Select Mastro Endpoint"
-          >
-            <span slot="icon">${mastroEndpointIcon}</span>
-          </gscape-button>
-
-          <div class="hr"></div>
-
-          <div class="gscape-panel gscape-panel-in-tray drop-left hide" id="drop-panel">
-            <div class="header">Endpoint Selector</div>
-            <div class="content-wrapper">
-              ${this.endpoints.map(endpoint => {
-          return html`
-                  <gscape-action-list-item
-                    @click=${this.handleEndpointClick}
-                    label="${endpoint.name}"
-                    ?selected = "${this.selectedEndpointName === endpoint.name}"
-                  >
-                  </gscape-action-list-item>
-                `
-        })}
-
-              ${this.endpoints.length === 0
-            ? html`
-                  <div class="blank-slate">
-                    ${ui.icons.searchOff}
-                    <div class="header">No endpoint available</div>
-                  </div>
-                `
-            : null
-          }
-            </div>
-          </div>
-        `
-        : null
-      }
-
-    ${this.isLoading
-        ? getLoadingSpinner()
-        : html`
-        <gscape-button
-          @click="${this.handleStartButtonCLick}" 
-          type="subtle"
-          title="Start/Stop Sparqling"
-          ?active=${model.isSparqlingRunning()}
-        >
-          <span slot="icon">${sparqlingIcon}</span>
-        </gscape-button>
-      `
-      }
-
+        </div>
+      </div>
     `
   }
 
@@ -186,6 +226,10 @@ export default class SparqlingStartRunButtons extends ui.BaseMixin(ui.DropPanelM
 
   onShowResults(callback: () => void) {
     this._onShowResults = callback
+  }
+
+  onToggleCatalog(callback: () => void) {
+    this._onToggleCatalog = callback
   }
 
   requestEndpointSelection() {

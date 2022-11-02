@@ -49,7 +49,17 @@ export async function sparqling(gscape: Grapholscape, file: string | Blob, reque
       if (model.isFullPageActive()) {
         stopFullpage()
       }
-      (gscape.widgets.get(ui.WidgetEnum.INITIAL_RENDERER_SELECTOR) as any).show()
+      // show grapholscape renderer selector
+      const grapholscapeRendererSelector = (gscape.widgets.get(ui.WidgetEnum.INITIAL_RENDERER_SELECTOR) as any)
+      grapholscapeRendererSelector.show()
+      const onOptionSelection = grapholscapeRendererSelector.onOptionSelection
+      grapholscapeRendererSelector.onOptionSelection = (optionId) => {
+        onOptionSelection(optionId) // call original callback
+        if (core.onToggleCatalog) {
+          core.onToggleCatalog()
+        }
+        grapholscapeRendererSelector.onOptionSelection = onOptionSelection // restore original callback
+      }
     } else {
       if (model.isSparqlingRunning()) {
         startFullpage()
@@ -91,8 +101,7 @@ function getCore(gscape: Grapholscape, file: string | Blob) {
       uiContainer.appendChild(widgets.errorsDialog)
       uiContainer.appendChild(widgets.classSelector)
       uiContainer.appendChild(widgets.loadingDialog)
-
-      uiContainer?.querySelector('.gscape-ui-buttons-tray')?.appendChild(widgets.startRunButtons)
+      uiContainer.appendChild(widgets.startRunButtons)
     }
     queryGraph.setDisplayedNameType(gscape.entityNameType, gscape.language)
     queryGraph.setTheme(gscape.theme)
