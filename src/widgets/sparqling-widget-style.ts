@@ -8,7 +8,6 @@ export default css`
     position: absolute;
     top: 0;
     right: 0;
-    z-index: 2;
     
     align-items: center;
     justify-content: space-between;
