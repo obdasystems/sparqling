@@ -1,18 +1,17 @@
-import { Grapholscape, ui, RendererStatesEnum } from 'grapholscape'
+import { Grapholscape, RendererStatesEnum, ui } from 'grapholscape'
 import core from './core'
+import * as handlers from './handlers'
+import { initGrapholscapeHandlers, start } from './main'
+import clearQuery from './main/clear-query'
+import { startFullpage, stopFullpage } from './main/fullpage'
+import showInitialModeSelector from './main/show-initial-mode-selector'
 import * as model from './model'
+import { SparqlingRequestOptions } from './model/request-options'
 import * as ontologyGraph from './ontology-graph'
 import * as queryGraph from './query-graph'
 import * as queryHead from './query-head'
 import { leftColumnContainer } from './util/get-container'
 import * as widgets from './widgets'
-import * as handlers from './handlers'
-import { SparqlingRequestOptions } from './model/request-options'
-import clearQuery from './main/clear-query'
-import { initGrapholscapeHandlers, performHighlights, start } from './main'
-import { cy as queryGraphCy } from './query-graph/renderer/'
-import { startFullpage, stopFullpage } from './main/fullpage'
-import showInitialModeSelector from './main/show-initial-mode-selector'
 
 /**
  * Initialise sparqling on a grapholscape instance
@@ -21,7 +20,6 @@ import showInitialModeSelector from './main/show-initial-mode-selector'
  * @returns a core object, see ./core.ts
  */
 export function sparqlingStandalone(gscape: Grapholscape, file: string | Blob) {
-  window['sCy'] = queryGraphCy
   const sparqlingCore = getCore(gscape, file)
   showInitialModeSelector()
   return sparqlingCore
