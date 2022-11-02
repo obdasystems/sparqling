@@ -128,6 +128,15 @@ export default (theme: GrapholscapeTheme) => {
       }
     },
 
+    {
+      selector: ':active',
+      style: {
+        'overlay-opacity': 0.2,
+        'overlay-padding': '4px',
+        'overlay-color': theme.getColour(ColoursNames.accent_muted)
+      }
+    },
+
     //-----------------------------------------------------------
     // selected selector always last
     {
