@@ -55,7 +55,6 @@ export default class SparqlingStartRunButtons extends ui.BaseMixin(ui.DropPanelM
 
       #widget-header {
         gap: 8px;
-        margin-left: 8px;
       }
 
       #drop-panel {
@@ -77,7 +76,7 @@ export default class SparqlingStartRunButtons extends ui.BaseMixin(ui.DropPanelM
   render() {
     return html`
       <div id="widget-body" class="gscape-panel">
-        <div id="widget-header">
+        <div id="widget-header" style="${model.isStandalone() ? null : 'margin-left: 8px'}">
           ${model.isStandalone()
             ? html`
               <gscape-button
