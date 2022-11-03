@@ -1,5 +1,5 @@
 import { StylesheetStyle } from "cytoscape"
-import { ColoursNames, GrapholscapeTheme } from "grapholscape"
+import { ColoursNames, GrapholscapeTheme, Shape } from "grapholscape"
 
 export default (theme: GrapholscapeTheme) => [
   {
@@ -11,6 +11,7 @@ export default (theme: GrapholscapeTheme) => [
     style: {
       'underlay-color': theme.getColour(ColoursNames.accent),
       'underlay-padding': '4px',
+      'underlay-shape': (node) => node.style('shape') === Shape.ELLIPSE ? Shape.ELLIPSE : Shape.ROUND_RECTANGLE,
       'underlay-opacity': 1,
     }
   },
@@ -20,6 +21,7 @@ export default (theme: GrapholscapeTheme) => [
       'underlay-color': theme.colours["sparqling-highlight"] || theme.getColour(ColoursNames.success_muted),
       'underlay-padding': '8px',
       'underlay-opacity': 1,
+      'underlay-shape': (node) => node.style('shape') === Shape.ELLIPSE ? Shape.ELLIPSE : Shape.ROUND_RECTANGLE,
       'border-opacity': 1,
     }
   },
