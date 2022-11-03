@@ -1,5 +1,6 @@
 import axios from "axios"
 import { handlePromise } from "../main/handle-promises"
+import { getGscape } from "../ontology-graph"
 import { Command } from "../widgets/cxt-menu/cxt-menu-widget"
 import { getRequestOptions, isStandalone } from "./request-options"
 
@@ -72,7 +73,10 @@ export async function updateEndpoints() {
 
   Object.assign(mwsGetRunningEndpointsOptions, getRequestOptions())
 
-  endpoints = (await handlePromise(axios.request<any>(mwsGetRunningEndpointsOptions))).endpoints
+  endpoints = ((await handlePromise(axios.request<any>(mwsGetRunningEndpointsOptions))).endpoints as MastroEndpoint[])
+    .filter(endpoint => endpoint.mastroID.ontologyID.ontologyName === getGscape().ontology.name &&
+      endpoint.mastroID.ontologyID.ontologyVersion === getGscape().ontology.version
+    )
 
   if (!selectedEndpoint || !endpoints.map(e => e.name).includes(selectedEndpoint.name)) {
     setSelectedEndpoint(endpoints[0])
