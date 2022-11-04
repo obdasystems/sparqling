@@ -177,6 +177,11 @@ export default class HighlightsList extends ui.BaseMixin(ui.DropPanelMixin(LitEl
                     </div>
                   `
                 }
+
+                ${this.highlights && this.objectProperties.length === 0 && this.dataProperties.length === 0 && this.classes.length === 0
+                  ? ui.emptySearchBlankState
+                  : null
+                }
               </div>
             </div>
           </div>
