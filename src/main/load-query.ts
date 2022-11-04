@@ -7,6 +7,7 @@ import { classSelector, countStarToggle, distinctToggle, limitInput, offsetInput
 import { performHighlights } from "./highlights";
 import onNewBody from "./on-new-body";
 import * as queryGraph from "../query-graph"
+import { setTheme } from "../query-graph/renderer";
 
 export default function (queryBody: QueryGraph) {
   // Hide selectors
@@ -19,7 +20,14 @@ export default function (queryBody: QueryGraph) {
     grapholscape.setRenderer(new GrapholRendererState())
   }
 
-  onNewBody(queryBody)
+  onNewBody(queryBody);
+
+  /**
+   * // FIXME: Update style in order to make all elements visible.
+   * without this edges might not be visible.
+   */
+  setTheme(grapholscape.theme)
+
   const activeElementIri = getIri(queryBody.graph)
   if (activeElementIri) {
     model.setActiveElement({
