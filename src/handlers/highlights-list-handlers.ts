@@ -1,12 +1,15 @@
 import { GrapholTypesEnum } from "grapholscape"
 import { Branch, EntityTypeEnum } from "../api/swagger"
-import { getActualHighlights } from "../model"
+import { getActualHighlights, isFullPageActive } from "../model"
 import { getEntityOccurrence, getGscape } from '../ontology-graph'
 import getPrefixedIri from "../util/get-prefixed-iri"
 import { highlightsList } from "../widgets"
 import { handleEntitySelection, handleObjectPropertySelection } from "./og-handlers"
 
-highlightsList.onSuggestionLocalization((entityIri) => getGscape().centerOnEntity(entityIri))
+highlightsList.onSuggestionLocalization((entityIri) => {
+  if (!isFullPageActive())
+    getGscape().centerOnEntity(entityIri)
+})
 
 highlightsList.onSuggestionAddToQuery((entityIri, entityType, relatedClass) => {
   switch (entityType) {

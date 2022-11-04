@@ -192,8 +192,8 @@ export default class HighlightsList extends ui.BaseMixin(ui.DropPanelMixin(LitEl
 
   private getObjectPropertySuggestionTemplate(objectPropertyHighlight: Branch) {
     return html`
-      <details class="ellipsed entity-list-item" iri=${objectPropertyHighlight.objectPropertyIRI} title=${objectPropertyHighlight.objectPropertyIRI}>
-        <summary class="actionable">
+      <details class="ellipsed entity-list-item" title=${objectPropertyHighlight.objectPropertyIRI}>
+        <summary class="actionable" iri=${objectPropertyHighlight.objectPropertyIRI}>
           <span class="entity-icon">${ui.icons.objectPropertyIcon}</span>
           <span @click=${this.handleEntityNameClick} class="entity-name">
             ${objectPropertyHighlight.objectPropertyIRI}
@@ -246,6 +246,7 @@ export default class HighlightsList extends ui.BaseMixin(ui.DropPanelMixin(LitEl
   }
 
   private handleEntityNameClick(e: MouseEvent) {
+    console.log(e)
     e.preventDefault()
     const entityIri = (e.target as HTMLElement).parentElement?.getAttribute('iri')
     if (entityIri)
