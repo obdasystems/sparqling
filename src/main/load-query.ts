@@ -1,15 +1,17 @@
-import { GrapholRendererState, RendererStatesEnum, ui } from "grapholscape";
+import { GrapholRendererState, ui } from "grapholscape";
 import { QueryGraph } from "../api/swagger";
 import * as model from "../model";
 import { getGscape } from "../ontology-graph";
+import * as queryGraph from "../query-graph";
+import { setTheme } from "../query-graph/renderer";
 import { getIri } from "../util/graph-element-utility";
 import { classSelector, countStarToggle, distinctToggle, limitInput, offsetInput } from "../widgets";
+import clearQuery from "./clear-query";
 import { performHighlights } from "./highlights";
 import onNewBody from "./on-new-body";
-import * as queryGraph from "../query-graph"
-import { setTheme } from "../query-graph/renderer";
 
-export default function (queryBody: QueryGraph) {
+export default async function (queryBody: QueryGraph) {
+  await clearQuery()
   // Hide selectors
   classSelector.hide();
   (getGscape().widgets.get(ui.WidgetEnum.INITIAL_RENDERER_SELECTOR) as any).hide()
@@ -20,7 +22,7 @@ export default function (queryBody: QueryGraph) {
     grapholscape.setRenderer(new GrapholRendererState())
   }
 
-  onNewBody(queryBody);
+  onNewBody(queryBody)
 
   /**
    * // FIXME: Update style in order to make all elements visible.
