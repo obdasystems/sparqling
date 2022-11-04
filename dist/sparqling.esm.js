@@ -22,12 +22,38 @@
  * SOFTWARE.
  */
 
+import { ui, GrapholTypesEnum, RendererStatesEnum, Iri, EntityNameType, ColoursNames, GrapholRendererState, Shape, LifecycleEvent } from 'grapholscape';
 import globalAxios from 'axios';
-import { ui, GrapholTypesEnum, Iri, RendererStatesEnum, EntityNameType, ColoursNames, LifecycleEvent } from 'grapholscape';
 import cytoscape from 'cytoscape';
-import klay from 'cytoscape-klay';
+import cola from 'cytoscape-cola';
 import compoundDragAndDrop from 'cytoscape-compound-drag-and-drop';
+import klay from 'cytoscape-klay';
 import popper$1 from 'cytoscape-popper';
+
+/******************************************************************************
+Copyright (c) Microsoft Corporation.
+
+Permission to use, copy, modify, and/or distribute this software for any
+purpose with or without fee is hereby granted.
+
+THE SOFTWARE IS PROVIDED "AS IS" AND THE AUTHOR DISCLAIMS ALL WARRANTIES WITH
+REGARD TO THIS SOFTWARE INCLUDING ALL IMPLIED WARRANTIES OF MERCHANTABILITY
+AND FITNESS. IN NO EVENT SHALL THE AUTHOR BE LIABLE FOR ANY SPECIAL, DIRECT,
+INDIRECT, OR CONSEQUENTIAL DAMAGES OR ANY DAMAGES WHATSOEVER RESULTING FROM
+LOSS OF USE, DATA OR PROFITS, WHETHER IN AN ACTION OF CONTRACT, NEGLIGENCE OR
+OTHER TORTIOUS ACTION, ARISING OUT OF OR IN CONNECTION WITH THE USE OR
+PERFORMANCE OF THIS SOFTWARE.
+***************************************************************************** */
+
+function __awaiter(thisArg, _arguments, P, generator) {
+    function adopt(value) { return value instanceof P ? value : new P(function (resolve) { resolve(value); }); }
+    return new (P || (P = Promise))(function (resolve, reject) {
+        function fulfilled(value) { try { step(generator.next(value)); } catch (e) { reject(e); } }
+        function rejected(value) { try { step(generator["throw"](value)); } catch (e) { reject(e); } }
+        function step(result) { result.done ? resolve(result.value) : adopt(result.value).then(fulfilled, rejected); }
+        step((generator = generator.apply(thisArg, _arguments || [])).next());
+    });
+}
 
 let body;
 let activeElement;
@@ -58,31 +84,6 @@ function isCountStarActive() {
 }
 function isDistinctActive() {
     return (body === null || body === void 0 ? void 0 : body.distinct) || false;
-}
-
-/******************************************************************************
-Copyright (c) Microsoft Corporation.
-
-Permission to use, copy, modify, and/or distribute this software for any
-purpose with or without fee is hereby granted.
-
-THE SOFTWARE IS PROVIDED "AS IS" AND THE AUTHOR DISCLAIMS ALL WARRANTIES WITH
-REGARD TO THIS SOFTWARE INCLUDING ALL IMPLIED WARRANTIES OF MERCHANTABILITY
-AND FITNESS. IN NO EVENT SHALL THE AUTHOR BE LIABLE FOR ANY SPECIAL, DIRECT,
-INDIRECT, OR CONSEQUENTIAL DAMAGES OR ANY DAMAGES WHATSOEVER RESULTING FROM
-LOSS OF USE, DATA OR PROFITS, WHETHER IN AN ACTION OF CONTRACT, NEGLIGENCE OR
-OTHER TORTIOUS ACTION, ARISING OUT OF OR IN CONNECTION WITH THE USE OR
-PERFORMANCE OF THIS SOFTWARE.
-***************************************************************************** */
-
-function __awaiter(thisArg, _arguments, P, generator) {
-    function adopt(value) { return value instanceof P ? value : new P(function (resolve) { resolve(value); }); }
-    return new (P || (P = Promise))(function (resolve, reject) {
-        function fulfilled(value) { try { step(generator.next(value)); } catch (e) { reject(e); } }
-        function rejected(value) { try { step(generator["throw"](value)); } catch (e) { reject(e); } }
-        function step(result) { result.done ? resolve(result.value) : adopt(result.value).then(fulfilled, rejected); }
-        step((generator = generator.apply(thisArg, _arguments || [])).next());
-    });
 }
 
 /* tslint:disable */
@@ -2494,6 +2495,7 @@ function isStandalone() {
     return _requestOptions.basePath ? false : true;
 }
 
+let loading;
 let numberLoadingProcesses = 0;
 function increaseLoadingProcesses() {
     numberLoadingProcesses += 1;
@@ -2503,6 +2505,10 @@ function decreaseLoadingProcesses() {
 }
 function getNumberLoadingProcesses() {
     return numberLoadingProcesses;
+}
+function isLoading() { return loading; }
+function setLoading(value) {
+    loading = value;
 }
 
 /**
@@ -2532,7 +2538,7 @@ var t;const i=window,s$1=i.trustedTypes,e=s$1?s$1.createPolicy("lit-html",{creat
  */var l,o;class s extends d$1{constructor(){super(...arguments),this.renderOptions={host:this},this._$Do=void 0;}createRenderRoot(){var t,e;const i=super.createRenderRoot();return null!==(t=(e=this.renderOptions).renderBefore)&&void 0!==t||(e.renderBefore=i.firstChild),i}update(t){const i=this.render();this.hasUpdated||(this.renderOptions.isConnected=this.isConnected),super.update(t),this._$Do=A(i,this.renderRoot,this.renderOptions);}connectedCallback(){var t;super.connectedCallback(),null===(t=this._$Do)||void 0===t||t.setConnected(!0);}disconnectedCallback(){var t;super.disconnectedCallback(),null===(t=this._$Do)||void 0===t||t.setConnected(!1);}render(){return x}}s.finalized=!0,s._$litElement$=!0,null===(l=globalThis.litElementHydrateSupport)||void 0===l||l.call(globalThis,{LitElement:s});const n=globalThis.litElementPolyfillSupport;null==n||n({LitElement:s});(null!==(o=globalThis.litElementVersions)&&void 0!==o?o:globalThis.litElementVersions=[]).push("3.2.2");
 
 function getLoadingSpinner() {
-    return y `<div class="lds-ring btn-m" title="Sparqling is loading"><div></div><div></div><div></div><div></div></div>`;
+    return y `<div class="lds-ring" title="Sparqling is loading"><div></div><div></div><div></div><div></div></div>`;
 }
 const loadingSpinnerStyle = i$1 `
   .lds-ring {
@@ -2571,7 +2577,7 @@ const loadingSpinnerStyle = i$1 `
   }
 `;
 
-function queryResultTemplate(queryResult) {
+function queryResultTemplate(queryResult, includeSearch = false, onSearch) {
     return y `
     <table id="query-results">
       <tr>${queryResult.headTerms.map(columnName => y `<th>${columnName}</th>`)}</tr>
@@ -2655,7 +2661,7 @@ function getFormTemplate(formComponent, operators) {
             `
         : null}
 
-          ${formComponent.acceptExamples && formComponent.parametersType !== VarOrConstantTypeEnum.Constant
+          ${formComponent.acceptExamples
         ? y `
               <gscape-button 
                 id="show-examples" 
@@ -2669,7 +2675,14 @@ function getFormTemplate(formComponent, operators) {
         </div>
       </form>
     </div>
-    ${formComponent.examples ? queryResultTemplate(formComponent.examples) : null}
+    ${formComponent.examples
+        ? y `
+        ${formComponent.parametersType === VarOrConstantTypeEnum.Constant
+            ? y `<input id="search-examples-input" placeholder="Search Examples" type="text" />`
+            : null} 
+        ${queryResultTemplate(formComponent.examples, formComponent.parametersType === VarOrConstantTypeEnum.Constant)}
+      `
+        : null}
     ${formComponent.loadingExamples ? getLoadingSpinner() : null}
     <div id="message-tray"></div>
   `;
@@ -2708,6 +2721,8 @@ function getInputType(datatype) {
         case VarOrConstantConstantTypeEnum.DateTime:
             return 'date';
         case VarOrConstantConstantTypeEnum.Decimal:
+        case 'xsd:integer':
+        case 'xsd:int':
             return 'number';
         case VarOrConstantConstantTypeEnum.String:
             return 'text';
@@ -2857,7 +2872,6 @@ var sparqlingWidgetStyle = i$1 `
     position: absolute;
     top: 0;
     right: 0;
-    z-index: 2;
     
     align-items: center;
     justify-content: space-between;
@@ -2945,19 +2959,55 @@ var sparqlingWidgetStyle = i$1 `
   }
 `;
 
+const ModalMixin = (superClass) => {
+    class ModalMixinClass extends superClass {
+        show() {
+            super.show();
+            this.style.zIndex = '2';
+            showModalBackground();
+        }
+        hide() {
+            super.hide();
+            this.style.zIndex = '';
+            hideModalBackground();
+        }
+    }
+    // Cast return type to your mixin's interface intersected with the superClass type
+    return ModalMixinClass;
+};
+const modalBackground = document.createElement('div');
+modalBackground.style.cssText = `
+  position: absolute;
+  top: 0;
+  width: 100%;
+  height: 100%;
+  filter: brightness(0.4);
+  background: var(--gscape-color-bg-default);
+  z-index: 1;
+  opacity: 0.6;
+  display: none;
+`;
+function showModalBackground() {
+    modalBackground.style.display = 'initial';
+}
+function hideModalBackground() {
+    modalBackground.style.display = 'none';
+}
+
 var Modality;
 (function (Modality) {
     Modality["DEFINE"] = "Define";
     Modality["EDIT"] = "Edit";
 })(Modality || (Modality = {}));
-class SparqlingFormDialog extends ui.BaseMixin(s) {
+class SparqlingFormDialog extends ModalMixin(ui.BaseMixin(s)) {
     constructor() {
         super(...arguments);
         this.modality = Modality.DEFINE;
         this.deleteCallback = (filterId) => { };
-        this.seeExamplesCallback = () => { };
+        // Examples
         this.acceptExamples = false;
         this.loadingExamples = false;
+        this.seeExamplesCallback = () => { };
     }
     handleSubmit() {
         if (this.formElement && validateForm(this.formElement)) {
@@ -3045,7 +3095,17 @@ class SparqlingFormDialog extends ui.BaseMixin(s) {
             removeInputButton.onclick = () => this.removeInputValue();
         const seeExamplesButton = (_d = this.shadowRoot) === null || _d === void 0 ? void 0 : _d.querySelector('#show-examples');
         if (seeExamplesButton)
-            seeExamplesButton.onclick = () => this.seeExamplesCallback();
+            seeExamplesButton.onclick = () => this.handleShowHideExamplesClick();
+        if (this.searchExamplesInput) {
+            this.searchExamplesInput.onchange = () => {
+                this.examplesSearchValue = this.searchExamplesInput.value;
+            };
+            this.searchExamplesInput.onkeyup = (e) => {
+                if (e.key === 'Enter') {
+                    this.seeExamplesCallback();
+                }
+            };
+        }
     }
     addMessage(msg, msgType) {
         if (!this.messagesElem)
@@ -3066,15 +3126,20 @@ class SparqlingFormDialog extends ui.BaseMixin(s) {
     }
     onSeeExamples(callback) {
         this.seeExamplesCallback = () => {
-            if (this.variable && !this.examples) {
+            if (this.variable) {
                 this.loadingExamples = true;
                 callback(this.variable);
             }
-            else {
-                // if examples are already present, then show/hide them
-                this.iriExamplesTable.classList.toggle('hide');
-            }
         };
+    }
+    handleShowHideExamplesClick() {
+        if (this.variable && !this.examples) {
+            this.seeExamplesCallback();
+        }
+        else {
+            this.iriExamplesTable.classList.toggle('hide');
+            this.searchExamplesInput.classList.toggle('hide');
+        }
     }
     onValidSubmit() {
         this.submitCallback(this._id, this.operator, this.parameters);
@@ -3118,6 +3183,10 @@ class SparqlingFormDialog extends ui.BaseMixin(s) {
     get iriExamplesTable() {
         var _a;
         return (_a = this.shadowRoot) === null || _a === void 0 ? void 0 : _a.querySelector('#query-results');
+    }
+    get searchExamplesInput() {
+        var _a;
+        return (_a = this.shadowRoot) === null || _a === void 0 ? void 0 : _a.querySelector('#search-examples-input');
     }
 }
 SparqlingFormDialog.properties = {
@@ -3193,9 +3262,12 @@ const error = w `<svg fill="currentColor" xmlns="http://www.w3.org/2000/svg" hei
 const ellipsis = w `<svg fill="currentColor" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 16 16" width="16" height="16"><path fill-rule="evenodd" d="M0 5.75C0 4.784.784 4 1.75 4h12.5c.966 0 1.75.784 1.75 1.75v4.5A1.75 1.75 0 0114.25 12H1.75A1.75 1.75 0 010 10.25v-4.5zM4 7a1 1 0 100 2 1 1 0 000-2zm3 1a1 1 0 112 0 1 1 0 01-2 0zm5-1a1 1 0 100 2 1 1 0 000-2z"></path></svg>`;
 const preview = w `<svg fill="currentColor" xmlns="http://www.w3.org/2000/svg" height="20" width="20"><path d="M4.5 17q-.625 0-1.062-.438Q3 16.125 3 15.5v-11q0-.625.438-1.062Q3.875 3 4.5 3h11q.625 0 1.062.438Q17 3.875 17 4.5v11q0 .625-.438 1.062Q16.125 17 15.5 17Zm0-1.5h11V6h-11v9.5Zm5.5-1.75q-1.542 0-2.75-.844T5.5 10.75q.542-1.312 1.75-2.156Q8.458 7.75 10 7.75t2.75.844q1.208.844 1.75 2.156-.542 1.312-1.75 2.156-1.208.844-2.75.844Zm0-1q1.104 0 2-.531.896-.531 1.396-1.469-.5-.938-1.396-1.469-.896-.531-2-.531t-2 .531q-.896.531-1.396 1.469.5.938 1.396 1.469.896.531 2 .531Zm0-.75q-.521 0-.885-.365-.365-.364-.365-.885t.365-.885Q9.479 9.5 10 9.5t.885.365q.365.364.365.885t-.365.885Q10.521 12 10 12Z"/></svg>`;
 const mastroEndpointIcon = w `<svg fill="currentColor" xmlns="http://www.w3.org/2000/svg" height="20" width="20"><path d="M3.542 9.25q-.563 0-.948-.396-.386-.396-.386-.937V5.542q0-.542.396-.938.396-.396.938-.396H11V9.25Zm0-1.083h6.375V5.292H3.542q-.104 0-.177.073t-.073.177v2.375q0 .104.073.177t.177.073Zm0 7.625q-.542 0-.938-.396-.396-.396-.396-.938v-2.375q0-.541.396-.937t.938-.396H12.5v5.042Zm0-1.084h7.875v-2.875H3.542q-.104 0-.177.073t-.073.177v2.375q0 .104.073.177t.177.073ZM14 15.792V9.25h-1.5V4.208h5.188L16.25 7.854h1.438Zm-9.896-2.021h1v-1h-1Zm0-6.542h1v-1h-1Zm-.812.938V5.292v2.875Zm0 6.541v-2.875 2.875Z"/></svg>`;
+const description = w `<svg fill="currentColor" xmlns="http://www.w3.org/2000/svg" height="20" width="20" viewBox="0 0 20 20"><path d="M7 15h6v-1.5H7Zm0-3h6v-1.5H7Zm-1.5 6q-.625 0-1.062-.438Q4 17.125 4 16.5v-13q0-.625.438-1.062Q4.875 2 5.5 2H12l4 4v10.5q0 .625-.438 1.062Q15.125 18 14.5 18ZM11 7V3.5H5.5v13h9V7ZM5.5 3.5v3.938V3.5v13-13Z"/></svg>`;
+const editSquare = w `<svg fill="currentColor" style="position: relative; top: -1px" xmlns="http://www.w3.org/2000/svg" height="20" width="20"><path d="M4.5 19.146q-.625 0-1.062-.438Q3 18.271 3 17.646v-11q0-.625.438-1.063.437-.437 1.062-.437h6.521l-1.5 1.5H4.5v11h11v-4.979l1.5-1.521v6.5q0 .625-.438 1.062-.437.438-1.062.438Zm5.5-7Zm3.625-6.813 1.083 1.084L9.5 11.583v1.063h1.062l5.188-5.167 1.042 1.063-5.604 5.604H8v-3.167Zm3.167 3.209-3.167-3.209 1.771-1.771q.437-.437 1.052-.437.614 0 1.052.437l1.083 1.084q.438.437.438 1.052 0 .614-.438 1.052Z"/></svg>`;
+const toggleCatalog = w `<svg style="padding: 2px; box-sizing: border-box;" viewBox="64 64 896 896" width="20px" height="20px" fill="currentColor" aria-hidden="true"><path d="M408 442h480c4.4 0 8-3.6 8-8v-56c0-4.4-3.6-8-8-8H408c-4.4 0-8 3.6-8 8v56c0 4.4 3.6 8 8 8zm-8 204c0 4.4 3.6 8 8 8h480c4.4 0 8-3.6 8-8v-56c0-4.4-3.6-8-8-8H408c-4.4 0-8 3.6-8 8v56zm504-486H120c-4.4 0-8 3.6-8 8v56c0 4.4 3.6 8 8 8h784c4.4 0 8-3.6 8-8v-56c0-4.4-3.6-8-8-8zm0 632H120c-4.4 0-8 3.6-8 8v56c0 4.4 3.6 8 8 8h784c4.4 0 8-3.6 8-8v-56c0-4.4-3.6-8-8-8zM142.4 642.1L298.7 519a8.84 8.84 0 000-13.9L142.4 381.9c-5.8-4.6-14.4-.5-14.4 6.9v246.3a8.9 8.9 0 0014.4 7z"></path></svg>`;
 
-var _a, _b;
-class FilterDialog extends (_b = SparqlingFormDialog) {
+var _a$1, _b$1;
+class FilterDialog extends (_b$1 = SparqlingFormDialog) {
     constructor() {
         super();
         this.deleteCallback = (filterId) => { };
@@ -3249,8 +3321,8 @@ class FilterDialog extends (_b = SparqlingFormDialog) {
         this.deleteCallback(this._id);
     }
 }
-_a = FilterDialog;
-FilterDialog.styles = Reflect.get(_b, "styles", _a);
+_a$1 = FilterDialog;
+FilterDialog.styles = Reflect.get(_b$1, "styles", _a$1);
 customElements.define('sparqling-filter-dialog', FilterDialog);
 
 function getElemWithOperatorStyle() {
@@ -3513,22 +3585,27 @@ class HighlightsList extends ui.BaseMixin(ui.DropPanelMixin(s)) {
                 <span slot="icon">${ui.icons.minus}</span>
               </gscape-button>
             </div>
-            ${this.searchEntityComponent}
-            <div class="list">
-              ${this.highlights
+            <div class="content-wrapper">
+              ${this.searchEntityComponent}
+              <div class="list">
+                ${this.highlights
                 ? y `
-                  ${this.dataProperties.map((dataPropertyIri) => this.getEntitySuggestionTemplate(dataPropertyIri, EntityTypeEnum.DataProperty))}
-                  ${this.objectProperties.map(objectPropertyHighlight => this.getObjectPropertySuggestionTemplate(objectPropertyHighlight))}
-                  ${this.classes.map((classIri) => this.getEntitySuggestionTemplate(classIri, EntityTypeEnum.Class))}
-                `
+                    ${this.dataProperties.map((dataPropertyIri) => this.getEntitySuggestionTemplate(dataPropertyIri, EntityTypeEnum.DataProperty))}
+                    ${this.objectProperties.map(objectPropertyHighlight => this.getObjectPropertySuggestionTemplate(objectPropertyHighlight))}
+                    ${this.classes.map((classIri) => this.getEntitySuggestionTemplate(classIri, EntityTypeEnum.Class))}
+                  `
                 : y `
-                  <div class="blank-slate">
-                    ${ui.icons.searchOff}
-                    <div class="header">No suggestions available</div>
-                    <div class="description">Add elements to the query and we will provide you next steps suggestions</div>
-                  </div>
-                `}
-              
+                    <div class="blank-slate">
+                      ${ui.icons.searchOff}
+                      <div class="header">No suggestions available</div>
+                      <div class="description">Add elements to the query and we will provide you next steps suggestions</div>
+                    </div>
+                  `}
+
+                ${this.highlights && this.objectProperties.length === 0 && this.dataProperties.length === 0 && this.classes.length === 0
+                ? ui.emptySearchBlankState
+                : null}
+              </div>
             </div>
           </div>
         `}
@@ -3537,8 +3614,8 @@ class HighlightsList extends ui.BaseMixin(ui.DropPanelMixin(s)) {
     getObjectPropertySuggestionTemplate(objectPropertyHighlight) {
         var _a;
         return y `
-      <details class="ellipsed entity-list-item" iri=${objectPropertyHighlight.objectPropertyIRI} title=${objectPropertyHighlight.objectPropertyIRI}>
-        <summary class="actionable">
+      <details class="ellipsed entity-list-item" title=${objectPropertyHighlight.objectPropertyIRI}>
+        <summary class="actionable" iri=${objectPropertyHighlight.objectPropertyIRI}>
           <span class="entity-icon">${ui.icons.objectPropertyIcon}</span>
           <span @click=${this.handleEntityNameClick} class="entity-name">
             ${objectPropertyHighlight.objectPropertyIRI}
@@ -3585,6 +3662,7 @@ class HighlightsList extends ui.BaseMixin(ui.DropPanelMixin(s)) {
     }
     handleEntityNameClick(e) {
         var _a;
+        console.log(e);
         e.preventDefault();
         const entityIri = (_a = e.target.parentElement) === null || _a === void 0 ? void 0 : _a.getAttribute('iri');
         if (entityIri)
@@ -3639,7 +3717,7 @@ class HighlightsList extends ui.BaseMixin(ui.DropPanelMixin(s)) {
             this.highlights = JSON.parse(JSON.stringify(this.allHighlights));
         else
             this.highlights = this.allHighlights;
-        if (this.highlights) {
+        if (this.highlights && !this.searchEntityComponent.areAllFiltersDisabled) {
             let count = 0;
             if (this.searchEntityComponent[GrapholTypesEnum.CLASS] !== true) {
                 this.highlights.classes = [];
@@ -3687,6 +3765,13 @@ HighlightsList.styles = [
       .gscape-panel {
         max-height: unset;
         overflow-y: clip;
+      }
+
+      .content-wrapper {
+        display: flex;
+        flex-direction: column;
+        scrollbar-width: inherit;
+        height: 100%;
       }
 
       .list {
@@ -4021,7 +4106,7 @@ const countStarMsg = (l = lang) => {
     return text[l];
 };
 
-class SparqlDialog extends ui.BaseMixin(s) {
+class SparqlDialog extends ModalMixin(ui.BaseMixin(s)) {
     constructor() {
         super(...arguments);
         this.text = emptyQueryMsg();
@@ -4039,6 +4124,13 @@ class SparqlDialog extends ui.BaseMixin(s) {
           </div>
 
           <div id="buttons-tray">
+            ${this.text !== emptyQueryMsg() && !isStandalone()
+            ? y `
+                ${getTrayButtonTemplate('Use query in SPARQL page', editSquare, undefined, // icons
+            'advanced-mode-btn', core.redirectToSPARQLPage)}
+              `
+            : null}
+            
             ${getTrayButtonTemplate('Copy Query', copyContent, undefined, 'copyt-query-code-btn', this.copyQuery)}
           </div>
 
@@ -4147,77 +4239,139 @@ var sparqlingIcon = w `
 
 class SparqlingStartRunButtons extends ui.BaseMixin(ui.DropPanelMixin(s)) {
     constructor() {
-        super();
+        super(...arguments);
+        this.id = 'sparqling-start-run-widget';
         this.isLoading = false;
         this.canQueryRun = false;
         this.endpoints = [];
+        this.showResultsEnabled = false;
         this._onSparqlingStartCallback = () => { };
         this._onSparqlingStopCallback = () => { };
         this._onQueryRunCallback = () => { };
+        this._onQuerySaveCallback = () => { };
+        this._onShowSettingsCallback = () => { };
         this._onEndpointChangeCallback = (newEndpointName) => { };
-        this.classList.add(ui.BOTTOM_RIGHT_WIDGET_CLASS.toString());
+        this._onShowResults = () => { };
+        this._onToggleCatalog = () => { };
     }
     render() {
         return y `
-    ${this.canQueryRun
+      <div id="widget-body" class="gscape-panel">
+        <div id="widget-header" style="${isStandalone() ? null : 'margin-left: 8px'}">
+          ${isStandalone()
             ? y `
-          <gscape-button
-            @click="${this._onQueryRunCallback}"
-            type="subtle"
-            title="Send query to SPARQL endpoint"
-          >
-            <span slot="icon">${playOutlined}</span>
-          </gscape-button>
-          <div class="hr"></div>
-          <gscape-button
-            @click=${this.togglePanel}
-            type="subtle"
-            title="Select Mastro Endpoint"
-          >
-            <span slot="icon">${mastroEndpointIcon}</span>
-          </gscape-button>
-          <div class="hr"></div>
-
-          <div class="gscape-panel gscape-panel-in-tray drop-left hide" id="drop-panel">
-            <div class="header">Endpoint Selector</div>
-            <div class="content-wrapper">
-              ${this.endpoints.map(endpoint => {
-                return y `
-                  <gscape-action-list-item
-                    @click=${this.handleEndpointClick}
-                    label="${endpoint.name}"
-                    ?selected = "${this.selectedEndpointName === endpoint.name}"
-                  >
-                  </gscape-action-list-item>
-                `;
-            })}
-
-              ${this.endpoints.length === 0
-                ? y `
-                  <div class="blank-slate">
-                    ${ui.icons.searchOff}
-                    <div class="header">No endpoint available</div>
-                  </div>
-                `
-                : null}
-            </div>
-          </div>
-        `
-            : null}
-
-    ${this.isLoading
-            ? getLoadingSpinner()
+              <gscape-button
+                @click="${this.handleStartButtonCLick}" 
+                type="subtle"
+                title="Start/Stop Sparqling"
+                ?active=${isSparqlingRunning()}
+                label="Sparqling"
+              >
+                <span slot="icon">
+                  ${this.isLoading ? getLoadingSpinner() : sparqlingIcon}
+                </span>
+              </gscape-button>
+            `
             : y `
-        <gscape-button
-          @click="${this.handleStartButtonCLick}" 
-          type="subtle"
-          title="Start/Stop Sparqling"
-          ?active=${isSparqlingRunning()}
-        >
-          <span slot="icon">${sparqlingIcon}</span>
-        </gscape-button>
-      `}
+                ${this.isLoading
+                ? y `${getLoadingSpinner()}`
+                : null}
+                <div class="bold-text">Query Builder</div>
+                <div class="hr"></div>
+            `}
+        </div>
 
+        ${!isStandalone()
+            ? y `            
+            <gscape-button
+              @click=${this._onToggleCatalog}
+              type="subtle"
+              title="Toggle query catalog"
+            >
+              <span slot="icon">${toggleCatalog}</span>
+            </gscape-button>
+
+            <div class="hr"></div>
+
+            <gscape-button
+              @click="${this._onQuerySaveCallback}"
+              type="subtle"
+              title="Save query in catalog"
+            >
+              <span slot="icon">${ui.icons.save}</span>
+            </gscape-button>
+
+            <div class="hr"></div>   
+
+            ${this.showResultsEnabled
+                ? y `
+                <gscape-button
+                  @click="${this._onShowResults}"
+                  type="subtle"
+                  title="Show results drawer"
+                >
+                  <span slot="icon">${preview}</span>
+                </gscape-button>
+
+                <div class="hr"></div>
+              `
+                : null}
+
+            <gscape-button
+              @click="${this._onShowSettingsCallback}"
+              type="subtle"
+              title="Edit query metadata"
+            >
+              <span slot="icon">${description}</span>
+            </gscape-button>
+
+            <div class="hr"></div>
+
+            <gscape-button
+              @click=${this.togglePanel}
+              type="subtle"
+              title="Select Mastro endpoint"
+            >
+              <span slot="icon">${mastroEndpointIcon}</span>
+            </gscape-button>
+
+            <div class="hr"></div>
+
+            <gscape-button
+              @click="${this._onQueryRunCallback}"
+              type="subtle"
+              title="Send query to SPARQL endpoint"
+            >
+              <span slot="icon">${playOutlined}</span>
+            </gscape-button>         
+          `
+            : null}
+      </div>
+
+      <div class="gscape-panel drop-down hide" id="drop-panel">
+        <div class="header">Endpoint Selector</div>
+        <div class="content-wrapper">
+          ${this.endpoints.map(endpoint => {
+            return y `
+              <gscape-action-list-item
+                @click=${this.handleEndpointClick}
+                label="${endpoint.name}"
+                ?selected = "${this.selectedEndpointName === endpoint.name}"
+              >
+              </gscape-action-list-item>
+            `;
+        })}
+
+          ${this.endpoints.length === 0
+            ? y `
+              <div class="blank-slate">
+                ${ui.icons.searchOff}
+                <div class="header">No endpoint available</div>
+              </div>
+            `
+            : null}
+        </div>
+      </div>
     `;
     }
     onSparqlingStart(callback) {
@@ -4229,8 +4383,20 @@ class SparqlingStartRunButtons extends ui.BaseMixin(ui.DropPanelMixin(s)) {
     onQueryRun(callback) {
         this._onQueryRunCallback = callback;
     }
+    onQuerySave(callback) {
+        this._onQuerySaveCallback = callback;
+    }
+    onShowSettings(callback) {
+        this._onShowSettingsCallback = callback;
+    }
     onEndpointChange(callback) {
         this._onEndpointChangeCallback = callback;
+    }
+    onShowResults(callback) {
+        this._onShowResults = callback;
+    }
+    onToggleCatalog(callback) {
+        this._onToggleCatalog = callback;
     }
     requestEndpointSelection() {
         return new Promise((resolve, reject) => {
@@ -4255,6 +4421,8 @@ class SparqlingStartRunButtons extends ui.BaseMixin(ui.DropPanelMixin(s)) {
             this._onEndpointChangeCallback(e.currentTarget.label);
     }
     handleStartButtonCLick() {
+        if (isFullPageActive())
+            return;
         isSparqlingRunning() ? this._onSparqlingStopCallback() : this._onSparqlingStartCallback();
     }
     startLoadingAnimation() {
@@ -4272,7 +4440,8 @@ SparqlingStartRunButtons.properties = {
     canQueryRun: { type: Boolean, attribute: false },
     isLoading: { type: Boolean, attribute: false },
     endpoints: { type: Object, attribute: false },
-    selectedEndpointName: { type: String, attribute: false }
+    selectedEndpointName: { type: String, attribute: false },
+    showResultsEnabled: { type: Boolean, attribute: false },
 };
 SparqlingStartRunButtons.styles = [
     ui.GscapeButtonStyle,
@@ -4280,14 +4449,36 @@ SparqlingStartRunButtons.styles = [
     loadingSpinnerStyle,
     i$1 `
       :host {
-        order: 8;
-        position: relative;
+        position: absolute;
+        top: 10px;
+        left: 50%;
+        transform: translate(-50%);
+      }
+
+      #widget-body, #widget-header {
+        display: flex;
+        align-items: center;
+        padding: 0;
+        min-width: unset;
+      }
+
+      #widget-header {
+        gap: 8px;
       }
 
       #drop-panel {
-        bottom: unset;
-        top: 0px;
+        margin: 4px auto 0;
       }
+
+      .header {
+        text-align: center;
+      }
+
+      .hr {
+        background-color: var(--gscape-color-border-subtle);
+        width: 1px;
+        height: 1.7em;
+      }   
     `,
 ];
 customElements.define('sparqling-start-run-buttons', SparqlingStartRunButtons);
@@ -4501,7 +4692,7 @@ class AggregationDialog extends SparqlingFormDialog {
 }
 customElements.define('sparqling-aggregation-dialog', AggregationDialog);
 
-class ErrorsDialog extends ui.BaseMixin(s) {
+class ErrorsDialog extends ModalMixin(ui.BaseMixin(s)) {
     constructor() {
         super(...arguments);
         this.errorText = '';
@@ -4525,9 +4716,7 @@ class ErrorsDialog extends ui.BaseMixin(s) {
           </gscape-button>
         </div>
 
-        <div class="dialog-body">
-          ${this.errorText}
-        </div>
+        <div class="dialog-body">${this.errorText}</div>
       </div>
     `;
     }
@@ -4559,6 +4748,7 @@ ErrorsDialog.styles = [
         max-width: 450px;
         padding: 16px 8px;
         background: var(--gscape-color-danger-subtle);
+        white-space: pre-line;
       }
 
       .dialog-body, #widget-header {
@@ -4568,11 +4758,12 @@ ErrorsDialog.styles = [
 ];
 customElements.define('error-dialog', ErrorsDialog);
 
-class SparqlingQueryResults extends ui.BaseMixin(s) {
+class SparqlingQueryResults extends ModalMixin(ui.BaseMixin(s)) {
     constructor() {
         super(...arguments);
         this.isLoading = false;
         this.title = 'Query Results Preview';
+        this.searchExamplesCallback = () => { };
     }
     render() {
         return y `
@@ -4596,20 +4787,49 @@ class SparqlingQueryResults extends ui.BaseMixin(s) {
 
       <div class="dialog-body">
         ${!this.result && !this.isLoading ? y `<div class="danger">Select Endpoint</div>` : null}
-        ${this.result ? queryResultTemplate(this.result) : null}
+        ${this.result
+            ? y `
+            ${this.allowSearch
+                ? y `
+                <input id="search-examples-input" placeholder="Search Examples" type="text" value=${this.examplesSearchValue} />
+              `
+                : null}
+            ${queryResultTemplate(this.result)}
+          `
+            : null}
         ${this.isLoading ? getLoadingSpinner() : null}
       </div>
     </div>
     `;
     }
+    onSearchExamples(callback) {
+        this.searchExamplesCallback = callback;
+    }
     firstUpdated(_changedProperties) {
         super.firstUpdated(_changedProperties);
         this.hide();
     }
+    updated(_changedProperties) {
+        if (this.allowSearch && this.searchExamplesInput) {
+            this.searchExamplesInput.onchange = () => {
+                this.examplesSearchValue = this.searchExamplesInput.value;
+            };
+            this.searchExamplesInput.onkeyup = (e) => {
+                if (e.key === 'Enter')
+                    this.searchExamplesCallback();
+            };
+        }
+    }
+    get searchExamplesInput() {
+        var _a;
+        return (_a = this.shadowRoot) === null || _a === void 0 ? void 0 : _a.querySelector('#search-examples-input');
+    }
 }
 SparqlingQueryResults.properties = {
     result: { attribute: false },
-    isLoading: { attribute: false, type: Boolean }
+    isLoading: { attribute: false, type: Boolean },
+    allowSearch: { type: Boolean },
+    exampleSearchValue: { type: String }
 };
 SparqlingQueryResults.styles = [
     ui.baseStyle,
@@ -4649,6 +4869,50 @@ SparqlingQueryResults.styles = [
 ];
 customElements.define('sparqling-preview-dialog', SparqlingQueryResults);
 
+class LoadingDialog extends ui.BaseMixin(s) {
+    render() {
+        return y `
+      <div class="gscape-panel">
+        <div class="header">Sparqling is loading...</div>
+        <div class="spinner">${getLoadingSpinner()}</div>
+      </div>
+    `;
+    }
+    firstUpdated(_changedProperties) {
+        this.hide();
+    }
+}
+LoadingDialog.styles = [
+    loadingSpinnerStyle,
+    ui.baseStyle,
+    i$1 `
+      :host {
+        position: absolute;
+        top: 50%;
+        left: 50%;
+        transform: translate(-50%, -50%);
+        z-index: 100;
+      }
+
+      .lds-ring {
+        width: 30px;
+        height: 30px;
+      }
+
+      .lds-ring div {
+        width: 26px;
+        height: 26px;
+      }
+
+      .spinner {
+        display: flex;
+        padding: 8px;
+        justify-content: center;
+      }
+    `
+];
+customElements.define('sparqling-loading-dialog', LoadingDialog);
+
 let gscape;
 var getGscape = () => gscape;
 function setGrapholscapeInstance(grapholscape) {
@@ -4671,17 +4935,6 @@ function isIriSelected(iriToCheck) {
     }
 }
 
-function getPrefixedIri (iriValue) {
-    const iri = new Iri(iriValue, getGscape().ontology.namespaces);
-    return iri.prefixed || iriValue;
-}
-
-let actualHighlights;
-const HIGHLIGHT_CLASS = 'highlighted';
-const FADED_ClASS = 'faded';
-const SPARQLING_SELECTED = 'sparqling-selected';
-// highlightsList.onSuggestionLocalization(iri => getGscape().centerOnEntity(iri))
-const getActualHighlights = () => actualHighlights;
 function highlightIRI(iri) {
     var _a, _b;
     const gscape = getGscape();
@@ -4696,48 +4949,30 @@ function highlightIRI(iri) {
         }
     }
 }
-function highlightSuggestions(clickedIRI) {
-    if (!clickedIRI)
-        return;
-    resetHighlights();
-    const ogApi = new OntologyGraphApi(undefined, getBasePath());
-    handlePromise(ogApi.highligths(clickedIRI, undefined, getRequestOptions())).then(newHighlights => {
-        actualHighlights = newHighlights;
-        performHighlights(clickedIRI);
-        highlightsList.allHighlights = transformHighlightsToPrefixedIRIs();
-    });
-}
 function resetHighlights() {
     const gscape = getGscape();
     gscape.ontology.diagrams.forEach(diagram => {
         for (let [_, diagramRepresentation] of diagram.representations) {
             diagramRepresentation.cy.$(`.${SPARQLING_SELECTED}`).removeClass(SPARQLING_SELECTED);
             diagramRepresentation.cy.$(`.${HIGHLIGHT_CLASS}`).removeClass(HIGHLIGHT_CLASS);
-            diagramRepresentation.cy.$(`.${FADED_ClASS}`).removeClass(FADED_ClASS).selectify();
+            diagramRepresentation.cy.$(`.${FADED_CLASS}`).removeClass(FADED_CLASS).selectify();
         }
     });
-    actualHighlights = undefined;
-    highlightsList.allHighlights = undefined;
-}
-function isHighlighted(iri) {
-    var _a, _b, _c;
-    // if ((actualHighlights as AxiosError).isAxiosError) return true
-    return ((_a = actualHighlights === null || actualHighlights === void 0 ? void 0 : actualHighlights.classes) === null || _a === void 0 ? void 0 : _a.includes(iri)) ||
-        ((_b = actualHighlights === null || actualHighlights === void 0 ? void 0 : actualHighlights.dataProperties) === null || _b === void 0 ? void 0 : _b.includes(iri)) ||
-        ((_c = actualHighlights === null || actualHighlights === void 0 ? void 0 : actualHighlights.objectProperties) === null || _c === void 0 ? void 0 : _c.map(obj => obj.objectPropertyIRI).includes(iri)) || false;
 }
 function refreshHighlights() {
     let activeElement = getActiveElement();
     if (activeElement) {
-        performHighlights(activeElement.iri.fullIri);
+        performHighlights$1(activeElement.iri.fullIri);
     }
 }
-function performHighlights(clickedIRI) {
+function performHighlights$1(clickedIRI) {
     var _a, _b, _c, _d, _e, _f, _g, _h;
+    resetHighlights();
     const gscape = getGscape();
-    (_a = actualHighlights === null || actualHighlights === void 0 ? void 0 : actualHighlights.classes) === null || _a === void 0 ? void 0 : _a.forEach((iri) => highlightIRI(iri));
-    (_b = actualHighlights === null || actualHighlights === void 0 ? void 0 : actualHighlights.dataProperties) === null || _b === void 0 ? void 0 : _b.forEach((iri) => highlightIRI(iri));
-    (_c = actualHighlights === null || actualHighlights === void 0 ? void 0 : actualHighlights.objectProperties) === null || _c === void 0 ? void 0 : _c.forEach((o) => highlightIRI(o.objectPropertyIRI));
+    const highlights = getActualHighlights();
+    (_a = highlights === null || highlights === void 0 ? void 0 : highlights.classes) === null || _a === void 0 ? void 0 : _a.forEach((iri) => highlightIRI(iri));
+    (_b = highlights === null || highlights === void 0 ? void 0 : highlights.dataProperties) === null || _b === void 0 ? void 0 : _b.forEach((iri) => highlightIRI(iri));
+    (_c = highlights === null || highlights === void 0 ? void 0 : highlights.objectProperties) === null || _c === void 0 ? void 0 : _c.forEach((o) => highlightIRI(o.objectPropertyIRI));
     const iriOccurrences = (_d = gscape.ontology.getEntityOccurrences(clickedIRI)) === null || _d === void 0 ? void 0 : _d.get(RendererStatesEnum.GRAPHOL);
     if (gscape.renderState !== RendererStatesEnum.GRAPHOL) {
         const occurrencesInActualRendererState = (_e = gscape.ontology.getEntityOccurrences(clickedIRI)) === null || _e === void 0 ? void 0 : _e.get(gscape.renderState);
@@ -4753,22 +4988,9 @@ function performHighlights(clickedIRI) {
         }
         const highlightedElems = ((_g = gscape.renderer.cy) === null || _g === void 0 ? void 0 : _g.$('.highlighted, .sparqling-selected')) || cytoscape().collection();
         const fadedElems = (_h = gscape.renderer.cy) === null || _h === void 0 ? void 0 : _h.elements().difference(highlightedElems);
-        fadedElems === null || fadedElems === void 0 ? void 0 : fadedElems.addClass(FADED_ClASS);
+        fadedElems === null || fadedElems === void 0 ? void 0 : fadedElems.addClass(FADED_CLASS);
     }
     //fadedElems.unselectify()
-}
-function transformHighlightsToPrefixedIRIs() {
-    var _a, _b, _c;
-    let transformedHighlights = JSON.parse(JSON.stringify(actualHighlights));
-    transformedHighlights.classes = (_a = transformedHighlights.classes) === null || _a === void 0 ? void 0 : _a.map(iri => getPrefixedIri(iri));
-    transformedHighlights.dataProperties = (_b = transformedHighlights.dataProperties) === null || _b === void 0 ? void 0 : _b.map(iri => getPrefixedIri(iri));
-    transformedHighlights.objectProperties = (_c = transformedHighlights.objectProperties) === null || _c === void 0 ? void 0 : _c.map(branch => {
-        var _a;
-        branch.objectPropertyIRI = getPrefixedIri(branch.objectPropertyIRI || '');
-        branch.relatedClasses = (_a = branch.relatedClasses) === null || _a === void 0 ? void 0 : _a.map(iri => getPrefixedIri(iri));
-        return branch;
-    });
-    return transformedHighlights;
 }
 function addHighlightedClassToEntityOccurrences(entityOccurrences) {
     const gscape = getGscape();
@@ -4808,7 +5030,7 @@ let _onRelatedClassSelection = (objectProperty, relatedClass) => { };
 function showRelatedClassesWidget(objPropertyIri, position) {
     var _a;
     const actualHighlights = getActualHighlights();
-    if (!actualHighlights || !isHighlighted(objPropertyIri))
+    if (!actualHighlights || !isIriHighlighted(objPropertyIri))
         return;
     const gscape = getGscape();
     const objPropertyEntity = gscape.ontology.getEntity(objPropertyIri);
@@ -4853,6 +5075,21 @@ function onRelatedClassSelection(callback) {
     _onRelatedClassSelection = callback;
 }
 
+const classSelector = new ui.GscapeEntitySelector();
+classSelector.searchEntityComponent[GrapholTypesEnum.DATA_PROPERTY] = undefined;
+classSelector.searchEntityComponent[GrapholTypesEnum.OBJECT_PROPERTY] = undefined;
+classSelector.searchEntityComponent[GrapholTypesEnum.INDIVIDUAL] = undefined;
+classSelector.hide();
+function initClassSelector() {
+    const entities = getGscape().ontology.entities;
+    let entitiesViewData = [];
+    entities.forEach(entity => {
+        if (entity.is(GrapholTypesEnum.CLASS))
+            entitiesViewData.push({ value: entity, viewOccurrences: new Map() });
+    });
+    classSelector.entityList = entitiesViewData;
+}
+
 function centerOnElement (elem, zoom) {
     let cy = elem.cy();
     if (zoom)
@@ -4865,6 +5102,7 @@ function centerOnElement (elem, zoom) {
 getGrapholscapeContainer();
 const bgpContainer = getBGPContainer();
 const leftColumnContainer = getLeftColumnContainer();
+const tippyContainer = getTippyContainer();
 function getGrapholscapeContainer() {
     let container = document.createElement('div');
     container.setAttribute('id', 'grapholscape');
@@ -4895,6 +5133,10 @@ function getLeftColumnContainer() {
     container.style.marginTop = '70px';
     container.style.pointerEvents = 'none';
     container.style.width = '20%';
+    return container;
+}
+function getTippyContainer() {
+    let container = document.createElement('div');
     return container;
 }
 
@@ -4965,6 +5207,9 @@ function isJoinAllowed(targetElem, startElem) {
 }
 function isClass(graphElement) {
     return getEntityType(graphElement) === EntityTypeEnum.Class;
+}
+function isDataProperty(graphElement) {
+    return getEntityType(graphElement) === EntityTypeEnum.DataProperty;
 }
 function isObjectProperty(graphElement) {
     return getEntityType(graphElement) === EntityTypeEnum.ObjectProperty || isInverseObjectProperty(graphElement);
@@ -5038,6 +5283,7 @@ let addFilterCallback;
 let seeFiltersCallback;
 let makeOptionalCallback;
 let removeOptionalCallback;
+let showExamplesCallback;
 let _ele;
 function getCommandsForElement(elem) {
     _ele = elem;
@@ -5060,6 +5306,9 @@ function getCommandsForElement(elem) {
                 commands.push(seeFilters);
             }
             commands.push(addFilter);
+            if (!isStandalone() && elem.data().type === EntityTypeEnum.Class || elem.data().type === EntityTypeEnum.DataProperty) {
+                commands.push(showExamples);
+            }
             if (!elem.incomers().empty() && elem.data().type !== EntityTypeEnum.Class) {
                 if (elem.data().optional) {
                     commands.push(removeOptional);
@@ -5105,6 +5354,11 @@ const seeFilters = {
     icon: editList,
     select: () => seeFiltersCallback(_ele.id())
 };
+const showExamples = {
+    content: 'Show Examples',
+    icon: preview,
+    select: () => showExamplesCallback(_ele.id())
+};
 function onAddHead$1(callback) {
     addHeadCallback = callback;
 }
@@ -5123,16 +5377,25 @@ function onMakeOptional$1(callback) {
 function onRemoveOptional$1(callback) {
     removeOptionalCallback = callback;
 }
+function onShowExamples$1(callback) {
+    showExamplesCallback = callback;
+}
 
+var _a, _b;
 cytoscape.use(klay);
 cytoscape.use(compoundDragAndDrop);
 cytoscape.use(popper$1);
+cytoscape.use(cola);
 const cy = cytoscape({
-    style: [],
     wheelSensitivity: 0.4,
     maxZoom: 2,
 });
 cy.mount(bgpContainer);
+(_b = (_a = cy.container()) === null || _a === void 0 ? void 0 : _a.firstElementChild) === null || _b === void 0 ? void 0 : _b.appendChild(tippyContainer);
+cy.on('resize', () => {
+    var _a, _b;
+    (_b = (_a = cy.container()) === null || _a === void 0 ? void 0 : _a.firstElementChild) === null || _b === void 0 ? void 0 : _b.appendChild(tippyContainer);
+});
 /**
  * --- HACKY ---
  * Allow events not involving buttons to work on cytoscape when it's in a shadow dom.
@@ -5148,7 +5411,7 @@ cy.on('render', () => {
     }
     catch (_a) { }
 });
-cy.on('mouseover', '[iri]', () => {
+cy.on('mouseover', '[iri], [?isSuggestion]', () => {
     const container = cy.container();
     if (container)
         container.style.cursor = 'pointer';
@@ -5158,7 +5421,7 @@ cy.on('mouseout', () => {
     if (container)
         container.style.cursor = 'unset';
 });
-cy.on('cxttap', `node, edge[type = "${EntityTypeEnum.ObjectProperty}"], edge[type = "${EntityTypeEnum.InverseObjectProperty}"]`, e => {
+cy.on('cxttap', `[iri][!isSuggestion]`, e => {
     attachCxtMenuTo(e.target.popperRef(), getCommandsForElement(e.target));
 });
 let displayedNameType;
@@ -5171,161 +5434,6 @@ function setLanguage(newLanguage) {
     language = newLanguage || language;
 }
 function getLanguage() { return language; }
-
-/**
- * Widget extending base grapholscape widget which uses Lit-element inside
- */
-class QueryGraphWidget extends ui.BaseMixin(ui.DropPanelMixin(s)) {
-    constructor(bgpContainer) {
-        super();
-        this._isBGPEmpty = true;
-        this.onQueryClear = () => { };
-        this.onSparqlButtonClick = () => { };
-        this.title = 'Query Graph';
-        this.togglePanel = () => {
-            super.togglePanel();
-            this.requestUpdate();
-            if (this.isPanelClosed()) {
-                this.style.height = 'fit-content';
-            }
-            else {
-                this.style.height = '30%';
-            }
-        };
-        this.bgpContainer = bgpContainer;
-    }
-    render() {
-        return y `
-      ${this.isPanelClosed()
-            ? y `
-          <div class="top-bar traslated-down">
-            <gscape-button 
-              id="toggle-panel-button"
-              @click=${this.togglePanel}
-              label=${this.title}
-            > 
-              <span slot="icon">${rdfLogo}</span>
-              <span slot="trailing-icon">${ui.icons.plus}</span>
-            </gscape-button>
-          </div>
-        `
-            : y `
-          <div class="gscape-panel" id="drop-panel">
-            <div class="top-bar">
-              <div id="widget-header" class="bold-text">
-                ${rdfLogo}
-                <span>${this.title}</span>
-              </div>
-
-              <div id="buttons-tray">
-
-                ${limitInput$1}
-                ${offsetInput}
-                ${distinctToggle}
-                ${countStarToggle$1}
-
-                ${getTrayButtonTemplate('Sparql', code, undefined, 'sparql-code-btn', this.onSparqlButtonClick)}
-                ${getTrayButtonTemplate('Clear Query', refresh, undefined, 'clear-query-btn', this.onQueryClear)}
-              </div>
-
-              <gscape-button 
-                id="toggle-panel-button"
-                size="s" 
-                type="subtle"
-                @click=${this.togglePanel}
-              > 
-                <span slot="icon">${ui.icons.minus}</span>
-              </gscape-button>
-            </div>
-
-
-            ${this.isBGPEmpty
-                ? y `
-                <div class="blank-slate sparqling-blank-slate">
-                  ${dbClick}
-                  <div class="header">${emptyGraphMsg()}</div>
-                  <div class="tip description" title="${emptyGraphTipMsg()}">${tipWhatIsQueryGraph()}</div>
-                </div>
-              `
-                : this.bgpContainer}
-          </div>
-
-        `}
-    `;
-    }
-    firstUpdated() {
-        //   super.firstUpdated()
-        //   this.header.left_icon = rdfLogo
-        //   this.header.invertIcons()
-        //   super.makeDraggableHeadTitle()
-        this.hide();
-    }
-    createRenderRoot() {
-        const root = super.createRenderRoot();
-        root.addEventListener('mouseover', e => {
-            /**
-             * --- HACKY ---
-             * Allow events not involving buttons to work on cytoscape when it's in a shadow dom.
-             * They don't work due to shadow dom event's retargeting
-             * Cytoscape listen to events on window object. When the event reach window due to bubbling,
-             * cytoscape handler for mouse movement handles it but event target appear to be the
-             * custom component and not the canvas due to retargeting, therefore listeners are not triggered.
-             * workaround found here: https://github.com/cytoscape/cytoscape.js/issues/2081
-             */
-            try {
-                cy.renderer().hoverData.capture = true;
-            }
-            catch (_a) { }
-        });
-        return root;
-    }
-    blur() { }
-    set isBGPEmpty(value) {
-        this._isBGPEmpty = value;
-    }
-    get isBGPEmpty() {
-        return this._isBGPEmpty;
-    }
-    get clearQueryButton() {
-        var _a;
-        return (_a = this.shadowRoot) === null || _a === void 0 ? void 0 : _a.querySelector('#clear-query-btn');
-    }
-}
-QueryGraphWidget.properties = {
-    _isBGPEmpty: { attribute: false, type: Boolean }
-};
-QueryGraphWidget.styles = [
-    ui.baseStyle,
-    sparqlingWidgetStyle,
-    i$1 `
-      :host {
-        width: calc(50%);
-        height: 30%;
-        position: absolute;
-        left: 50%;
-        top: 100%;
-        transform: translate(-50%, calc(-100% - 10px));
-      }
-      
-      .tip {
-        border-bottom: dotted 2px;
-        cursor: help;
-      }
-
-      .tip: hover {
-        color:inherit;
-      }
-
-      .input-elem {
-        color: inherit;
-        padding: 5px;
-        border: none;
-        border-bottom: solid 1px var(--gscape-color-border-default);
-        max-width: 50px;
-      }
-    `
-];
-customElements.define('query-graph', QueryGraphWidget);
 
 /**
  * Get an elem by its id
@@ -8713,30 +8821,29 @@ const hasFilterIcon = `
   </div>`;
 function addHasFilterIcon(node) {
     const dummyDomElement = document.createElement('div');
-    const container = cy.container();
-    if (container === null || container === void 0 ? void 0 : container.firstElementChild) {
-        node['tippy'] = tippy(dummyDomElement, {
+    if (tippyContainer) {
+        node.scratch('tippy', tippy(dummyDomElement, {
             content: hasFilterIcon,
-            trigger: 'manuaul',
+            trigger: 'manual',
             hideOnClick: false,
             allowHTML: true,
             getReferenceClientRect: node.popperRef().getBoundingClientRect,
             sticky: "reference",
-            appendTo: container.firstElementChild,
+            appendTo: tippyContainer,
             placement: "right",
             plugins: [sticky],
             offset: [0, 0]
-        });
-        node['tippy'].show();
+        }));
+        node.scratch().tippy.show();
     }
 }
 function removeHasFilterIcon(node) {
     var _a;
-    (_a = node['tippy']) === null || _a === void 0 ? void 0 : _a.destroy();
-    node['tippy'] = null;
+    (_a = node.scratch().tippy) === null || _a === void 0 ? void 0 : _a.destroy();
+    node.removeScratch('tippy');
 }
 function shouldHaveFilterIcon(node) {
-    return (node === null || node === void 0 ? void 0 : node.data().hasFilters) && !node['tippy'];
+    return (node === null || node === void 0 ? void 0 : node.data().hasFilters) && !node.scratch().tippy;
 }
 function addOrRemoveFilterIcon(node) {
     if (shouldHaveFilterIcon(node)) {
@@ -8746,6 +8853,15 @@ function addOrRemoveFilterIcon(node) {
         removeHasFilterIcon(node);
     }
 }
+// export function refreshHasFilterIcons() {
+//   const container = cy.container()
+//   if (!container) return
+//   cy.nodes().forEach(node => {
+//     if (node.scratch().tippy) {
+//       container.firstElementChild?.appendChild(node.scratch().tippy.popper)
+//     }
+//   })
+// }
 
 const klayLayoutOpt = {
     name: 'klay',
@@ -8889,8 +9005,8 @@ function selectNode(nodeId) {
  * Arrange nodes in nice positions
  */
 function arrange() {
-    const dataPropertySelector = `node[type = "${EntityTypeEnum.DataProperty}"]`;
-    const classSelector = `node[type = "${EntityTypeEnum.Class}"]`;
+    const dataPropertySelector = `node[type = "${EntityTypeEnum.DataProperty}"][!isSuggestion]`;
+    const classSelector = `node[type = "${EntityTypeEnum.Class}"][!isSuggestion]`;
     if (getElements().length <= 1) {
         /**
          * [HACKY]
@@ -8964,6 +9080,7 @@ function getDataObj(graphElement, i) {
         const filtersNumber = (_a = getFiltersOnVariable(graphElement.id)) === null || _a === void 0 ? void 0 : _a.length;
         data.hasFilters = filtersNumber && filtersNumber > 0 ? true : false;
         data.displayed_name = getDisplayedName(data);
+        data.width = 60;
         return data;
     }
 }
@@ -8985,21 +9102,23 @@ var getStylesheet = (theme) => {
             style: {
                 'color': theme.getColour(ColoursNames.label),
                 'border-width': '1px',
+                'font-size': '8px',
             }
         },
         {
-            selector: `node[type = "${Class}"]`,
+            selector: `node[type = "${Class}"][!isSuggestion]`,
             style: {
                 'shape': 'round-rectangle',
                 'background-color': theme.getColour(ColoursNames.class),
                 'border-color': theme.getColour(ColoursNames.class_contrast),
                 'text-halign': 'center',
                 'text-valign': 'center',
-                'width': '60px',
+                'width': 60,
+                'height': 30
             },
         },
         {
-            selector: 'edge',
+            selector: 'edge[!isSuggestion]',
             style: {
                 'line-style': 'solid',
                 'target-arrow-shape': 'triangle',
@@ -9017,7 +9136,6 @@ var getStylesheet = (theme) => {
                 'text-max-width': '80px',
                 'text-overflow-wrap': 'anywhere',
                 'label': 'data(displayed_name)',
-                'font-size': '8px'
             },
         },
         {
@@ -9029,7 +9147,7 @@ var getStylesheet = (theme) => {
             },
         },
         {
-            selector: `node[type = "${DataProperty}"]`,
+            selector: `node[type = "${DataProperty}"][!isSuggestion]`,
             style: {
                 'shape': 'ellipse',
                 'height': 10,
@@ -9056,7 +9174,7 @@ var getStylesheet = (theme) => {
             }
         },
         {
-            selector: '.cdnd-drop-target',
+            selector: '.cdnd-drop-target[!isSuggestion]',
             style: {
                 'background-color': theme.getColour(ColoursNames.bg_inset),
                 'border-style': 'dashed',
@@ -9088,6 +9206,14 @@ var getStylesheet = (theme) => {
             selector: '$node > node',
             style: {
                 'label': '',
+            }
+        },
+        {
+            selector: ':active',
+            style: {
+                'overlay-opacity': 0.2,
+                'overlay-padding': '4px',
+                'overlay-color': theme.getColour(ColoursNames.accent_muted)
             }
         },
         //-----------------------------------------------------------
@@ -9140,6 +9266,202 @@ function setJoinAllowedCondition(callback) {
 function onJoin$1(callback) {
     joinCallback = callback;
 }
+
+/**
+ * Widget extending base grapholscape widget which uses Lit-element inside
+ */
+class QueryGraphWidget extends ui.BaseMixin(ui.DropPanelMixin(s)) {
+    constructor(bgpContainer) {
+        super();
+        this._isBGPEmpty = true;
+        this.withoutBGP = false;
+        this.onQueryClear = () => { };
+        this.onSparqlButtonClick = () => { };
+        this.title = 'Query Graph';
+        this.togglePanel = () => {
+            super.togglePanel();
+            this.requestUpdate();
+            if (this.isPanelClosed()) {
+                this.style.height = 'fit-content';
+            }
+            else {
+                this.style.height = '30%';
+            }
+        };
+        this.bgpContainer = bgpContainer;
+    }
+    render() {
+        return y `
+      ${this.isPanelClosed()
+            ? y `
+          <div class="top-bar traslated-down">
+            <gscape-button 
+              id="toggle-panel-button"
+              @click=${this.togglePanel}
+              label=${this.title}
+            > 
+              <span slot="icon">${rdfLogo}</span>
+              <span slot="trailing-icon">${ui.icons.plus}</span>
+            </gscape-button>
+          </div>
+        `
+            : y `
+          <div class="gscape-panel" id="drop-panel">
+            <div class="top-bar">
+              <div id="widget-header" class="bold-text">
+                ${rdfLogo}
+                <span>${this.title}</span>
+              </div>
+
+              <div id="buttons-tray">
+
+                ${limitInput$1}
+                ${offsetInput}
+                ${distinctToggle}
+                ${countStarToggle$1}
+
+                ${getTrayButtonTemplate('Sparql', code, undefined, 'sparql-code-btn', this.onSparqlButtonClick)}
+                ${getTrayButtonTemplate('Clear Query', refresh, undefined, 'clear-query-btn', this.onQueryClear)}
+              </div>
+
+              <gscape-button 
+                id="toggle-panel-button"
+                size="s" 
+                type="subtle"
+                @click=${this.togglePanel}
+              > 
+                <span slot="icon">${ui.icons.minus}</span>
+              </gscape-button>
+            </div>
+
+            ${!this.withoutBGP
+                ? y `
+                ${this.isBGPEmpty
+                    ? y `
+                      <div class="blank-slate sparqling-blank-slate">
+                        ${dbClick}
+                        <div class="header">${emptyGraphMsg()}</div>
+                        <div class="tip description" title="${emptyGraphTipMsg()}">${tipWhatIsQueryGraph()}</div>
+                      </div>
+                    `
+                    : this.bgpContainer}
+              `
+                : null}
+          </div>
+
+        `}
+    `;
+    }
+    firstUpdated() {
+        //   super.firstUpdated()
+        //   this.header.left_icon = rdfLogo
+        //   this.header.invertIcons()
+        //   super.makeDraggableHeadTitle()
+        this.hide();
+    }
+    createRenderRoot() {
+        const root = super.createRenderRoot();
+        root.addEventListener('mouseover', e => {
+            /**
+             * --- HACKY ---
+             * Allow events not involving buttons to work on cytoscape when it's in a shadow dom.
+             * They don't work due to shadow dom event's retargeting
+             * Cytoscape listen to events on window object. When the event reach window due to bubbling,
+             * cytoscape handler for mouse movement handles it but event target appear to be the
+             * custom component and not the canvas due to retargeting, therefore listeners are not triggered.
+             * workaround found here: https://github.com/cytoscape/cytoscape.js/issues/2081
+             */
+            try {
+                cy.renderer().hoverData.capture = true;
+            }
+            catch (_a) { }
+        });
+        return root;
+    }
+    blur() { }
+    set isBGPEmpty(value) {
+        this._isBGPEmpty = value;
+    }
+    updated(_changedProperties) {
+        /**
+         * // BUG: when the BGP container gets removed from the widget and then later on
+         * added back because of an insertion in the query, if we performed a cy.mount()
+         * (i.e. coming back from incremental we need to mount cy on bgpContainer)
+         * then the mount breaks somehow. Maybe some operations performed by lit-element
+         * on the div conflicts with cytoscape's mounting operations.
+         *
+         * TEMP FIX: wait for the update lifecycle to be completed and then mount again
+         * being sure lit-element won't touch the container anymore until next clear query.
+         */
+        if (_changedProperties.has('_isBGPEmpty')) {
+            // if BGP is not empty but it was empty before the update, then re-mount to be sure
+            // to fix conflicts.
+            if (!this.isBGPEmpty && _changedProperties.get('_isBGPEmpty')) {
+                const container = cy.container();
+                if (container)
+                    cy.mount(container);
+                cy.resize();
+            }
+        }
+    }
+    get isBGPEmpty() {
+        return this._isBGPEmpty;
+    }
+    get clearQueryButton() {
+        var _a;
+        return (_a = this.shadowRoot) === null || _a === void 0 ? void 0 : _a.querySelector('#clear-query-btn');
+    }
+}
+QueryGraphWidget.properties = {
+    _isBGPEmpty: { attribute: false, type: Boolean },
+    withoutBGP: { reflect: true, type: Boolean }
+};
+QueryGraphWidget.styles = [
+    ui.baseStyle,
+    sparqlingWidgetStyle,
+    i$1 `
+      :host {
+        width: calc(50%);
+        height: 30%;
+        position: absolute;
+        left: 50%;
+        top: 100%;
+        transform: translate(-50%, calc(-100% - 10px));
+      }
+
+      :host([withoutBGP]) {
+        height: unset;
+      }
+      
+      .tip {
+        border-bottom: dotted 2px;
+        cursor: help;
+      }
+
+      .tip: hover {
+        color:inherit;
+      }
+
+      .input-elem {
+        color: inherit;
+        padding: 5px;
+        border: none;
+        border-bottom: solid 1px var(--gscape-color-border-default);
+        max-width: 50px;
+      }
+
+      :host([withoutBGP]) > .gscape-panel {
+        padding: 0;
+        overflow: unset;
+      }
+
+      :host([withoutBGP]) > .gscape-panel > .top-bar {
+        position: initial;
+        border-radius: var(--gscape-border-radius);
+      }
+    `
+];
+customElements.define('query-graph', QueryGraphWidget);
 
 function onMakeOptional(callback) {
     onMakeOptional$1((elemId) => {
@@ -9221,6 +9543,11 @@ function centerOnElem(graphElem) {
             centerOnElement(cyElem, cyElem.cy().maxZoom());
     }
 }
+function setContainer(container) {
+    cy.mount(container);
+    cy.resize();
+    cy.fit();
+}
 // // ******************************* GRAPH INTERACTION CALLBACKS ******************************* //
 function onAddHead(callback) {
     onAddHead$1(id => {
@@ -9245,6 +9572,13 @@ function onAddFilter$1(callback) {
 }
 function onSeeFilters(callback) {
     onSeeFilters$1(id => {
+        const graphElement = getGraphElementByID(id);
+        if (graphElement)
+            callback(graphElement);
+    });
+}
+function onShowExamples(callback) {
+    onShowExamples$1(id => {
         const graphElement = getGraphElementByID(id);
         if (graphElement)
             callback(graphElement);
@@ -9694,7 +10028,6 @@ class QueryHeadWidget extends ui.BaseMixin(ui.DropPanelMixin(s)) {
         super();
         this.title = 'Query Columns';
         this.headElements = [];
-        this.allowPreview = false;
         this.togglePanel = () => {
             super.togglePanel();
             this.requestUpdate();
@@ -9722,14 +10055,6 @@ class QueryHeadWidget extends ui.BaseMixin(ui.DropPanelMixin(s)) {
                 ${tableEye}
                 <span>${this.title}</span>
               </div>
-
-              ${this.allowPreview
-                ? y `
-                  <div id="buttons-tray">
-                    ${getTrayButtonTemplate('Get Query Preview', preview, undefined, 'preview-btn', this.onPreviewButtonClick)}
-                  </div>
-                `
-                : null}
 
               <gscape-button 
                 id="toggle-panel-button"
@@ -9846,7 +10171,6 @@ class QueryHeadWidget extends ui.BaseMixin(ui.DropPanelMixin(s)) {
 }
 QueryHeadWidget.properties = {
     headElements: { type: Object, attribute: false },
-    allowPreview: { type: Boolean, attribute: false },
 };
 QueryHeadWidget.styles = [
     ui.baseStyle,
@@ -9956,18 +10280,37 @@ function getHeadElementWithDatatype(headElement) {
     return headElementCopy;
 }
 
+function performHighlights(iri) {
+    // Highlight suggestions for the actual clicked iri (might be a child node)
+    computeHighlights(iri).then(_ => {
+        highlightsList.allHighlights = transformHighlightsToPrefixedIRIs();
+        if (!isFullPageActive()) {
+            performHighlights$1(iri);
+        }
+    });
+}
+function clearHighlights$1() {
+    clearHighlights();
+    if (!isFullPageActive())
+        resetHighlights();
+    highlightsList.allHighlights = undefined;
+}
+
 function onNewBody(newBody) {
     var _a;
     // empty query
     if (!newBody.graph) {
         setActiveElement(undefined);
         getOriginGrapholNodes().clear();
-        resetHighlights();
+        clearHighlights$1();
         getGscape().unselect();
         distinctToggle.checked = true;
         countStarToggle$1.checked = false;
         limitInput$1.value = '';
         offsetInput.value = '';
+        if (isFullPageActive()) {
+            classSelector.show();
+        }
     }
     startRunButtons.canQueryRun = newBody.graph && !isStandalone() && core.onQueryRun !== undefined;
     if (qhWidget.previewButton) {
@@ -10183,6 +10526,7 @@ const aggregationDialog = new AggregationDialog();
 const startRunButtons = new SparqlingStartRunButtons();
 const errorsDialog = new ErrorsDialog();
 const previewDialog = new SparqlingQueryResults();
+const loadingDialog = new LoadingDialog();
 
 function isResponseError(response) {
     return !response || (response === null || response === void 0 ? void 0 : response.code) === 1 || (response === null || response === void 0 ? void 0 : response.type) === 'error';
@@ -10207,7 +10551,16 @@ function handlePromise(promise, showError = true) {
             .catch(error => {
             console.error(error);
             if (showError) {
-                errorsDialog.errorText = `${error.name} : ${error.message}`;
+                errorsDialog.errorText = `${error.name}: ${error.message}`;
+                if (error.response) {
+                    if (error.response.status === 401) {
+                        const lo = document.getElementById("logout");
+                        lo === null || lo === void 0 ? void 0 : lo.click();
+                    }
+                    else if (error.response.data) {
+                        errorsDialog.errorText += `\n\nServer message: ${error.response.data}`;
+                    }
+                }
                 errorsDialog.show();
             }
         })
@@ -10215,12 +10568,20 @@ function handlePromise(promise, showError = true) {
     }
 }
 function startLoading() {
+    setLoading(true);
+    // Show loading dialog only for long waiting times
+    setTimeout(() => {
+        if (isLoading()) // after awhile if still loading, show loading dialog
+            loadingDialog.show();
+    }, 500);
     increaseLoadingProcesses();
     startRunButtons.startLoadingAnimation();
 }
 function stopLoading() {
     decreaseLoadingProcesses();
     if (getNumberLoadingProcesses() === 0) {
+        setLoading(false);
+        loadingDialog.hide();
         startRunButtons.stopLoadingAnimation();
     }
 }
@@ -10262,9 +10623,11 @@ function updateEndpoints() {
             url: `${localStorage.getItem('mastroUrl')}/endpoints/running`,
         };
         Object.assign(mwsGetRunningEndpointsOptions, getRequestOptions());
-        endpoints = (yield handlePromise(globalAxios.request(mwsGetRunningEndpointsOptions))).endpoints;
+        endpoints = (yield handlePromise(globalAxios.request(mwsGetRunningEndpointsOptions))).endpoints
+            .filter(endpoint => endpoint.mastroID.ontologyID.ontologyName === getGscape().ontology.name &&
+            endpoint.mastroID.ontologyID.ontologyVersion === getGscape().ontology.version);
         if (!selectedEndpoint || !endpoints.map(e => e.name).includes(selectedEndpoint.name)) {
-            selectedEndpoint = endpoints[0];
+            setSelectedEndpoint(endpoints[0]);
         }
     });
 }
@@ -10291,8 +10654,53 @@ function setSelectedEndpoint(endpoint) {
     selectedEndpoint = endpoint;
 }
 
+function getPrefixedIri (iriValue) {
+    const iri = new Iri(iriValue, getGscape().ontology.namespaces);
+    return iri.prefixed || iriValue;
+}
+
+let actualHighlights;
+function computeHighlights(iri) {
+    return __awaiter(this, void 0, void 0, function* () {
+        const ogApi = new OntologyGraphApi(undefined, getBasePath());
+        const highlightsPromise = handlePromise(ogApi.highligths(iri, undefined, getRequestOptions()));
+        highlightsPromise.then(highlights => {
+            actualHighlights = highlights;
+        });
+        return highlightsPromise;
+    });
+}
+function getActualHighlights() { return actualHighlights; }
+function transformHighlightsToPrefixedIRIs() {
+    var _a, _b, _c;
+    let transformedHighlights = JSON.parse(JSON.stringify(actualHighlights));
+    transformedHighlights.classes = (_a = transformedHighlights.classes) === null || _a === void 0 ? void 0 : _a.map(iri => getPrefixedIri(iri));
+    transformedHighlights.dataProperties = (_b = transformedHighlights.dataProperties) === null || _b === void 0 ? void 0 : _b.map(iri => getPrefixedIri(iri));
+    transformedHighlights.objectProperties = (_c = transformedHighlights.objectProperties) === null || _c === void 0 ? void 0 : _c.map(branch => {
+        var _a;
+        branch.objectPropertyIRI = getPrefixedIri(branch.objectPropertyIRI || '');
+        branch.relatedClasses = (_a = branch.relatedClasses) === null || _a === void 0 ? void 0 : _a.map(iri => getPrefixedIri(iri));
+        return branch;
+    });
+    return transformedHighlights;
+}
+function isIriHighlighted(iri) {
+    var _a, _b, _c;
+    return ((_a = actualHighlights === null || actualHighlights === void 0 ? void 0 : actualHighlights.classes) === null || _a === void 0 ? void 0 : _a.includes(iri)) ||
+        ((_b = actualHighlights === null || actualHighlights === void 0 ? void 0 : actualHighlights.dataProperties) === null || _b === void 0 ? void 0 : _b.includes(iri)) ||
+        ((_c = actualHighlights === null || actualHighlights === void 0 ? void 0 : actualHighlights.objectProperties) === null || _c === void 0 ? void 0 : _c.some(branch => branch.objectPropertyIRI === iri));
+}
+function clearHighlights() {
+    actualHighlights = undefined;
+}
+
 let file;
 let isRunning = false;
+let isFullPage = false;
+let previousOwlVisualizerState;
+const HIGHLIGHT_CLASS = 'highlighted';
+const FADED_CLASS = 'faded';
+const SPARQLING_SELECTED = 'sparqling-selected';
 function getOntologyFile() {
     return file;
 }
@@ -10304,6 +10712,18 @@ function isSparqlingRunning() {
 }
 function setSparqlingRunning(value) {
     isRunning = value;
+}
+function setFullPage(value) {
+    isFullPage = value;
+}
+function isFullPageActive() {
+    return isFullPage;
+}
+function setPreviousOwlVisualizerState(value) {
+    previousOwlVisualizerState = value;
+}
+function getPreviousOwlVisualizerState() {
+    return previousOwlVisualizerState;
 }
 
 function showUI() {
@@ -10324,67 +10744,484 @@ function hideUI() {
 }
 
 function start () {
-    if (isStandalone()) {
-        const standaloneApi = new StandaloneApi();
-        const ontologyFile = getOntologyFile();
-        // If current ontology is already loaded, do not perform upload again
-        ontologyFile.text().then(ontologyString => {
-            handlePromise(standaloneApi.standaloneOntologyGrapholGet()).then(grapholFile => {
-                if (ontologyString.trim() === grapholFile.trim()) {
-                    startSparqling();
-                }
-                else {
-                    handlePromise(standaloneApi.standaloneOntologyUploadPost(getOntologyFile())).then(_ => startSparqling());
-                }
-            });
-        });
-    }
-    else {
-        qhWidget.allowPreview = true;
-        startSparqling();
-    }
-    function startSparqling() {
-        var _a, _b, _c;
-        getGscape().widgets.get(ui.WidgetEnum.OWL_VISUALIZER).disable();
-        showUI();
-        setSparqlingRunning(true);
-        startRunButtons.canQueryRun = ((_a = getQueryBody()) === null || _a === void 0 ? void 0 : _a.graph) && !isStandalone() && core.onQueryRun !== undefined;
-        startRunButtons.endpoints = getEndpoints();
-        startRunButtons.selectedEndpointName = (_b = getSelectedEndpoint()) === null || _b === void 0 ? void 0 : _b.name;
-        startRunButtons.requestUpdate();
-        const selectedGraphElement = (_c = getActiveElement()) === null || _c === void 0 ? void 0 : _c.graphElement;
-        if (selectedGraphElement) {
-            const selectedGraphElementIri = getIri(selectedGraphElement);
-            if (selectedGraphElementIri)
-                highlightSuggestions(selectedGraphElementIri);
+    return __awaiter(this, void 0, void 0, function* () {
+        let loadingPromise = Promise.resolve();
+        if (isStandalone()) {
+            const standaloneApi = new StandaloneApi();
+            const ontologyFile = getOntologyFile();
+            // If current ontology is already loaded, do not perform upload again
+            yield ontologyFile.text().then((ontologyString) => __awaiter(this, void 0, void 0, function* () {
+                yield handlePromise(standaloneApi.standaloneOntologyGrapholGet()).then(grapholFile => {
+                    if (ontologyString.trim() === grapholFile.trim()) {
+                        startSparqling();
+                    }
+                    else {
+                        loadingPromise = handlePromise(standaloneApi.standaloneOntologyUploadPost(getOntologyFile()));
+                        loadingPromise.then(_ => startSparqling());
+                    }
+                });
+            }));
         }
-        core.onStart();
-    }
+        loadingPromise.then(_ => startSparqling());
+        return loadingPromise;
+        function startSparqling() {
+            var _a, _b, _c;
+            const owlVisualizer = getGscape().widgets.get(ui.WidgetEnum.OWL_VISUALIZER);
+            setPreviousOwlVisualizerState(owlVisualizer.enabled);
+            owlVisualizer.disable();
+            const settingsWidget = getGscape().widgets.get(ui.WidgetEnum.SETTINGS);
+            delete settingsWidget.widgetStates[ui.WidgetEnum.OWL_VISUALIZER];
+            showUI();
+            setSparqlingRunning(true);
+            startRunButtons.canQueryRun = ((_a = getQueryBody()) === null || _a === void 0 ? void 0 : _a.graph) && !isStandalone() && core.onQueryRun !== undefined;
+            startRunButtons.endpoints = getEndpoints();
+            startRunButtons.selectedEndpointName = (_b = getSelectedEndpoint()) === null || _b === void 0 ? void 0 : _b.name;
+            startRunButtons.requestUpdate();
+            const selectedGraphElement = (_c = getActiveElement()) === null || _c === void 0 ? void 0 : _c.graphElement;
+            if (selectedGraphElement) {
+                const selectedGraphElementIri = getIri(selectedGraphElement);
+                if (selectedGraphElementIri)
+                    performHighlights(selectedGraphElementIri);
+            }
+            core.onStart();
+        }
+    });
 }
 
 function stop () {
     if (isSparqlingRunning()) {
         hideUI();
         clearSelected();
-        resetHighlights();
+        clearHighlights$1();
         getGscape().widgets.get(ui.WidgetEnum.ENTITY_DETAILS).hide();
         setSparqlingRunning(false);
+        //model.setFullPage(false)
         startRunButtons.canQueryRun = false;
         startRunButtons.requestUpdate();
+        if (getPreviousOwlVisualizerState()) {
+            getGscape().widgets.get(ui.WidgetEnum.OWL_VISUALIZER).enable();
+        }
         core.onStop();
     }
 }
 
+function clearQuery () {
+    var _a, _b;
+    return __awaiter(this, void 0, void 0, function* () {
+        const queryBody = getQueryBody();
+        if ((_a = queryBody === null || queryBody === void 0 ? void 0 : queryBody.graph) === null || _a === void 0 ? void 0 : _a.id) {
+            const qgApi = QueryGraphBGPApiFactory(undefined, getBasePath());
+            const newBody = yield handlePromise(qgApi.deleteGraphElementId((_b = queryBody === null || queryBody === void 0 ? void 0 : queryBody.graph) === null || _b === void 0 ? void 0 : _b.id, queryBody, getRequestOptions()));
+            onNewBody(newBody);
+        }
+    });
+}
+
+function loadQuery (queryBody) {
+    return __awaiter(this, void 0, void 0, function* () {
+        yield clearQuery();
+        // Hide selectors
+        classSelector.hide();
+        getGscape().widgets.get(ui.WidgetEnum.INITIAL_RENDERER_SELECTOR).hide();
+        const grapholscape = getGscape();
+        if (!grapholscape.renderState && !isFullPageActive()) {
+            grapholscape.setRenderer(new GrapholRendererState());
+        }
+        onNewBody(queryBody);
+        /**
+         * // FIXME: Update style in order to make all elements visible.
+         * without this edges might not be visible.
+         */
+        setTheme(grapholscape.theme);
+        const activeElementIri = getIri(queryBody.graph);
+        if (activeElementIri) {
+            setActiveElement({
+                graphElement: queryBody.graph,
+                iri: grapholscape.ontology.getEntity(activeElementIri).iri
+            });
+            selectElement(activeElementIri);
+            performHighlights(activeElementIri);
+        }
+        countStarToggle$1.checked = isCountStarActive();
+        distinctToggle.checked = isDistinctActive();
+        if (queryBody.limit && queryBody.limit > 0)
+            limitInput$1.value = queryBody.limit.toString();
+        if (queryBody.offset || queryBody.offset === 0)
+            offsetInput.value = queryBody.offset.toString();
+    });
+}
+
 var core = {
+    getSelectedEndpoint: () => { var _a; return (_a = getSelectedEndpoint()) === null || _a === void 0 ? void 0 : _a.name; },
     getQueryBody: getQueryBody,
     startStopButton: startRunButtons.startSparqlingButton,
     runQueryButton: startRunButtons.runQueryButton,
     onQueryRun: undefined,
+    onQuerySave: undefined,
+    onShowSettings: undefined,
+    onEndpointSelection: undefined,
+    onToggleCatalog: undefined,
+    redirectToSPARQLPage: undefined,
     onStop: () => { },
     onStart: () => { },
     start: start,
     stop: stop,
+    loadQuery: loadQuery,
 };
+
+function handleEndpointSelection (callback) {
+    return __awaiter(this, void 0, void 0, function* () {
+        let endpoint;
+        yield updateEndpoints();
+        if (yield isSelectedEndpointRunning()) {
+            callback(getSelectedEndpoint());
+            return;
+        }
+        if (getEndpoints().length > 1) {
+            endpoint = yield startRunButtons.requestEndpointSelection();
+            callback(endpoint);
+            return;
+        }
+        callback(undefined);
+    });
+}
+
+var QueryPollerStatus;
+(function (QueryPollerStatus) {
+    QueryPollerStatus[QueryPollerStatus["TIMEOUT_EXPIRED"] = 0] = "TIMEOUT_EXPIRED";
+    QueryPollerStatus[QueryPollerStatus["DONE"] = 1] = "DONE";
+    QueryPollerStatus[QueryPollerStatus["RUNNING"] = 2] = "RUNNING";
+    QueryPollerStatus[QueryPollerStatus["IDLE"] = 3] = "IDLE";
+})(QueryPollerStatus || (QueryPollerStatus = {}));
+class QueryPoller {
+    constructor(endpoint, executionID, limit) {
+        this.lastRequestFulfilled = true;
+        // Callbacks
+        this.onNewResults = (result) => { };
+        this.onTimeoutExpiration = () => { };
+        this.onStop = () => { };
+        this.status = QueryPollerStatus.IDLE;
+        this.endpoint = endpoint;
+        this.executionID = executionID;
+        this.limit = limit;
+    }
+    poll() {
+        this.status = QueryPollerStatus.RUNNING;
+        handlePromise(globalAxios.request(this.queryResultRequestOptions)).then((result) => {
+            this._result = result;
+            this.lastRequestFulfilled = true;
+            if (result.results.length >= this.limit) {
+                this.stop();
+            }
+            this.onNewResults(result);
+        });
+    }
+    start() {
+        this.interval = setInterval(() => {
+            if (this.lastRequestFulfilled) {
+                this.lastRequestFulfilled = false;
+                this.poll();
+            }
+        }, QueryPoller.INTERVAL_LENGTH);
+        this.timeout = setTimeout(() => {
+            if (this.result.results.length === 0) {
+                this.stop(true);
+            }
+            else {
+                this.stop();
+            }
+        }, QueryPoller.TIMEOUT_LENGTH);
+    }
+    stop(timeoutExpired = false) {
+        if (timeoutExpired) {
+            this.status = QueryPollerStatus.TIMEOUT_EXPIRED;
+            console.warn(`[Sparqling] Timeout expired for query with id = [${this.executionID}]`);
+            this.onTimeoutExpiration();
+        }
+        else {
+            this.status = QueryPollerStatus.DONE;
+        }
+        clearInterval(this.interval);
+        clearTimeout(this.timeout);
+        this.onStop();
+    }
+    get result() { return this._result; }
+    get queryResultRequestOptions() {
+        const queryResultsRequestOptions = {
+            url: localStorage.getItem('mastroUrl') + '/endpoint/' + this.endpoint.name + '/query/' + this.executionID + '/results',
+            method: 'get',
+            params: { pagesize: 10, pagenumber: 1 },
+            headers: JSON.parse(localStorage.getItem('headers') || ''),
+        };
+        return queryResultsRequestOptions;
+    }
+}
+QueryPoller.TIMEOUT_LENGTH = 5000;
+QueryPoller.INTERVAL_LENGTH = 1000;
+
+function showIriExamplesInForm(iri, formDialog) {
+    return __awaiter(this, void 0, void 0, function* () {
+        handleEndpointSelection(((endpoint) => __awaiter(this, void 0, void 0, function* () {
+            if (!endpoint) {
+                console.warn('No endpoints available');
+                formDialog.loadingExamples = false;
+                formDialog.addMessage('No endpoint available', 'error-message');
+                setTimeout(() => formDialog.resetMessages(), 3000);
+                return;
+            }
+            const queryString = yield getExamplesQueryString(iri, endpoint, formDialog.examplesSearchValue);
+            if (!queryString)
+                return;
+            const queryStartResponse = yield handlePromise(globalAxios.request(getNewQueryRequestOptions(endpoint, queryString)));
+            const queryPoller = new QueryPoller(endpoint, queryStartResponse.executionId, 10);
+            queryPoller.onNewResults = (result) => {
+                if (queryPoller.status !== QueryPollerStatus.RUNNING) {
+                    formDialog.loadingExamples = false;
+                }
+                formDialog.examples = result;
+            };
+            queryPoller.onTimeoutExpiration = queryPoller.onStop = () => {
+                formDialog.loadingExamples = false;
+            };
+            queryPoller.start();
+        })));
+    });
+}
+function getNewQueryRequestOptions(endpoint, queryString) {
+    const startNewQueryRequestOptions = {
+        method: 'post',
+        url: localStorage.getItem('mastroUrl') + '/endpoint/' + endpoint.name + '/query/start',
+        data: {
+            queryID: Math.random(),
+            queryDescription: '',
+            queryCode: queryString
+        },
+        headers: JSON.parse(localStorage.getItem('headers') || '')
+    };
+    return startNewQueryRequestOptions;
+}
+function showQueryResultInDialog(iri) {
+    return __awaiter(this, void 0, void 0, function* () {
+        if (iri) {
+            const graphElement = getGraphElementByIRI(iri);
+            if (graphElement) {
+                if (isDataProperty(graphElement)) {
+                    previewDialog.allowSearch = true;
+                    // previewDialog.examplesSearchValue = ''
+                }
+            }
+        }
+        previewDialog.result = undefined;
+        previewDialog.title = iri ? 'Examples' : 'Query Results Preview';
+        previewDialog.show();
+        previewDialog.onSearchExamples(() => {
+            showQueryResultInDialog(iri);
+        });
+        handleEndpointSelection((endpoint) => __awaiter(this, void 0, void 0, function* () {
+            if (!endpoint) {
+                return;
+            }
+            previewDialog.isLoading = true;
+            const queryString = iri ? yield getExamplesQueryString(iri, endpoint, previewDialog.examplesSearchValue) : getQueryBody().sparql;
+            if (!queryString)
+                return;
+            const queryStartResponse = yield handlePromise(globalAxios.request(getNewQueryRequestOptions(endpoint, queryString)));
+            const queryPoller = new QueryPoller(endpoint, queryStartResponse.executionId, 10);
+            queryPoller.onNewResults = (result) => {
+                if (queryPoller.status !== QueryPollerStatus.RUNNING) {
+                    previewDialog.isLoading = false;
+                }
+                previewDialog.result = result;
+            };
+            queryPoller.onTimeoutExpiration = queryPoller.onStop = () => {
+                previewDialog.isLoading = false;
+            };
+            queryPoller.start();
+        }));
+    });
+}
+function getExamplesQueryString(iri, endpoint, searchValue) {
+    var _a;
+    return __awaiter(this, void 0, void 0, function* () {
+        const prefixes = yield handlePromise(globalAxios.request({
+            method: 'get',
+            url: localStorage.getItem('mastroUrl') + '/endpoint/' + endpoint.name + '/prefixes',
+            headers: JSON.parse(localStorage.getItem('headers') || '')
+        }));
+        let queryString = prefixes.map((p) => `PREFIX ${p.name} <${p.namespace}>`).join('\n');
+        const graphElement = getGraphElementByIRI(iri);
+        if (graphElement) {
+            if (isClass(graphElement)) {
+                queryString += `\nSELECT DISTINCT * WHERE { ?Examples  rdf:type <${iri}> }`;
+            }
+            else if (isDataProperty(graphElement)) {
+                const classGraphElement = findGraphElement((_a = getQueryBody()) === null || _a === void 0 ? void 0 : _a.graph, (ge) => { var _a; return ((_a = ge.children) === null || _a === void 0 ? void 0 : _a.includes(graphElement)) || false; });
+                if (classGraphElement) {
+                    const classIri = getIri(classGraphElement);
+                    queryString += `\nSELECT DISTINCT ?Examples WHERE { ?x rdf:type <${classIri}>; <${iri}> ?Examples;`;
+                }
+                else {
+                    queryString += `\nSELECT DISTINCT ?Examples WHERE { ?x  <${iri}> ?Examples;`;
+                }
+                if (searchValue)
+                    queryString += `\nFILTER (regex(?Examples, "${searchValue}", 'i'))`;
+                queryString += ` }`;
+            }
+            queryString += `\nLIMIT 10`;
+            return queryString;
+        }
+    });
+}
+
+var sparqlingStyle = (theme) => [
+    {
+        selector: 'node[shape = "ellipse"], .bubble',
+        style: { 'underlay-shape': 'ellipse' }
+    },
+    {
+        selector: '.sparqling-selected',
+        style: {
+            'underlay-color': theme.getColour(ColoursNames.accent),
+            'underlay-padding': '4px',
+            'underlay-shape': (node) => node.style('shape') === Shape.ELLIPSE ? Shape.ELLIPSE : Shape.ROUND_RECTANGLE,
+            'underlay-opacity': 1,
+        }
+    },
+    {
+        selector: '.highlighted',
+        style: {
+            'underlay-color': theme.colours["sparqling-highlight"] || theme.getColour(ColoursNames.success_muted),
+            'underlay-padding': '8px',
+            'underlay-opacity': 1,
+            'underlay-shape': (node) => node.style('shape') === Shape.ELLIPSE ? Shape.ELLIPSE : Shape.ROUND_RECTANGLE,
+            'border-opacity': 1,
+        }
+    },
+    {
+        selector: '.faded',
+        style: {
+            'opacity': 0.25,
+        }
+    }
+];
+
+let widgetStates;
+function stopFullpage() {
+    const grapholscape = getGscape();
+    setFullPage(false);
+    widget.withoutBGP = false;
+    setContainer(bgpContainer);
+    setTimeout(() => cy.fit(), 500);
+    grapholscape.renderer.mount();
+    // (grapholscape.widgets.get(ui.WidgetEnum.DIAGRAM_SELECTOR) as unknown as ui.IBaseMixin).enable()
+    enableWidgetsForFullpage(grapholscape);
+    classSelector.hide();
+    if (grapholscape.renderer.cy)
+        addStylesheet(grapholscape.renderer.cy, sparqlingStyle(grapholscape.theme));
+    highlightsList.style.marginTop = '60px';
+}
+function startFullpage() {
+    // if (isFullPageActive()) return
+    const grapholscape = getGscape();
+    setFullPage(true);
+    grapholscape.renderer.stopRendering();
+    disableWidgetsForFullpage(grapholscape);
+    // move query graph inside grapholscape main container
+    setContainer(grapholscape.renderer.container);
+    widget.withoutBGP = true;
+    grapholscape.renderer.cy = cy;
+    const queryBody = getQueryBody();
+    if (!queryBody || !queryBody.graph) {
+        // show class selector
+        initClassSelector();
+        classSelector.show();
+    }
+    highlightsList.style.marginTop = '10px';
+    // const rendererSelector = grapholscape.widgets.get(ui.WidgetEnum.RENDERER_SELECTOR) as unknown as any
+    // const rendererStates: RendererStatesEnum[] = rendererSelector.rendererStates.map(rs => rs.id)
+    // if (rendererStates.includes(RendererStatesEnum.INCREMENTAL)) {
+    //   hadIncremental = true
+    //   incrementalIndex = rendererStates.indexOf(RendererStatesEnum.INCREMENTAL)
+    //   incrementalViewRendererState = rendererSelector.rendererStates.splice(
+    //     incrementalIndex,
+    //     1
+    //   )[0]
+    //   rendererSelector.requestUpdate()
+    // }
+}
+function disableWidgetsForFullpage(grapholscape) {
+    const settingsWidget = grapholscape.widgets.get(ui.WidgetEnum.SETTINGS);
+    widgetStates = JSON.parse(JSON.stringify(settingsWidget.widgetStates));
+    grapholscape.widgets.get(ui.WidgetEnum.DIAGRAM_SELECTOR).disable();
+    grapholscape.widgets.get(ui.WidgetEnum.RENDERER_SELECTOR).disable();
+    grapholscape.widgets.get(ui.WidgetEnum.FILTERS).disable();
+    grapholscape.widgets.get(ui.WidgetEnum.ONTOLOGY_EXPLORER).disable();
+    grapholscape.widgets.get(ui.WidgetEnum.OWL_VISUALIZER).disable();
+    const actualWidgetStates = settingsWidget.widgetStates;
+    delete actualWidgetStates[ui.WidgetEnum.DIAGRAM_SELECTOR];
+    delete actualWidgetStates[ui.WidgetEnum.RENDERER_SELECTOR];
+    delete actualWidgetStates[ui.WidgetEnum.FILTERS];
+    delete actualWidgetStates[ui.WidgetEnum.ONTOLOGY_EXPLORER];
+    delete actualWidgetStates[ui.WidgetEnum.LAYOUT_SETTINGS];
+    delete actualWidgetStates[ui.WidgetEnum.OWL_VISUALIZER];
+    settingsWidget.requestUpdate();
+}
+function enableWidgetsForFullpage(grapholscape) {
+    const settingsWidget = grapholscape.widgets.get(ui.WidgetEnum.SETTINGS);
+    settingsWidget.widgetStates = widgetStates;
+    Object.entries(widgetStates).forEach(([key, widgetState]) => {
+        if (widgetState)
+            grapholscape.widgets.get(key).enable();
+    });
+    settingsWidget.requestUpdate();
+}
+
+function init() {
+    const gscape = getGscape();
+    if (gscape.renderer.cy)
+        addStylesheet(gscape.renderer.cy, sparqlingStyle(gscape.theme));
+    if (gscape.renderer.cy && gscape.renderState !== RendererStatesEnum.INCREMENTAL)
+        setHandlers(gscape.renderer.cy);
+    gscape.on(LifecycleEvent.LanguageChange, (newLanguage) => setLanguage(newLanguage));
+    gscape.on(LifecycleEvent.EntityNameTypeChange, (newNameType) => {
+        setDisplayedNameType(newNameType, gscape.language);
+    });
+    gscape.on(LifecycleEvent.ThemeChange, (newTheme) => {
+        setTheme(newTheme);
+        if (gscape.renderer.cy)
+            addStylesheet(gscape.renderer.cy, sparqlingStyle(newTheme));
+    });
+    gscape.on(LifecycleEvent.DiagramChange, () => onChangeDiagramOrRenderer(gscape));
+    gscape.on(LifecycleEvent.RendererChange, () => onChangeDiagramOrRenderer(gscape));
+}
+function onChangeDiagramOrRenderer(gscape) {
+    if (isFullPageActive()) {
+        stopFullpage();
+    }
+    if (gscape.renderer.cy && gscape.renderState !== RendererStatesEnum.INCREMENTAL) {
+        setHandlers(gscape.renderer.cy);
+        addStylesheet(gscape.renderer.cy, sparqlingStyle(gscape.theme));
+    }
+    if (gscape.renderState !== RendererStatesEnum.INCREMENTAL)
+        refreshHighlights();
+}
+function setHandlers(cy) {
+    // [diplayed_name] select only nodes with a defined displayed name, 
+    // avoid fake nodes (for inverse/nonInverse functional obj properties)
+    const objPropertiesSelector = `[iri][type = "${GrapholTypesEnum.OBJECT_PROPERTY}"]`;
+    cy.on('mouseover', objPropertiesSelector, e => {
+        if (isSparqlingRunning())
+            showRelatedClassesWidget(e.target.data('iri'), e.renderedPosition);
+    });
+    cy.on('mouseout', objPropertiesSelector, e => {
+        if (isSparqlingRunning())
+            hideRelatedClassesWidget();
+    });
+    cy.on('dblclick', `[iri]`, e => {
+        if (isSparqlingRunning())
+            handleEntitySelection(e.target.data().iri, e.target.data().type, { elementId: e.target.id(), diagramId: getGscape().diagramId });
+    });
+}
 
 let lastObjProperty;
 function handleEntitySelection(entityIriString, entityType, entityOccurrence) {
@@ -10395,7 +11232,7 @@ function handleEntitySelection(entityIriString, entityType, entityOccurrence) {
         const activeElement = getActiveElement();
         if (activeElement && graphElementHasIri(activeElement.graphElement, entityIriString) && !lastObjProperty) {
             if (!isIriSelected(entityIri)) {
-                highlightSuggestions(entityIriString);
+                performHighlights(entityIriString);
             }
             return;
         }
@@ -10415,7 +11252,7 @@ function handleEntitySelection(entityIriString, entityType, entityOccurrence) {
                     // Get nodes not present in the old graph
                     const newGraphElements = getdiffNew((_a = getQueryBody()) === null || _a === void 0 ? void 0 : _a.graph, newBody.graph);
                     const newSelectedGraphElement = setOriginNode(entityOccurrence, newGraphElements, entityIriString);
-                    highlightSuggestions(entityIriString);
+                    performHighlights(entityIriString);
                     onNewBody(newBody);
                     // after onNewBody because we need to select the element after rendering phase
                     if (newSelectedGraphElement && newSelectedGraphElement.id) {
@@ -10525,226 +11362,7 @@ function setOriginNode(entityOccurrence, graphElements, clickedIri) {
     }
     return graphElement;
 }
-function isIriHighlighted(iri) { return isHighlighted(iri); }
 function isIriInQueryGraph(iri) { return isIriInQueryGraph$1(iri); }
-
-function clearQuery () {
-    var _a, _b;
-    const queryBody = getQueryBody();
-    if ((_a = queryBody === null || queryBody === void 0 ? void 0 : queryBody.graph) === null || _a === void 0 ? void 0 : _a.id) {
-        const qgApi = QueryGraphBGPApiFactory(undefined, getBasePath());
-        handlePromise(qgApi.deleteGraphElementId((_b = queryBody === null || queryBody === void 0 ? void 0 : queryBody.graph) === null || _b === void 0 ? void 0 : _b.id, queryBody, getRequestOptions())).then(newBody => {
-            onNewBody(newBody);
-        });
-    }
-}
-
-function handleEndpointSelection (callback) {
-    return __awaiter(this, void 0, void 0, function* () {
-        let endpoint;
-        yield updateEndpoints();
-        if (yield isSelectedEndpointRunning()) {
-            callback(getSelectedEndpoint());
-            return;
-        }
-        if (getEndpoints().length > 1) {
-            endpoint = yield startRunButtons.requestEndpointSelection();
-            callback(endpoint);
-            return;
-        }
-        callback(undefined);
-    });
-}
-
-var QueryPollerStatus;
-(function (QueryPollerStatus) {
-    QueryPollerStatus[QueryPollerStatus["TIMEOUT_EXPIRED"] = 0] = "TIMEOUT_EXPIRED";
-    QueryPollerStatus[QueryPollerStatus["DONE"] = 1] = "DONE";
-    QueryPollerStatus[QueryPollerStatus["RUNNING"] = 2] = "RUNNING";
-    QueryPollerStatus[QueryPollerStatus["IDLE"] = 3] = "IDLE";
-})(QueryPollerStatus || (QueryPollerStatus = {}));
-class QueryPoller {
-    constructor(endpoint, executionID, limit) {
-        this.lastRequestFulfilled = true;
-        // Callbacks
-        this.onNewResults = (result) => { };
-        this.onTimeoutExpiration = () => { };
-        this.onStop = () => { };
-        this.status = QueryPollerStatus.IDLE;
-        this.endpoint = endpoint;
-        this.executionID = executionID;
-        this.limit = limit;
-    }
-    poll() {
-        this.status = QueryPollerStatus.RUNNING;
-        handlePromise(globalAxios.request(this.queryResultRequestOptions)).then((result) => {
-            this._result = result;
-            this.lastRequestFulfilled = true;
-            if (result.results.length >= this.limit) {
-                this.stop();
-            }
-            this.onNewResults(result);
-        });
-    }
-    start() {
-        this.interval = setInterval(() => {
-            if (this.lastRequestFulfilled) {
-                this.lastRequestFulfilled = false;
-                this.poll();
-            }
-        }, QueryPoller.INTERVAL_LENGTH);
-        this.timeout = setTimeout(() => {
-            if (this.result.results.length === 0) {
-                this.stop(true);
-            }
-            else {
-                this.stop();
-            }
-        }, QueryPoller.TIMEOUT_LENGTH);
-    }
-    stop(timeoutExpired = false) {
-        if (timeoutExpired) {
-            this.status = QueryPollerStatus.TIMEOUT_EXPIRED;
-            console.warn(`[Sparqling] Timeout expired for query with id = [${this.executionID}]`);
-            this.onTimeoutExpiration();
-        }
-        else {
-            this.status = QueryPollerStatus.DONE;
-        }
-        clearInterval(this.interval);
-        clearTimeout(this.timeout);
-        this.onStop();
-    }
-    get result() { return this._result; }
-    get queryResultRequestOptions() {
-        const queryResultsRequestOptions = {
-            url: localStorage.getItem('mastroUrl') + '/endpoint/' + this.endpoint.name + '/query/' + this.executionID + '/results',
-            method: 'get',
-            params: { pagesize: 10, pagenumber: 1 },
-            headers: JSON.parse(localStorage.getItem('headers') || ''),
-        };
-        return queryResultsRequestOptions;
-    }
-}
-QueryPoller.TIMEOUT_LENGTH = 5000;
-QueryPoller.INTERVAL_LENGTH = 1000;
-
-function showIriExamplesInForm(iri, formDialog) {
-    return __awaiter(this, void 0, void 0, function* () {
-        handleEndpointSelection(((endpoint) => __awaiter(this, void 0, void 0, function* () {
-            if (!endpoint) {
-                console.warn('No endpoints available');
-                formDialog.loadingExamples = false;
-                formDialog.addMessage('No endpoint available', 'error-message');
-                setTimeout(() => formDialog.resetMessages(), 3000);
-                return;
-            }
-            const prefixes = yield handlePromise(globalAxios.request({
-                method: 'get',
-                url: localStorage.getItem('mastroUrl') + '/endpoint/' + endpoint.name + '/prefixes',
-                headers: JSON.parse(localStorage.getItem('headers') || '')
-            }));
-            const queryString = prefixes.map((p) => `PREFIX ${p.name} <${p.namespace}>`).join('\n') +
-                `\nSELECT * WHERE { ?Examples  rdf:type <${iri}> } LIMIT 10`;
-            const queryStartResponse = yield handlePromise(globalAxios.request(getNewQueryRequestOptions(endpoint, queryString)));
-            const queryPoller = new QueryPoller(endpoint, queryStartResponse.executionId, 10);
-            queryPoller.onNewResults = (result) => {
-                if (queryPoller.status !== QueryPollerStatus.RUNNING) {
-                    formDialog.loadingExamples = false;
-                }
-                formDialog.examples = result;
-            };
-            queryPoller.onTimeoutExpiration = queryPoller.onStop = () => {
-                formDialog.loadingExamples = false;
-            };
-            queryPoller.start();
-        })));
-    });
-}
-function getNewQueryRequestOptions(endpoint, queryString) {
-    const startNewQueryRequestOptions = {
-        method: 'post',
-        url: localStorage.getItem('mastroUrl') + '/endpoint/' + endpoint.name + '/query/start',
-        data: {
-            queryID: Math.random(),
-            queryDescription: '',
-            queryCode: queryString
-        },
-        headers: JSON.parse(localStorage.getItem('headers') || '')
-    };
-    return startNewQueryRequestOptions;
-}
-
-var sparqlingStyle = (theme) => [
-    {
-        selector: 'node[shape = "ellipse"], .bubble',
-        style: { 'underlay-shape': 'ellipse' }
-    },
-    {
-        selector: '.sparqling-selected',
-        style: {
-            'underlay-color': theme.getColour(ColoursNames.accent),
-            'underlay-padding': '4px',
-            'underlay-opacity': 1,
-        }
-    },
-    {
-        selector: '.highlighted',
-        style: {
-            'underlay-color': theme.colours["sparqling-highlight"] || theme.getColour(ColoursNames.success_muted),
-            'underlay-padding': '8px',
-            'underlay-opacity': 1,
-            'border-opacity': 1,
-        }
-    },
-    {
-        selector: '.faded',
-        style: {
-            'opacity': 0.25,
-        }
-    }
-];
-
-function init() {
-    const gscape = getGscape();
-    addStylesheet(gscape.renderer.cy, sparqlingStyle(gscape.theme));
-    if (gscape.renderer.cy)
-        setHandlers(gscape.renderer.cy);
-    gscape.on(LifecycleEvent.LanguageChange, (newLanguage) => setLanguage(newLanguage));
-    gscape.on(LifecycleEvent.EntityNameTypeChange, (newNameType) => {
-        setDisplayedNameType(newNameType, gscape.language);
-    });
-    gscape.on(LifecycleEvent.ThemeChange, (newTheme) => {
-        setTheme(newTheme);
-        addStylesheet(gscape.renderer.cy, sparqlingStyle(newTheme));
-    });
-    gscape.on(LifecycleEvent.DiagramChange, () => onChangeDiagramOrRenderer(gscape));
-    gscape.on(LifecycleEvent.RendererChange, () => onChangeDiagramOrRenderer(gscape));
-}
-function onChangeDiagramOrRenderer(gscape) {
-    if (gscape.renderer.cy) {
-        setHandlers(gscape.renderer.cy);
-        addStylesheet(gscape.renderer.cy, sparqlingStyle(gscape.theme));
-    }
-    refreshHighlights();
-}
-function setHandlers(cy) {
-    // [diplayed_name] select only nodes with a defined displayed name, 
-    // avoid fake nodes (for inverse/nonInverse functional obj properties)
-    const objPropertiesSelector = `[iri][type = "${GrapholTypesEnum.OBJECT_PROPERTY}"]`;
-    cy.on('mouseover', objPropertiesSelector, e => {
-        if (isSparqlingRunning())
-            showRelatedClassesWidget(e.target.data('iri'), e.renderedPosition);
-    });
-    cy.on('mouseout', objPropertiesSelector, e => {
-        if (isSparqlingRunning())
-            hideRelatedClassesWidget();
-    });
-    cy.on('dblclick', `[iri]`, e => {
-        if (isSparqlingRunning())
-            handleEntitySelection(e.target.data().iri, e.target.data().type, { elementId: e.target.id(), diagramId: getGscape().diagramId });
-    });
-}
 
 function showFormDialog (element, formDialog) {
     let graphElement;
@@ -10782,7 +11400,8 @@ function showFormDialog (element, formDialog) {
         }];
     formDialog.variableName = variableName || graphElement.id;
     formDialog.examples = undefined;
-    formDialog.acceptExamples = !isStandalone() && isClass(graphElement);
+    formDialog.acceptExamples = !isStandalone() && (isClass(graphElement) || isDataProperty(graphElement));
+    formDialog.examplesSearchValue = undefined;
     formDialog.loadingExamples = false;
     formDialog.show();
 }
@@ -10837,13 +11456,14 @@ onDelete$1((graphElement, iri) => {
                             graphElement: newSelectedGE,
                             iri: new Iri(newSelectedGEIri, gscape.ontology.namespaces)
                         });
+                        performHighlights(newSelectedGEIri);
                     }
                 }
-                resetHighlights();
-                gscape.unselect();
-                if (newSelectedGEIri) {
-                    gscape.centerOnEntity(newSelectedGEIri);
-                    highlightSuggestions(newSelectedGEIri);
+                if (!isFullPageActive()) {
+                    gscape.unselect();
+                    if (newSelectedGEIri) {
+                        gscape.centerOnEntity(newSelectedGEIri);
+                    }
                 }
                 if (newSelectedGE === null || newSelectedGE === void 0 ? void 0 : newSelectedGE.id) {
                     selectElement(newSelectedGE.id); // force selecting a new class
@@ -10899,8 +11519,7 @@ onElementClick((graphElement, iri) => {
                 graphElement: graphElement,
                 iri: new Iri(iri, gscape.ontology.namespaces)
             });
-            // Highlight suggestions for the actual clicked iri (might be a child node)
-            highlightSuggestions(iri);
+            performHighlights(iri);
         }
     }
     // keep focus on selected class
@@ -10946,6 +11565,13 @@ onSeeFilters(graphElement => {
             filterListDialog.filterList = filtersOnVariable;
         filterListDialog.variable = graphElement.id;
         filterListDialog.show();
+    }
+});
+onShowExamples(graphElement => {
+    const iri = getIri(graphElement);
+    if (iri) {
+        previewDialog.examplesSearchValue = undefined;
+        showQueryResultInDialog(iri);
     }
 });
 widget.onSparqlButtonClick = () => sparqlDialog.isVisible ? sparqlDialog.hide() : sparqlDialog.show();
@@ -11120,38 +11746,12 @@ onAddAggregation(headElementId => {
             aggregationDialog.distinctCheckboxElem.checked = false;
     }
 });
-qhWidget.onPreviewButtonClick = () => __awaiter(void 0, void 0, void 0, function* () {
-    var _a;
-    if ((_a = qhWidget.previewButton) === null || _a === void 0 ? void 0 : _a.disabled)
-        return; // TODO: Remove when grapholscape button will handle this
-    previewDialog.result = undefined;
-    previewDialog.show();
-    handleEndpointSelection((endpoint) => __awaiter(void 0, void 0, void 0, function* () {
-        if (!endpoint) {
-            return;
-        }
-        previewDialog.isLoading = true;
-        const queryStartResponse = yield handlePromise(globalAxios.request(getNewQueryRequestOptions(endpoint, getQueryBody().sparql)));
-        const queryPoller = new QueryPoller(endpoint, queryStartResponse.executionId, 10);
-        queryPoller.onNewResults = (result) => {
-            if (queryPoller.status !== QueryPollerStatus.RUNNING) {
-                previewDialog.isLoading = false;
-            }
-            previewDialog.result = result;
-        };
-        queryPoller.onTimeoutExpiration = queryPoller.onStop = () => {
-            previewDialog.isLoading = false;
-        };
-        queryPoller.start();
-    }));
-});
 
 startRunButtons.onSparqlingStart(() => {
     try {
         start();
     }
     catch (error) {
-        console.log('caught');
         console.log(error);
         return;
     }
@@ -11161,16 +11761,33 @@ startRunButtons.onSparqlingStop(() => {
     stop();
     core.onStop();
 });
-startRunButtons.onQueryRun(() => {
-    var _a;
-    if (core.onQueryRun)
-        core.onQueryRun((_a = getQueryBody()) === null || _a === void 0 ? void 0 : _a.sparql);
+startRunButtons.onQueryRun(() => __awaiter(void 0, void 0, void 0, function* () {
+    yield handleEndpointSelection(endpoint => {
+        var _a;
+        if (endpoint && core.onQueryRun)
+            core.onQueryRun((_a = getQueryBody()) === null || _a === void 0 ? void 0 : _a.sparql);
+        else
+            startRunButtons.togglePanel();
+    });
+}));
+startRunButtons.onQuerySave(() => {
+    if (core.onQuerySave) {
+        core.onQuerySave(getQueryBody());
+    }
+});
+startRunButtons.onShowSettings(() => {
+    if (core.onShowSettings) {
+        core.onShowSettings();
+    }
 });
 startRunButtons.onEndpointChange((newEndpointName) => {
     const newEndpoint = getEndpoints().find(e => e.name === newEndpointName);
     if (newEndpoint) {
         setSelectedEndpoint(newEndpoint);
         startRunButtons.selectedEndpointName = newEndpoint.name;
+        if (core.onEndpointSelection) {
+            core.onEndpointSelection(newEndpoint);
+        }
     }
 });
 startRunButtons.onTogglePanel = () => __awaiter(void 0, void 0, void 0, function* () {
@@ -11178,6 +11795,16 @@ startRunButtons.onTogglePanel = () => __awaiter(void 0, void 0, void 0, function
     yield updateEndpoints();
     startRunButtons.endpoints = getEndpoints();
     startRunButtons.selectedEndpointName = (_a = getSelectedEndpoint()) === null || _a === void 0 ? void 0 : _a.name;
+});
+startRunButtons.onShowResults(() => {
+    if (core.onShowResults) {
+        core.onShowResults();
+    }
+});
+startRunButtons.onToggleCatalog(() => {
+    if (core.onToggleCatalog) {
+        core.onToggleCatalog();
+    }
 });
 
 aggregationDialog.onSubmit((headElementId, aggregateOperator, distinct, havingOperator, havingParameters) => {
@@ -11244,10 +11871,12 @@ functionDialog.onSeeExamples((variable) => __awaiter(void 0, void 0, void 0, fun
     }
 }));
 
-highlightsList.onSuggestionLocalization((entityIri) => getGscape().centerOnEntity(entityIri));
+highlightsList.onSuggestionLocalization((entityIri) => {
+    if (!isFullPageActive())
+        getGscape().centerOnEntity(entityIri);
+});
 highlightsList.onSuggestionAddToQuery((entityIri, entityType, relatedClass) => {
     var _a, _b;
-    console.log(entityIri);
     switch (entityType) {
         case EntityTypeEnum.Class:
         case EntityTypeEnum.DataProperty:
@@ -11270,6 +11899,58 @@ highlightsList.onSuggestionAddToQuery((entityIri, entityType, relatedClass) => {
     }
 });
 
+classSelector.onClassSelection((classIri) => __awaiter(void 0, void 0, void 0, function* () {
+    const qgBGPApi = new QueryGraphBGPApi(undefined, getBasePath());
+    const qgExtraApi = new QueryGraphExtraApi(undefined, getBasePath());
+    const classEntity = getGscape().ontology.getEntity(classIri);
+    const tempNewQueryBody = yield handlePromise(qgBGPApi.getQueryGraph(classEntity.iri.fullIri, getRequestOptions()));
+    const newQueryBody = yield handlePromise(qgExtraApi.distinctQueryGraph(true, tempNewQueryBody, getRequestOptions()));
+    if (newQueryBody) {
+        setActiveElement({
+            graphElement: newQueryBody.graph,
+            iri: classEntity.iri
+        });
+        onNewBody(newQueryBody);
+        classSelector.hide();
+        if (newQueryBody.graph.id)
+            selectElement(newQueryBody.graph.id);
+        performHighlights(classEntity.iri.fullIri);
+    }
+}));
+
+function showInitialModeSelector() {
+    const modeSelector = new ui.GscapeFullPageSelector();
+    modeSelector.title = 'How do you want to build your query?';
+    modeSelector.options = [
+        {
+            name: 'Standard',
+            // description: 'Use the ontology graph and our suggestions to build your query',
+            icon: sparqlingIcon,
+            id: 'standard'
+        },
+        {
+            name: 'Query Path',
+            // description: 'You do not need to know the ontology graph. Start from a class and proceed using our suggestions.',
+            icon: ui.icons.enterFullscreen,
+            id: 'full-page'
+        },
+    ];
+    modeSelector.onOptionSelection = (optionId) => {
+        if (optionId === 'full-page') {
+            start().then(_ => {
+                startFullpage();
+            });
+            getGscape().renderer.stopRendering();
+        }
+        else {
+            if (isFullPageActive())
+                stopFullpage();
+            getGscape().widgets.get(ui.WidgetEnum.INITIAL_RENDERER_SELECTOR).show();
+        }
+    };
+    getGscape().container.appendChild(modeSelector);
+}
+
 /**
  * Initialise sparqling on a grapholscape instance
  * @param gscape the grapholscape instance (ontology graph)
@@ -11277,23 +11958,53 @@ highlightsList.onSuggestionAddToQuery((entityIri, entityType, relatedClass) => {
  * @returns a core object, see ./core.ts
  */
 function sparqlingStandalone(gscape, file) {
-    return getCore(gscape, file);
-}
-function sparqling(gscape, file, requestOptions) {
     const sparqlingCore = getCore(gscape, file);
-    if (sparqlingCore) {
-        const currentRequestOptions = getRequestOptions();
-        // if there's a new ontology, discard the current query and set current instance as not initialised
-        if (requestOptions.version !== currentRequestOptions.params.version || requestOptions.basePath !== getBasePath()) {
-            clearQuery();
-            sparqlingCore.stop();
-        }
-        setRequestOptions(requestOptions);
-    }
+    showInitialModeSelector();
     return sparqlingCore;
 }
+function sparqling(gscape, file, requestOptions, useOntologyGraph = true) {
+    var _a, _b;
+    return __awaiter(this, void 0, void 0, function* () {
+        if (gscape.renderState === RendererStatesEnum.INCREMENTAL) {
+            gscape.widgets.get(ui.WidgetEnum.ENTITY_SELECTOR).hide();
+        }
+        const sparqlingCore = getCore(gscape, file);
+        if (sparqlingCore) {
+            setRequestOptions(requestOptions);
+            if ((_a = getQueryBody()) === null || _a === void 0 ? void 0 : _a.graph)
+                yield clearQuery();
+            yield updateEndpoints();
+            startRunButtons.endpoints = getEndpoints();
+            startRunButtons.selectedEndpointName = (_b = getSelectedEndpoint()) === null || _b === void 0 ? void 0 : _b.name;
+            if (useOntologyGraph) {
+                if (isFullPageActive()) {
+                    stopFullpage();
+                }
+                // show grapholscape renderer selector
+                const grapholscapeRendererSelector = gscape.widgets.get(ui.WidgetEnum.INITIAL_RENDERER_SELECTOR);
+                grapholscapeRendererSelector.show();
+                const onOptionSelection = grapholscapeRendererSelector.onOptionSelection;
+                grapholscapeRendererSelector.onOptionSelection = (optionId) => {
+                    onOptionSelection(optionId); // call original callback
+                    if (core.onToggleCatalog) {
+                        core.onToggleCatalog();
+                    }
+                    grapholscapeRendererSelector.onOptionSelection = onOptionSelection; // restore original callback
+                };
+            }
+            else {
+                if (isSparqlingRunning()) {
+                    startFullpage();
+                }
+                else {
+                    start().then(_ => startFullpage());
+                }
+            }
+        }
+        return sparqlingCore;
+    });
+}
 function getCore(gscape, file) {
-    var _a;
     if (file && gscape) {
         let ontologyFile = new File([file], `${gscape.ontology.name}-from-string.graphol`);
         setOntologyFile(ontologyFile);
@@ -11304,6 +12015,7 @@ function getCore(gscape, file) {
         }
         leftColumnContainer.appendChild(qhWidget);
         leftColumnContainer.appendChild(highlightsList);
+        gscape.container.appendChild(modalBackground);
         // Add query graph and query head widgets to grapholscape instance
         const uiContainer = gscape.container.querySelector('.gscape-ui');
         if (uiContainer) {
@@ -11317,14 +12029,12 @@ function getCore(gscape, file) {
             uiContainer.appendChild(aggregationDialog);
             uiContainer.appendChild(previewDialog);
             uiContainer.appendChild(errorsDialog);
-            (_a = uiContainer === null || uiContainer === void 0 ? void 0 : uiContainer.querySelector('.gscape-ui-buttons-tray')) === null || _a === void 0 ? void 0 : _a.appendChild(startRunButtons);
+            uiContainer.appendChild(classSelector);
+            uiContainer.appendChild(loadingDialog);
+            uiContainer.appendChild(startRunButtons);
         }
         setDisplayedNameType(gscape.entityNameType, gscape.language);
         setTheme(gscape.theme);
-        if (isSparqlingRunning() && getQueryBody()) {
-            // be sure grapholscape's highlights gets updated with the actual query state
-            refreshHighlights();
-        }
         return core;
     }
     else {
