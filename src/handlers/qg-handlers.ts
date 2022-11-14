@@ -107,14 +107,16 @@ queryGraph.onJoin(async (ge1, ge2) => {
 queryGraph.onElementClick((graphElement, iri) => {
   const gscape = getGscape()
 
-  // move ontology graph to show origin graphol node or any other iri occurrence
-  const originGrapholNodeOccurrence = model.getOriginGrapholNodes().get(graphElement.id + iri)
-  if (originGrapholNodeOccurrence) {
-    gscape.centerOnElement(originGrapholNodeOccurrence.elementId, originGrapholNodeOccurrence.diagramId, 1.5)
-    gscape.selectElement(originGrapholNodeOccurrence.elementId)
-  } else {
-    gscape.selectEntity(iri)
-  }
+  if (!model.isFullPageActive()) {
+    // move ontology graph to show origin graphol node or any other iri occurrence
+    const originGrapholNodeOccurrence = model.getOriginGrapholNodes().get(graphElement.id + iri)
+    if (originGrapholNodeOccurrence) {
+      gscape.centerOnElement(originGrapholNodeOccurrence.elementId, originGrapholNodeOccurrence.diagramId, 1.5)
+      gscape.selectElement(originGrapholNodeOccurrence.elementId)
+    } else {
+      gscape.selectEntity(iri)
+    }
+  } 
 
   if (GEUtility.isClass(graphElement)) {
     // if the new graphElement is different from the current selected one the select it

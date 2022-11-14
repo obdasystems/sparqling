@@ -76,8 +76,11 @@ ontologyGraph.onRelatedClassSelection(handleObjectPropertySelection)
 export function handleObjectPropertySelection(branch: Branch, relatedClassEntityOccurrence: EntityOccurrence) {
   const gscape = getGscape()
   lastObjProperty = branch
-  gscape.centerOnElement(relatedClassEntityOccurrence.elementId, relatedClassEntityOccurrence.diagramId)
-  gscape.selectElement(relatedClassEntityOccurrence.elementId)
+
+  if (!model.isFullPageActive()) {
+    gscape.centerOnElement(relatedClassEntityOccurrence.elementId, relatedClassEntityOccurrence.diagramId)
+    gscape.selectElement(relatedClassEntityOccurrence.elementId)
+  }
   
   const relatedClassCyElement = gscape.ontology
     .getDiagram(relatedClassEntityOccurrence.diagramId)
