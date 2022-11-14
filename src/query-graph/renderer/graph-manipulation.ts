@@ -215,9 +215,11 @@ function getDisplayedName(data: Entity) {
   let labels = data.labels
   const displayedNameType = getDisplayedNameType()
 
-  if (displayedNameType === EntityNameType.LABEL && labels)
+  if (displayedNameType === EntityNameType.LABEL && labels &&  Object.keys(labels).length > 0)
     // use first language found if the actual one is not available
     return labels[getLanguage()] || labels[Object.keys(labels)[0]]
+  else if (displayedNameType === EntityNameType.FULL_IRI)
+    return data.iri
   else
-    return data[displayedNameType] || data.iri
+    return data[EntityNameType.PREFIXED_IRI] || data.iri
 }
