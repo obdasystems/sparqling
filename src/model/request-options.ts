@@ -1,6 +1,7 @@
 export type SparqlingRequestOptions = {
   basePath?: string,
   version?: string,
+  name?: string,
   headers?: any,
 }
 
@@ -8,6 +9,7 @@ let _requestOptions: SparqlingRequestOptions = {
   basePath: undefined,
   version: undefined,
   headers: undefined,
+  name: undefined,
 }
 
 export function setRequestOptions(requestOptions: SparqlingRequestOptions) {
@@ -16,6 +18,7 @@ export function setRequestOptions(requestOptions: SparqlingRequestOptions) {
 
 export function getBasePath() { return _requestOptions.basePath }
 export function getVersion() { return _requestOptions.version }
+export function getName() {  return _requestOptions.name }
 export function getHeaders() { return _requestOptions.headers }
 
 export function getRequestOptions() {
