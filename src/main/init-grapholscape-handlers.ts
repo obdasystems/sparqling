@@ -42,7 +42,7 @@ function onChangeDiagramOrRenderer(gscape: Grapholscape) {
     ontologyGraph.addStylesheet(gscape.renderer.cy, sparqlingStyle(gscape.theme))
   }
 
-  if (gscape.renderState !== RendererStatesEnum.INCREMENTAL)
+  if (gscape.renderState !== RendererStatesEnum.INCREMENTAL && model.isSparqlingRunning())
     refreshHighlights()
 }
 
