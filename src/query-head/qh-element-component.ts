@@ -217,10 +217,15 @@ export default class HeadElementComponent extends ui.BaseMixin(ui.DropPanelMixin
                 <div class="filters-function-list">
                   ${getElemWithOperatorList([this.groupBy])}
                 </div>
-                <span class="title">Having</span>
-                <div class="filters-function-list">
-                  ${getElemWithOperatorList(this.having)}
-                </div>
+                ${this.having 
+                  ? html`
+                    <span class="title">Having</span>
+                    <div class="filters-function-list">
+                      ${getElemWithOperatorList(this.having)}
+                    </div>
+                  `
+                  : null
+                }
               </div>
             `
             : null
