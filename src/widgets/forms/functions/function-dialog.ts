@@ -37,7 +37,12 @@ export default class FunctionDialog extends SparqlingFormDialog {
           
           <div class="bottom-buttons">
             <gscape-button label="Cancel" @click=${this.hide}></gscape-button>
-            <gscape-button type="primary" @click=${this.handleSubmit} label="Save Function"></gscape-button>
+            ${this.canSave
+              ? html`
+                <gscape-button type="primary" @click=${this.handleSubmit} label="Save Function"></gscape-button>
+              `
+              : null
+            }
           </div>
         </div>
       </div>
@@ -50,7 +55,7 @@ export default class FunctionDialog extends SparqlingFormDialog {
 
   setAsCorrect(customText?: string): void {
     super.setAsCorrect(customText)
-    this.shadowRoot?.querySelector('gscape-button[type = "primary"]')?.remove()
+    this.canSave = false
   }
 
   setDefaultOperator() {

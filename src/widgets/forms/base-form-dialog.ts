@@ -30,6 +30,7 @@ export default class SparqlingFormDialog extends ModalMixin(ui.BaseMixin(LitElem
   protected deleteCallback = (filterId: any) => { }
   protected submitCallback: any
   public formTitle?: string
+  public canSave?: boolean
 
   // Examples
   public acceptExamples = false
@@ -46,7 +47,8 @@ export default class SparqlingFormDialog extends ModalMixin(ui.BaseMixin(LitElem
     aggregateOperator: { attribute: false },
     examples: { attribute: false },
     loadingExamples: { attribute: false, type: Boolean },
-    acceptExamples: { attribute: false, type: Boolean }
+    acceptExamples: { attribute: false, type: Boolean },
+    canSave: { type: Boolean },
   }
 
   static styles = [

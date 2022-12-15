@@ -58,6 +58,7 @@ export default function (element: HeadElement | GraphElement, formDialog: Sparql
   formDialog.acceptExamples = !isStandalone() && (GEUtility.isClass(graphElement) || GEUtility.isDataProperty(graphElement))
   formDialog.examplesSearchValue = undefined
   formDialog.loadingExamples = false
+  formDialog.canSave = true
   formDialog.show()
 }
 
