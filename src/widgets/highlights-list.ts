@@ -9,6 +9,7 @@ export default class HighlightsList extends ui.DropPanelMixin(ui.BaseMixin(LitEl
   class: string
   private _allHighlights?: Highlights
   private highlights?: Highlights
+  private entityFilters?: ui.IEntityFilters
   title = 'Suggestions'
 
   private _onSuggestionLocalization = (element: string) => { }
@@ -99,7 +100,7 @@ export default class HighlightsList extends ui.DropPanelMixin(ui.BaseMixin(LitEl
     // Should not be necessary the '| Event' and casting to SearchEvent custom Event
     this.addEventListener('onsearch', (evt: ui.SearchEvent| Event) => {
       const searchedText = (evt as ui.SearchEvent).detail.searchText
-      if (this.allHighlights && this.highlights && searchedText.length > 2) {
+      if (this.highlights && searchedText.length > 2) {
         const isAmatch = (value1: string, value2: string) => value1.toLowerCase().includes(value2.toLowerCase())
 
         this.highlights.classes = this.highlights.classes?.filter(classIri => 
@@ -118,9 +119,10 @@ export default class HighlightsList extends ui.DropPanelMixin(ui.BaseMixin(LitEl
       }
     })
 
-    this.addEventListener('onentityfilterchange', (e: ui.EntityFilterEvent | Event) => 
-      this.setHighlights((e as ui.EntityFilterEvent).detail)
-    )
+    this.addEventListener('onentityfilterchange', (e: ui.EntityFilterEvent | Event) => {
+      this.entityFilters = (e as ui.EntityFilterEvent).detail
+      this.setHighlights()
+    })
   }
 
   render() {
@@ -304,27 +306,25 @@ export default class HighlightsList extends ui.DropPanelMixin(ui.BaseMixin(LitEl
     return this._allHighlights
   }
 
-  private setHighlights(entityFilter?: ui.IEntityFilters) {
+  private setHighlights() {
     if (this.allHighlights)
       this.highlights = JSON.parse(JSON.stringify(this.allHighlights))
     else 
       this.highlights = this.allHighlights
 
-    entityFilter = entityFilter || this.searchEntityComponent
-
-    if (this.highlights && entityFilter && !entityFilter.areAllFiltersDisabled) {
+    if (this.highlights && this.entityFilters && !this.entityFilters.areAllFiltersDisabled) {
       let count = 0
-      if (entityFilter[GrapholTypesEnum.CLASS] !== 1) {
+      if (!this.entityFilters[GrapholTypesEnum.CLASS]) {
         this.highlights.classes = []
         count += 1
       }
 
-      if (entityFilter[GrapholTypesEnum.OBJECT_PROPERTY] !== 1) {
+      if (!this.entityFilters[GrapholTypesEnum.OBJECT_PROPERTY]) {
         this.highlights.objectProperties = []
         count += 1
       }
 
-      if (entityFilter[GrapholTypesEnum.DATA_PROPERTY] !== 1) {
+      if (!this.entityFilters[GrapholTypesEnum.DATA_PROPERTY]) {
         this.highlights.dataProperties = []
         count += 1
       }
