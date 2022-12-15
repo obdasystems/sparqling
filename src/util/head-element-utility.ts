@@ -12,7 +12,7 @@ export function getHeadElementWithDatatype(headElement: HeadElement) {
         const grapholEntity = getGscape().ontology.getEntity(relatedGraphElemIri)
         headElementCopy['entityType'] = GEUtility.getEntityType(relatedGraphElem)
         headElementCopy['dataType'] = headElementCopy['entityType'] === EntityTypeEnum.DataProperty
-          ? grapholEntity.datatype
+          ? grapholEntity?.datatype
           : null
         return headElementCopy
       }

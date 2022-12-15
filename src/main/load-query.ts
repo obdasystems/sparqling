@@ -32,13 +32,16 @@ export default async function (queryBody: QueryGraph) {
 
   const activeElementIri = getIri(queryBody.graph)
   if (activeElementIri) {
-    model.setActiveElement({
-      graphElement: queryBody.graph,
-      iri: grapholscape.ontology.getEntity(activeElementIri).iri
-    })
+    const iri = grapholscape.ontology.getEntity(activeElementIri)?.iri
+    if (iri) {
+      model.setActiveElement({
+        graphElement: queryBody.graph,
+        iri: iri
+      })
 
-    queryGraph.selectElement(activeElementIri)
-    performHighlights(activeElementIri)
+      queryGraph.selectElement(activeElementIri)
+      performHighlights(activeElementIri)
+    }
   }
 
   countStarToggle.checked = model.isCountStarActive()

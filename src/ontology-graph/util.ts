@@ -11,16 +11,19 @@ export function getEntityOccurrence(entityIri: string): EntityOccurrence | undef
   const gscape = getGscape()
   // Prefer instance in actual diagram, first one as fallback
   const selectedClassEntity = gscape.ontology.getEntity(entityIri)
-  let selectedClassOccurrences = selectedClassEntity.occurrences.get(gscape.renderState)
 
-  // If the actual representation has no occurrences, then take the original ones
-  if (!selectedClassOccurrences) {
-    selectedClassOccurrences = selectedClassEntity.occurrences.get(RendererStatesEnum.GRAPHOL)
-  }
+  if (selectedClassEntity && gscape.renderState) {
+    let selectedClassOccurrences = selectedClassEntity.occurrences.get(gscape.renderState)
 
-  if (selectedClassOccurrences) {
-    return selectedClassOccurrences?.find(occurrence => occurrence.diagramId === gscape.diagramId) ||
-      selectedClassOccurrences[0]
+    // If the actual representation has no occurrences, then take the original ones
+    if (!selectedClassOccurrences) {
+      selectedClassOccurrences = selectedClassEntity.occurrences.get(RendererStatesEnum.GRAPHOL)
+    }
+
+    if (selectedClassOccurrences) {
+      return selectedClassOccurrences?.find(occurrence => occurrence.diagramId === gscape.diagramId) ||
+        selectedClassOccurrences[0]
+    }
   }
 }
 

@@ -2,15 +2,18 @@ import { QueryGraphBGPApi, QueryGraphExtraApi } from "../api/swagger";
 import { performHighlights } from "../main";
 import { handlePromise } from "../main/handle-promises";
 import onNewBody from "../main/on-new-body";
-import { computeHighlights, getBasePath, getRequestOptions, setActiveElement, transformHighlightsToPrefixedIRIs } from "../model";
+import { getBasePath, getRequestOptions, setActiveElement } from "../model";
 import { getGscape } from "../ontology-graph";
 import { selectElement } from "../query-graph";
-import { classSelector, highlightsList } from "../widgets";
+import { classSelector } from "../widgets";
 
 classSelector.onClassSelection(async (classIri: string) => {
   const qgBGPApi = new QueryGraphBGPApi(undefined, getBasePath())
   const qgExtraApi = new QueryGraphExtraApi(undefined, getBasePath())
   const classEntity = getGscape().ontology.getEntity(classIri)
+  
+  if (!classEntity) return
+
   const tempNewQueryBody = await handlePromise(qgBGPApi.getQueryGraph(classEntity.iri.fullIri, getRequestOptions()))
   const newQueryBody = await handlePromise(qgExtraApi.distinctQueryGraph(true, tempNewQueryBody, getRequestOptions()))
 

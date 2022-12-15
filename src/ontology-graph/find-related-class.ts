@@ -14,6 +14,7 @@ export function showRelatedClassesWidget(objPropertyIri: string, position: Event
   const gscape = getGscape()
 
   const objPropertyEntity = gscape.ontology.getEntity(objPropertyIri)
+  if (!objPropertyEntity) return
 
   let objPropertyFromApi = actualHighlights.objectProperties?.find((o: Branch) => {
     if (o?.objectPropertyIRI)

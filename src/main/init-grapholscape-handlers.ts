@@ -60,7 +60,7 @@ function setHandlers(cy: Core) {
   })
 
   cy.on('dblclick', `[iri]`, e => {
-    if (model.isSparqlingRunning())
-      OntologyGraphHandlers.handleEntitySelection(e.target.data().iri, e.target.data().type, { elementId: e.target.id(), diagramId: getGscape().diagramId })
+    if (model.isSparqlingRunning() && getGscape().diagramId !== undefined)
+      OntologyGraphHandlers.handleEntitySelection(e.target.data().iri, e.target.data().type, { elementId: e.target.id(), diagramId: getGscape().diagramId! })
   })
 }

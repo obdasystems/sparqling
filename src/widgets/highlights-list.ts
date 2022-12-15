@@ -5,13 +5,11 @@ import { lightbulb, placeItem } from './assets/icons'
 import sparqlingWidgetStyle from './sparqling-widget-style'
 import getTrayButtonTemplate from './tray-button-template'
 
-export default class HighlightsList extends ui.BaseMixin(ui.DropPanelMixin(LitElement)) {
+export default class HighlightsList extends ui.DropPanelMixin(ui.BaseMixin(LitElement)) {
   class: string
   private _allHighlights?: Highlights
   private highlights?: Highlights
   title = 'Suggestions'
-
-  searchEntityComponent = new ui.GscapeEntitySearch()
 
   private _onSuggestionLocalization = (element: string) => { }
   private _onSuggestionAddToQuery = (entityIri: string, entityType: EntityTypeEnum, relatedClassIri?: string) => { }
@@ -98,34 +96,31 @@ export default class HighlightsList extends ui.BaseMixin(ui.DropPanelMixin(LitEl
   constructor() {
     super()
 
-    this.searchEntityComponent.onSearch(e => {
-      const inputElement = e.target as HTMLInputElement
-      if (e.key === 'Escape') {
-        inputElement.value = ''
-        inputElement.blur()
-        this.setHighlights()
-      } else {
-        if (this.allHighlights && this.highlights && inputElement.value?.length > 2) {
-          const isAmatch = (value1: string, value2: string) => value1.toLowerCase().includes(value2.toLowerCase())
+    // Should not be necessary the '| Event' and casting to SearchEvent custom Event
+    this.addEventListener('onsearch', (evt: ui.SearchEvent| Event) => {
+      const searchedText = (evt as ui.SearchEvent).detail.searchText
+      if (this.allHighlights && this.highlights && searchedText.length > 2) {
+        const isAmatch = (value1: string, value2: string) => value1.toLowerCase().includes(value2.toLowerCase())
 
-          this.highlights.classes = this.highlights.classes?.filter(classIri => 
-            isAmatch(classIri, inputElement.value)
-          )
-          this.highlights.dataProperties = this.highlights.dataProperties?.filter(dataPropertyIri => 
-            isAmatch(dataPropertyIri, inputElement.value)
-          )
-          this.highlights.objectProperties = this.highlights.objectProperties?.filter(branch => 
-            branch.objectPropertyIRI ? isAmatch(branch.objectPropertyIRI, inputElement.value) : false 
-          )
-          
-          this.requestUpdate()
-        } else {
-          this.setHighlights()
-        }
+        this.highlights.classes = this.highlights.classes?.filter(classIri => 
+          isAmatch(classIri, searchedText)
+        )
+        this.highlights.dataProperties = this.highlights.dataProperties?.filter(dataPropertyIri => 
+          isAmatch(dataPropertyIri, searchedText)
+        )
+        this.highlights.objectProperties = this.highlights.objectProperties?.filter(branch => 
+          branch.objectPropertyIRI ? isAmatch(branch.objectPropertyIRI, searchedText) : false 
+        )
+        
+        this.requestUpdate()
+      } else {
+        this.setHighlights()
       }
     })
 
-    this.searchEntityComponent.onEntityFilterToggle(() => this.setHighlights())
+    this.addEventListener('onentityfilterchange', (e: ui.EntityFilterEvent | Event) => 
+      this.setHighlights((e as ui.EntityFilterEvent).detail)
+    )
   }
 
   render() {
@@ -161,7 +156,7 @@ export default class HighlightsList extends ui.BaseMixin(ui.DropPanelMixin(LitEl
               </gscape-button>
             </div>
             <div class="content-wrapper">
-              ${this.searchEntityComponent}
+              <gscape-entity-search></gscape-entity-search>
               <div class="list">
                 ${this.highlights
                   ? html`
@@ -309,26 +304,27 @@ export default class HighlightsList extends ui.BaseMixin(ui.DropPanelMixin(LitEl
     return this._allHighlights
   }
 
-  private setHighlights() {
+  private setHighlights(entityFilter?: ui.IEntityFilters) {
     if (this.allHighlights)
       this.highlights = JSON.parse(JSON.stringify(this.allHighlights))
     else 
       this.highlights = this.allHighlights
 
+    entityFilter = entityFilter || this.searchEntityComponent
 
-    if (this.highlights && !this.searchEntityComponent.areAllFiltersDisabled) {
+    if (this.highlights && entityFilter && !entityFilter.areAllFiltersDisabled) {
       let count = 0
-      if (this.searchEntityComponent[GrapholTypesEnum.CLASS] !== true) {
+      if (entityFilter[GrapholTypesEnum.CLASS] !== 1) {
         this.highlights.classes = []
         count += 1
       }
 
-      if (this.searchEntityComponent[GrapholTypesEnum.OBJECT_PROPERTY] !== true) {
+      if (entityFilter[GrapholTypesEnum.OBJECT_PROPERTY] !== 1) {
         this.highlights.objectProperties = []
         count += 1
       }
 
-      if (this.searchEntityComponent[GrapholTypesEnum.DATA_PROPERTY] !== true) {
+      if (entityFilter[GrapholTypesEnum.DATA_PROPERTY] !== 1) {
         this.highlights.dataProperties = []
         count += 1
       }
@@ -338,6 +334,10 @@ export default class HighlightsList extends ui.BaseMixin(ui.DropPanelMixin(LitEl
         this.highlights = undefined
       }
     }
+  }
+
+  private get searchEntityComponent() {
+    return this.shadowRoot?.querySelector('gscape-entity-search') as ui.GscapeEntitySearch | undefined
   }
 
   blur() {

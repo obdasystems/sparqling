@@ -73,6 +73,10 @@ export default class HeadElementComponent extends ui.BaseMixin(ui.DropPanelMixin
         flex-grow: 2;
       }
 
+      #alias-input > input {
+        width: 100%;
+      }
+
       #field-head{
         display: flex;
         align-items: center;

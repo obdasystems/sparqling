@@ -82,10 +82,11 @@ export function handleObjectPropertySelection(branch: Branch, relatedClassEntity
     gscape.selectElement(relatedClassEntityOccurrence.elementId)
   }
   
-  const relatedClassCyElement = gscape.ontology
-    .getDiagram(relatedClassEntityOccurrence.diagramId)
-    ?.representations.get(gscape.renderState)
-    ?.cy.$id(relatedClassEntityOccurrence.elementId)
+  const relatedClassCyElement = gscape.renderState 
+    ? gscape.ontology.getDiagram(relatedClassEntityOccurrence.diagramId)
+      ?.representations.get(gscape.renderState)
+      ?.cy.$id(relatedClassEntityOccurrence.elementId)
+    : null
   
   if (relatedClassCyElement)
     handleEntitySelection(relatedClassCyElement.data().iri, relatedClassCyElement.data().type, relatedClassEntityOccurrence)

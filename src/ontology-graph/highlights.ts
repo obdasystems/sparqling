@@ -6,6 +6,8 @@ import getGscape from "./get-gscape"
 export function highlightIRI(iri: string) {
   const gscape = getGscape()
 
+  if (!gscape.renderState) return
+
   let iriOccurrences = gscape.ontology.getEntityOccurrences(iri)?.get(RendererStatesEnum.GRAPHOL)
   if (iriOccurrences) {
     addHighlightedClassToEntityOccurrences(iriOccurrences) 
@@ -38,8 +40,9 @@ export function refreshHighlights() {
 }
 
 export function performHighlights(clickedIRI: string) {
-  resetHighlights()
   const gscape = getGscape()
+  if (!gscape.renderState) return
+  resetHighlights()
   const highlights = model.getActualHighlights()
   highlights?.classes?.forEach((iri: string) => highlightIRI(iri))
   highlights?.dataProperties?.forEach((iri: string) => highlightIRI(iri))
