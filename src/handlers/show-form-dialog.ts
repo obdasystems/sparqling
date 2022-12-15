@@ -1,9 +1,11 @@
-import { GraphElement, HeadElement, VarOrConstantConstantTypeEnum, VarOrConstantTypeEnum } from "../api/swagger"
+import { FilterExpressionOperatorEnum, GraphElement, HeadElement, VarOrConstantConstantTypeEnum, VarOrConstantTypeEnum } from "../api/swagger"
 import { isStandalone } from "../model"
 import { getGscape } from "../ontology-graph"
 import * as GEUtility from "../util/graph-element-utility"
+import AggregationDialog from "../widgets/forms/aggregation-functions/aggregation-functions-dialog"
 import SparqlingFormDialog, { Modality } from "../widgets/forms/base-form-dialog"
 import FilterDialog from "../widgets/forms/filters/filter-dialog"
+import FunctionDialog from "../widgets/forms/functions/function-dialog"
 
 
 export default function (element: HeadElement | GraphElement, formDialog: SparqlingFormDialog) {
@@ -35,12 +37,21 @@ export default function (element: HeadElement | GraphElement, formDialog: Sparql
     formDialog._id = element.id
   }
 
-  formDialog.operator = undefined
   formDialog.parameters = [{
     type: VarOrConstantTypeEnum.Var,
     constantType: getGscape().ontology.getEntity(graphElementIri)?.datatype as VarOrConstantConstantTypeEnum,
     value: graphElement.id
   }]
+
+  formDialog.addInputValue() // default with one input
+
+  if (formDialog instanceof FunctionDialog) {
+    (formDialog as FunctionDialog).setDefaultOperator()
+  }
+
+  if (formDialog instanceof FilterDialog || formDialog instanceof AggregationDialog) {
+    formDialog.operator = FilterExpressionOperatorEnum.Equal
+  }
 
   formDialog.variableName = variableName || graphElement.id
   formDialog.examples = undefined

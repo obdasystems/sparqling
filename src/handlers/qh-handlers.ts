@@ -1,4 +1,4 @@
-import { QueryGraphHeadApiFactory } from '../api/swagger'
+import { GroupByElementAggregateFunctionEnum, QueryGraphHeadApiFactory } from '../api/swagger'
 import { handlePromise } from '../main/handle-promises'
 import onNewBody from '../main/on-new-body'
 import * as model from '../model'
@@ -109,7 +109,7 @@ queryHead.onAddAggregation(headElementId => {
   const headElement = model.getHeadElementByID(headElementId)
   if (headElement) {
     showFormDialog(headElement, aggregationDialog)
-    aggregationDialog.aggregateOperator = undefined
+    aggregationDialog.aggregateOperator = GroupByElementAggregateFunctionEnum.Count
     aggregationDialog.definingHaving = false
     aggregationDialog.distinct = false
     if (aggregationDialog.distinctCheckboxElem)

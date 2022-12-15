@@ -1,15 +1,14 @@
 import { ui } from "grapholscape"
 import { html } from 'lit'
 import { FilterExpressionOperatorEnum, VarOrConstantConstantTypeEnum, VarOrConstantTypeEnum } from "../../api/swagger"
-import { isStandalone } from "../../model"
 import { getLoadingSpinner } from "../loading-spinner"
 import { queryResultTemplate } from "../query-result-template"
 import SparqlingFormDialog from "./base-form-dialog"
 
 export function getFormTemplate(formComponent: SparqlingFormDialog, operators: string[]) {
 
-  const op: string = formComponent.operator || "Operator"
-  const dt: string = formComponent.datatype || "Datatype"
+  const op: string = formComponent.operator || operators[0]
+  const dt: string = formComponent.datatype || operators[0]
   // const addInputButton = new UI.GscapeButton(UI.icons.plus, "Add input value")
   // addInputButton.id = "add-input-btn"
 
@@ -83,21 +82,21 @@ export function getFormTemplate(formComponent: SparqlingFormDialog, operators: s
   `
 }
 
-function getInput(index: number, datatype?: VarOrConstantConstantTypeEnum, value?: string, titleText = '') {
+function getInput(index: number, datatype?: VarOrConstantConstantTypeEnum, value: string = '', titleText = '') {
   if (datatype === VarOrConstantConstantTypeEnum.DateTime) {
     value = value?.split('T')[0] || 'value' // Take only date from ISO format 2022-01-01T00:00:....
   }
   let placeholder = value || 'value'
 
-  return html`
-    <input
-      type="${getInputType(datatype)}"
-      placeholder="${placeholder}"
-      value="${value}"
-      title="${titleText}"
-      index="${index + 1}"
-      required
-    />`
+  const input = document.createElement('input')
+  input.type = getInputType(datatype)
+  input.placeholder = placeholder
+  input.title = titleText
+  input.setAttribute('index', (index + 1).toString())
+  input.required = true
+  input.value = value
+
+  return html`${input}`
 }
 
 export function getSelect(defaultOpt: string, options: string[], disabled = false) {

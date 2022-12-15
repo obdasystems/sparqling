@@ -53,6 +53,10 @@ export default class FunctionDialog extends SparqlingFormDialog {
     this.shadowRoot?.querySelector('gscape-button[type = "primary"]')?.remove()
   }
 
+  setDefaultOperator() {
+    this.operator = this.operators[0]
+  }
+
   protected get operators() {
     switch(this.datatype) {
       case VarOrConstantConstantTypeEnum.String:

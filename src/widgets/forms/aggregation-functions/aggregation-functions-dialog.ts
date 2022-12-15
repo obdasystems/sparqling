@@ -90,7 +90,7 @@ export default class AggregationDialog extends SparqlingFormDialog {
 
   protected onValidSubmit(): void {
     if (this._id && this.aggregateOperator && this.parameters)
-      this.submitCallback(this._id, this.aggregateOperator, this.distinct, this.operator as FilterExpressionOperatorEnum, this.parameters)
+      this.submitCallback(this._id, this.aggregateOperator, this.distinct, undefined, this.parameters)
   }
 
   onSubmit(callback: { (headElementId: FormID, aggregateOperator: GroupByElementAggregateFunctionEnum, distinct: boolean, havingOperator: FilterExpressionOperatorEnum, havingParameters: VarOrConstant[]): void }) {
