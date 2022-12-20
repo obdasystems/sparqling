@@ -33,3 +33,9 @@ export { default as countStarToggle } from './count-star-toggle'
 
 // export * from './cxt-menu'
 export const cxtMenu = new ui.ContextMenu()
+
+export const exitFullscreenButton = new ui.GscapeButton()
+exitFullscreenButton.innerHTML = `<span slot="icon">${ui.icons.exitFullscreen.strings.join('')}</span>`
+exitFullscreenButton.style.position = 'absolute'
+exitFullscreenButton.style.top = '10px'
+exitFullscreenButton.style.right = '10px'

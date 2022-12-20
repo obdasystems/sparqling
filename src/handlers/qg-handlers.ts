@@ -1,4 +1,4 @@
-import { Iri } from 'grapholscape'
+import { Iri, ui } from 'grapholscape'
 import { QueryGraph, QueryGraphBGPApiFactory, QueryGraphHeadApiFactory, QueryGraphOptionalApiFactory } from '../api/swagger'
 import { clearQuery, performHighlights, showQueryResultInDialog } from '../main'
 import { handlePromise } from '../main/handle-promises'
@@ -6,10 +6,12 @@ import onNewBody from '../main/on-new-body'
 import * as model from '../model'
 import getGscape from '../ontology-graph/get-gscape'
 import * as queryGraph from '../query-graph'
+import { cy } from '../query-graph/renderer'
 import * as queryHead from '../query-head'
 import HeadElementComponent from '../query-head/qh-element-component'
+import { bgpContainer } from '../util/get-container'
 import * as GEUtility from '../util/graph-element-utility'
-import { filterDialog, filterListDialog, previewDialog, sparqlDialog } from '../widgets'
+import { exitFullscreenButton, filterDialog, filterListDialog, previewDialog, sparqlDialog } from '../widgets'
 import showFormDialog from './show-form-dialog'
 
 queryGraph.onAddHead(async graphElement => {
@@ -192,3 +194,15 @@ queryGraph.onShowExamples(graphElement => {
 queryGraph.widget.onSparqlButtonClick = () => sparqlDialog.isVisible ? sparqlDialog.hide() : sparqlDialog.show()
 
 queryGraph.widget.onQueryClear = () => { clearQuery() }
+
+queryGraph.widget.onFullScreenEnter = () => {
+  bgpContainer.requestFullscreen()
+  bgpContainer.appendChild(exitFullscreenButton)
+  cy.fit()
+
+  exitFullscreenButton.onclick = () => { // exit fullscreen
+    document.exitFullscreen()
+    exitFullscreenButton.remove()
+    cy.fit()
+  }
+}

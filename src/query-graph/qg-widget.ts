@@ -1,6 +1,6 @@
 import { ColoursNames, toPNG, toSVG, ui } from 'grapholscape'
 import { css, html, LitElement, PropertyValueMap } from 'lit'
-import { getName } from '../model'
+import { getName, isFullPageActive } from '../model'
 import { getGscape } from '../ontology-graph'
 import { countStarToggle, cxtMenu } from '../widgets'
 import { code, dbClick, kebab, rdfLogo, refresh } from '../widgets/assets/icons'
@@ -22,6 +22,7 @@ export default class QueryGraphWidget extends ui.BaseMixin(ui.DropPanelMixin(Lit
   
   onQueryClear = () => { }
   onSparqlButtonClick = () => { }
+  onFullScreenEnter = () => { }
 
   title = 'Query Graph'
 
@@ -109,6 +110,7 @@ export default class QueryGraphWidget extends ui.BaseMixin(ui.DropPanelMixin(Lit
                 ${countStarToggle}
                 ${getTrayButtonTemplate('Clear Query', refresh, undefined, 'clear-query-btn', this.onQueryClear)}
                 ${getTrayButtonTemplate('View SPARQL Code', code, undefined, 'sparql-code-btn', this.onSparqlButtonClick)}
+                ${!isFullPageActive() ? getTrayButtonTemplate('Fullscreen', ui.icons.enterFullscreen, undefined, 'fullscreen-btn', this.onFullScreenEnter) : null}
                 ${getTrayButtonTemplate('More actions', kebab, undefined, 'cxt-menu-action', this.showCxtMenu)}
               </div>
 
