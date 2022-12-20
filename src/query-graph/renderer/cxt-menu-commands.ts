@@ -40,7 +40,7 @@ export function getCommandsForElement(elem: SingularElementReturnValue) {
 
       commands.push(addFilter)
 
-      if (!isStandalone() && elem.data().type === EntityTypeEnum.Class || elem.data().type === EntityTypeEnum.DataProperty) {
+      if (!isStandalone() && (elem.data().type === EntityTypeEnum.Class || elem.data().type === EntityTypeEnum.DataProperty)) {
         commands.push(showExamples)
       }
 
