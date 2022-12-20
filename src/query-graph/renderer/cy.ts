@@ -1,17 +1,20 @@
-import cytoscape from "cytoscape"
+import cytoscape, { NodeSingular } from "cytoscape"
 import cola from 'cytoscape-cola'
 import compoundDragAndDrop from 'cytoscape-compound-drag-and-drop'
 import klay from 'cytoscape-klay'
 import popper from 'cytoscape-popper'
+import automove from 'cytoscape-automove'
 import { EntityNameType } from "grapholscape"
 import { bgpContainer, tippyContainer } from "../../util/get-container"
 import { attachCxtMenuTo } from "../../widgets"
 import { getCommandsForElement } from "./cxt-menu-commands"
+import { EntityTypeEnum } from "../../api/swagger"
 
 cytoscape.use(klay)
 cytoscape.use(compoundDragAndDrop)
 cytoscape.use(popper)
 cytoscape.use(cola)
+cytoscape.use(automove)
 
 export const cy = cytoscape({
   wheelSensitivity: 0.4,
@@ -53,6 +56,12 @@ cy.on('mouseout', () => {
 
 cy.on('cxttap', `[iri][!isSuggestion]`, e => {
   attachCxtMenuTo(e.target.popperRef(), getCommandsForElement(e.target))
+});
+
+(cy as any).automove({
+  nodesMatching: (node: NodeSingular) => cy.$(':grabbed').neighborhood(`[type = "${EntityTypeEnum.DataProperty}"]`).has(node),
+  reposition: 'drag',
+  dragWith: `[type ="${EntityTypeEnum.Class}"]`
 })
 
 let displayedNameType: EntityNameType
