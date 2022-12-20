@@ -75,6 +75,10 @@ export default class QueryGraphWidget extends ui.BaseMixin(ui.DropPanelMixin(Lit
         position: initial;
         border-radius: var(--gscape-border-radius);
       }
+
+      .gscape-panel {
+        max-height: unset;
+      }
     `
   ]
 

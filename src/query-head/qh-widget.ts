@@ -66,6 +66,10 @@ export default class QueryHeadWidget extends ui.BaseMixin(ui.DropPanelMixin(LitE
       .top-bar.traslated-down {
         bottom: 10px;
       }
+
+      .gscape-panel {
+        max-height: unset;
+      }
     `
   ]
 
