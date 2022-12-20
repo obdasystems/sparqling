@@ -196,13 +196,11 @@ queryGraph.widget.onSparqlButtonClick = () => sparqlDialog.isVisible ? sparqlDia
 queryGraph.widget.onQueryClear = () => { clearQuery() }
 
 queryGraph.widget.onFullScreenEnter = () => {
-  bgpContainer.requestFullscreen()
+  bgpContainer.requestFullscreen().then(() => setTimeout(() => cy.fit(), 200))
   bgpContainer.appendChild(exitFullscreenButton)
-  cy.fit()
 
   exitFullscreenButton.onclick = () => { // exit fullscreen
-    document.exitFullscreen()
+    document.exitFullscreen().then(() => setTimeout(() => cy.fit(), 200))
     exitFullscreenButton.remove()
-    cy.fit()
   }
 }
