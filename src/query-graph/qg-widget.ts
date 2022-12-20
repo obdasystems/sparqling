@@ -1,7 +1,7 @@
 import { ui } from 'grapholscape'
-import { css, html, LitElement, PropertyValueMap, svg } from 'lit'
-import { countStarToggle } from '../widgets'
-import { code, dbClick, rdfLogo, refresh } from '../widgets/assets/icons'
+import { css, html, LitElement, PropertyValueMap, TemplateResult } from 'lit'
+import { countStarToggle, cxtMenu } from '../widgets'
+import { code, dbClick, kebab, rdfLogo, refresh } from '../widgets/assets/icons'
 import { emptyGraphMsg, emptyGraphTipMsg, tipWhatIsQueryGraph } from '../widgets/assets/texts'
 import distinctToggle from '../widgets/distinct-toggle'
 import limitInput from '../widgets/limit'
@@ -104,13 +104,14 @@ export default class QueryGraphWidget extends ui.BaseMixin(ui.DropPanelMixin(Lit
 
               <div id="buttons-tray">
 
-                ${limitInput}
-                ${offsetInput}
+                <!-- ${limitInput}
+                ${offsetInput} -->
                 ${distinctToggle}
                 ${countStarToggle}
 
-                ${getTrayButtonTemplate('Sparql', code, undefined, 'sparql-code-btn', this.onSparqlButtonClick)}
+                <!-- ${getTrayButtonTemplate('Sparql', code, undefined, 'sparql-code-btn', this.onSparqlButtonClick)} -->
                 ${getTrayButtonTemplate('Clear Query', refresh, undefined, 'clear-query-btn', this.onQueryClear)}
+                ${getTrayButtonTemplate('More actions', kebab, undefined, 'cxt-menu-action', this.showCxtMenu)}
               </div>
 
               <gscape-button 
@@ -212,6 +213,17 @@ export default class QueryGraphWidget extends ui.BaseMixin(ui.DropPanelMixin(Lit
     }
   }
 
+  private showCxtMenu() {
+    if (this.moreActionsButton) {
+      cxtMenu.showFirst = 'commands'
+      cxtMenu.attachTo(this.moreActionsButton, this.cxtMenuCommands, this.cxtMenuElements)
+    }
+  }
+
+  private get moreActionsButton() {
+    return this.shadowRoot?.querySelector('#cxt-menu-action') as ui.GscapeButton
+  }
+
   get isBGPEmpty() {
     return this._isBGPEmpty
   }
@@ -220,7 +232,20 @@ export default class QueryGraphWidget extends ui.BaseMixin(ui.DropPanelMixin(Lit
     return this.shadowRoot?.querySelector('#clear-query-btn') as ui.GscapeButton
   }
 
-  //createRenderRoot() { return this as any }
+  private cxtMenuCommands: ui.Command[] = [
+    {
+      content: 'View SPARQL Code',
+      icon: code,
+      select: () => this.onSparqlButtonClick()
+    },
+  ]
+
+  private get cxtMenuElements(): HTMLElement[] {
+    return [
+      limitInput,
+      offsetInput,
+    ]
+  }
 }
 
-customElements.define('query-graph', QueryGraphWidget as any)
+customElements.define('query-graph', QueryGraphWidget)
