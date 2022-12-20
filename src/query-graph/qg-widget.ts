@@ -201,14 +201,18 @@ export default class QueryGraphWidget extends ui.BaseMixin(ui.DropPanelMixin(Lit
      * TEMP FIX: wait for the update lifecycle to be completed and then mount again
      * being sure lit-element won't touch the container anymore until next clear query.
      */
-    if (_changedProperties.has('_isBGPEmpty')) {
-      // if BGP is not empty but it was empty before the update, then re-mount to be sure
-      // to fix conflicts.
-      if (!this.isBGPEmpty && _changedProperties.get('_isBGPEmpty')) {
-        const container = cy.container()
-        if (container)
+    if (_changedProperties.has('_isBGPEmpty') || !this.isPanelClosed()) {
+      const container = cy.container()
+      if (container) {
         cy.mount(container)
-        cy.resize()
+        cy.resize();
+
+        /**
+         * Hacky: updateStyle is not public but it works, ty js.
+         * If you don't call this, some edges and labels might be not visible until next style update
+         * (i.e. user click)
+         */ 
+        (cy as any).updateStyle()
       }
     }
   }
