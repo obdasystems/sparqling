@@ -17,6 +17,8 @@ function getBGPContainer(): HTMLDivElement {
   container.style.position = 'relative'
   container.style.height = '100%'
   container.style.width = '100%'
+  container.style.borderBottomRightRadius =
+    container.style.borderBottomLeftRadius = 'var(--gscape-border-radius)'
   return container
 }
 

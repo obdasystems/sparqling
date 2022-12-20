@@ -204,3 +204,5 @@ queryGraph.widget.onFullScreenEnter = () => {
     exitFullscreenButton.remove()
   }
 }
+
+queryGraph.widget.onCenterDiagram = () => cy.fit()

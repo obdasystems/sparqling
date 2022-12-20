@@ -23,6 +23,7 @@ export default class QueryGraphWidget extends ui.BaseMixin(ui.DropPanelMixin(Lit
   onQueryClear = () => { }
   onSparqlButtonClick = () => { }
   onFullScreenEnter = () => { }
+  onCenterDiagram = () => { }
 
   title = 'Query Graph'
 
@@ -110,6 +111,7 @@ export default class QueryGraphWidget extends ui.BaseMixin(ui.DropPanelMixin(Lit
                 ${countStarToggle}
                 ${getTrayButtonTemplate('Clear Query', refresh, undefined, 'clear-query-btn', this.onQueryClear)}
                 ${getTrayButtonTemplate('View SPARQL Code', code, undefined, 'sparql-code-btn', this.onSparqlButtonClick)}
+                ${getTrayButtonTemplate('Center Query Graph', ui.icons.centerDiagram, undefined, 'center-btn', this.onCenterDiagram)}
                 ${!isFullPageActive() ? getTrayButtonTemplate('Fullscreen', ui.icons.enterFullscreen, undefined, 'fullscreen-btn', this.onFullScreenEnter) : null}
                 ${getTrayButtonTemplate('More actions', kebab, undefined, 'cxt-menu-action', this.showCxtMenu)}
               </div>
