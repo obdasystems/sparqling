@@ -2,8 +2,7 @@ import { ui } from 'grapholscape';
 import { css, html, LitElement } from 'lit';
 import { Filter, Function, GroupByElement, HeadElement, VarOrConstantConstantTypeEnum } from '../api/swagger';
 import { getFiltersOnVariable } from '../model';
-import { checkmark, addFilter, crosshair, dragHandler, expandLess, expandMore, filter as filterIcon, functionIcon, kebab, rubbishBin, sigma, sortAscendingIcon, sortDescendingIcon, sortIcon } from '../widgets/assets/icons';
-import { Command } from '../widgets/cxt-menu/cxt-menu-widget';
+import { addFilter, crosshair, dragHandler, expandLess, expandMore, filter as filterIcon, functionIcon, kebab, rubbishBin, sigma, sortAscendingIcon, sortDescendingIcon, sortIcon } from '../widgets/assets/icons';
 import { getElemWithOperatorStyle } from '../widgets/forms/elem-with-operator-style';
 import { getElemWithOperatorList } from '../widgets/forms/elems-with-operator-list-template';
 import sparqlingWidgetStyle from '../widgets/sparqling-widget-style';
@@ -401,7 +400,7 @@ export default class HeadElementComponent extends ui.BaseMixin(ui.DropPanelMixin
   }
 
   get cxtMenuCommands() {
-    const result: Command[] = []
+    const result: ui.Command[] = []
 
     result.push({
       content: 'Add Filter',

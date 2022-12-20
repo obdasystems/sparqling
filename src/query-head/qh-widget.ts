@@ -2,7 +2,7 @@ import { ui } from 'grapholscape'
 import { css, html, LitElement } from 'lit'
 import { HeadElement } from '../api/swagger'
 import { isCountStarActive } from '../model'
-import { attachCxtMenuTo } from '../widgets'
+import { cxtMenu } from '../widgets'
 import { asterisk, code, counter, kebab, preview, tableEye } from '../widgets/assets/icons'
 import { countStarMsg, emptyHeadMsg, emptyHeadTipMsg, tipWhy } from '../widgets/assets/texts'
 import sparqlingWidgetStyle from '../widgets/sparqling-widget-style'
@@ -148,7 +148,8 @@ export default class QueryHeadWidget extends ui.BaseMixin(ui.DropPanelMixin(LitE
       headElementComponent.onAddAggregation(this.addAggregationCallback)
       headElementComponent.showCxtMenu = () => {
         if (headElementComponent.moreActionsButton) {
-          attachCxtMenuTo(headElementComponent.moreActionsButton, headElementComponent.cxtMenuCommands)
+          cxtMenu.attachTo(headElementComponent.moreActionsButton, headElementComponent.cxtMenuCommands)
+          // attachCxtMenuTo(headElementComponent.moreActionsButton, headElementComponent.cxtMenuCommands)
         }
       }
     });

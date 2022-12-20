@@ -1,10 +1,9 @@
 import { SingularElementReturnValue } from "cytoscape"
 import { EntityTypeEnum } from "../../api/swagger"
 import { getHeadElementByID, isCountStarActive, isStandalone } from "../../model"
-import { getGraphElementByID, isClass } from "../../util/graph-element-utility"
 import { addFilter as addFilterIcon, editList, dashedCross, questionMarkDashed, rubbishBin, tableColumnPlus, preview } from "../../widgets/assets/icons"
 import { commandAddFilterText, commandAddHeadText, commandDeleteText, commandMakeOptionalText, commandRemoveOptionalText } from "../../widgets/assets/texts"
-import { Command } from "../../widgets/cxt-menu/cxt-menu-widget"
+import { ui } from 'grapholscape'
 
 let addHeadCallback: (elemId: string) => void
 let deleteCallback: (elemId: string, elemIri?: string) => void
@@ -17,7 +16,7 @@ let showExamplesCallback: (elemId: string) => void
 let _ele: SingularElementReturnValue
 export function getCommandsForElement(elem: SingularElementReturnValue) {
   _ele = elem
-  const commands: Command[] = []
+  const commands: ui.Command[] = []
 
   // COMANDI OPTIONALS SU OBJECT PROPERTY
   if (elem.data().type === EntityTypeEnum.ObjectProperty || elem.data().type === EntityTypeEnum.InverseObjectProperty) {
@@ -59,40 +58,40 @@ export function getCommandsForElement(elem: SingularElementReturnValue) {
   return commands
 }
 
-const addHead: Command = {
+const addHead: ui.Command = {
   content: commandAddHeadText(),
   icon: tableColumnPlus,
   select: () => addHeadCallback(_ele.id())
 }
-const del: Command = {
+const del: ui.Command = {
   content: commandDeleteText(),
   icon: rubbishBin,
   select: () => {
     _ele.isChild() ? deleteCallback(_ele.id(), _ele.data().iri) : deleteCallback(_ele.id())
   }
 }
-const addFilter: Command = {
+const addFilter: ui.Command = {
   content: commandAddFilterText(),
   icon: addFilterIcon,
   select: () => addFilterCallback(_ele.id())
 }
-const makeOptional: Command = {
+const makeOptional: ui.Command = {
   content: commandMakeOptionalText(),
   icon: questionMarkDashed,
   select: () => makeOptionalCallback(_ele.id())
 }
-const removeOptional: Command = {
+const removeOptional: ui.Command = {
   content: commandRemoveOptionalText(),
   icon: dashedCross,
   select: () => removeOptionalCallback(_ele.id())
 }
-const seeFilters: Command = {
+const seeFilters: ui.Command = {
   content: 'See Filters',
   icon: editList,
   select: () => seeFiltersCallback(_ele.id())
 }
 
-const showExamples: Command = {
+const showExamples: ui.Command = {
   content: 'Show Examples',
   icon: preview,
   select: () => showExamplesCallback(_ele.id())

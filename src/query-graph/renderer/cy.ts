@@ -6,9 +6,9 @@ import popper from 'cytoscape-popper'
 import automove from 'cytoscape-automove'
 import { EntityNameType } from "grapholscape"
 import { bgpContainer, tippyContainer } from "../../util/get-container"
-import { attachCxtMenuTo } from "../../widgets"
 import { getCommandsForElement } from "./cxt-menu-commands"
 import { EntityTypeEnum } from "../../api/swagger"
+import { cxtMenu } from "../../widgets"
 
 cytoscape.use(klay)
 cytoscape.use(compoundDragAndDrop)
@@ -55,7 +55,7 @@ cy.on('mouseout', () => {
 })
 
 cy.on('cxttap', `[iri][!isSuggestion]`, e => {
-  attachCxtMenuTo(e.target.popperRef(), getCommandsForElement(e.target))
+  cxtMenu.attachTo(e.target.popperRef(), getCommandsForElement(e.target))
 });
 
 (cy as any).automove({

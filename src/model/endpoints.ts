@@ -1,7 +1,6 @@
 import axios from "axios"
+import { ui } from "grapholscape"
 import { handlePromise } from "../main/handle-promises"
-import { getGscape } from "../ontology-graph"
-import { Command } from "../widgets/cxt-menu/cxt-menu-widget"
 import { getName, getRequestOptions, getVersion, isStandalone } from "./request-options"
 
 export type MastroEndpoint = {
@@ -107,7 +106,7 @@ export function setSelectedEndpoint(endpoint: MastroEndpoint) {
   selectedEndpoint = endpoint
 }
 
-export function getEndpointsCxtMenuCommands(onEndpointSelectionCallback: (endpoint: MastroEndpoint) => void): Command[] {
+export function getEndpointsCxtMenuCommands(onEndpointSelectionCallback: (endpoint: MastroEndpoint) => void): ui.Command[] {
   return endpoints.map(endpoint => {
     return {
       content: endpoint.name,

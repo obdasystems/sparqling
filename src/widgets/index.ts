@@ -31,4 +31,5 @@ export { default as offsetInput } from './offset'
 export { default as distinctToggle } from "./distinct-toggle"
 export { default as countStarToggle } from './count-star-toggle'
 
-export * from './cxt-menu'
+// export * from './cxt-menu'
+export const cxtMenu = new ui.ContextMenu()
