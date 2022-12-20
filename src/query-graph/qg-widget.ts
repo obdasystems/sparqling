@@ -1,5 +1,7 @@
-import { ui } from 'grapholscape'
-import { css, html, LitElement, PropertyValueMap, TemplateResult } from 'lit'
+import { ColoursNames, toPNG, toSVG, ui } from 'grapholscape'
+import { css, html, LitElement, PropertyValueMap } from 'lit'
+import { getName } from '../model'
+import { getGscape } from '../ontology-graph'
 import { countStarToggle, cxtMenu } from '../widgets'
 import { code, dbClick, kebab, rdfLogo, refresh } from '../widgets/assets/icons'
 import { emptyGraphMsg, emptyGraphTipMsg, tipWhatIsQueryGraph } from '../widgets/assets/texts'
@@ -103,14 +105,10 @@ export default class QueryGraphWidget extends ui.BaseMixin(ui.DropPanelMixin(Lit
               </div>
 
               <div id="buttons-tray">
-
-                <!-- ${limitInput}
-                ${offsetInput} -->
                 ${distinctToggle}
                 ${countStarToggle}
-
-                <!-- ${getTrayButtonTemplate('Sparql', code, undefined, 'sparql-code-btn', this.onSparqlButtonClick)} -->
                 ${getTrayButtonTemplate('Clear Query', refresh, undefined, 'clear-query-btn', this.onQueryClear)}
+                ${getTrayButtonTemplate('View SPARQL Code', code, undefined, 'sparql-code-btn', this.onSparqlButtonClick)}
                 ${getTrayButtonTemplate('More actions', kebab, undefined, 'cxt-menu-action', this.showCxtMenu)}
               </div>
 
@@ -215,7 +213,7 @@ export default class QueryGraphWidget extends ui.BaseMixin(ui.DropPanelMixin(Lit
 
   private showCxtMenu() {
     if (this.moreActionsButton) {
-      cxtMenu.showFirst = 'commands'
+      cxtMenu.showFirst = 'elements'
       cxtMenu.attachTo(this.moreActionsButton, this.cxtMenuCommands, this.cxtMenuElements)
     }
   }
@@ -234,10 +232,15 @@ export default class QueryGraphWidget extends ui.BaseMixin(ui.DropPanelMixin(Lit
 
   private cxtMenuCommands: ui.Command[] = [
     {
-      content: 'View SPARQL Code',
-      icon: code,
-      select: () => this.onSparqlButtonClick()
+      content: 'Export as PNG',
+      icon: ui.icons.save,
+      select: () => toPNG(`query-graph-${getName()}`, cy, getGscape().theme.getColour(ColoursNames.bg_graph))
     },
+    {
+      content: 'Export as SVG',
+      icon: ui.icons.save,
+      select: () => toSVG(`query-graph-${getName()}`, cy, getGscape().theme.getColour(ColoursNames.bg_graph))
+    }
   ]
 
   private get cxtMenuElements(): HTMLElement[] {

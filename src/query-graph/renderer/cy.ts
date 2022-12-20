@@ -4,6 +4,7 @@ import compoundDragAndDrop from 'cytoscape-compound-drag-and-drop'
 import klay from 'cytoscape-klay'
 import popper from 'cytoscape-popper'
 import automove from 'cytoscape-automove'
+import svg from 'cytoscape-svg'
 import { EntityNameType } from "grapholscape"
 import { bgpContainer, tippyContainer } from "../../util/get-container"
 import { getCommandsForElement } from "./cxt-menu-commands"
@@ -15,6 +16,7 @@ cytoscape.use(compoundDragAndDrop)
 cytoscape.use(popper)
 cytoscape.use(cola)
 cytoscape.use(automove)
+cytoscape.use(svg)
 
 export const cy = cytoscape({
   wheelSensitivity: 0.4,
