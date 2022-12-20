@@ -5,7 +5,7 @@ import sparqlingWidgetStyle from '../../sparqling-widget-style'
 import { getElemWithOperatorStyle } from '../elem-with-operator-style'
 import { FilterWithID, getElemWithOperatorList } from '../elems-with-operator-list-template'
 
-export default class FilterListDialog extends ui.BaseMixin(LitElement) {
+export default class FilterListDialog extends ui.ModalMixin(ui.BaseMixin(LitElement)) {
   public filterList?: FilterWithID[] = []
   public variable: string
   title = ' '
@@ -27,11 +27,12 @@ export default class FilterListDialog extends ui.BaseMixin(LitElement) {
       sparqlingWidgetStyle,
       getElemWithOperatorStyle(),
       css`
-        :host {
+        .gscape-panel {
           position: absolute;
           top: 30%;
           left: 50%;
-          transform: translate(-50%, 0)
+          transform: translate(-50%, 0);
+          height: unset;
         }
 
         .dialog-body {

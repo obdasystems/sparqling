@@ -24,7 +24,6 @@ export const errorsDialog = new ErrorsDialog()
 export const previewDialog = new SparqlingQueryResults()
 export const loadingDialog = new LoadingDialog()
 export * from './class-selector'
-export * from './util/modal-background'
 
 export { default as limitInput } from './limit'
 export { default as offsetInput } from './offset'

@@ -6,9 +6,8 @@ import { code, copyContent, editSquare, ellipsis } from './assets/icons'
 import { emptyQueryMsg } from './assets/texts'
 import sparqlingWidgetStyle from './sparqling-widget-style'
 import getTrayButtonTemplate from './tray-button-template'
-import { ModalMixin } from './util/modal-background'
 
-export default class SparqlDialog extends ModalMixin(ui.BaseMixin(LitElement)) {
+export default class SparqlDialog extends ui.ModalMixin(ui.BaseMixin(LitElement)) {
   text: string = emptyQueryMsg()
   //copyButton = new UI.GscapeButton(copyContent, "Copy Query")
   title = 'SPARQL'
@@ -19,13 +18,14 @@ export default class SparqlDialog extends ModalMixin(ui.BaseMixin(LitElement)) {
     ui.baseStyle,
     sparqlingWidgetStyle,
     css`
-      :host {
+      .gscape-panel {
         position: absolute;
         top: 100px;
         left: 50%;
         transform: translate(-50%, 0);
         min-width: 200px;
         max-width: 800px;
+        height: unset;
       }
 
       .sparql-code-wrapper {

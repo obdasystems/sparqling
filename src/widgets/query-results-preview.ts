@@ -5,9 +5,8 @@ import { preview } from "./assets/icons";
 import { getLoadingSpinner, loadingSpinnerStyle } from "./loading-spinner";
 import { queryResultTemplate, queryResultTemplateStyle } from "./query-result-template";
 import sparqlingWidgetStyle from "./sparqling-widget-style";
-import { ModalMixin } from "./util/modal-background";
 
-export default class SparqlingQueryResults extends ModalMixin(ui.BaseMixin(LitElement)) {
+export default class SparqlingQueryResults extends ui.ModalMixin(ui.BaseMixin(LitElement)) {
   result?: QueryResult
   isLoading = false
   title = 'Query Results Preview'
@@ -28,13 +27,14 @@ export default class SparqlingQueryResults extends ModalMixin(ui.BaseMixin(LitEl
     sparqlingWidgetStyle,
     queryResultTemplateStyle,
     css`
-      :host {
+      .gscape-panel {
         position: absolute;
         top: 100px;
         left: 50%;
         transform: translate(-50%, 0);
         min-width: 200px;
         max-width: 800px;
+        height: unset;
       }
 
       .dialog-body {

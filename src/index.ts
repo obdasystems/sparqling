@@ -83,7 +83,6 @@ function getCore(gscape: Grapholscape, file: string | Blob) {
 
     leftColumnContainer.appendChild(queryHead.widget)
     leftColumnContainer.appendChild(widgets.highlightsList)
-    gscape.container.appendChild(widgets.modalBackground)
     // Add query graph and query head widgets to grapholscape instance
     const uiContainer = gscape.container.querySelector('.gscape-ui')
     if (uiContainer) {

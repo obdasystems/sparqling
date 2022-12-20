@@ -2,9 +2,8 @@ import { ui } from "grapholscape";
 import { css, html, LitElement, PropertyValueMap } from "lit";
 import { error } from "./assets/icons";
 import sparqlingWidgetStyle from "./sparqling-widget-style";
-import { ModalMixin } from "./util/modal-background";
 
-export default class ErrorsDialog extends ModalMixin(ui.BaseMixin(LitElement)) {
+export default class ErrorsDialog extends ui.ModalMixin(ui.BaseMixin(LitElement)) {
 
   errorText: string = ''
 
@@ -16,11 +15,12 @@ export default class ErrorsDialog extends ModalMixin(ui.BaseMixin(LitElement)) {
     ui.baseStyle,
     sparqlingWidgetStyle,
     css`
-      :host {
+      .gscape-panel {
         position: absolute;
         top: 100px;
         left: 50%;
-        transform: translate(-50%, 0)
+        transform: translate(-50%, 0);
+        height: unset;
       }
 
       .dialog-body {
@@ -33,6 +33,8 @@ export default class ErrorsDialog extends ModalMixin(ui.BaseMixin(LitElement)) {
         padding: 16px 8px;
         background: var(--gscape-color-danger-subtle);
         white-space: pre-line;
+        border-bottom-right-radius: inherit;
+        border-bottom-left-radius: inherit;
       }
 
       .dialog-body, #widget-header {

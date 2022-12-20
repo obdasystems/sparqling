@@ -1,11 +1,12 @@
 import { css } from "lit";
 
 export default css`
-  :host {
+  .gscape-panel {
     position: absolute;
     top: 100px;
     left: 50%;
-    transform: translate(-50%, 0)
+    transform: translate(-50%, 0);
+    height: unset;
   }
 
   .dialog-body {
@@ -29,10 +30,6 @@ export default css`
 
   .form {
     margin: 0 12px;
-  }
-
-  .gscape-panel {
-    max-height: unset;
   }
 
   .selects-wrapper {

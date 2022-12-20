@@ -1,22 +1,20 @@
-import { css, LitElement, PropertyValueMap, TemplateResult } from 'lit'
 import { ui } from 'grapholscape'
+import { LitElement, PropertyValueMap, TemplateResult } from 'lit'
 import { FilterExpressionOperatorEnum, FunctionNameEnum, GroupByElementAggregateFunctionEnum, VarOrConstant, VarOrConstantConstantTypeEnum, VarOrConstantTypeEnum } from '../../api/swagger'
-import { FormID, FormOperator, FormWidget } from '../../util/filter-function-interface'
-import { checkmark, rubbishBin } from '../assets/icons'
-import validateForm, { validateSelectElement } from './validate-form'
-import formStyle from './form-style'
-import sparqlingWidgetStyle from '../sparqling-widget-style'
-import { queryResultTemplateStyle } from '../query-result-template'
 import { QueryResult } from '../../main'
+import { FormID, FormOperator, FormWidget } from '../../util/filter-function-interface'
 import { loadingSpinnerStyle } from '../loading-spinner'
-import { ModalMixin } from '../util/modal-background'
+import { queryResultTemplateStyle } from '../query-result-template'
+import sparqlingWidgetStyle from '../sparqling-widget-style'
+import formStyle from './form-style'
+import validateForm from './validate-form'
 
 export enum Modality {
   DEFINE = 'Define',
   EDIT = 'Edit'
 }
 
-export default class SparqlingFormDialog extends ModalMixin(ui.BaseMixin(LitElement)) implements FormWidget {
+export default class SparqlingFormDialog extends ui.ModalMixin(ui.BaseMixin(LitElement)) implements FormWidget {
   protected left_icon: TemplateResult
   // protected saveButton = new UI.GscapeButton(checkmark, "Save")
   // protected deleteButton = new UI.GscapeButton(rubbishBin, "Delete")
@@ -53,10 +51,10 @@ export default class SparqlingFormDialog extends ModalMixin(ui.BaseMixin(LitElem
 
   static styles = [
     ui.baseStyle,
-    formStyle,
     queryResultTemplateStyle,
     loadingSpinnerStyle,
-    sparqlingWidgetStyle
+    sparqlingWidgetStyle,
+    formStyle,
   ]
 
   protected handleSubmit() {
