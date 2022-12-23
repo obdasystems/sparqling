@@ -18,7 +18,7 @@ import { cy } from './renderer/'
 export default class QueryGraphWidget extends ui.BaseMixin(ui.DropPanelMixin(LitElement)) {
   private bgpContainer: HTMLElement
   private _isBGPEmpty: boolean = true
-  withoutBGP: boolean = false
+  private _withoutBGP: boolean = false
   
   onQueryClear = () => { }
   onSparqlButtonClick = () => { }
@@ -29,7 +29,7 @@ export default class QueryGraphWidget extends ui.BaseMixin(ui.DropPanelMixin(Lit
 
   static properties = {
     _isBGPEmpty: { attribute: false, type: Boolean },
-    withoutBGP: { reflect: true, type: Boolean }
+    _withoutBGP: { reflect: true, type: Boolean }
   }
 
   static styles = [
@@ -47,6 +47,10 @@ export default class QueryGraphWidget extends ui.BaseMixin(ui.DropPanelMixin(Lit
 
       :host([withoutBGP]) {
         height: unset;
+      }
+
+      .top-bar {
+        z-index: 1;
       }
       
       .tip {
@@ -102,60 +106,61 @@ export default class QueryGraphWidget extends ui.BaseMixin(ui.DropPanelMixin(Lit
             </gscape-button>
           </div>
         `
-        : html`
-          <div class="gscape-panel" id="drop-panel">
-            <div class="top-bar">
-              <div id="widget-header" class="bold-text">
-                ${rdfLogo}
-                <span>${this.title}</span>
-              </div>
+        : null
+      }
 
-              <div id="buttons-tray">
-                ${distinctToggle}
-                ${countStarToggle}
-                ${getTrayButtonTemplate('Clear Query', refresh, undefined, 'clear-query-btn', this.onQueryClear)}
-                ${getTrayButtonTemplate('View SPARQL Code', code, undefined, 'sparql-code-btn', this.onSparqlButtonClick)}
-                ${getTrayButtonTemplate('Center Query Graph', ui.icons.centerDiagram, undefined, 'center-btn', this.onCenterDiagram)}
-                ${!isFullPageActive() ? getTrayButtonTemplate('Fullscreen', ui.icons.enterFullscreen, undefined, 'fullscreen-btn', this.onFullScreenEnter) : null}
-                ${getTrayButtonTemplate('More actions', kebab, undefined, 'cxt-menu-action', this.showCxtMenu)}
-              </div>
+      <div class="gscape-panel" id="drop-panel">
+        <div class="top-bar">
+          <div id="widget-header" class="bold-text">
+            ${rdfLogo}
+            <span>${this.title}</span>
+          </div>
 
+          <div id="buttons-tray">
+            ${distinctToggle}
+            ${countStarToggle}
+            ${getTrayButtonTemplate('Clear Query', refresh, undefined, 'clear-query-btn', this.onQueryClear)}
+            ${getTrayButtonTemplate('View SPARQL Code', code, undefined, 'sparql-code-btn', this.onSparqlButtonClick)}
+            ${getTrayButtonTemplate('Center Query Graph', ui.icons.centerDiagram, undefined, 'center-btn', this.onCenterDiagram)}
+            ${!isFullPageActive() ? getTrayButtonTemplate('Fullscreen', ui.icons.enterFullscreen, undefined, 'fullscreen-btn', this.onFullScreenEnter) : null}
+            ${getTrayButtonTemplate('More actions', kebab, undefined, 'cxt-menu-action', this.showCxtMenu)}
+          </div>
+
+          ${this.withoutBGP
+            ? null
+            : html`
               <gscape-button 
                 id="toggle-panel-button"
-                size="s" 
+                size="s"
                 type="subtle"
                 @click=${this.togglePanel}
               > 
                 <span slot="icon">${ui.icons.minus}</span>
               </gscape-button>
-            </div>
+            `
+          }
+        </div>
 
-            ${!this.withoutBGP
+        ${!this.withoutBGP
+          ? html`
+            ${this.isBGPEmpty
               ? html`
-                ${this.isBGPEmpty
-                  ? html`
-                      <div class="blank-slate sparqling-blank-slate">
-                        ${dbClick}
-                        <div class="header">${emptyGraphMsg()}</div>
-                        <div class="tip description" title="${emptyGraphTipMsg()}">${tipWhatIsQueryGraph()}</div>
-                      </div>
-                    `
-                  : this.bgpContainer
-                }
-              `
-              : null
+                  <div class="blank-slate sparqling-blank-slate">
+                    ${dbClick}
+                    <div class="header">${emptyGraphMsg()}</div>
+                    <div class="tip description" title="${emptyGraphTipMsg()}">${tipWhatIsQueryGraph()}</div>
+                  </div>
+                `
+              : this.bgpContainer
             }
-          </div>
-
-        `
-      }
+          `
+          : null
+        }
+      </div>
     `
   }
 
-  togglePanel = () => {
-    super.togglePanel()
-
-    this.requestUpdate()
+  onTogglePanel() {
     if (this.isPanelClosed()) {
       this.style.height = 'fit-content'
     } else {
@@ -240,6 +245,18 @@ export default class QueryGraphWidget extends ui.BaseMixin(ui.DropPanelMixin(Lit
 
   get clearQueryButton() {
     return this.shadowRoot?.querySelector('#clear-query-btn') as ui.GscapeButton
+  }
+
+  get withoutBGP() { return this._withoutBGP }
+  
+  set withoutBGP(value: boolean) {
+    this._withoutBGP = value
+    if (value) {
+      this.openPanel()
+      this.style.height = 'fit-content'
+    } else {
+      this.style.height = '30%'
+    }
   }
 
   private cxtMenuCommands: ui.Command[] = [

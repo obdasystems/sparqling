@@ -37,7 +37,7 @@ export default class QueryHeadWidget extends ui.BaseMixin(ui.DropPanelMixin(LitE
         margin-bottom: 10px;
         background: transparent;
         box-shadow: none;
-        pointer-events:initial;
+        pointer-events: none;
       }
 
       #elems-wrapper {
@@ -73,10 +73,6 @@ export default class QueryHeadWidget extends ui.BaseMixin(ui.DropPanelMixin(LitE
     `
   ]
 
-  constructor() {
-    super()
-  }
-
   render() {
     return html`
       ${this.isPanelClosed()
@@ -92,48 +88,48 @@ export default class QueryHeadWidget extends ui.BaseMixin(ui.DropPanelMixin(LitE
             </gscape-button>
           </div>
         `
-        : html`
-          <div class="gscape-panel" id="drop-panel" style="width: 100%; overflow-y:clip">
-            <div class="top-bar">
-              <div id="widget-header" class="bold-text">
-                ${tableEye}
-                <span>${this.title}</span>
-              </div>
+        : null
+      }
 
-              <gscape-button 
-                id="toggle-panel-button"
-                size="s" 
-                type="subtle"
-                @click=${this.togglePanel}
-              > 
-                <span slot="icon">${ui.icons.minus}</span>
-              </gscape-button>
-            </div>
+      <div class="gscape-panel" id="drop-panel" style="width: 100%; overflow-y:clip">
+        <div class="top-bar">
+          <div id="widget-header" class="bold-text">
+            ${tableEye}
+            <span>${this.title}</span>
+          </div>
 
-          ${isCountStarActive()
-            ? html`
-              <div class="blank-slate sparqling-blank-slate">
-                ${counter}
-                <div class="header">${countStarMsg()}</div>
-              </div>
-            `
-            : this.headElements.length === 0
-              ? html`
-                <div class="blank-slate sparqling-blank-slate">
-                  ${asterisk}
-                  <div class="header">${emptyHeadMsg()}</div>
-                  <div class="tip description" title="${emptyHeadTipMsg()}">${tipWhy()}</div>
-                </div>
-              `
-              : html`
-                <div id="elems-wrapper" @dragover=${allowDrop} @drop=${allowDrop}>
-                  ${this.headElements.map(headElement => new HeadElementComponent(headElement))}
-                </div>
-              `
-          }
+          <gscape-button 
+            id="toggle-panel-button"
+            size="s" 
+            type="subtle"
+            @click=${this.togglePanel}
+          > 
+            <span slot="icon">${ui.icons.minus}</span>
+          </gscape-button>
+        </div>
+
+      ${isCountStarActive()
+        ? html`
+          <div class="blank-slate sparqling-blank-slate">
+            ${counter}
+            <div class="header">${countStarMsg()}</div>
           </div>
         `
+        : this.headElements.length === 0
+          ? html`
+            <div class="blank-slate sparqling-blank-slate">
+              ${asterisk}
+              <div class="header">${emptyHeadMsg()}</div>
+              <div class="tip description" title="${emptyHeadTipMsg()}">${tipWhy()}</div>
+            </div>
+          `
+          : html`
+            <div id="elems-wrapper" @dragover=${allowDrop} @drop=${allowDrop}>
+              ${this.headElements.map(headElement => new HeadElementComponent(headElement))}
+            </div>
+          `
       }
+      </div>
     `
   }
 
