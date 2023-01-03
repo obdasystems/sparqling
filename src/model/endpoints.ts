@@ -59,7 +59,7 @@ let selectedEndpoint: MastroEndpoint | undefined
 // }
 
 export function getEndpoints(): MastroEndpoint[] {
-  return endpoints
+  return endpoints.sort((a,b) => a.name.localeCompare(b.name))
 }
 
 export async function updateEndpoints() {
