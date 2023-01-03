@@ -8,7 +8,7 @@ import SparqlingFormDialog from "./base-form-dialog"
 export function getFormTemplate(formComponent: SparqlingFormDialog, operators: string[]) {
 
   const op: string = formComponent.operator || operators[0]
-  const dt: string = formComponent.datatype || operators[0]
+  const dt: string = formComponent.datatypeFromOntology || operators[0]
   // const addInputButton = new UI.GscapeButton(UI.icons.plus, "Add input value")
   // addInputButton.id = "add-input-btn"
 
@@ -25,13 +25,13 @@ export function getFormTemplate(formComponent: SparqlingFormDialog, operators: s
             ? html`
               <div id="select-datatype">
                 <label>Datatype</label>
-                ${getSelect(dt, Object.values(VarOrConstantConstantTypeEnum), formComponent.datatype !== undefined)}
+                ${getSelect(dt, Object.values(VarOrConstantConstantTypeEnum), formComponent.datatypeFromOntology !== undefined)}
               </div>`
             : null
           }
         </div>
         <div class="inputs-wrapper">
-          ${formComponent.parametersIriOrConstants?.map((parameter, index) => getInput(index, formComponent.datatype, parameter.value, "Set input value"))}
+          ${formComponent.parametersIriOrConstants?.map((parameter, index) => getInput(index, formComponent.datatypeFromOntology, parameter.value, "Set input value"))}
           ${formComponent.operator === FilterExpressionOperatorEnum.In ||
             formComponent.operator === FilterExpressionOperatorEnum.NotIn
             ? html`
@@ -82,7 +82,7 @@ export function getFormTemplate(formComponent: SparqlingFormDialog, operators: s
   `
 }
 
-function getInput(index: number, datatype?: VarOrConstantConstantTypeEnum, value: string = '', titleText = '') {
+function getInput(index: number, datatype?: string, value: string = '', titleText = '') {
   if (datatype === VarOrConstantConstantTypeEnum.DateTime) {
     value = value?.split('T')[0] || 'value' // Take only date from ISO format 2022-01-01T00:00:....
   }

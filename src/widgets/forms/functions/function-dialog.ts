@@ -63,18 +63,27 @@ export default class FunctionDialog extends SparqlingFormDialog {
   }
 
   protected get operators() {
-    switch(this.datatype) {
+    switch(this.datatypeFromOntology) {
       case VarOrConstantConstantTypeEnum.String:
         return this.operatorsOnString
       
       case VarOrConstantConstantTypeEnum.Decimal:
+      case 'xsd:int':
+      case 'xsd:float':
+      case 'xsd:long':
+      case 'xsd:double':
+      case 'xsd:integer':
+      case 'xsd:short':
+      case 'xsd:unsignedInt':
+      case 'xsd:unsignedLong':
+      case 'xsd:unsignedShort':
         return this.operatorsOnNumber
 
       case VarOrConstantConstantTypeEnum.DateTime:
         return this.operatorsOnDate
 
       default:
-        return this.operatorsOnString
+        return Object.values(FunctionNameEnum)
     }
   }
 

@@ -39,10 +39,11 @@ export default function (element: HeadElement | GraphElement, formDialog: Sparql
 
   formDialog.parameters = [{
     type: VarOrConstantTypeEnum.Var,
-    constantType: getGscape().ontology.getEntity(graphElementIri)?.datatype as VarOrConstantConstantTypeEnum,
+    constantType: undefined,
     value: graphElement.id
   }]
 
+  formDialog.datatypeFromOntology = getGscape().ontology.getEntity(graphElementIri)?.datatype
   formDialog.addInputValue() // default with one input
 
   if (formDialog instanceof FunctionDialog) {

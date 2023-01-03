@@ -29,6 +29,7 @@ export default class SparqlingFormDialog extends ui.ModalMixin(ui.BaseMixin(LitE
   protected submitCallback: any
   public formTitle?: string
   public canSave?: boolean
+  public datatypeFromOntology?: string
 
   // Examples
   public acceptExamples = false
@@ -42,6 +43,7 @@ export default class SparqlingFormDialog extends ui.ModalMixin(ui.BaseMixin(LitE
     parameters: { attribute: false },
     modality: { attribute: false },
     datatype: { attribute: false },
+    datatypeFromOntology: { type: String},
     aggregateOperator: { attribute: false },
     examples: { attribute: false },
     loadingExamples: { attribute: false, type: Boolean },
@@ -59,8 +61,27 @@ export default class SparqlingFormDialog extends ui.ModalMixin(ui.BaseMixin(LitE
 
   protected handleSubmit() {
     if (this.formElement && validateForm(this.formElement)) {
+      this.normalizeDatatypes()
       this.onValidSubmit()
     }
+  }
+
+  private normalizeDatatypes() {
+    if (this.datatypeFromOntology === 'xsd:int' ||
+      this.datatypeFromOntology === 'xsd:integer' ||
+      this.datatypeFromOntology === 'xsd:double' ||
+      this.datatypeFromOntology === 'xsd:float' ||
+      this.datatypeFromOntology === 'xsd:long' ||
+      this.datatypeFromOntology === 'xsd:short' ||
+      this.datatypeFromOntology === 'xsd:unsignedInt' ||
+      this.datatypeFromOntology === 'xsd:unsignedLong' ||
+      this.datatypeFromOntology === 'xsd:unsignedShort'
+    )
+      this.datatype = VarOrConstantConstantTypeEnum.Decimal
+    else if (Object.values(VarOrConstantConstantTypeEnum).includes(this.datatypeFromOntology as VarOrConstantConstantTypeEnum))
+      this.datatype = this.datatypeFromOntology as VarOrConstantConstantTypeEnum
+    else 
+      this.datatype = VarOrConstantConstantTypeEnum.String
   }
 
   private onOperatorChange(value: FormOperator) {
