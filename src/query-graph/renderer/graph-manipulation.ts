@@ -1,4 +1,4 @@
-import { NodeSingular } from "cytoscape"
+import { CollectionReturnValue, NodeSingular } from "cytoscape"
 import { EntityNameType } from "grapholscape"
 import { Entity, EntityTypeEnum, GraphElement, Optional } from "../../api/swagger"
 import { getFiltersOnVariable } from "../../model"
@@ -30,19 +30,28 @@ export function addNode(node: GraphElement) {
   const existingNode = getElementById(node.id)
   let newNode: NodeSingular | undefined = undefined
 
-  if (node.entities?.length && node.entities.length > 1 && existingNode?.children().length !== node.entities?.length) {
-    node.entities.forEach((child: Entity, i: number) => {
-      if (!existingNode?.children().some(c => c[0].data('iri') === child.iri)) {
-        newNode = cy.add({ data: getDataObj(node, i) })
-        arrange()
-      }
-    })
-  }
-
   if (!existingNode) {
     newNode = cy.add({ data: newNodeData })
+    
+    if (node.entities && node.entities?.length > 1) {
+      node.entities?.forEach((child: Entity, i: number) => {
+        if (!newNode?.children().some(c => c[0].data('iri') === child.iri)) {
+          cy.add({ data: getDataObj(node, i) })
+          arrange()
+        }
+      })
+    }
     arrange()
   } else {
+
+    if (node.entities && node.entities?.length > 1) {
+      node.entities?.forEach((child: Entity, i: number) => {
+        if (!existingNode?.children().some(c => c[0].data('iri') === child.iri)) {
+          newNode = cy.add({ data: getDataObj(node, i) })
+          arrange()
+        }
+      })
+    }
     existingNode.removeData()
     existingNode.data(newNodeData)
   }
@@ -106,7 +115,7 @@ export function removeNode(nodeID: any) {
 /**
  * Select a node given its id and return the node in cytoscape representation
  */
-export function selectNode(nodeId: string): cytoscape.CollectionReturnValue {
+export function selectNode(nodeId: string): CollectionReturnValue {
   getElements().removeClass('sparqling-selected')
   let cyNode = cy.$id(nodeId)
   cyNode.addClass('sparqling-selected')
