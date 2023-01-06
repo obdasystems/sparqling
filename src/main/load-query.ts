@@ -3,7 +3,7 @@ import { QueryGraph } from "../api/swagger";
 import * as model from "../model";
 import { getGscape } from "../ontology-graph";
 import * as queryGraph from "../query-graph";
-import { setTheme } from "../query-graph/renderer";
+import { cy, setTheme } from "../query-graph/renderer";
 import { getIri } from "../util/graph-element-utility";
 import { classSelector, countStarToggle, distinctToggle, limitInput, offsetInput, startRunButtons } from "../widgets";
 import clearQuery from "./clear-query";
@@ -55,4 +55,5 @@ export default async function (queryBody: QueryGraph, queryName: string) {
 
   model.setQueryDirtyState(false)
   startRunButtons.queryName = queryName
+  setTimeout(() => cy.fit(), 200)
 }
