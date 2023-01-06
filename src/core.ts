@@ -22,7 +22,9 @@ interface Core {
   onStop: () => void,
   start: () => void,
   stop: () => void,
-  loadQuery: (queryGraph: QueryGraph) => void,
+  loadQuery: (queryGraph: QueryGraph, queryName: string) => void,
+  setQueryDirtyState: (isDirty: boolean) => void,
+  setQueryName: (queryName: string) => void,
 }
 
 export default {
@@ -41,4 +43,9 @@ export default {
   start: start,
   stop: stop,
   loadQuery: loadQuery,
+  setQueryDirtyState: (isDirty: boolean) => {
+    model.setQueryDirtyState(isDirty)
+    startRunButtons.requestUpdate()
+  },
+  setQueryName: (queryName: string) => startRunButtons.queryName = queryName
 } as Core

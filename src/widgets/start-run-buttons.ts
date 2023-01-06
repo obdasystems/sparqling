@@ -15,6 +15,7 @@ export default class SparqlingStartRunButtons extends ui.BaseMixin(ui.DropPanelM
   public canQueryRun: boolean = false
   public endpoints: MastroEndpoint[] = []
   public selectedEndpointName?: string
+  public queryName?: string
   public showResultsEnabled = false
 
   private _onSparqlingStartCallback = () => { }
@@ -31,6 +32,7 @@ export default class SparqlingStartRunButtons extends ui.BaseMixin(ui.DropPanelM
     isLoading: { type: Boolean, attribute: false },
     endpoints: { type: Object, attribute: false },
     selectedEndpointName: { type: String, attribute: false },
+    queryName: { type: String, attribute: false },
     showResultsEnabled: { type: Boolean, attribute: false },
   }
 
@@ -96,7 +98,9 @@ export default class SparqlingStartRunButtons extends ui.BaseMixin(ui.DropPanelM
                   ? html`${getLoadingSpinner()}`
                   : null
                 }
-                <div class="bold-text">Query Builder</div>
+                <div class="bold-text">
+                  ${this.queryName || 'new_0'}${model.isQueryDirty() ? '*' : null}
+                </div>
                 <div class="hr"></div>
             `
           }

@@ -41,6 +41,7 @@ export enum QueryStatusEnum {
 
 let endpoints: MastroEndpoint[] = []
 let selectedEndpoint: MastroEndpoint | undefined
+let emptyUnfoldingEntities: string[] = []
 
 // export async function getFirstActiveEndpoint(): Promise<MastroEndpoint | undefined> {
 //   if (isStandalone()) return
@@ -104,6 +105,16 @@ export function getSelectedEndpoint() {
 
 export function setSelectedEndpoint(endpoint: MastroEndpoint) {
   selectedEndpoint = endpoint
+  
+  if (endpoint) {
+    const mwsEmptyUnfoldingRequestOptions = {
+      method: 'get',
+      url: `${localStorage.getItem('mastroUrl')}/endpoint/${endpoint.name}/emptyUnfoldingEntities`
+    }
+
+    Object.assign(mwsEmptyUnfoldingRequestOptions, getRequestOptions())
+    handlePromise(axios.request<any>(mwsEmptyUnfoldingRequestOptions)).then(a => console.log(a))
+  }
 }
 
 export function getEndpointsCxtMenuCommands(onEndpointSelectionCallback: (endpoint: MastroEndpoint) => void): ui.Command[] {

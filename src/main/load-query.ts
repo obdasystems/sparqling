@@ -5,12 +5,12 @@ import { getGscape } from "../ontology-graph";
 import * as queryGraph from "../query-graph";
 import { setTheme } from "../query-graph/renderer";
 import { getIri } from "../util/graph-element-utility";
-import { classSelector, countStarToggle, distinctToggle, limitInput, offsetInput } from "../widgets";
+import { classSelector, countStarToggle, distinctToggle, limitInput, offsetInput, startRunButtons } from "../widgets";
 import clearQuery from "./clear-query";
 import { performHighlights } from "./highlights";
 import onNewBody from "./on-new-body";
 
-export default async function (queryBody: QueryGraph) {
+export default async function (queryBody: QueryGraph, queryName: string) {
   await clearQuery()
   // Hide selectors
   classSelector.hide();
@@ -52,4 +52,7 @@ export default async function (queryBody: QueryGraph) {
 
   if (queryBody.offset || queryBody.offset === 0)
     offsetInput.value = queryBody.offset.toString()
+
+  model.setQueryDirtyState(false)
+  startRunButtons.queryName = queryName
 }

@@ -9,6 +9,7 @@ let file: File
 let isRunning = false
 let isFullPage = false
 export let previousOwlVisualizerState: boolean
+let _isQueryDirty = true
 
 export const HIGHLIGHT_CLASS = 'highlighted'
 export const FADED_CLASS = 'faded'
@@ -44,4 +45,12 @@ export function setPreviousOwlVisualizerState(value: boolean) {
 
 export function getPreviousOwlVisualizerState() {
   return previousOwlVisualizerState
+}
+
+export function setQueryDirtyState(isDirty: boolean) {
+  _isQueryDirty = isDirty
+}
+
+export function isQueryDirty() {
+  return _isQueryDirty
 }

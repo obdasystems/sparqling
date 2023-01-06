@@ -59,4 +59,6 @@ export default function onNewBody(newBody: QueryGraph) {
 
   if (!countStarToggle.disabled)
     countStarToggle.classList.add('actionable')
+
+  model.setQueryDirtyState(true)
 }
