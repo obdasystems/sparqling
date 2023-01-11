@@ -1,6 +1,9 @@
 import { ui } from 'grapholscape'
 import { css, html, LitElement, PropertyValueMap } from 'lit'
+import { EntityTypeEnum } from '../api/swagger'
+import { hasEntityEmptyUnfolding } from '../model'
 import EventPosition from '../util/event-position'
+import { emptyUnfoldingEntityTooltip } from './assets/texts'
 
 export default class RelatedClassSelection extends ui.BaseMixin(LitElement) {
   objProperty: string
@@ -129,6 +132,10 @@ export default class RelatedClassSelection extends ui.BaseMixin(LitElement) {
       .gscape-panel-title {
         padding-top:10px;
       }
+
+      .disabled {
+        opacity: 0.5
+      }
     `
   ]
 
@@ -148,7 +155,17 @@ export default class RelatedClassSelection extends ui.BaseMixin(LitElement) {
           </div>
           <div id="right-panel" class="list">
             ${this.list?.map((classItem, i) => {
-              return html`<span class="actionable" index="${i}" @click=${this.handleSelection}>${classItem}</span>`
+              const hasEmptyUnfolding = hasEntityEmptyUnfolding(classItem, EntityTypeEnum.Class)
+              return html`
+                <span 
+                  class="actionable ${hasEmptyUnfolding ? 'disabled' : null }"
+                  ?hasEmptyUnfolding=${hasEmptyUnfolding}
+                  index="${i}"
+                  @click=${this.handleSelection}
+                  title=${hasEmptyUnfolding ? emptyUnfoldingEntityTooltip() : classItem}
+                >
+                  ${classItem}
+                </span>`
             })}
           </div>
         </div>
@@ -160,8 +177,8 @@ export default class RelatedClassSelection extends ui.BaseMixin(LitElement) {
     e.preventDefault()
     if (this.list) {
       const index = (e.currentTarget as HTMLElement).getAttribute('index')
-
-      if (index !== null) {
+      const hasEmptyUnfolding = (e.currentTarget as HTMLElement).getAttribute('hasEmptyUnfolding')
+      if (index !== null && (!hasEmptyUnfolding && hasEmptyUnfolding !== '')) {
         let listItem = this.list[index]
         this.onSelection(listItem)
         this.hide()

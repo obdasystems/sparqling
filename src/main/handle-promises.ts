@@ -1,6 +1,6 @@
-import { AxiosPromise, AxiosResponse } from "axios"
+import { AxiosResponse } from "axios"
 import { Highlights, QueryGraph } from "../api/swagger"
-import { setLoading, increaseLoadingProcesses, decreaseLoadingProcesses, getNumberLoadingProcesses, isLoading } from "../model"
+import { setLoading, increaseLoadingProcesses, decreaseLoadingProcesses, getNumberLoadingProcesses, isLoading, EmptyUnfoldingEntities } from "../model"
 import { errorsDialog, loadingDialog, startRunButtons } from "../widgets"
 
 function isResponseError(response) {
@@ -16,6 +16,7 @@ export function handlePromise(promise: Promise<AxiosResponse<Highlights, any>>, 
 export function handlePromise(promise: Promise<AxiosResponse<QueryGraph, any>>, showError?: boolean): Promise<QueryGraph>
 export function handlePromise(promise: Promise<AxiosResponse<void, any>>, showError?: boolean): Promise<void>
 export function handlePromise(promise: Promise<AxiosResponse<string, any>>, showError?: boolean): Promise<string>
+export function handlePromise(promise: Promise<AxiosResponse<EmptyUnfoldingEntities, any>>, showError?: boolean): Promise<EmptyUnfoldingEntities>
 export function handlePromise(promise: Promise<AxiosResponse<any, any>>, showError?: boolean): Promise<any>
 export function handlePromise(promise: Promise<AxiosResponse<unknown, unknown>>, showError = true): Promise<unknown> {
   return new Promise(executor)

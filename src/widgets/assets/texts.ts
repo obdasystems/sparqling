@@ -140,3 +140,12 @@ export const countStarMsg = (l = lang) => {
 
   return text[l]
 }
+
+export const emptyUnfoldingEntityTooltip = (l = lang) => {
+  const text = {
+    en: 'Entity currently not mapped to data',
+    it: 'Entità non mappata',
+  }
+
+  return text[l]
+}

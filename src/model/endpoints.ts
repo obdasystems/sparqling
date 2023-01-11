@@ -1,5 +1,6 @@
 import axios from "axios"
 import { ui } from "grapholscape"
+import { EntityTypeEnum } from "../api/swagger"
 import { handlePromise } from "../main/handle-promises"
 import { getName, getRequestOptions, getVersion, isStandalone } from "./request-options"
 
@@ -39,9 +40,50 @@ export enum QueryStatusEnum {
   ERROR = 'ERROR'
 }
 
+export type MWSEntity = {
+  entityIri: string,
+  entityID: string,
+  entityPrefixIri: string,
+  entityRemainder: string,
+  entityType: string,
+}
+
+export type EmptyUnfoldingEntities = {
+  emptyUnfoldingClasses: MWSEntity[],
+  emptyUnfoldingDataProperties: MWSEntity[],
+  emptyUnfoldingObjectProperties: MWSEntity[],
+}
+
 let endpoints: MastroEndpoint[] = []
 let selectedEndpoint: MastroEndpoint | undefined
-let emptyUnfoldingEntities: string[] = []
+let emtpyUnfoldingEntities: EmptyUnfoldingEntities = {
+  emptyUnfoldingClasses: [],
+  emptyUnfoldingDataProperties: [],
+  emptyUnfoldingObjectProperties: []
+}
+// let emtpyUnfoldingEntities: EmptyUnfoldingEntities = {
+//   emptyUnfoldingClasses: [{
+//     entityID: '',
+//     entityIri: 'http://www.obdasystems.com/books/Edition',
+//     entityType: 'dp',
+//     entityPrefixIri: ':Edition',
+//     entityRemainder: 'Edition'
+//   }],
+//   emptyUnfoldingDataProperties: [{
+//     entityID: '',
+//     entityIri: 'http://www.obdasystems.com/books/title',
+//     entityType: 'dp',
+//     entityPrefixIri: ':title',
+//     entityRemainder: 'title'
+//   }],
+//   emptyUnfoldingObjectProperties: [{
+//     entityID: '',
+//     entityIri: 'http://www.obdasystems.com/books/hasEdition',
+//     entityType: 'dp',
+//     entityPrefixIri: ':hasEdition',
+//     entityRemainder: 'hasEdition'
+//   }]
+// }
 
 // export async function getFirstActiveEndpoint(): Promise<MastroEndpoint | undefined> {
 //   if (isStandalone()) return
@@ -60,7 +102,7 @@ let emptyUnfoldingEntities: string[] = []
 // }
 
 export function getEndpoints(): MastroEndpoint[] {
-  return endpoints.sort((a,b) => a.name.localeCompare(b.name))
+  return endpoints.sort((a, b) => a.name.localeCompare(b.name))
 }
 
 export async function updateEndpoints() {
@@ -105,7 +147,7 @@ export function getSelectedEndpoint() {
 
 export function setSelectedEndpoint(endpoint: MastroEndpoint) {
   selectedEndpoint = endpoint
-  
+
   if (endpoint) {
     const mwsEmptyUnfoldingRequestOptions = {
       method: 'get',
@@ -113,7 +155,9 @@ export function setSelectedEndpoint(endpoint: MastroEndpoint) {
     }
 
     Object.assign(mwsEmptyUnfoldingRequestOptions, getRequestOptions())
-    handlePromise(axios.request<any>(mwsEmptyUnfoldingRequestOptions)).then(a => console.log(a))
+    handlePromise(axios.request<EmptyUnfoldingEntities>(mwsEmptyUnfoldingRequestOptions)).then(emptyUnfoldings => {
+      emtpyUnfoldingEntities = emptyUnfoldings
+    })
   }
 }
 
@@ -127,4 +171,60 @@ export function getEndpointsCxtMenuCommands(onEndpointSelectionCallback: (endpoi
       },
     }
   })
+}
+
+export function hasEntityEmptyUnfolding(entityIri: string, entityType?: EntityTypeEnum) {
+  let arrToCheck: MWSEntity[] = []
+
+  switch (entityType) {
+    case EntityTypeEnum.Class: {
+      arrToCheck = arrToCheck.concat(...emtpyUnfoldingEntities.emptyUnfoldingClasses)
+      break
+    }
+
+    case EntityTypeEnum.DataProperty: {
+      arrToCheck = arrToCheck.concat(...emtpyUnfoldingEntities.emptyUnfoldingDataProperties)
+      break
+    }
+
+    case EntityTypeEnum.ObjectProperty:
+    case EntityTypeEnum.InverseObjectProperty: {
+      arrToCheck = arrToCheck.concat(...emtpyUnfoldingEntities.emptyUnfoldingObjectProperties)
+      break
+    }
+
+    default:
+      arrToCheck = arrToCheck.concat(
+        ...emtpyUnfoldingEntities.emptyUnfoldingClasses,
+        ...emtpyUnfoldingEntities.emptyUnfoldingDataProperties,
+        ...emtpyUnfoldingEntities.emptyUnfoldingObjectProperties
+      )
+  }
+
+  return arrToCheck.some(e => e.entityIri === entityIri || e.entityPrefixIri === entityIri)
+}
+
+
+export function getEmptyUnfoldingEntities(type?: EntityTypeEnum) {
+  switch (type) {
+    case EntityTypeEnum.Class: {
+      return emtpyUnfoldingEntities.emptyUnfoldingClasses
+    }
+
+    case EntityTypeEnum.DataProperty: {
+      return emtpyUnfoldingEntities.emptyUnfoldingDataProperties
+    }
+
+    case EntityTypeEnum.ObjectProperty:
+    case EntityTypeEnum.InverseObjectProperty: {
+      return emtpyUnfoldingEntities.emptyUnfoldingObjectProperties
+    }
+
+    default:
+      return new Array<MWSEntity>().concat(
+        ...emtpyUnfoldingEntities.emptyUnfoldingClasses,
+        ...emtpyUnfoldingEntities.emptyUnfoldingDataProperties,
+        ...emtpyUnfoldingEntities.emptyUnfoldingObjectProperties
+      )
+  }
 }

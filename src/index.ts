@@ -1,7 +1,7 @@
 import { Grapholscape, RendererStatesEnum, ui } from 'grapholscape'
 import core from './core'
 import * as handlers from './handlers'
-import { initGrapholscapeHandlers, start } from './main'
+import { initGrapholscapeHandlers, performHighlightsEmptyUnfolding, start } from './main'
 import clearQuery from './main/clear-query'
 import { startFullpage, stopFullpage } from './main/fullpage'
 import showInitialModeSelector from './main/show-initial-mode-selector'
@@ -56,6 +56,8 @@ export async function sparqling(gscape: Grapholscape, file: string | Blob, reque
         if (core.onToggleCatalog) {
           core.onToggleCatalog()
         }
+
+        performHighlightsEmptyUnfolding()
         grapholscapeRendererSelector.onOptionSelection = onOptionSelection // restore original callback
       }
     } else {

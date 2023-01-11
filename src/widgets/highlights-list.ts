@@ -1,7 +1,9 @@
 import { GrapholTypesEnum, ui } from 'grapholscape'
 import { css, html, LitElement, PropertyValueMap } from 'lit'
 import { Branch, EntityTypeEnum, Highlights } from '../api/swagger'
+import { hasEntityEmptyUnfolding } from '../model'
 import { lightbulb, placeItem } from './assets/icons'
+import { emptyUnfoldingEntityTooltip } from './assets/texts'
 import sparqlingWidgetStyle from './sparqling-widget-style'
 import getTrayButtonTemplate from './tray-button-template'
 
@@ -90,6 +92,11 @@ export default class HighlightsList extends ui.DropPanelMixin(ui.BaseMixin(LitEl
 
       .ellipsed .actions, .ellipsed .entity-icon {
         overflow-x: unset
+      }
+
+      .disabled {
+        opacity: 0.5
+
       }
     `
   ]
@@ -188,7 +195,13 @@ export default class HighlightsList extends ui.DropPanelMixin(ui.BaseMixin(LitEl
   }
 
   private getObjectPropertySuggestionTemplate(objectPropertyHighlight: Branch) {
-    return html`
+    if (!objectPropertyHighlight.objectPropertyIRI)
+      return
+
+    if (hasEntityEmptyUnfolding(objectPropertyHighlight.objectPropertyIRI, EntityTypeEnum.ObjectProperty)) {
+      return this.getEntitySuggestionTemplate(objectPropertyHighlight.objectPropertyIRI, EntityTypeEnum.ObjectProperty)
+    } else {
+      return html`
       <details class="ellipsed entity-list-item" title=${objectPropertyHighlight.objectPropertyIRI}>
         <summary class="actionable" iri=${objectPropertyHighlight.objectPropertyIRI}>
           <span class="entity-icon">${ui.icons.objectPropertyIcon}</span>
@@ -202,9 +215,11 @@ export default class HighlightsList extends ui.DropPanelMixin(ui.BaseMixin(LitEl
         </div>
       </details>
     `
+    }
   }
 
   private getEntitySuggestionTemplate(entityIri: string, entityType: EntityTypeEnum, objectPropertyIri?: string) {
+    const hasEmptyUnfolding = hasEntityEmptyUnfolding(entityIri, entityType)
     let entityIcon: { _$litType$: 2; strings: TemplateStringsArray; values: unknown[] }
 
     switch(entityType) {
@@ -223,14 +238,24 @@ export default class HighlightsList extends ui.DropPanelMixin(ui.BaseMixin(LitEl
     }
     
     return html`
-      <div iri=${entityIri} entity-type="${entityType}" class="ellipsed entity-list-item">
+      <div 
+        iri=${entityIri}
+        entity-type="${entityType}"
+        class="ellipsed entity-list-item ${hasEmptyUnfolding ? 'disabled' : null}"
+        title=${hasEmptyUnfolding ? emptyUnfoldingEntityTooltip() : null}
+      >
         <span class="entity-icon">${entityIcon}</span>
         <span class="entity-name actionable" @click=${this.handleEntityNameClick}>${entityIri}</span>
-        <span class="actions">
-          ${getTrayButtonTemplate('Add to query', placeItem, undefined, 'add-to-query-action', (e) => {
-            this.handleAddToQueryClick(e, objectPropertyIri)
-          })}
-        </span>
+        ${!hasEmptyUnfolding
+          ? html`
+            <span class="actions">
+              ${getTrayButtonTemplate('Add to query', placeItem, undefined, 'add-to-query-action', (e) => {
+                this.handleAddToQueryClick(e, objectPropertyIri)
+              })}
+            </span>
+          `
+          : null
+        }
       </div>
     `
   }

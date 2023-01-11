@@ -1,12 +1,16 @@
 import { Core } from "cytoscape"
-import { EntityNameType, Grapholscape, GrapholscapeTheme, GrapholTypesEnum, LifecycleEvent, RendererStatesEnum, storeConfigEntry } from "grapholscape"
+import { EntityNameType, Grapholscape, GrapholscapeTheme, GrapholTypesEnum, LifecycleEvent, RendererStatesEnum } from "grapholscape"
 import { OntologyGraphHandlers } from "../handlers"
 import * as model from '../model'
+import { hasEntityEmptyUnfolding } from "../model"
 import * as ontologyGraph from '../ontology-graph'
-import { getGscape, refreshHighlights } from "../ontology-graph"
+import { getGscape, refreshHighlights, resetHighlights } from "../ontology-graph"
 import sparqlingStyle from '../ontology-graph/style'
 import * as queryGraph from '../query-graph'
+import { cxtMenu } from "../widgets"
+import { emptyUnfoldingEntityTooltip } from "../widgets/assets/texts"
 import { stopFullpage } from "./fullpage"
+import { performHighlightsEmptyUnfolding } from "./highlights"
 
 export default function init() {
   const gscape = getGscape()
@@ -42,8 +46,12 @@ function onChangeDiagramOrRenderer(gscape: Grapholscape) {
     ontologyGraph.addStylesheet(gscape.renderer.cy, sparqlingStyle(gscape.theme))
   }
 
-  if (gscape.renderState !== RendererStatesEnum.INCREMENTAL && model.isSparqlingRunning())
+  if (gscape.renderState !== RendererStatesEnum.INCREMENTAL && model.isSparqlingRunning()) {
+    resetHighlights()
+    performHighlightsEmptyUnfolding()
     refreshHighlights()
+  }
+
 }
 
 function setHandlers(cy: Core) {
@@ -51,16 +59,27 @@ function setHandlers(cy: Core) {
   // avoid fake nodes (for inverse/nonInverse functional obj properties)
   const objPropertiesSelector = `[iri][type = "${GrapholTypesEnum.OBJECT_PROPERTY}"]`
   cy.on('mouseover', objPropertiesSelector, e => {
-    if (model.isSparqlingRunning())
+    if (model.isSparqlingRunning() && !hasEntityEmptyUnfolding(e.target.data().iri))
       ontologyGraph.showRelatedClassesWidget(e.target.data('iri'), e.renderedPosition)
   })
+
+  cy.on('mouseover', `.${model.FADED_CLASS}`, e => {
+    if (hasEntityEmptyUnfolding(e.target.data().iri)) { // show empty unfolding tooltip
+      const popperRef = e.target.popperRef()
+      const msgSpan = document.createElement('span')
+      msgSpan.innerHTML = emptyUnfoldingEntityTooltip()
+      cxtMenu.attachTo(popperRef, undefined, [msgSpan])
+      setTimeout(() => cxtMenu.tippyMenu.hide(), 1000)
+    }
+  })
+
   cy.on('mouseout', objPropertiesSelector, e => {
     if (model.isSparqlingRunning())
       ontologyGraph.hideRelatedClassesWidget()
   })
 
   cy.on('dblclick', `[iri]`, e => {
-    if (model.isSparqlingRunning() && getGscape().diagramId !== undefined)
+    if (model.isSparqlingRunning() && getGscape().diagramId !== undefined && !hasEntityEmptyUnfolding(e.target.data().iri))
       OntologyGraphHandlers.handleEntitySelection(e.target.data().iri, e.target.data().type, { elementId: e.target.id(), diagramId: getGscape().diagramId! })
   })
 }

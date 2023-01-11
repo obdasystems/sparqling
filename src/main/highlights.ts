@@ -4,6 +4,7 @@ import { highlightsList } from '../widgets'
 
 export function performHighlights(iri: string) {
   // Highlight suggestions for the actual clicked iri (might be a child node)
+  ontologyGraph.resetHighlights()
   model.computeHighlights(iri).then(_ => {
     highlightsList.allHighlights = model.transformHighlightsToPrefixedIRIs()
     if (!model.isFullPageActive()) {
@@ -18,4 +19,11 @@ export function clearHighlights() {
     ontologyGraph.resetHighlights()
 
   highlightsList.allHighlights = undefined
+  performHighlightsEmptyUnfolding()
+}
+
+export function performHighlightsEmptyUnfolding() {
+  for (const mwsEntity of model.getEmptyUnfoldingEntities()) {
+    ontologyGraph.fadeEntity(mwsEntity.entityIri)
+  }
 }
