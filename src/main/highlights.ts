@@ -24,6 +24,6 @@ export function clearHighlights() {
 
 export function performHighlightsEmptyUnfolding() {
   for (const mwsEntity of model.getEmptyUnfoldingEntities()) {
-    ontologyGraph.fadeEntity(mwsEntity.entityIri)
+    ontologyGraph.fadeEntity(mwsEntity.entityIRI)
   }
 }

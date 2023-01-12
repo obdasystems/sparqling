@@ -41,9 +41,9 @@ export enum QueryStatusEnum {
 }
 
 export type MWSEntity = {
-  entityIri: string,
+  entityIRI: string,
   entityID: string,
-  entityPrefixIri: string,
+  entityPrefixIRI: string,
   entityRemainder: string,
   entityType: string,
 }
@@ -201,7 +201,7 @@ export function hasEntityEmptyUnfolding(entityIri: string, entityType?: EntityTy
       )
   }
 
-  return arrToCheck.some(e => e.entityIri === entityIri || e.entityPrefixIri === entityIri)
+  return arrToCheck.some(e => e.entityIRI === entityIri || e.entityPrefixIRI === entityIri)
 }
 
 
