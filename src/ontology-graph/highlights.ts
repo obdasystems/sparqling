@@ -14,12 +14,12 @@ export function highlightIRI(iri: string) {
 
   let iriOccurrences = gscape.ontology.getEntityOccurrences(iri)?.get(RendererStatesEnum.GRAPHOL)
   if (iriOccurrences) {
-    addClassToEntityOccurrences(iriOccurrences, model.HIGHLIGHT_CLASS) 
+    addClassToEntityOccurrences(iriOccurrences, model.HIGHLIGHT_CLASS)
   }
   if (gscape.renderState !== RendererStatesEnum.GRAPHOL) {
     const occurrencesInActualRendererState = gscape.ontology.getEntityOccurrences(iri)?.get(gscape.renderState)
     if (occurrencesInActualRendererState) {
-      addClassToEntityOccurrences(occurrencesInActualRendererState, model.FADED_CLASS)
+      addClassToEntityOccurrences(occurrencesInActualRendererState, model.HIGHLIGHT_CLASS)
     }
   }
 }
