@@ -36,49 +36,50 @@ export function resetHighlights() {
   })
 }
 
-export function refreshHighlights() {
-  let activeElement = model.getActiveElement()
-  if (activeElement) {
-    performHighlights(activeElement.iri.fullIri)
-  }
+export function fadeEntitiesNotHighlighted() {
+  const gscape = getGscape()
+
+  if (!gscape.renderState) return
+
+  const highlightedElems = gscape.renderer.cy?.$('.highlighted, .sparqling-selected') || cytoscape().collection()
+  const fadedElems = gscape.renderer.cy?.elements().difference(highlightedElems)
+  fadedElems?.addClass(model.FADED_CLASS)
 }
 
-export function performHighlights(clickedIRI: string) {
+export function selectEntity(iri: string) {
   const gscape = getGscape()
-  if (!gscape.renderState) return
-  // resetHighlights()
-  const highlights = model.getActualHighlights()
-  highlights?.classes?.forEach((iri: string) => highlightIRI(iri))
-  highlights?.dataProperties?.forEach((iri: string) => highlightIRI(iri))
-  highlights?.objectProperties?.forEach((o: any) => highlightIRI(o.objectPropertyIRI))
 
-  const iriOccurrences = gscape.ontology.getEntityOccurrences(clickedIRI)?.get(RendererStatesEnum.GRAPHOL)
+  if (!gscape.renderState) return
+
+  const iriOccurrences = gscape.ontology.getEntityOccurrences(iri)?.get(RendererStatesEnum.GRAPHOL)
   if (gscape.renderState !== RendererStatesEnum.GRAPHOL) {
-    const occurrencesInActualRendererState = gscape.ontology.getEntityOccurrences(clickedIRI)?.get(gscape.renderState)
+    const occurrencesInActualRendererState = gscape.ontology.getEntityOccurrences(iri)?.get(gscape.renderState)
     if (occurrencesInActualRendererState)
       iriOccurrences?.push(...occurrencesInActualRendererState)
   }
   if (iriOccurrences) {
     // select all nodes having iri = clickedIRI
+    addClassToEntityOccurrences(iriOccurrences, model.SPARQLING_SELECTED)
     for (const occurrence of iriOccurrences) {
       const diagram = gscape.ontology.getDiagram(occurrence.diagramId)
       const occurrenceCyElement = diagram?.representations.get(gscape.renderState)?.cy.$id(occurrence.elementId)
       occurrenceCyElement?.addClass(model.SPARQLING_SELECTED)
     }
-
-    const highlightedElems = gscape.renderer.cy?.$('.highlighted, .sparqling-selected') || cytoscape().collection()
-    const fadedElems = gscape.renderer.cy?.elements().difference(highlightedElems)
-    fadedElems?.addClass(model.FADED_CLASS)
   }
-  //fadedElems.unselectify()
 }
 
 
 function addClassToEntityOccurrences(entityOccurrences: EntityOccurrence[], classToAdd: string) {
   const gscape = getGscape()
   entityOccurrences.forEach(occurrence => {
-    if (occurrence.diagramId === gscape.diagramId)
-      gscape.renderer.cy?.$id(occurrence.elementId).addClass(classToAdd)
+    if (occurrence.diagramId === gscape.diagramId) {
+      const cyElem = gscape.renderer.cy?.$id(occurrence.elementId)
+
+      cyElem?.addClass(classToAdd)
+
+      if (classToAdd === model.HIGHLIGHT_CLASS || classToAdd === model.SPARQLING_SELECTED)
+        cyElem?.removeClass(model.FADED_CLASS)
+    }
   })
 }
 
@@ -89,7 +90,7 @@ export function fadeEntity(iri: string) {
 
   let iriOccurrences = gscape.ontology.getEntityOccurrences(iri)?.get(RendererStatesEnum.GRAPHOL)
   if (iriOccurrences) {
-    addClassToEntityOccurrences(iriOccurrences, model.FADED_CLASS) 
+    addClassToEntityOccurrences(iriOccurrences, model.FADED_CLASS)
   }
   if (gscape.renderState !== RendererStatesEnum.GRAPHOL) {
     const occurrencesInActualRendererState = gscape.ontology.getEntityOccurrences(iri)?.get(gscape.renderState)

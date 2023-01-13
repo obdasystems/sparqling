@@ -1,10 +1,10 @@
 import { GrapholRendererState, ui } from "grapholscape";
 import { QueryGraph } from "../api/swagger";
 import * as model from "../model";
-import { getGscape } from "../ontology-graph";
+import { getGscape, selectEntity } from "../ontology-graph";
 import * as queryGraph from "../query-graph";
 import { cy, setTheme } from "../query-graph/renderer";
-import { getIri } from "../util/graph-element-utility";
+import { getIri, getIris } from "../util/graph-element-utility";
 import { classSelector, countStarToggle, distinctToggle, limitInput, offsetInput, startRunButtons } from "../widgets";
 import clearQuery from "./clear-query";
 import { performHighlights } from "./highlights";
@@ -40,7 +40,8 @@ export default async function (queryBody: QueryGraph, queryName: string) {
       })
 
       queryGraph.selectElement(activeElementIri)
-      performHighlights(activeElementIri)
+      performHighlights(getIris(queryBody.graph))
+      selectEntity(activeElementIri)
     }
   }
 

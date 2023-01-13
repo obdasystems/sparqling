@@ -2,8 +2,9 @@ import { ui } from 'grapholscape'
 import { StandaloneApi } from '../api/swagger'
 import core from '../core'
 import * as model from '../model'
+import { selectEntity } from '../ontology-graph'
 import getGscape from '../ontology-graph/get-gscape'
-import { getIri } from '../util/graph-element-utility'
+import { getIri, getIris } from '../util/graph-element-utility'
 import { showUI } from '../util/show-hide-ui'
 import { startRunButtons } from '../widgets'
 import { handlePromise } from './handle-promises'
@@ -47,11 +48,8 @@ export default async function () {
     startRunButtons.requestUpdate()
     const selectedGraphElement = model.getActiveElement()?.graphElement
     if (selectedGraphElement) {
-      const selectedGraphElementIri = getIri(selectedGraphElement)
-
-      if (selectedGraphElementIri)
-        performHighlights(selectedGraphElementIri)
-
+      performHighlights(getIris(selectedGraphElement))
+      selectEntity(getIri(selectedGraphElement) || '')
     }
     core.onStart()
   }

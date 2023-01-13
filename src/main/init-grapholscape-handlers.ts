@@ -4,13 +4,14 @@ import { OntologyGraphHandlers } from "../handlers"
 import * as model from '../model'
 import { hasEntityEmptyUnfolding } from "../model"
 import * as ontologyGraph from '../ontology-graph'
-import { getGscape, refreshHighlights, resetHighlights } from "../ontology-graph"
+import { getGscape, resetHighlights, selectEntity } from "../ontology-graph"
 import sparqlingStyle from '../ontology-graph/style'
 import * as queryGraph from '../query-graph'
+import { getIris } from "../util/graph-element-utility"
 import { cxtMenu } from "../widgets"
 import { emptyUnfoldingEntityTooltip } from "../widgets/assets/texts"
 import { stopFullpage } from "./fullpage"
-import { performHighlightsEmptyUnfolding } from "./highlights"
+import { performHighlightsEmptyUnfolding, refreshHighlights } from "./highlights"
 
 export default function init() {
   const gscape = getGscape()
@@ -50,6 +51,10 @@ function onChangeDiagramOrRenderer(gscape: Grapholscape) {
     resetHighlights()
     performHighlightsEmptyUnfolding()
     refreshHighlights()
+    const activeElement = model.getActiveElement()
+    if (activeElement) {
+      getIris(activeElement.graphElement).forEach(iri => selectEntity(iri))
+    }
   }
 
 }

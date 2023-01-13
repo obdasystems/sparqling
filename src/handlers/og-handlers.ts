@@ -7,9 +7,10 @@ import onNewBody from "../main/on-new-body"
 import * as model from "../model"
 import { isIriHighlighted } from "../model"
 import * as ontologyGraph from "../ontology-graph"
+import { selectEntity } from "../ontology-graph"
 import getGscape from "../ontology-graph/get-gscape"
 import * as queryGraph from "../query-graph"
-import { getdiffNew, graphElementHasIri, isClass } from "../util/graph-element-utility"
+import { getdiffNew, getIris, graphElementHasIri, isClass } from "../util/graph-element-utility"
 
 
 let lastObjProperty: Branch | null
@@ -20,9 +21,6 @@ export async function handleEntitySelection(entityIriString: string, entityType:
   const activeElement = model.getActiveElement()
 
   if (activeElement && graphElementHasIri(activeElement.graphElement, entityIriString) && !lastObjProperty) {
-    if (!ontologyGraph.isIriSelected(entityIri)) {
-      performHighlights(entityIriString)
-    }
     return
   }
 
@@ -41,7 +39,7 @@ export async function handleEntitySelection(entityIriString: string, entityType:
         // Get nodes not present in the old graph
         const newGraphElements = getdiffNew(model.getQueryBody()?.graph, newBody.graph)
         const newSelectedGraphElement = setOriginNode(entityOccurrence, newGraphElements, entityIriString)
-        performHighlights(entityIriString)
+        // performHighlights(entityIriString)
         onNewBody(newBody)
 
         // after onNewBody because we need to select the element after rendering phase
@@ -52,6 +50,10 @@ export async function handleEntitySelection(entityIriString: string, entityType:
             graphElement: newSelectedGraphElement,
             iri: entityIri,
           })
+
+          const selectedClassesIris = getIris(newSelectedGraphElement)
+          performHighlights(selectedClassesIris)
+          selectedClassesIris.forEach(iri => selectEntity(iri))
         }
       })
       break
@@ -81,13 +83,13 @@ export function handleObjectPropertySelection(branch: Branch, relatedClassEntity
     gscape.centerOnElement(relatedClassEntityOccurrence.elementId, relatedClassEntityOccurrence.diagramId)
     gscape.selectElement(relatedClassEntityOccurrence.elementId)
   }
-  
-  const relatedClassCyElement = gscape.renderState 
+
+  const relatedClassCyElement = gscape.renderState
     ? gscape.ontology.getDiagram(relatedClassEntityOccurrence.diagramId)
       ?.representations.get(gscape.renderState)
       ?.cy.$id(relatedClassEntityOccurrence.elementId)
     : null
-  
+
   if (relatedClassCyElement)
     handleEntitySelection(relatedClassCyElement.data().iri, relatedClassCyElement.data().type, relatedClassEntityOccurrence)
 }

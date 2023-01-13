@@ -1,4 +1,4 @@
-import { Highlights, OntologyGraphApi } from "../api/swagger";
+import { Branch, Highlights, OntologyGraphApi } from "../api/swagger";
 import { handlePromise } from "../main/handle-promises";
 import getPrefixedIri from "../util/get-prefixed-iri";
 import { getBasePath, getRequestOptions } from "./request-options";
@@ -8,13 +8,38 @@ let actualHighlights: Highlights | undefined
 export async function computeHighlights(iri: string): Promise<Highlights> {
   const ogApi = new OntologyGraphApi(undefined, getBasePath())
 
-  const highlightsPromise = handlePromise(ogApi.highligths(iri, undefined, getRequestOptions()))
-
-  highlightsPromise.then(highlights => {
+  const highlights = await handlePromise(ogApi.highligths(iri, undefined, getRequestOptions()))
+  if (!actualHighlights)
     actualHighlights = highlights
-  })
+  else {
+    if (highlights.classes) {
+      if (actualHighlights.classes) {
+        actualHighlights.classes = Array.from(new Set([...actualHighlights.classes, ...highlights.classes]))
+      }
+    }
 
-  return highlightsPromise
+    if (highlights.dataProperties) {
+      if (actualHighlights.dataProperties) {
+        actualHighlights.dataProperties = Array.from(new Set([...actualHighlights.dataProperties, ...highlights.dataProperties]))
+      }
+    }
+
+    if (highlights.objectProperties) {
+      if (actualHighlights.objectProperties) {
+        const branches: Branch[] = []
+
+        for (let newBranch of highlights.objectProperties) {
+          if (actualHighlights.objectProperties.every(b => b.objectPropertyIRI !== newBranch.objectPropertyIRI)) {
+            branches.push(newBranch)
+          }
+        }
+
+        actualHighlights.objectProperties.push(...branches)
+      }
+    }
+  }
+
+  return actualHighlights
 }
 
 export function getActualHighlights() { return actualHighlights }

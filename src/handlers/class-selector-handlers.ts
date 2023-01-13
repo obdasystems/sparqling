@@ -3,7 +3,7 @@ import { performHighlights } from "../main";
 import { handlePromise } from "../main/handle-promises";
 import onNewBody from "../main/on-new-body";
 import { getBasePath, getRequestOptions, setActiveElement } from "../model";
-import { getGscape } from "../ontology-graph";
+import { getGscape, selectEntity } from "../ontology-graph";
 import { selectElement } from "../query-graph";
 import { classSelector } from "../widgets";
 
@@ -11,7 +11,7 @@ classSelector.onClassSelection(async (classIri: string) => {
   const qgBGPApi = new QueryGraphBGPApi(undefined, getBasePath())
   const qgExtraApi = new QueryGraphExtraApi(undefined, getBasePath())
   const classEntity = getGscape().ontology.getEntity(classIri)
-  
+
   if (!classEntity) return
 
   const tempNewQueryBody = await handlePromise(qgBGPApi.getQueryGraph(classEntity.iri.fullIri, getRequestOptions()))
@@ -27,7 +27,8 @@ classSelector.onClassSelection(async (classIri: string) => {
     classSelector.hide()
     if (newQueryBody.graph.id)
       selectElement(newQueryBody.graph.id)
-    
+
     performHighlights(classEntity.iri.fullIri)
+    selectEntity(classEntity.iri.fullIri)
   }
 })

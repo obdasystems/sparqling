@@ -1,5 +1,6 @@
 import { StylesheetStyle } from "cytoscape"
 import { ColoursNames, GrapholscapeTheme, Shape } from "grapholscape"
+import { HIGHLIGHT_CLASS, SPARQLING_SELECTED } from "../model"
 
 export default (theme: GrapholscapeTheme) => [
   {
@@ -7,22 +8,22 @@ export default (theme: GrapholscapeTheme) => [
     style: { 'underlay-shape': 'ellipse' }
   },
   {
-    selector: '.sparqling-selected',
-    style: {
-      'underlay-color': theme.getColour(ColoursNames.accent),
-      'underlay-padding': '4px',
-      'underlay-shape': (node) => node.style('shape') === Shape.ELLIPSE ? Shape.ELLIPSE : Shape.ROUND_RECTANGLE,
-      'underlay-opacity': 1,
-    }
-  },
-  {
-    selector: '.highlighted',
+    selector: `.${HIGHLIGHT_CLASS}`,
     style: {
       'underlay-color': theme.colours["sparqling-highlight"] || theme.getColour(ColoursNames.success_muted),
       'underlay-padding': '8px',
       'underlay-opacity': 1,
       'underlay-shape': (node) => node.style('shape') === Shape.ELLIPSE ? Shape.ELLIPSE : Shape.ROUND_RECTANGLE,
       'border-opacity': 1,
+    }
+  },
+  {
+    selector: `.${SPARQLING_SELECTED}`,
+    style: {
+      'underlay-color': theme.getColour(ColoursNames.accent),
+      'underlay-padding': '4px',
+      'underlay-shape': (node) => node.style('shape') === Shape.ELLIPSE ? Shape.ELLIPSE : Shape.ROUND_RECTANGLE,
+      'underlay-opacity': 1,
     }
   },
   {

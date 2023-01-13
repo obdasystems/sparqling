@@ -1,9 +1,10 @@
-import { Iri, ui } from 'grapholscape'
+import { Iri } from 'grapholscape'
 import { QueryGraph, QueryGraphBGPApiFactory, QueryGraphHeadApiFactory, QueryGraphOptionalApiFactory } from '../api/swagger'
-import { clearQuery, performHighlights, showQueryResultInDialog } from '../main'
+import { clearHighlights, clearQuery, performHighlights, showQueryResultInDialog } from '../main'
 import { handlePromise } from '../main/handle-promises'
 import onNewBody from '../main/on-new-body'
 import * as model from '../model'
+import { selectEntity } from '../ontology-graph'
 import getGscape from '../ontology-graph/get-gscape'
 import * as queryGraph from '../query-graph'
 import { cy } from '../query-graph/renderer'
@@ -31,12 +32,12 @@ queryGraph.onDelete((graphElement, iri) => {
 
   const qgApi = QueryGraphBGPApiFactory(undefined, model.getBasePath())
   const body = model.getQueryBody()
-  const selectedGraphElement = model.getActiveElement()?.graphElement
+  const oldSelectedGraphElement = model.getActiveElement()?.graphElement
   const gscape = getGscape()
 
   if (!iri) {
     handlePromise(qgApi.deleteGraphElementId(graphElement.id, body, model.getRequestOptions())).then(newBody => {
-      if (newBody.graph && !GEUtility.findGraphElement(newBody.graph, ge => ge.id === selectedGraphElement?.id)) {
+      if (newBody.graph && !GEUtility.findGraphElement(newBody.graph, ge => ge.id === oldSelectedGraphElement?.id)) {
         // if we deleted selectedGraphElem, then select its parent
         let newSelectedGE = GEUtility.findGraphElement(body.graph, ge => {
           return ge.children?.some(c => {
@@ -53,7 +54,6 @@ queryGraph.onDelete((graphElement, iri) => {
               graphElement: newSelectedGE,
               iri: new Iri(newSelectedGEIri, gscape.ontology.namespaces)
             })
-            performHighlights(newSelectedGEIri)
           }
         }
 
@@ -82,6 +82,20 @@ queryGraph.onDelete((graphElement, iri) => {
     if (graphElement.id) {
       model.getOriginGrapholNodes().delete(graphElement.id)
       onNewBody(newBody)
+
+      const activeElement = model.getActiveElement()
+      const updatedActiveElement = GEUtility.findGraphElement(newBody.graph, ge => ge.id === activeElement?.graphElement.id)
+      if (activeElement) {
+        if (updatedActiveElement)
+          activeElement.graphElement = updatedActiveElement
+
+
+        if (iri || oldSelectedGraphElement !== activeElement) {
+          clearHighlights()
+          performHighlights(GEUtility.getIris(activeElement.graphElement))
+          GEUtility.getIris(activeElement.graphElement).forEach(iri => selectEntity(iri))
+        }
+      }
     }
   }
 })
@@ -117,7 +131,7 @@ queryGraph.onElementClick((graphElement, iri) => {
     } else {
       gscape.selectEntity(iri)
     }
-  } 
+  }
 
   if (GEUtility.isClass(graphElement)) {
     // if the new graphElement is different from the current selected one the select it
@@ -127,8 +141,13 @@ queryGraph.onElementClick((graphElement, iri) => {
         iri: new Iri(iri, gscape.ontology.namespaces)
       })
 
-      performHighlights(iri)
+      if (graphElement.entities)
+        performHighlights(GEUtility.getIris(graphElement))
+      else
+        performHighlights(iri)
     }
+
+    GEUtility.getIris(graphElement).forEach(iri => selectEntity(iri))
   }
 
   // keep focus on selected class

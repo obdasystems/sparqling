@@ -49,7 +49,7 @@ export function getIri(elem: GraphElement, i = 0): string | undefined {
  * @param i the entity index in the array, default first one
  * @returns 
  */
- export function getPrefixedIri(elem: GraphElement, i = 0): string | undefined {
+export function getPrefixedIri(elem: GraphElement, i = 0): string | undefined {
   if (elem?.entities)
     return elem.entities[i].prefixedIri
 }
@@ -90,7 +90,7 @@ export function isDataProperty(graphElement: GraphElement) {
 
 export function isObjectProperty(graphElement: GraphElement) {
   return getEntityType(graphElement) === EntityTypeEnum.ObjectProperty || isInverseObjectProperty(graphElement)
-    
+
 }
 
 export function isInverseObjectProperty(graphElement: GraphElement) {
@@ -123,7 +123,7 @@ export function areGraphElementsEqual(ge1: GraphElement, ge2: GraphElement): boo
   const hasSameId = ge1.id === ge2.id
   const hasSameFilters = model.getFiltersOnVariable(ge1.id) === model.getFiltersOnVariable(ge2.id)
   const hasSameEntities = JSON.stringify(ge1.entities) === JSON.stringify(ge2.entities)
-  
+
   return hasSameId && hasSameFilters && hasSameEntities
 }
 
@@ -133,4 +133,8 @@ export function getParentFromChildId(id: string) {
   const childIri = splittedId[1]
   const graph = model.getQueryBody()?.graph
   return findGraphElement(graph, ge => graphElementHasIri(ge, childIri) && ge.id === parentId)
+}
+
+export function getIris(ge: GraphElement) {
+  return ge.entities?.map(e => e.iri || '').filter(iri => !!iri) || []
 }
