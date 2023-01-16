@@ -45,6 +45,7 @@ export default async function () {
     startRunButtons.canQueryRun = model.getQueryBody()?.graph && !model.isStandalone() && core.onQueryRun !== undefined
     startRunButtons.endpoints = model.getEndpoints()
     startRunButtons.selectedEndpointName = model.getSelectedEndpoint()?.name
+    startRunButtons.showResultsEnabled = false
     startRunButtons.requestUpdate()
     const selectedGraphElement = model.getActiveElement()?.graphElement
     if (selectedGraphElement) {

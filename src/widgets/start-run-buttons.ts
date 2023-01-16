@@ -2,7 +2,7 @@ import { ui } from 'grapholscape'
 import { css, html, LitElement } from 'lit'
 import * as model from '../model'
 import { MastroEndpoint } from '../model'
-import { description, mastroEndpointIcon, playOutlined, preview, toggleCatalog } from './assets/icons'
+import { description, mastroEndpointIcon, playOutlined, toggleCatalog } from './assets/icons'
 import sparqlingIcon from './assets/sparqling-icon'
 import { getLoadingSpinner, loadingSpinnerStyle } from './loading-spinner'
 
@@ -71,7 +71,11 @@ export default class SparqlingStartRunButtons extends ui.BaseMixin(ui.DropPanelM
         background-color: var(--gscape-color-border-subtle);
         width: 1px;
         height: 1.7em;
-      }   
+      }
+
+      .gscape-panel {
+        max-width: unset;
+      }
     `,
   ]
 
@@ -128,21 +132,6 @@ export default class SparqlingStartRunButtons extends ui.BaseMixin(ui.DropPanelM
 
             <div class="hr"></div>   
 
-            ${this.showResultsEnabled
-              ? html `
-                <gscape-button
-                  @click="${this._onShowResults}"
-                  type="subtle"
-                  title="Show results drawer"
-                >
-                  <span slot="icon">${preview}</span>
-                </gscape-button>
-
-                <div class="hr"></div>
-              `
-              : null
-            }
-
             <gscape-button
               @click="${this._onShowSettingsCallback}"
               type="subtle"
@@ -169,7 +158,23 @@ export default class SparqlingStartRunButtons extends ui.BaseMixin(ui.DropPanelM
               title="Send query to SPARQL endpoint"
             >
               <span slot="icon">${playOutlined}</span>
-            </gscape-button>         
+            </gscape-button>
+
+            ${this.showResultsEnabled
+              ? html `
+                <gscape-button
+                  @click="${this._onShowResults}"
+                  type="subtle"
+                  size="s"
+                  title="Show results drawer"
+                  label="Stored Results"
+                >
+                </gscape-button>
+
+                <div class="hr"></div>
+              `
+              : null
+            }
           `
           : null
         }
