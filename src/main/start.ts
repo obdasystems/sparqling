@@ -5,7 +5,7 @@ import * as model from '../model'
 import { selectEntity } from '../ontology-graph'
 import getGscape from '../ontology-graph/get-gscape'
 import { getIri, getIris } from '../util/graph-element-utility'
-import { showUI } from '../util/show-hide-ui'
+import { hideUI, showUI } from '../util/show-hide-ui'
 import { startRunButtons } from '../widgets'
 import { handlePromise } from './handle-promises'
 import { performHighlights } from './highlights'
@@ -40,6 +40,7 @@ export default async function () {
     const settingsWidget = (getGscape().widgets.get(ui.WidgetEnum.SETTINGS) as any);
     delete settingsWidget.widgetStates[ui.WidgetEnum.OWL_VISUALIZER]
 
+    hideUI()
     showUI()
     model.setSparqlingRunning(true)
     startRunButtons.canQueryRun = model.getQueryBody()?.graph && !model.isStandalone() && core.onQueryRun !== undefined
