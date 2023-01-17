@@ -8,20 +8,7 @@ export function highlightIRI(iri: string) {
   if (hasEntityEmptyUnfolding(iri))
     return
 
-  const gscape = getGscape()
-
-  if (!gscape.renderState) return
-
-  let iriOccurrences = gscape.ontology.getEntityOccurrences(iri)?.get(RendererStatesEnum.GRAPHOL)
-  if (iriOccurrences) {
-    addClassToEntityOccurrences(iriOccurrences, model.HIGHLIGHT_CLASS)
-  }
-  if (gscape.renderState !== RendererStatesEnum.GRAPHOL) {
-    const occurrencesInActualRendererState = gscape.ontology.getEntityOccurrences(iri)?.get(gscape.renderState)
-    if (occurrencesInActualRendererState) {
-      addClassToEntityOccurrences(occurrencesInActualRendererState, model.HIGHLIGHT_CLASS)
-    }
-  }
+  addClassToEntity(iri, model.HIGHLIGHT_CLASS)
 }
 
 export function resetHighlights() {
@@ -47,25 +34,24 @@ export function fadeEntitiesNotHighlighted() {
 }
 
 export function selectEntity(iri: string) {
+  addClassToEntity(iri, model.SPARQLING_SELECTED)
+}
+
+function addClassToEntity(iri: string, classToAdd: string) {
   const gscape = getGscape()
 
   if (!gscape.renderState) return
 
-  const iriOccurrences = gscape.ontology.getEntityOccurrences(iri)?.get(RendererStatesEnum.GRAPHOL)
-  if (gscape.renderState !== RendererStatesEnum.GRAPHOL) {
-    const occurrencesInActualRendererState = gscape.ontology.getEntityOccurrences(iri)?.get(gscape.renderState)
-    if (occurrencesInActualRendererState)
-      iriOccurrences?.push(...occurrencesInActualRendererState)
-  }
-  if (iriOccurrences) {
-    // select all nodes having iri = clickedIRI
-    addClassToEntityOccurrences(iriOccurrences, model.SPARQLING_SELECTED)
-    for (const occurrence of iriOccurrences) {
-      const diagram = gscape.ontology.getDiagram(occurrence.diagramId)
-      const occurrenceCyElement = diagram?.representations.get(gscape.renderState)?.cy.$id(occurrence.elementId)
-      occurrenceCyElement?.addClass(model.SPARQLING_SELECTED)
+  gscape.renderer.cy?.batch(() => {
+    const iriOccurrences = gscape.ontology.getEntityOccurrences(iri, gscape.diagramId)
+    if (iriOccurrences) {
+      // select all nodes having iri = clickedIRI
+      addClassToEntityOccurrences(iriOccurrences.get(RendererStatesEnum.GRAPHOL) || [], classToAdd)
+      if (gscape.renderState && gscape.renderState !== RendererStatesEnum.GRAPHOL) {
+        addClassToEntityOccurrences(iriOccurrences.get(gscape.renderState) || [], classToAdd)
+      }
     }
-  }
+  })
 }
 
 

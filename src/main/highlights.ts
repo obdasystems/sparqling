@@ -14,9 +14,11 @@ export function performHighlights(iri: string | string[]) {
       highlightsList.allHighlights = model.transformHighlightsToPrefixedIRIs()
       if (!model.isFullPageActive()) {
         const activeElement = model.getActiveElement()
-        let activeElementIris: string[]
+        let activeElementIris: string[] = []
+
         if (activeElement)
           activeElementIris = getIris(activeElement?.graphElement)
+
         highlights?.classes?.forEach((iri: string) => {
           if (!activeElement || !activeElementIris.includes(iri))
             ontologyGraph.highlightIRI(iri)
