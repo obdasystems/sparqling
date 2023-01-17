@@ -4,6 +4,7 @@ export * from './request-options'
 export * from './loading-state'
 export * from './endpoints'
 export * from './highlights'
+export * from './config'
 
 let file: File
 let isRunning = false

@@ -1,6 +1,6 @@
 import { ColoursNames, toPNG, toSVG, ui } from 'grapholscape'
 import { css, html, LitElement, PropertyValueMap } from 'lit'
-import { getName, isFullPageActive } from '../model'
+import { getName, isConfigEnabled, isFullPageActive } from '../model'
 import { getGscape } from '../ontology-graph'
 import { countStarToggle, cxtMenu } from '../widgets'
 import { code, dbClick, kebab, rdfLogo, refresh } from '../widgets/assets/icons'
@@ -117,8 +117,8 @@ export default class QueryGraphWidget extends ui.BaseMixin(ui.DropPanelMixin(Lit
           </div>
 
           <div id="buttons-tray">
-            ${distinctToggle}
-            ${countStarToggle}
+            ${isConfigEnabled('distinct') ? distinctToggle : null}
+            ${isConfigEnabled('countStar') ? countStarToggle : null}
             ${getTrayButtonTemplate('Clear Query', refresh, undefined, 'clear-query-btn', this.onQueryClear)}
             ${getTrayButtonTemplate('View SPARQL Code', code, undefined, 'sparql-code-btn', this.onSparqlButtonClick)}
             ${getTrayButtonTemplate('Center Query Graph', ui.icons.centerDiagram, undefined, 'center-btn', this.onCenterDiagram)}
@@ -273,10 +273,17 @@ export default class QueryGraphWidget extends ui.BaseMixin(ui.DropPanelMixin(Lit
   ]
 
   private get cxtMenuElements(): HTMLElement[] {
-    return [
-      limitInput,
-      offsetInput,
-    ]
+    const elems: HTMLElement[] = []
+
+    if (isConfigEnabled('limit')) {
+      elems.push(limitInput)
+    }
+
+    if (isConfigEnabled('offset')) {
+      elems.push(offsetInput)
+    }
+
+    return elems
   }
 }
 

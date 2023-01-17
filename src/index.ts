@@ -25,8 +25,8 @@ export function sparqlingStandalone(gscape: Grapholscape, file: string | Blob) {
   return sparqlingCore
 }
 
-export async function sparqling(gscape: Grapholscape, file: string | Blob, requestOptions: SparqlingRequestOptions, useOntologyGraph = true) {
-
+export async function sparqling(gscape: Grapholscape, file: string | Blob, requestOptions: SparqlingRequestOptions, useOntologyGraph = true, config?: model.SparqlingConfig) {
+  model.setConfig(config)
   if (gscape.renderState === RendererStatesEnum.INCREMENTAL) {
     (gscape.widgets.get(ui.WidgetEnum.ENTITY_SELECTOR) as any).hide()
   }

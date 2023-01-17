@@ -1,6 +1,6 @@
 import { SingularElementReturnValue } from "cytoscape"
 import { EntityTypeEnum } from "../../api/swagger"
-import { getHeadElementByID, isCountStarActive, isStandalone } from "../../model"
+import { getHeadElementByID, isConfigEnabled, isCountStarActive, isStandalone } from "../../model"
 import { addFilter as addFilterIcon, editList, dashedCross, questionMarkDashed, rubbishBin, tableColumnPlus, preview } from "../../widgets/assets/icons"
 import { commandAddFilterText, commandAddHeadText, commandDeleteText, commandMakeOptionalText, commandRemoveOptionalText } from "../../widgets/assets/texts"
 import { ui } from 'grapholscape'
@@ -38,7 +38,8 @@ export function getCommandsForElement(elem: SingularElementReturnValue) {
         commands.push(seeFilters)
       }
 
-      commands.push(addFilter)
+      if (isConfigEnabled('filter'))
+        commands.push(addFilter)
 
       if (!isStandalone() && (elem.data().type === EntityTypeEnum.Class || elem.data().type === EntityTypeEnum.DataProperty)) {
         commands.push(showExamples)

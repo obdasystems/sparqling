@@ -1,7 +1,7 @@
 import { ui } from 'grapholscape';
 import { css, html, LitElement } from 'lit';
 import { Filter, Function, GroupByElement, HeadElement, VarOrConstantConstantTypeEnum } from '../api/swagger';
-import { getFiltersOnVariable } from '../model';
+import { getFiltersOnVariable, isConfigEnabled } from '../model';
 import { addFilter, crosshair, dragHandler, expandLess, expandMore, filter as filterIcon, functionIcon, kebab, rubbishBin, sigma, sortAscendingIcon, sortDescendingIcon, sortIcon } from '../widgets/assets/icons';
 import { getElemWithOperatorStyle } from '../widgets/forms/elem-with-operator-style';
 import { getElemWithOperatorList } from '../widgets/forms/elems-with-operator-list-template';
@@ -402,13 +402,14 @@ export default class HeadElementComponent extends ui.BaseMixin(ui.DropPanelMixin
   get cxtMenuCommands() {
     const result: ui.Command[] = []
 
-    result.push({
-      content: 'Add Filter',
-      icon: addFilter,
-      select: () => this.addFilterCallback(this._id)
-    })
+    if (isConfigEnabled('filter'))
+      result.push({
+        content: 'Add Filter',
+        icon: addFilter,
+        select: () => this.addFilterCallback(this._id)
+      })
 
-    if (!this.function) {
+    if (isConfigEnabled('function') && !this.function) {
       result.push({
         content: 'Add Function',
         icon: functionIcon,
@@ -416,7 +417,7 @@ export default class HeadElementComponent extends ui.BaseMixin(ui.DropPanelMixin
       })
     }
 
-    if (!this.groupBy) {
+    if (isConfigEnabled('aggregation') && !this.groupBy) {
       result.push({
         content: 'Add Aggregation Function',
         icon: sigma,
