@@ -22,13 +22,15 @@
  * SOFTWARE.
  */
 
-import { ui, GrapholTypesEnum, RendererStatesEnum, Iri, EntityNameType, ColoursNames, GrapholRendererState, Shape, LifecycleEvent } from 'grapholscape';
+import { ui, GrapholTypesEnum, RendererStatesEnum, Iri, EntityNameType, ColoursNames, toPNG, toSVG, GrapholRendererState, Shape, LifecycleEvent } from 'grapholscape';
 import globalAxios from 'axios';
 import cytoscape from 'cytoscape';
 import cola from 'cytoscape-cola';
 import compoundDragAndDrop from 'cytoscape-compound-drag-and-drop';
 import klay from 'cytoscape-klay';
 import popper$1 from 'cytoscape-popper';
+import automove from 'cytoscape-automove';
+import svg from 'cytoscape-svg';
 
 /******************************************************************************
 Copyright (c) Microsoft Corporation.
@@ -2479,11 +2481,14 @@ let _requestOptions = {
     basePath: undefined,
     version: undefined,
     headers: undefined,
+    name: undefined,
 };
 function setRequestOptions(requestOptions) {
     _requestOptions = requestOptions;
 }
 function getBasePath() { return _requestOptions.basePath; }
+function getVersion() { return _requestOptions.version; }
+function getName() { return _requestOptions.name; }
 function getRequestOptions() {
     // { params: { version: 'version' }, headers: { "x-monolith-session-id": '0de2de0a-af44-4046-a91b-46b10394f068', 'Access-Control-Allow-Origin': '*', } }
     return {
@@ -2620,8 +2625,8 @@ const queryResultTemplateStyle = i$1 `
 
 function getFormTemplate(formComponent, operators) {
     var _a;
-    const op = formComponent.operator || "Operator";
-    const dt = formComponent.datatype || "Datatype";
+    const op = formComponent.operator || operators[0];
+    const dt = formComponent.datatypeFromOntology || operators[0];
     // const addInputButton = new UI.GscapeButton(UI.icons.plus, "Add input value")
     // addInputButton.id = "add-input-btn"
     return y `
@@ -2637,12 +2642,12 @@ function getFormTemplate(formComponent, operators) {
         ? y `
               <div id="select-datatype">
                 <label>Datatype</label>
-                ${getSelect(dt, Object.values(VarOrConstantConstantTypeEnum), formComponent.datatype !== undefined)}
+                ${getSelect(dt, Object.values(VarOrConstantConstantTypeEnum), formComponent.datatypeFromOntology !== undefined)}
               </div>`
         : null}
         </div>
         <div class="inputs-wrapper">
-          ${(_a = formComponent.parametersIriOrConstants) === null || _a === void 0 ? void 0 : _a.map((parameter, index) => getInput(index, formComponent.datatype, parameter.value, "Set input value"))}
+          ${(_a = formComponent.parametersIriOrConstants) === null || _a === void 0 ? void 0 : _a.map((parameter, index) => getInput(index, formComponent.datatypeFromOntology, parameter.value, "Set input value"))}
           ${formComponent.operator === FilterExpressionOperatorEnum.In ||
         formComponent.operator === FilterExpressionOperatorEnum.NotIn
         ? y `
@@ -2687,20 +2692,19 @@ function getFormTemplate(formComponent, operators) {
     <div id="message-tray"></div>
   `;
 }
-function getInput(index, datatype, value, titleText = '') {
+function getInput(index, datatype, value = '', titleText = '') {
     if (datatype === VarOrConstantConstantTypeEnum.DateTime) {
         value = (value === null || value === void 0 ? void 0 : value.split('T')[0]) || 'value'; // Take only date from ISO format 2022-01-01T00:00:....
     }
     let placeholder = value || 'value';
-    return y `
-    <input
-      type="${getInputType(datatype)}"
-      placeholder="${placeholder}"
-      value="${value}"
-      title="${titleText}"
-      index="${index + 1}"
-      required
-    />`;
+    const input = document.createElement('input');
+    input.type = getInputType(datatype);
+    input.placeholder = placeholder;
+    input.title = titleText;
+    input.setAttribute('index', (index + 1).toString());
+    input.required = true;
+    input.value = value;
+    return y `${input}`;
 }
 function getSelect(defaultOpt, options, disabled = false) {
     const isDefaultAlreadySet = options.includes(defaultOpt);
@@ -2730,139 +2734,6 @@ function getInputType(datatype) {
             return '';
     }
 }
-
-function validateForm (form) {
-    const inputs = form.querySelectorAll('input');
-    const selects = form.querySelectorAll('select');
-    let isValid = true;
-    inputs === null || inputs === void 0 ? void 0 : inputs.forEach(input => {
-        isValid = isValid && validateInputElement(input);
-    });
-    selects === null || selects === void 0 ? void 0 : selects.forEach(select => {
-        isValid = isValid && validateSelectElement(select);
-    });
-    return isValid;
-}
-function validateInputElement(input) {
-    const validityState = input.validity;
-    if (validityState.valueMissing) {
-        input.setCustomValidity('Please fill out this field.');
-    }
-    else if (validityState.rangeUnderflow) {
-        input.setCustomValidity(`Please select a number that is no lower than ${input.min}`);
-    }
-    else if (validityState.rangeOverflow) {
-        input.setCustomValidity(`Please select a number that is no greater than ${input.max}`);
-    }
-    else if (validityState.typeMismatch) {
-        input.setCustomValidity(`Please select a ${input.type}`);
-    }
-    else {
-        input.setCustomValidity('');
-    }
-    return input.reportValidity();
-}
-function validateSelectElement(select) {
-    if (!select.checkValidity()) {
-        select.setCustomValidity('Please select an item in the list.');
-    }
-    const returnValue = select.reportValidity();
-    // reset message, otherwise checkValidity returns always false at next validations
-    select.setCustomValidity('');
-    return returnValue;
-}
-
-var formStyle = i$1 `
-  :host {
-    position: absolute;
-    top: 100px;
-    left: 50%;
-    transform: translate(-50%, 0)
-  }
-
-  .dialog-body {
-    display: flex;
-    flex-direction: column;
-    gap: 10px;
-    align-items: center;
-    min-width: 350px;
-    max-width: 450px;
-    padding: 8px;
-    margin-top: 8px;
-    min-height: 150px;
-    justify-content: space-between;
-  }
-
-  .form, .inputs-wrapper {
-    display: flex;
-    align-items: center;
-    gap: 10px;
-  }
-
-  .form {
-    margin: 0 12px;
-  }
-
-  .gscape-panel {
-    max-height: unset;
-  }
-
-  .selects-wrapper {
-    align-self: start;
-    display: flex;
-    flex-direction: column;
-    gap: 8px;
-  }
-
-  .inputs-wrapper {
-    flex-direction: column;
-    overflow: auto;
-    max-height: 260px;
-    padding-right: 8px;
-  }
-
-  .inputs-wrapper gscape-button {
-    --gscape-icon-size: 18px;
-  }
-
-  .bottom-buttons {
-    display:flex;
-    width: 100%;
-    justify-content: end;
-    gap: 4px;
-  }
-
-  .section-header {
-    text-align: center;
-    font-weight: bold;
-    border-bottom: solid 1px var(--theme-gscape-borders);
-    color: var(--theme-gscape-secondary);
-    width: 85%;
-    margin: auto;
-    margin-bottom: auto;
-    margin-bottom: 10px;
-    padding-bottom: 5px;
-  }
-
-  #message-tray {
-    font-size: 90%;
-  }
-  #message-tray > .correct-message {
-    color: var(--gscape-color-success);
-  }
-  #message-tray > .error-message {
-    color: var(--gscape-color-danger);
-  }
-
-  form abbr {
-    margin: 0 5px;
-  }
-
-  *:disabled {
-    opacity: 0.5;
-    cursor: not-allowed;
-  }
-`;
 
 var sparqlingWidgetStyle = i$1 `
   .top-bar {
@@ -2959,39 +2830,134 @@ var sparqlingWidgetStyle = i$1 `
   }
 `;
 
-const ModalMixin = (superClass) => {
-    class ModalMixinClass extends superClass {
-        show() {
-            super.show();
-            this.style.zIndex = '2';
-            showModalBackground();
-        }
-        hide() {
-            super.hide();
-            this.style.zIndex = '';
-            hideModalBackground();
-        }
-    }
-    // Cast return type to your mixin's interface intersected with the superClass type
-    return ModalMixinClass;
-};
-const modalBackground = document.createElement('div');
-modalBackground.style.cssText = `
-  position: absolute;
-  top: 0;
-  width: 100%;
-  height: 100%;
-  filter: brightness(0.4);
-  background: var(--gscape-color-bg-default);
-  z-index: 1;
-  opacity: 0.6;
-  display: none;
+var formStyle = i$1 `
+  .gscape-panel {
+    position: absolute;
+    top: 100px;
+    left: 50%;
+    transform: translate(-50%, 0);
+    height: unset;
+  }
+
+  .dialog-body {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    align-items: center;
+    min-width: 350px;
+    max-width: 450px;
+    padding: 8px;
+    margin-top: 8px;
+    min-height: 150px;
+    justify-content: space-between;
+  }
+
+  .form, .inputs-wrapper {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+  }
+
+  .form {
+    margin: 0 12px;
+  }
+
+  .selects-wrapper {
+    align-self: start;
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+  }
+
+  .inputs-wrapper {
+    flex-direction: column;
+    overflow: auto;
+    max-height: 260px;
+    padding-right: 8px;
+  }
+
+  .inputs-wrapper gscape-button {
+    --gscape-icon-size: 18px;
+  }
+
+  .bottom-buttons {
+    display:flex;
+    width: 100%;
+    justify-content: end;
+    gap: 4px;
+  }
+
+  .section-header {
+    text-align: center;
+    font-weight: bold;
+    border-bottom: solid 1px var(--theme-gscape-borders);
+    color: var(--theme-gscape-secondary);
+    width: 85%;
+    margin: auto;
+    margin-bottom: auto;
+    margin-bottom: 10px;
+    padding-bottom: 5px;
+  }
+
+  #message-tray {
+    font-size: 90%;
+  }
+  #message-tray > .correct-message {
+    color: var(--gscape-color-success);
+  }
+  #message-tray > .error-message {
+    color: var(--gscape-color-danger);
+  }
+
+  form abbr {
+    margin: 0 5px;
+  }
+
+  *:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+  }
 `;
-function showModalBackground() {
-    modalBackground.style.display = 'initial';
+
+function validateForm (form) {
+    const inputs = form.querySelectorAll('input');
+    const selects = form.querySelectorAll('select');
+    let isValid = true;
+    inputs === null || inputs === void 0 ? void 0 : inputs.forEach(input => {
+        isValid = isValid && validateInputElement(input);
+    });
+    selects === null || selects === void 0 ? void 0 : selects.forEach(select => {
+        isValid = isValid && validateSelectElement(select);
+    });
+    return isValid;
 }
-function hideModalBackground() {
-    modalBackground.style.display = 'none';
+function validateInputElement(input) {
+    const validityState = input.validity;
+    if (validityState.valueMissing) {
+        input.setCustomValidity('Please fill out this field.');
+    }
+    else if (validityState.rangeUnderflow) {
+        input.setCustomValidity(`Please select a number that is no lower than ${input.min}`);
+    }
+    else if (validityState.rangeOverflow) {
+        input.setCustomValidity(`Please select a number that is no greater than ${input.max}`);
+    }
+    else if (validityState.typeMismatch) {
+        input.setCustomValidity(`Please select a ${input.type}`);
+    }
+    else {
+        input.setCustomValidity('');
+    }
+    return input.reportValidity();
+}
+function validateSelectElement(select) {
+    if (!select.checkValidity()) {
+        select.setCustomValidity('Please select an item in the list.');
+    }
+    const returnValue = select.reportValidity();
+    // reset message, otherwise checkValidity returns always false at next validations
+    select.setCustomValidity('');
+    return returnValue;
 }
 
 var Modality;
@@ -2999,7 +2965,7 @@ var Modality;
     Modality["DEFINE"] = "Define";
     Modality["EDIT"] = "Edit";
 })(Modality || (Modality = {}));
-class SparqlingFormDialog extends ModalMixin(ui.BaseMixin(s)) {
+class SparqlingFormDialog extends ui.ModalMixin(ui.BaseMixin(s)) {
     constructor() {
         super(...arguments);
         this.modality = Modality.DEFINE;
@@ -3011,8 +2977,25 @@ class SparqlingFormDialog extends ModalMixin(ui.BaseMixin(s)) {
     }
     handleSubmit() {
         if (this.formElement && validateForm(this.formElement)) {
+            this.normalizeDatatypes();
             this.onValidSubmit();
         }
+    }
+    normalizeDatatypes() {
+        if (this.datatypeFromOntology === 'xsd:int' ||
+            this.datatypeFromOntology === 'xsd:integer' ||
+            this.datatypeFromOntology === 'xsd:double' ||
+            this.datatypeFromOntology === 'xsd:float' ||
+            this.datatypeFromOntology === 'xsd:long' ||
+            this.datatypeFromOntology === 'xsd:short' ||
+            this.datatypeFromOntology === 'xsd:unsignedInt' ||
+            this.datatypeFromOntology === 'xsd:unsignedLong' ||
+            this.datatypeFromOntology === 'xsd:unsignedShort')
+            this.datatype = VarOrConstantConstantTypeEnum.Decimal;
+        else if (Object.values(VarOrConstantConstantTypeEnum).includes(this.datatypeFromOntology))
+            this.datatype = this.datatypeFromOntology;
+        else
+            this.datatype = VarOrConstantConstantTypeEnum.String;
     }
     onOperatorChange(value) {
         var _a, _b;
@@ -3194,17 +3177,19 @@ SparqlingFormDialog.properties = {
     parameters: { attribute: false },
     modality: { attribute: false },
     datatype: { attribute: false },
+    datatypeFromOntology: { type: String },
     aggregateOperator: { attribute: false },
     examples: { attribute: false },
     loadingExamples: { attribute: false, type: Boolean },
-    acceptExamples: { attribute: false, type: Boolean }
+    acceptExamples: { attribute: false, type: Boolean },
+    canSave: { type: Boolean },
 };
 SparqlingFormDialog.styles = [
     ui.baseStyle,
-    formStyle,
     queryResultTemplateStyle,
     loadingSpinnerStyle,
-    sparqlingWidgetStyle
+    sparqlingWidgetStyle,
+    formStyle,
 ];
 
 const rubbishBin = w `<svg fill="currentColor" xmlns="http://www.w3.org/2000/svg" height="20" width="20"><path d="M6.5 17q-.625 0-1.062-.438Q5 16.125 5 15.5v-10H4V4h4V3h4v1h4v1.5h-1v10q0 .625-.438 1.062Q14.125 17 13.5 17Zm7-11.5h-7v10h7ZM8 14h1.5V7H8Zm2.5 0H12V7h-1.5Zm-4-8.5v10Z"/></svg>`;
@@ -3433,7 +3418,7 @@ function getElemWithOperatorList(list, editElemCallback, deleteElemCallback) {
   `;
 }
 
-class FilterListDialog extends ui.BaseMixin(s) {
+class FilterListDialog extends ui.ModalMixin(ui.BaseMixin(s)) {
     constructor() {
         super(...arguments);
         this.filterList = [];
@@ -3454,11 +3439,12 @@ class FilterListDialog extends ui.BaseMixin(s) {
             sparqlingWidgetStyle,
             getElemWithOperatorStyle(),
             i$1 `
-        :host {
+        .gscape-panel {
           position: absolute;
           top: 30%;
           left: 50%;
-          transform: translate(-50%, 0)
+          transform: translate(-50%, 0);
+          height: unset;
         }
 
         .dialog-body {
@@ -3519,39 +3505,142 @@ class FilterListDialog extends ui.BaseMixin(s) {
 }
 customElements.define('sparqling-filter-list', FilterListDialog);
 
-class HighlightsList extends ui.BaseMixin(ui.DropPanelMixin(s)) {
+let lang = 'en';
+const emptyQueryMsg = (l = lang) => {
+    const text = { en: 'Empty Query' };
+    return text[l];
+};
+const emptyHeadMsg = (l = lang) => {
+    const text = {
+        en: 'Your query will output everything'
+    };
+    return text[l];
+};
+const emptyHeadTipMsg = (l = lang) => {
+    const text = {
+        en: 'The query head is the output of your query\n\
+and it seems like you have nothing in it yet.\n\n\
+We don\'t think an empty query is what you want\n\
+so your result now will be everything. \n\n\
+You can choose what to see in output from the\n\
+query graph, data properties \n\
+will automatically go in the query head.'
+    };
+    return text[l];
+};
+const tipWhy = (l = lang) => {
+    const text = {
+        en: 'Why?',
+        it: 'Perché?'
+    };
+    return text[l];
+};
+const emptyGraphMsg = (l = lang) => {
+    const text = {
+        en: 'Double click on a class to add it to the query'
+    };
+    return text[l];
+};
+const tipWhatIsQueryGraph = (l = lang) => {
+    const text = {
+        en: 'What is a Query Graph?',
+        it: 'Cos\'è il Query Graph?'
+    };
+    return text[l];
+};
+const emptyGraphTipMsg = (l = lang) => {
+    const text = {
+        en: 'The query graph is the set of conditions\n\
+you specify to be satisfied by results.\n\n\
+If you add a class (e.g. Person), only\n\
+instances belonging to that class will\n\
+be included in the results (e.g. only persons). \n\n\
+If you then add a object property \n\
+involving that class (e.g. hasCar), results will now\n\
+include only those participating in such relationship\n\
+(e.g. only persons having a Car).'
+    };
+    return text[l];
+};
+const commandAddHeadText = (l = lang) => {
+    const text = {
+        en: 'Add to Query Head',
+        it: 'Aggiungi in Query Head'
+    };
+    return text[l];
+};
+const commandDeleteText = (l = lang) => {
+    const text = {
+        en: 'Delete',
+        it: 'Elimina'
+    };
+    return text[l];
+};
+const commandAddFilterText = (l = lang) => {
+    const text = {
+        en: 'Add Filter',
+        it: 'Aggiungi Filtro'
+    };
+    return text[l];
+};
+const commandMakeOptionalText = (l = lang) => {
+    const text = {
+        en: 'Make Optional',
+        it: 'Rendi Opzionale'
+    };
+    return text[l];
+};
+const commandRemoveOptionalText = (l = lang) => {
+    const text = {
+        en: 'Remove Optional',
+        it: 'Rendi non Opzionale'
+    };
+    return text[l];
+};
+const countStarMsg = (l = lang) => {
+    const text = {
+        en: 'Count the number of results',
+        it: 'Conta il numero di risultati'
+    };
+    return text[l];
+};
+const emptyUnfoldingEntityTooltip = (l = lang) => {
+    const text = {
+        en: 'Entity currently not mapped to data',
+        it: 'Entità non mappata',
+    };
+    return text[l];
+};
+
+class HighlightsList extends ui.DropPanelMixin(ui.BaseMixin(s)) {
     constructor() {
         super();
         this.title = 'Suggestions';
-        this.searchEntityComponent = new ui.GscapeEntitySearch();
         this._onSuggestionLocalization = (element) => { };
         this._onSuggestionAddToQuery = (entityIri, entityType, relatedClassIri) => { };
         this.togglePanel = () => {
             super.togglePanel();
             this.requestUpdate();
         };
-        this.searchEntityComponent.onSearch(e => {
-            var _a, _b, _c, _d;
-            const inputElement = e.target;
-            if (e.key === 'Escape') {
-                inputElement.value = '';
-                inputElement.blur();
-                this.setHighlights();
+        // Should not be necessary the '| Event' and casting to SearchEvent custom Event
+        this.addEventListener('onsearch', (evt) => {
+            var _a, _b, _c;
+            const searchedText = evt.detail.searchText;
+            if (this.highlights && searchedText.length > 2) {
+                const isAmatch = (value1, value2) => value1.toLowerCase().includes(value2.toLowerCase());
+                this.highlights.classes = (_a = this.highlights.classes) === null || _a === void 0 ? void 0 : _a.filter(classIri => isAmatch(classIri, searchedText));
+                this.highlights.dataProperties = (_b = this.highlights.dataProperties) === null || _b === void 0 ? void 0 : _b.filter(dataPropertyIri => isAmatch(dataPropertyIri, searchedText));
+                this.highlights.objectProperties = (_c = this.highlights.objectProperties) === null || _c === void 0 ? void 0 : _c.filter(branch => branch.objectPropertyIRI ? isAmatch(branch.objectPropertyIRI, searchedText) : false);
+                this.requestUpdate();
             }
             else {
-                if (this.allHighlights && this.highlights && ((_a = inputElement.value) === null || _a === void 0 ? void 0 : _a.length) > 2) {
-                    const isAmatch = (value1, value2) => value1.toLowerCase().includes(value2.toLowerCase());
-                    this.highlights.classes = (_b = this.highlights.classes) === null || _b === void 0 ? void 0 : _b.filter(classIri => isAmatch(classIri, inputElement.value));
-                    this.highlights.dataProperties = (_c = this.highlights.dataProperties) === null || _c === void 0 ? void 0 : _c.filter(dataPropertyIri => isAmatch(dataPropertyIri, inputElement.value));
-                    this.highlights.objectProperties = (_d = this.highlights.objectProperties) === null || _d === void 0 ? void 0 : _d.filter(branch => branch.objectPropertyIRI ? isAmatch(branch.objectPropertyIRI, inputElement.value) : false);
-                    this.requestUpdate();
-                }
-                else {
-                    this.setHighlights();
-                }
+                this.setHighlights();
             }
         });
-        this.searchEntityComponent.onEntityFilterToggle(() => this.setHighlights());
+        this.addEventListener('onentityfilterchange', (e) => {
+            this.entityFilters = e.detail;
+            this.setHighlights();
+        });
     }
     render() {
         return y `
@@ -3586,7 +3675,7 @@ class HighlightsList extends ui.BaseMixin(ui.DropPanelMixin(s)) {
               </gscape-button>
             </div>
             <div class="content-wrapper">
-              ${this.searchEntityComponent}
+              <gscape-entity-search></gscape-entity-search>
               <div class="list">
                 ${this.highlights
                 ? y `
@@ -3613,7 +3702,13 @@ class HighlightsList extends ui.BaseMixin(ui.DropPanelMixin(s)) {
     }
     getObjectPropertySuggestionTemplate(objectPropertyHighlight) {
         var _a;
-        return y `
+        if (!objectPropertyHighlight.objectPropertyIRI)
+            return;
+        if (hasEntityEmptyUnfolding(objectPropertyHighlight.objectPropertyIRI, EntityTypeEnum.ObjectProperty)) {
+            return this.getEntitySuggestionTemplate(objectPropertyHighlight.objectPropertyIRI, EntityTypeEnum.ObjectProperty);
+        }
+        else {
+            return y `
       <details class="ellipsed entity-list-item" title=${objectPropertyHighlight.objectPropertyIRI}>
         <summary class="actionable" iri=${objectPropertyHighlight.objectPropertyIRI}>
           <span class="entity-icon">${ui.icons.objectPropertyIcon}</span>
@@ -3627,8 +3722,10 @@ class HighlightsList extends ui.BaseMixin(ui.DropPanelMixin(s)) {
         </div>
       </details>
     `;
+        }
     }
     getEntitySuggestionTemplate(entityIri, entityType, objectPropertyIri) {
+        const hasEmptyUnfolding = hasEntityEmptyUnfolding(entityIri, entityType);
         let entityIcon;
         switch (entityType) {
             case EntityTypeEnum.Class:
@@ -3643,14 +3740,23 @@ class HighlightsList extends ui.BaseMixin(ui.DropPanelMixin(s)) {
                 break;
         }
         return y `
-      <div iri=${entityIri} entity-type="${entityType}" class="ellipsed entity-list-item">
+      <div 
+        iri=${entityIri}
+        entity-type="${entityType}"
+        class="ellipsed entity-list-item ${hasEmptyUnfolding ? 'disabled' : null}"
+        title=${hasEmptyUnfolding ? emptyUnfoldingEntityTooltip() : null}
+      >
         <span class="entity-icon">${entityIcon}</span>
         <span class="entity-name actionable" @click=${this.handleEntityNameClick}>${entityIri}</span>
-        <span class="actions">
-          ${getTrayButtonTemplate('Add to query', placeItem, undefined, 'add-to-query-action', (e) => {
-            this.handleAddToQueryClick(e, objectPropertyIri);
-        })}
-        </span>
+        ${!hasEmptyUnfolding
+            ? y `
+            <span class="actions">
+              ${getTrayButtonTemplate('Add to query', placeItem, undefined, 'add-to-query-action', (e) => {
+                this.handleAddToQueryClick(e, objectPropertyIri);
+            })}
+            </span>
+          `
+            : null}
       </div>
     `;
     }
@@ -3717,17 +3823,17 @@ class HighlightsList extends ui.BaseMixin(ui.DropPanelMixin(s)) {
             this.highlights = JSON.parse(JSON.stringify(this.allHighlights));
         else
             this.highlights = this.allHighlights;
-        if (this.highlights && !this.searchEntityComponent.areAllFiltersDisabled) {
+        if (this.highlights && this.entityFilters && !this.entityFilters.areAllFiltersDisabled) {
             let count = 0;
-            if (this.searchEntityComponent[GrapholTypesEnum.CLASS] !== true) {
+            if (!this.entityFilters[GrapholTypesEnum.CLASS]) {
                 this.highlights.classes = [];
                 count += 1;
             }
-            if (this.searchEntityComponent[GrapholTypesEnum.OBJECT_PROPERTY] !== true) {
+            if (!this.entityFilters[GrapholTypesEnum.OBJECT_PROPERTY]) {
                 this.highlights.objectProperties = [];
                 count += 1;
             }
-            if (this.searchEntityComponent[GrapholTypesEnum.DATA_PROPERTY] !== true) {
+            if (!this.entityFilters[GrapholTypesEnum.DATA_PROPERTY]) {
                 this.highlights.dataProperties = [];
                 count += 1;
             }
@@ -3736,6 +3842,10 @@ class HighlightsList extends ui.BaseMixin(ui.DropPanelMixin(s)) {
                 this.highlights = undefined;
             }
         }
+    }
+    get searchEntityComponent() {
+        var _a;
+        return (_a = this.shadowRoot) === null || _a === void 0 ? void 0 : _a.querySelector('gscape-entity-search');
     }
     blur() {
         var _a;
@@ -3821,6 +3931,11 @@ HighlightsList.styles = [
       .ellipsed .actions, .ellipsed .entity-icon {
         overflow-x: unset
       }
+
+      .disabled {
+        opacity: 0.5
+
+      }
     `
 ];
 customElements.define('sparqling-highlights-list', HighlightsList);
@@ -3851,7 +3966,17 @@ class RelatedClassSelection extends ui.BaseMixin(s) {
           </div>
           <div id="right-panel" class="list">
             ${(_a = this.list) === null || _a === void 0 ? void 0 : _a.map((classItem, i) => {
-            return y `<span class="actionable" index="${i}" @click=${this.handleSelection}>${classItem}</span>`;
+            const hasEmptyUnfolding = hasEntityEmptyUnfolding(classItem, EntityTypeEnum.Class);
+            return y `
+                <span 
+                  class="actionable ${hasEmptyUnfolding ? 'disabled' : null}"
+                  ?hasEmptyUnfolding=${hasEmptyUnfolding}
+                  index="${i}"
+                  @click=${this.handleSelection}
+                  title=${hasEmptyUnfolding ? emptyUnfoldingEntityTooltip() : classItem}
+                >
+                  ${classItem}
+                </span>`;
         })}
           </div>
         </div>
@@ -3862,7 +3987,8 @@ class RelatedClassSelection extends ui.BaseMixin(s) {
         e.preventDefault();
         if (this.list) {
             const index = e.currentTarget.getAttribute('index');
-            if (index !== null) {
+            const hasEmptyUnfolding = e.currentTarget.getAttribute('hasEmptyUnfolding');
+            if (index !== null && (!hasEmptyUnfolding && hasEmptyUnfolding !== '')) {
                 let listItem = this.list[index];
                 this.onSelection(listItem);
                 this.hide();
@@ -4002,111 +4128,15 @@ RelatedClassSelection.styles = [
       .gscape-panel-title {
         padding-top:10px;
       }
+
+      .disabled {
+        opacity: 0.5
+      }
     `
 ];
 customElements.define('sparqling-related-classes', RelatedClassSelection);
 
-let lang = 'en';
-const emptyQueryMsg = (l = lang) => {
-    const text = { en: 'Empty Query' };
-    return text[l];
-};
-const emptyHeadMsg = (l = lang) => {
-    const text = {
-        en: 'Your query will output everything'
-    };
-    return text[l];
-};
-const emptyHeadTipMsg = (l = lang) => {
-    const text = {
-        en: 'The query head is the output of your query\n\
-and it seems like you have nothing in it yet.\n\n\
-We don\'t think an empty query is what you want\n\
-so your result now will be everything. \n\n\
-You can choose what to see in output from the\n\
-query graph, data properties \n\
-will automatically go in the query head.'
-    };
-    return text[l];
-};
-const tipWhy = (l = lang) => {
-    const text = {
-        en: 'Why?',
-        it: 'Perché?'
-    };
-    return text[l];
-};
-const emptyGraphMsg = (l = lang) => {
-    const text = {
-        en: 'Double click on a class to add it to the query'
-    };
-    return text[l];
-};
-const tipWhatIsQueryGraph = (l = lang) => {
-    const text = {
-        en: 'What is a Query Graph?',
-        it: 'Cos\'è il Query Graph?'
-    };
-    return text[l];
-};
-const emptyGraphTipMsg = (l = lang) => {
-    const text = {
-        en: 'The query graph is the set of conditions\n\
-you specify to be satisfied by results.\n\n\
-If you add a class (e.g. Person), only\n\
-instances belonging to that class will\n\
-be included in the results (e.g. only persons). \n\n\
-If you then add a object property \n\
-involving that class (e.g. hasCar), results will now\n\
-include only those participating in such relationship\n\
-(e.g. only persons having a Car).'
-    };
-    return text[l];
-};
-const commandAddHeadText = (l = lang) => {
-    const text = {
-        en: 'Add to Query Head',
-        it: 'Aggiungi in Query Head'
-    };
-    return text[l];
-};
-const commandDeleteText = (l = lang) => {
-    const text = {
-        en: 'Delete',
-        it: 'Elimina'
-    };
-    return text[l];
-};
-const commandAddFilterText = (l = lang) => {
-    const text = {
-        en: 'Add Filter',
-        it: 'Aggiungi Filtro'
-    };
-    return text[l];
-};
-const commandMakeOptionalText = (l = lang) => {
-    const text = {
-        en: 'Make Optional',
-        it: 'Rendi Opzionale'
-    };
-    return text[l];
-};
-const commandRemoveOptionalText = (l = lang) => {
-    const text = {
-        en: 'Remove Optional',
-        it: 'Rendi non Opzionale'
-    };
-    return text[l];
-};
-const countStarMsg = (l = lang) => {
-    const text = {
-        en: 'Count the number of results',
-        it: 'Conta il numero di risultati'
-    };
-    return text[l];
-};
-
-class SparqlDialog extends ModalMixin(ui.BaseMixin(s)) {
+class SparqlDialog extends ui.ModalMixin(ui.BaseMixin(s)) {
     constructor() {
         super(...arguments);
         this.text = emptyQueryMsg();
@@ -4186,13 +4216,14 @@ SparqlDialog.styles = [
     ui.baseStyle,
     sparqlingWidgetStyle,
     i$1 `
-      :host {
+      .gscape-panel {
         position: absolute;
         top: 100px;
         left: 50%;
         transform: translate(-50%, 0);
         min-width: 200px;
         max-width: 800px;
+        height: unset;
       }
 
       .sparql-code-wrapper {
@@ -4276,7 +4307,9 @@ class SparqlingStartRunButtons extends ui.BaseMixin(ui.DropPanelMixin(s)) {
                 ${this.isLoading
                 ? y `${getLoadingSpinner()}`
                 : null}
-                <div class="bold-text">Query Builder</div>
+                <div class="bold-text">
+                  ${this.queryName || 'new_0'}${isQueryDirty() ? '*' : null}
+                </div>
                 <div class="hr"></div>
             `}
         </div>
@@ -4302,20 +4335,6 @@ class SparqlingStartRunButtons extends ui.BaseMixin(ui.DropPanelMixin(s)) {
             </gscape-button>
 
             <div class="hr"></div>   
-
-            ${this.showResultsEnabled
-                ? y `
-                <gscape-button
-                  @click="${this._onShowResults}"
-                  type="subtle"
-                  title="Show results drawer"
-                >
-                  <span slot="icon">${preview}</span>
-                </gscape-button>
-
-                <div class="hr"></div>
-              `
-                : null}
 
             <gscape-button
               @click="${this._onShowSettingsCallback}"
@@ -4343,7 +4362,22 @@ class SparqlingStartRunButtons extends ui.BaseMixin(ui.DropPanelMixin(s)) {
               title="Send query to SPARQL endpoint"
             >
               <span slot="icon">${playOutlined}</span>
-            </gscape-button>         
+            </gscape-button>
+
+            ${this.showResultsEnabled
+                ? y `
+                <gscape-button
+                  @click="${this._onShowResults}"
+                  type="subtle"
+                  size="s"
+                  title="Show results drawer"
+                  label="Stored Results"
+                >
+                </gscape-button>
+
+                <div class="hr"></div>
+              `
+                : null}
           `
             : null}
       </div>
@@ -4441,6 +4475,7 @@ SparqlingStartRunButtons.properties = {
     isLoading: { type: Boolean, attribute: false },
     endpoints: { type: Object, attribute: false },
     selectedEndpointName: { type: String, attribute: false },
+    queryName: { type: String, attribute: false },
     showResultsEnabled: { type: Boolean, attribute: false },
 };
 SparqlingStartRunButtons.styles = [
@@ -4478,7 +4513,11 @@ SparqlingStartRunButtons.styles = [
         background-color: var(--gscape-color-border-subtle);
         width: 1px;
         height: 1.7em;
-      }   
+      }
+
+      .gscape-panel {
+        max-width: unset;
+      }
     `,
 ];
 customElements.define('sparqling-start-run-buttons', SparqlingStartRunButtons);
@@ -4512,7 +4551,11 @@ class FunctionDialog extends SparqlingFormDialog {
           
           <div class="bottom-buttons">
             <gscape-button label="Cancel" @click=${this.hide}></gscape-button>
-            <gscape-button type="primary" @click=${this.handleSubmit} label="Save Function"></gscape-button>
+            ${this.canSave
+            ? y `
+                <gscape-button type="primary" @click=${this.handleSubmit} label="Save Function"></gscape-button>
+              `
+            : null}
           </div>
         </div>
       </div>
@@ -4522,20 +4565,31 @@ class FunctionDialog extends SparqlingFormDialog {
         this.submitCallback = callback;
     }
     setAsCorrect(customText) {
-        var _a, _b;
         super.setAsCorrect(customText);
-        (_b = (_a = this.shadowRoot) === null || _a === void 0 ? void 0 : _a.querySelector('gscape-button[type = "primary"]')) === null || _b === void 0 ? void 0 : _b.remove();
+        this.canSave = false;
+    }
+    setDefaultOperator() {
+        this.operator = this.operators[0];
     }
     get operators() {
-        switch (this.datatype) {
+        switch (this.datatypeFromOntology) {
             case VarOrConstantConstantTypeEnum.String:
                 return this.operatorsOnString;
             case VarOrConstantConstantTypeEnum.Decimal:
+            case 'xsd:int':
+            case 'xsd:float':
+            case 'xsd:long':
+            case 'xsd:double':
+            case 'xsd:integer':
+            case 'xsd:short':
+            case 'xsd:unsignedInt':
+            case 'xsd:unsignedLong':
+            case 'xsd:unsignedShort':
                 return this.operatorsOnNumber;
             case VarOrConstantConstantTypeEnum.DateTime:
                 return this.operatorsOnDate;
             default:
-                return this.operatorsOnString;
+                return Object.values(FunctionNameEnum);
         }
     }
     get operatorsOnString() {
@@ -4631,7 +4685,11 @@ class AggregationDialog extends SparqlingFormDialog {
           
           <div class="bottom-buttons">
             <gscape-button label="Cancel" @click=${this.hide}></gscape-button>
-            <gscape-button type="primary" @click=${this.handleSubmit} label="Save Function"></gscape-button>
+            ${this.canSave
+            ? y `
+                <gscape-button type="primary" @click=${this.handleSubmit} label="Save Function"></gscape-button>
+              `
+            : null}
           </div>
         </div>
       </div>
@@ -4650,15 +4708,14 @@ class AggregationDialog extends SparqlingFormDialog {
     }
     onValidSubmit() {
         if (this._id && this.aggregateOperator && this.parameters)
-            this.submitCallback(this._id, this.aggregateOperator, this.distinct, this.operator, this.parameters);
+            this.submitCallback(this._id, this.aggregateOperator, this.distinct, undefined, this.parameters);
     }
     onSubmit(callback) {
         this.submitCallback = callback;
     }
     setAsCorrect(customText) {
-        var _a, _b;
         super.setAsCorrect(customText);
-        (_b = (_a = this.shadowRoot) === null || _a === void 0 ? void 0 : _a.querySelector('gscape-button[type = "primary"]')) === null || _b === void 0 ? void 0 : _b.remove();
+        this.canSave = false;
     }
     firstUpdated(_changedProperties) {
         super.firstUpdated(_changedProperties);
@@ -4692,7 +4749,7 @@ class AggregationDialog extends SparqlingFormDialog {
 }
 customElements.define('sparqling-aggregation-dialog', AggregationDialog);
 
-class ErrorsDialog extends ModalMixin(ui.BaseMixin(s)) {
+class ErrorsDialog extends ui.ModalMixin(ui.BaseMixin(s)) {
     constructor() {
         super(...arguments);
         this.errorText = '';
@@ -4732,11 +4789,12 @@ ErrorsDialog.styles = [
     ui.baseStyle,
     sparqlingWidgetStyle,
     i$1 `
-      :host {
+      .gscape-panel {
         position: absolute;
         top: 100px;
         left: 50%;
-        transform: translate(-50%, 0)
+        transform: translate(-50%, 0);
+        height: unset;
       }
 
       .dialog-body {
@@ -4749,6 +4807,8 @@ ErrorsDialog.styles = [
         padding: 16px 8px;
         background: var(--gscape-color-danger-subtle);
         white-space: pre-line;
+        border-bottom-right-radius: inherit;
+        border-bottom-left-radius: inherit;
       }
 
       .dialog-body, #widget-header {
@@ -4758,7 +4818,7 @@ ErrorsDialog.styles = [
 ];
 customElements.define('error-dialog', ErrorsDialog);
 
-class SparqlingQueryResults extends ModalMixin(ui.BaseMixin(s)) {
+class SparqlingQueryResults extends ui.ModalMixin(ui.BaseMixin(s)) {
     constructor() {
         super(...arguments);
         this.isLoading = false;
@@ -4837,13 +4897,14 @@ SparqlingQueryResults.styles = [
     sparqlingWidgetStyle,
     queryResultTemplateStyle,
     i$1 `
-      :host {
+      .gscape-panel {
         position: absolute;
         top: 100px;
         left: 50%;
         transform: translate(-50%, 0);
         min-width: 200px;
         max-width: 800px;
+        height: unset;
       }
 
       .dialog-body {
@@ -4925,29 +4986,11 @@ function clearSelected() {
         }
     }
 }
-function isIriSelected(iriToCheck) {
-    var _a, _b;
-    let sparqlingSelectedNode = (_b = (_a = gscape.renderer) === null || _a === void 0 ? void 0 : _a.cy) === null || _b === void 0 ? void 0 : _b.$('.sparqling-selected');
-    if (!sparqlingSelectedNode || (sparqlingSelectedNode === null || sparqlingSelectedNode === void 0 ? void 0 : sparqlingSelectedNode.empty()))
-        return false;
-    else {
-        return iriToCheck.equals(sparqlingSelectedNode.first().data().iri);
-    }
-}
 
 function highlightIRI(iri) {
-    var _a, _b;
-    const gscape = getGscape();
-    let iriOccurrences = (_a = gscape.ontology.getEntityOccurrences(iri)) === null || _a === void 0 ? void 0 : _a.get(RendererStatesEnum.GRAPHOL);
-    if (iriOccurrences) {
-        addHighlightedClassToEntityOccurrences(iriOccurrences);
-    }
-    if (gscape.renderState !== RendererStatesEnum.GRAPHOL) {
-        const occurrencesInActualRendererState = (_b = gscape.ontology.getEntityOccurrences(iri)) === null || _b === void 0 ? void 0 : _b.get(gscape.renderState);
-        if (occurrencesInActualRendererState) {
-            addHighlightedClassToEntityOccurrences(occurrencesInActualRendererState);
-        }
-    }
+    if (hasEntityEmptyUnfolding(iri))
+        return;
+    addClassToEntity(iri, HIGHLIGHT_CLASS);
 }
 function resetHighlights() {
     const gscape = getGscape();
@@ -4955,50 +4998,65 @@ function resetHighlights() {
         for (let [_, diagramRepresentation] of diagram.representations) {
             diagramRepresentation.cy.$(`.${SPARQLING_SELECTED}`).removeClass(SPARQLING_SELECTED);
             diagramRepresentation.cy.$(`.${HIGHLIGHT_CLASS}`).removeClass(HIGHLIGHT_CLASS);
-            diagramRepresentation.cy.$(`.${FADED_CLASS}`).removeClass(FADED_CLASS).selectify();
+            diagramRepresentation.cy.$(`.${FADED_CLASS}`).removeClass(FADED_CLASS);
         }
     });
 }
-function refreshHighlights() {
-    let activeElement = getActiveElement();
-    if (activeElement) {
-        performHighlights$1(activeElement.iri.fullIri);
-    }
-}
-function performHighlights$1(clickedIRI) {
-    var _a, _b, _c, _d, _e, _f, _g, _h;
-    resetHighlights();
+function fadeEntitiesNotHighlighted() {
+    var _a, _b;
     const gscape = getGscape();
-    const highlights = getActualHighlights();
-    (_a = highlights === null || highlights === void 0 ? void 0 : highlights.classes) === null || _a === void 0 ? void 0 : _a.forEach((iri) => highlightIRI(iri));
-    (_b = highlights === null || highlights === void 0 ? void 0 : highlights.dataProperties) === null || _b === void 0 ? void 0 : _b.forEach((iri) => highlightIRI(iri));
-    (_c = highlights === null || highlights === void 0 ? void 0 : highlights.objectProperties) === null || _c === void 0 ? void 0 : _c.forEach((o) => highlightIRI(o.objectPropertyIRI));
-    const iriOccurrences = (_d = gscape.ontology.getEntityOccurrences(clickedIRI)) === null || _d === void 0 ? void 0 : _d.get(RendererStatesEnum.GRAPHOL);
-    if (gscape.renderState !== RendererStatesEnum.GRAPHOL) {
-        const occurrencesInActualRendererState = (_e = gscape.ontology.getEntityOccurrences(clickedIRI)) === null || _e === void 0 ? void 0 : _e.get(gscape.renderState);
-        if (occurrencesInActualRendererState)
-            iriOccurrences === null || iriOccurrences === void 0 ? void 0 : iriOccurrences.push(...occurrencesInActualRendererState);
-    }
-    if (iriOccurrences) {
-        // select all nodes having iri = clickedIRI
-        for (const occurrence of iriOccurrences) {
-            const diagram = gscape.ontology.getDiagram(occurrence.diagramId);
-            const occurrenceCyElement = (_f = diagram === null || diagram === void 0 ? void 0 : diagram.representations.get(gscape.renderState)) === null || _f === void 0 ? void 0 : _f.cy.$id(occurrence.elementId);
-            occurrenceCyElement === null || occurrenceCyElement === void 0 ? void 0 : occurrenceCyElement.addClass(SPARQLING_SELECTED);
-        }
-        const highlightedElems = ((_g = gscape.renderer.cy) === null || _g === void 0 ? void 0 : _g.$('.highlighted, .sparqling-selected')) || cytoscape().collection();
-        const fadedElems = (_h = gscape.renderer.cy) === null || _h === void 0 ? void 0 : _h.elements().difference(highlightedElems);
-        fadedElems === null || fadedElems === void 0 ? void 0 : fadedElems.addClass(FADED_CLASS);
-    }
-    //fadedElems.unselectify()
+    if (!gscape.renderState)
+        return;
+    const highlightedElems = ((_a = gscape.renderer.cy) === null || _a === void 0 ? void 0 : _a.$('.highlighted, .sparqling-selected')) || cytoscape().collection();
+    const fadedElems = (_b = gscape.renderer.cy) === null || _b === void 0 ? void 0 : _b.elements().difference(highlightedElems);
+    fadedElems === null || fadedElems === void 0 ? void 0 : fadedElems.addClass(FADED_CLASS);
 }
-function addHighlightedClassToEntityOccurrences(entityOccurrences) {
+function selectEntity(iri) {
+    addClassToEntity(iri, SPARQLING_SELECTED);
+}
+function addClassToEntity(iri, classToAdd) {
+    var _a;
+    const gscape = getGscape();
+    if (!gscape.renderState)
+        return;
+    (_a = gscape.renderer.cy) === null || _a === void 0 ? void 0 : _a.batch(() => {
+        const iriOccurrences = gscape.ontology.getEntityOccurrences(iri, gscape.diagramId);
+        if (iriOccurrences) {
+            // select all nodes having iri = clickedIRI
+            addClassToEntityOccurrences(iriOccurrences.get(RendererStatesEnum.GRAPHOL) || [], classToAdd);
+            if (gscape.renderState && gscape.renderState !== RendererStatesEnum.GRAPHOL) {
+                addClassToEntityOccurrences(iriOccurrences.get(gscape.renderState) || [], classToAdd);
+            }
+        }
+    });
+}
+function addClassToEntityOccurrences(entityOccurrences, classToAdd) {
     const gscape = getGscape();
     entityOccurrences.forEach(occurrence => {
         var _a;
-        if (occurrence.diagramId === gscape.diagramId)
-            (_a = gscape.renderer.cy) === null || _a === void 0 ? void 0 : _a.$id(occurrence.elementId).addClass(HIGHLIGHT_CLASS);
+        if (occurrence.diagramId === gscape.diagramId) {
+            const cyElem = (_a = gscape.renderer.cy) === null || _a === void 0 ? void 0 : _a.$id(occurrence.elementId);
+            cyElem === null || cyElem === void 0 ? void 0 : cyElem.addClass(classToAdd);
+            if (classToAdd === HIGHLIGHT_CLASS || classToAdd === SPARQLING_SELECTED)
+                cyElem === null || cyElem === void 0 ? void 0 : cyElem.removeClass(FADED_CLASS);
+        }
     });
+}
+function fadeEntity(iri) {
+    var _a, _b;
+    const gscape = getGscape();
+    if (!gscape.renderState)
+        return;
+    let iriOccurrences = (_a = gscape.ontology.getEntityOccurrences(iri)) === null || _a === void 0 ? void 0 : _a.get(RendererStatesEnum.GRAPHOL);
+    if (iriOccurrences) {
+        addClassToEntityOccurrences(iriOccurrences, FADED_CLASS);
+    }
+    if (gscape.renderState !== RendererStatesEnum.GRAPHOL) {
+        const occurrencesInActualRendererState = (_b = gscape.ontology.getEntityOccurrences(iri)) === null || _b === void 0 ? void 0 : _b.get(gscape.renderState);
+        if (occurrencesInActualRendererState) {
+            addClassToEntityOccurrences(occurrencesInActualRendererState, FADED_CLASS);
+        }
+    }
 }
 
 /**
@@ -5010,14 +5068,16 @@ function getEntityOccurrence(entityIri) {
     const gscape = getGscape();
     // Prefer instance in actual diagram, first one as fallback
     const selectedClassEntity = gscape.ontology.getEntity(entityIri);
-    let selectedClassOccurrences = selectedClassEntity.occurrences.get(gscape.renderState);
-    // If the actual representation has no occurrences, then take the original ones
-    if (!selectedClassOccurrences) {
-        selectedClassOccurrences = selectedClassEntity.occurrences.get(RendererStatesEnum.GRAPHOL);
-    }
-    if (selectedClassOccurrences) {
-        return (selectedClassOccurrences === null || selectedClassOccurrences === void 0 ? void 0 : selectedClassOccurrences.find(occurrence => occurrence.diagramId === gscape.diagramId)) ||
-            selectedClassOccurrences[0];
+    if (selectedClassEntity && gscape.renderState) {
+        let selectedClassOccurrences = selectedClassEntity.occurrences.get(gscape.renderState);
+        // If the actual representation has no occurrences, then take the original ones
+        if (!selectedClassOccurrences) {
+            selectedClassOccurrences = selectedClassEntity.occurrences.get(RendererStatesEnum.GRAPHOL);
+        }
+        if (selectedClassOccurrences) {
+            return (selectedClassOccurrences === null || selectedClassOccurrences === void 0 ? void 0 : selectedClassOccurrences.find(occurrence => occurrence.diagramId === gscape.diagramId)) ||
+                selectedClassOccurrences[0];
+        }
     }
 }
 function addStylesheet(cy, stylesheet) {
@@ -5034,6 +5094,8 @@ function showRelatedClassesWidget(objPropertyIri, position) {
         return;
     const gscape = getGscape();
     const objPropertyEntity = gscape.ontology.getEntity(objPropertyIri);
+    if (!objPropertyEntity)
+        return;
     let objPropertyFromApi = (_a = actualHighlights.objectProperties) === null || _a === void 0 ? void 0 : _a.find((o) => {
         if (o === null || o === void 0 ? void 0 : o.objectPropertyIRI)
             return objPropertyEntity.iri.equals(o.objectPropertyIRI);
@@ -5076,18 +5138,24 @@ function onRelatedClassSelection(callback) {
 }
 
 const classSelector = new ui.GscapeEntitySelector();
-classSelector.searchEntityComponent[GrapholTypesEnum.DATA_PROPERTY] = undefined;
-classSelector.searchEntityComponent[GrapholTypesEnum.OBJECT_PROPERTY] = undefined;
-classSelector.searchEntityComponent[GrapholTypesEnum.INDIVIDUAL] = undefined;
 classSelector.hide();
 function initClassSelector() {
-    const entities = getGscape().ontology.entities;
-    let entitiesViewData = [];
-    entities.forEach(entity => {
-        if (entity.is(GrapholTypesEnum.CLASS))
-            entitiesViewData.push({ value: entity, viewOccurrences: new Map() });
+    classSelector.entityList = ui.createEntitiesList(getGscape(), {
+        [GrapholTypesEnum.CLASS]: 1,
+        areAllFiltersDisabled: false,
     });
-    classSelector.entityList = entitiesViewData;
+    classSelector.updateComplete.then(() => {
+        classSelector.entityList.map(e => e.value.iri).forEach((classIri, i) => {
+            var _a;
+            const classElementInList = (_a = classSelector.shadowRoot) === null || _a === void 0 ? void 0 : _a.querySelector(`gscape-action-list-item[iri = "${classIri.prefixed}"]`);
+            classElementInList.style.opacity = '1';
+            if (hasEntityEmptyUnfolding(classIri.fullIri, EntityTypeEnum.Class)) {
+                if (classElementInList) {
+                    classElementInList.style.opacity = '0.5';
+                }
+            }
+        });
+    });
 }
 
 function centerOnElement (elem, zoom) {
@@ -5116,6 +5184,8 @@ function getBGPContainer() {
     container.style.position = 'relative';
     container.style.height = '100%';
     container.style.width = '100%';
+    container.style.borderBottomRightRadius =
+        container.style.borderBottomLeftRadius = 'var(--gscape-border-radius)';
     return container;
 }
 function getLeftColumnContainer() {
@@ -5252,6 +5322,10 @@ function getParentFromChildId(id) {
     const graph = (_a = getQueryBody()) === null || _a === void 0 ? void 0 : _a.graph;
     return findGraphElement(graph, ge => graphElementHasIri(ge, childIri) && ge.id === parentId);
 }
+function getIris(ge) {
+    var _a;
+    return ((_a = ge.entities) === null || _a === void 0 ? void 0 : _a.map(e => e.iri || '').filter(iri => !!iri)) || [];
+}
 
 const distinctToggle = new ui.GscapeToggle();
 distinctToggle.label = 'Distinct';
@@ -5305,8 +5379,9 @@ function getCommandsForElement(elem) {
             if (elem.data().hasFilters) {
                 commands.push(seeFilters);
             }
-            commands.push(addFilter);
-            if (!isStandalone() && elem.data().type === EntityTypeEnum.Class || elem.data().type === EntityTypeEnum.DataProperty) {
+            if (isConfigEnabled('filter'))
+                commands.push(addFilter);
+            if (!isStandalone() && (elem.data().type === EntityTypeEnum.Class || elem.data().type === EntityTypeEnum.DataProperty)) {
                 commands.push(showExamples);
             }
             if (!elem.incomers().empty() && elem.data().type !== EntityTypeEnum.Class) {
@@ -5386,6 +5461,8 @@ cytoscape.use(klay);
 cytoscape.use(compoundDragAndDrop);
 cytoscape.use(popper$1);
 cytoscape.use(cola);
+cytoscape.use(automove);
+cytoscape.use(svg);
 const cy = cytoscape({
     wheelSensitivity: 0.4,
     maxZoom: 2,
@@ -5422,7 +5499,12 @@ cy.on('mouseout', () => {
         container.style.cursor = 'unset';
 });
 cy.on('cxttap', `[iri][!isSuggestion]`, e => {
-    attachCxtMenuTo(e.target.popperRef(), getCommandsForElement(e.target));
+    cxtMenu.attachTo(e.target.popperRef(), getCommandsForElement(e.target));
+});
+cy.automove({
+    nodesMatching: (node) => cy.$(':grabbed').neighborhood(`[type = "${EntityTypeEnum.DataProperty}"]`).has(node),
+    reposition: 'drag',
+    dragWith: `[type ="${EntityTypeEnum.Class}"]`
 });
 let displayedNameType;
 let language;
@@ -8920,25 +9002,33 @@ cy.on('tap', 'node, edge', e => {
  * Add a node to the query graph
  */
 function addNode(node) {
-    var _a, _b;
+    var _a, _b, _c, _d;
     if (!node || !node.id)
         return;
     const newNodeData = getDataObj(node);
     const existingNode = getElementById(node.id);
     let newNode = undefined;
-    if (((_a = node.entities) === null || _a === void 0 ? void 0 : _a.length) && node.entities.length > 1 && (existingNode === null || existingNode === void 0 ? void 0 : existingNode.children().length) !== ((_b = node.entities) === null || _b === void 0 ? void 0 : _b.length)) {
-        node.entities.forEach((child, i) => {
-            if (!(existingNode === null || existingNode === void 0 ? void 0 : existingNode.children().some(c => c[0].data('iri') === child.iri))) {
-                newNode = cy.add({ data: getDataObj(node, i) });
-                arrange();
-            }
-        });
-    }
     if (!existingNode) {
         newNode = cy.add({ data: newNodeData });
+        if (node.entities && ((_a = node.entities) === null || _a === void 0 ? void 0 : _a.length) > 1) {
+            (_b = node.entities) === null || _b === void 0 ? void 0 : _b.forEach((child, i) => {
+                if (!(newNode === null || newNode === void 0 ? void 0 : newNode.children().some(c => c[0].data('iri') === child.iri))) {
+                    cy.add({ data: getDataObj(node, i) });
+                    arrange();
+                }
+            });
+        }
         arrange();
     }
     else {
+        if (node.entities && ((_c = node.entities) === null || _c === void 0 ? void 0 : _c.length) > 1) {
+            (_d = node.entities) === null || _d === void 0 ? void 0 : _d.forEach((child, i) => {
+                if (!(existingNode === null || existingNode === void 0 ? void 0 : existingNode.children().some(c => c[0].data('iri') === child.iri))) {
+                    newNode = cy.add({ data: getDataObj(node, i) });
+                    arrange();
+                }
+            });
+        }
         existingNode.removeData();
         existingNode.data(newNodeData);
     }
@@ -9087,11 +9177,13 @@ function getDataObj(graphElement, i) {
 function getDisplayedName(data) {
     let labels = data.labels;
     const displayedNameType = getDisplayedNameType();
-    if (displayedNameType === EntityNameType.LABEL && labels)
+    if (displayedNameType === EntityNameType.LABEL && labels && Object.keys(labels).length > 0)
         // use first language found if the actual one is not available
         return labels[getLanguage()] || labels[Object.keys(labels)[0]];
+    else if (displayedNameType === EntityNameType.FULL_IRI)
+        return data.iri;
     else
-        return data[displayedNameType] || data.iri;
+        return data[EntityNameType.PREFIXED_IRI] || data.iri;
 }
 
 const { DataProperty, Class, ObjectProperty, InverseObjectProperty } = EntityTypeEnum;
@@ -9237,6 +9329,10 @@ function setDisplayedNameType(newDisplayedNameType, newlanguage) {
 }
 function setTheme(newTheme) {
     cy.style(getStylesheet(newTheme));
+    const container = cy.container();
+    const bgGraphColour = newTheme.getColour(ColoursNames.bg_graph);
+    if (container && bgGraphColour)
+        container.style.background = bgGraphColour;
 }
 
 let joinStartCondition;
@@ -9274,23 +9370,28 @@ class QueryGraphWidget extends ui.BaseMixin(ui.DropPanelMixin(s)) {
     constructor(bgpContainer) {
         super();
         this._isBGPEmpty = true;
-        this.withoutBGP = false;
+        this._withoutBGP = false;
         this.onQueryClear = () => { };
         this.onSparqlButtonClick = () => { };
+        this.onFullScreenEnter = () => { };
+        this.onCenterDiagram = () => { };
         this.title = 'Query Graph';
-        this.togglePanel = () => {
-            super.togglePanel();
-            this.requestUpdate();
-            if (this.isPanelClosed()) {
-                this.style.height = 'fit-content';
+        this.cxtMenuCommands = [
+            {
+                content: 'Export as PNG',
+                icon: ui.icons.save,
+                select: () => toPNG(`query-graph-${getName()}`, cy, getGscape().theme.getColour(ColoursNames.bg_graph))
+            },
+            {
+                content: 'Export as SVG',
+                icon: ui.icons.save,
+                select: () => toSVG(`query-graph-${getName()}`, cy, getGscape().theme.getColour(ColoursNames.bg_graph))
             }
-            else {
-                this.style.height = '30%';
-            }
-        };
+        ];
         this.bgpContainer = bgpContainer;
     }
     render() {
+        this.title = getConfig('queryGraphWidgetTitle') || 'Query Graph';
         return y `
       ${this.isPanelClosed()
             ? y `
@@ -9305,52 +9406,62 @@ class QueryGraphWidget extends ui.BaseMixin(ui.DropPanelMixin(s)) {
             </gscape-button>
           </div>
         `
+            : null}
+
+      <div class="gscape-panel" id="drop-panel">
+        <div class="top-bar">
+          <div id="widget-header" class="bold-text">
+            ${rdfLogo}
+            <span>${this.title}</span>
+          </div>
+
+          <div id="buttons-tray">
+            ${isConfigEnabled('distinct') ? distinctToggle : null}
+            ${isConfigEnabled('countStar') ? countStarToggle$1 : null}
+            ${getTrayButtonTemplate('Clear Query', refresh, undefined, 'clear-query-btn', this.onQueryClear)}
+            ${getTrayButtonTemplate('View SPARQL Code', code, undefined, 'sparql-code-btn', this.onSparqlButtonClick)}
+            ${getTrayButtonTemplate('Center Query Graph', ui.icons.centerDiagram, undefined, 'center-btn', this.onCenterDiagram)}
+            ${!isFullPageActive() ? getTrayButtonTemplate('Fullscreen', ui.icons.enterFullscreen, undefined, 'fullscreen-btn', this.onFullScreenEnter) : null}
+            ${getTrayButtonTemplate('More actions', kebab, undefined, 'cxt-menu-action', this.showCxtMenu)}
+          </div>
+
+          ${this.withoutBGP
+            ? null
             : y `
-          <div class="gscape-panel" id="drop-panel">
-            <div class="top-bar">
-              <div id="widget-header" class="bold-text">
-                ${rdfLogo}
-                <span>${this.title}</span>
-              </div>
-
-              <div id="buttons-tray">
-
-                ${limitInput$1}
-                ${offsetInput}
-                ${distinctToggle}
-                ${countStarToggle$1}
-
-                ${getTrayButtonTemplate('Sparql', code, undefined, 'sparql-code-btn', this.onSparqlButtonClick)}
-                ${getTrayButtonTemplate('Clear Query', refresh, undefined, 'clear-query-btn', this.onQueryClear)}
-              </div>
-
               <gscape-button 
                 id="toggle-panel-button"
-                size="s" 
+                size="s"
                 type="subtle"
                 @click=${this.togglePanel}
               > 
                 <span slot="icon">${ui.icons.minus}</span>
               </gscape-button>
-            </div>
+            `}
+        </div>
 
-            ${!this.withoutBGP
+        ${!this.withoutBGP
+            ? y `
+            ${this.isBGPEmpty
                 ? y `
-                ${this.isBGPEmpty
-                    ? y `
-                      <div class="blank-slate sparqling-blank-slate">
-                        ${dbClick}
-                        <div class="header">${emptyGraphMsg()}</div>
-                        <div class="tip description" title="${emptyGraphTipMsg()}">${tipWhatIsQueryGraph()}</div>
-                      </div>
-                    `
-                    : this.bgpContainer}
-              `
-                : null}
-          </div>
-
-        `}
+                  <div class="blank-slate sparqling-blank-slate">
+                    ${dbClick}
+                    <div class="header">${emptyGraphMsg()}</div>
+                    <div class="tip description" title="${emptyGraphTipMsg()}">${tipWhatIsQueryGraph()}</div>
+                  </div>
+                `
+                : this.bgpContainer}
+          `
+            : null}
+      </div>
     `;
+    }
+    onTogglePanel() {
+        if (this.isPanelClosed()) {
+            this.style.height = 'fit-content';
+        }
+        else {
+            this.style.height = '30%';
+        }
     }
     firstUpdated() {
         //   super.firstUpdated()
@@ -9393,16 +9504,29 @@ class QueryGraphWidget extends ui.BaseMixin(ui.DropPanelMixin(s)) {
          * TEMP FIX: wait for the update lifecycle to be completed and then mount again
          * being sure lit-element won't touch the container anymore until next clear query.
          */
-        if (_changedProperties.has('_isBGPEmpty')) {
-            // if BGP is not empty but it was empty before the update, then re-mount to be sure
-            // to fix conflicts.
-            if (!this.isBGPEmpty && _changedProperties.get('_isBGPEmpty')) {
-                const container = cy.container();
-                if (container)
-                    cy.mount(container);
+        if (_changedProperties.has('_isBGPEmpty') || !this.isPanelClosed()) {
+            const container = cy.container();
+            if (container) {
+                cy.mount(container);
                 cy.resize();
+                /**
+                 * Hacky: updateStyle is not public but it works, ty js.
+                 * If you don't call this, some edges and labels might be not visible until next style update
+                 * (i.e. user click)
+                 */
+                cy.updateStyle();
             }
         }
+    }
+    showCxtMenu() {
+        if (this.moreActionsButton) {
+            cxtMenu.showFirst = 'elements';
+            cxtMenu.attachTo(this.moreActionsButton, this.cxtMenuCommands, this.cxtMenuElements);
+        }
+    }
+    get moreActionsButton() {
+        var _a;
+        return (_a = this.shadowRoot) === null || _a === void 0 ? void 0 : _a.querySelector('#cxt-menu-action');
     }
     get isBGPEmpty() {
         return this._isBGPEmpty;
@@ -9411,10 +9535,31 @@ class QueryGraphWidget extends ui.BaseMixin(ui.DropPanelMixin(s)) {
         var _a;
         return (_a = this.shadowRoot) === null || _a === void 0 ? void 0 : _a.querySelector('#clear-query-btn');
     }
+    get withoutBGP() { return this._withoutBGP; }
+    set withoutBGP(value) {
+        this._withoutBGP = value;
+        if (value) {
+            this.openPanel();
+            this.style.height = 'fit-content';
+        }
+        else {
+            this.style.height = '30%';
+        }
+    }
+    get cxtMenuElements() {
+        const elems = [];
+        if (isConfigEnabled('limit')) {
+            elems.push(limitInput$1);
+        }
+        if (isConfigEnabled('offset')) {
+            elems.push(offsetInput);
+        }
+        return elems;
+    }
 }
 QueryGraphWidget.properties = {
     _isBGPEmpty: { attribute: false, type: Boolean },
-    withoutBGP: { reflect: true, type: Boolean }
+    _withoutBGP: { reflect: true, type: Boolean }
 };
 QueryGraphWidget.styles = [
     ui.baseStyle,
@@ -9431,6 +9576,10 @@ QueryGraphWidget.styles = [
 
       :host([withoutBGP]) {
         height: unset;
+      }
+
+      .top-bar {
+        z-index: 1;
       }
       
       .tip {
@@ -9458,6 +9607,10 @@ QueryGraphWidget.styles = [
       :host([withoutBGP]) > .gscape-panel > .top-bar {
         position: initial;
         border-radius: var(--gscape-border-radius);
+      }
+
+      .gscape-panel {
+        max-height: unset;
       }
     `
 ];
@@ -9737,10 +9890,14 @@ class HeadElementComponent extends ui.BaseMixin(ui.DropPanelMixin(s)) {
                 <div class="filters-function-list">
                   ${getElemWithOperatorList([this.groupBy])}
                 </div>
-                <span class="title">Having</span>
-                <div class="filters-function-list">
-                  ${getElemWithOperatorList(this.having)}
-                </div>
+                ${this.having
+                ? y `
+                    <span class="title">Having</span>
+                    <div class="filters-function-list">
+                      ${getElemWithOperatorList(this.having)}
+                    </div>
+                  `
+                : null}
               </div>
             `
             : null}
@@ -9886,19 +10043,20 @@ class HeadElementComponent extends ui.BaseMixin(ui.DropPanelMixin(s)) {
     }
     get cxtMenuCommands() {
         const result = [];
-        result.push({
-            content: 'Add Filter',
-            icon: addFilter$1,
-            select: () => this.addFilterCallback(this._id)
-        });
-        if (!this.function) {
+        if (isConfigEnabled('filter'))
+            result.push({
+                content: 'Add Filter',
+                icon: addFilter$1,
+                select: () => this.addFilterCallback(this._id)
+            });
+        if (isConfigEnabled('function') && !this.function) {
             result.push({
                 content: 'Add Function',
                 icon: functionIcon,
                 select: () => this.addFunctionCallback(this._id)
             });
         }
-        if (!this.groupBy) {
+        if (isConfigEnabled('aggregation') && !this.groupBy) {
             result.push({
                 content: 'Add Aggregation Function',
                 icon: sigma,
@@ -9942,6 +10100,10 @@ HeadElementComponent.styles = [
 
       #alias-input {
         flex-grow: 2;
+      }
+
+      #alias-input > input {
+        width: 100%;
       }
 
       #field-head{
@@ -10025,15 +10187,17 @@ customElements.define('head-element', HeadElementComponent);
 
 class QueryHeadWidget extends ui.BaseMixin(ui.DropPanelMixin(s)) {
     constructor() {
-        super();
+        super(...arguments);
         this.title = 'Query Columns';
         this.headElements = [];
         this.togglePanel = () => {
             super.togglePanel();
             this.requestUpdate();
         };
+        //createRenderRoot() { return this as any }
     }
     render() {
+        this.title = getConfig('queryHeadWidgetTitle') || 'Query Columns';
         return y `
       ${this.isPanelClosed()
             ? y `
@@ -10048,46 +10212,46 @@ class QueryHeadWidget extends ui.BaseMixin(ui.DropPanelMixin(s)) {
             </gscape-button>
           </div>
         `
-            : y `
-          <div class="gscape-panel" id="drop-panel" style="width: 100%; overflow-y:clip">
-            <div class="top-bar">
-              <div id="widget-header" class="bold-text">
-                ${tableEye}
-                <span>${this.title}</span>
-              </div>
+            : null}
 
-              <gscape-button 
-                id="toggle-panel-button"
-                size="s" 
-                type="subtle"
-                @click=${this.togglePanel}
-              > 
-                <span slot="icon">${ui.icons.minus}</span>
-              </gscape-button>
-            </div>
-
-          ${isCountStarActive()
-                ? y `
-              <div class="blank-slate sparqling-blank-slate">
-                ${counter}
-                <div class="header">${countStarMsg()}</div>
-              </div>
-            `
-                : this.headElements.length === 0
-                    ? y `
-                <div class="blank-slate sparqling-blank-slate">
-                  ${asterisk}
-                  <div class="header">${emptyHeadMsg()}</div>
-                  <div class="tip description" title="${emptyHeadTipMsg()}">${tipWhy()}</div>
-                </div>
-              `
-                    : y `
-                <div id="elems-wrapper" @dragover=${allowDrop} @drop=${allowDrop}>
-                  ${this.headElements.map(headElement => new HeadElementComponent(headElement))}
-                </div>
-              `}
+      <div class="gscape-panel" id="drop-panel" style="width: 100%; overflow-y:clip">
+        <div class="top-bar">
+          <div id="widget-header" class="bold-text">
+            ${tableEye}
+            <span>${this.title}</span>
           </div>
-        `}
+
+          <gscape-button 
+            id="toggle-panel-button"
+            size="s" 
+            type="subtle"
+            @click=${this.togglePanel}
+          > 
+            <span slot="icon">${ui.icons.minus}</span>
+          </gscape-button>
+        </div>
+
+      ${isCountStarActive()
+            ? y `
+          <div class="blank-slate sparqling-blank-slate">
+            ${counter}
+            <div class="header">${countStarMsg()}</div>
+          </div>
+        `
+            : this.headElements.length === 0
+                ? y `
+            <div class="blank-slate sparqling-blank-slate">
+              ${asterisk}
+              <div class="header">${emptyHeadMsg()}</div>
+              <div class="tip description" title="${emptyHeadTipMsg()}">${tipWhy()}</div>
+            </div>
+          `
+                : y `
+            <div id="elems-wrapper" @dragover=${allowDrop} @drop=${allowDrop}>
+              ${this.headElements.map(headElement => new HeadElementComponent(headElement))}
+            </div>
+          `}
+      </div>
     `;
     }
     updated() {
@@ -10106,7 +10270,8 @@ class QueryHeadWidget extends ui.BaseMixin(ui.DropPanelMixin(s)) {
             headElementComponent.onAddAggregation(this.addAggregationCallback);
             headElementComponent.showCxtMenu = () => {
                 if (headElementComponent.moreActionsButton) {
-                    attachCxtMenuTo(headElementComponent.moreActionsButton, headElementComponent.cxtMenuCommands);
+                    cxtMenu.attachTo(headElementComponent.moreActionsButton, headElementComponent.cxtMenuCommands);
+                    // attachCxtMenuTo(headElementComponent.moreActionsButton, headElementComponent.cxtMenuCommands)
                 }
             };
         });
@@ -10182,7 +10347,7 @@ QueryHeadWidget.styles = [
         margin-bottom: 10px;
         background: transparent;
         box-shadow: none;
-        pointer-events:initial;
+        pointer-events: none;
       }
 
       #elems-wrapper {
@@ -10210,6 +10375,10 @@ QueryHeadWidget.styles = [
 
       .top-bar.traslated-down {
         bottom: 10px;
+      }
+
+      .gscape-panel {
+        max-height: unset;
       }
     `
 ];
@@ -10271,7 +10440,7 @@ function getHeadElementWithDatatype(headElement) {
                 const grapholEntity = getGscape().ontology.getEntity(relatedGraphElemIri);
                 headElementCopy['entityType'] = getEntityType(relatedGraphElem);
                 headElementCopy['dataType'] = headElementCopy['entityType'] === EntityTypeEnum.DataProperty
-                    ? grapholEntity.datatype
+                    ? grapholEntity === null || grapholEntity === void 0 ? void 0 : grapholEntity.datatype
                     : null;
                 return headElementCopy;
             }
@@ -10281,19 +10450,46 @@ function getHeadElementWithDatatype(headElement) {
 }
 
 function performHighlights(iri) {
+    const _iris = typeof iri === 'string' ? [iri] : iri;
     // Highlight suggestions for the actual clicked iri (might be a child node)
-    computeHighlights(iri).then(_ => {
-        highlightsList.allHighlights = transformHighlightsToPrefixedIRIs();
-        if (!isFullPageActive()) {
-            performHighlights$1(iri);
-        }
-    });
+    clearHighlights$1();
+    for (let iri of _iris) {
+        computeHighlights(iri).then(highlights => {
+            var _a, _b, _c;
+            highlightsList.allHighlights = transformHighlightsToPrefixedIRIs();
+            if (!isFullPageActive()) {
+                const activeElement = getActiveElement();
+                let activeElementIris = [];
+                if (activeElement)
+                    activeElementIris = getIris(activeElement === null || activeElement === void 0 ? void 0 : activeElement.graphElement);
+                (_a = highlights === null || highlights === void 0 ? void 0 : highlights.classes) === null || _a === void 0 ? void 0 : _a.forEach((iri) => {
+                    if (!activeElement || !activeElementIris.includes(iri))
+                        highlightIRI(iri);
+                });
+                (_b = highlights === null || highlights === void 0 ? void 0 : highlights.dataProperties) === null || _b === void 0 ? void 0 : _b.forEach((iri) => highlightIRI(iri));
+                (_c = highlights === null || highlights === void 0 ? void 0 : highlights.objectProperties) === null || _c === void 0 ? void 0 : _c.forEach((o) => highlightIRI(o.objectPropertyIRI));
+                fadeEntitiesNotHighlighted();
+            }
+        });
+    }
 }
 function clearHighlights$1() {
     clearHighlights();
     if (!isFullPageActive())
         resetHighlights();
     highlightsList.allHighlights = undefined;
+    performHighlightsEmptyUnfolding();
+}
+function refreshHighlights() {
+    let activeElement = getActiveElement();
+    if (activeElement === null || activeElement === void 0 ? void 0 : activeElement.graphElement) {
+        performHighlights(getIris(activeElement.graphElement));
+    }
+}
+function performHighlightsEmptyUnfolding() {
+    for (const mwsEntity of getEmptyUnfoldingEntities()) {
+        fadeEntity(mwsEntity.entityIRI);
+    }
 }
 
 function onNewBody(newBody) {
@@ -10334,6 +10530,7 @@ function onNewBody(newBody) {
         distinctToggle.classList.add('actionable');
     if (!countStarToggle$1.disabled)
         countStarToggle$1.classList.add('actionable');
+    setQueryDirtyState(true);
 }
 
 function handleDistinctChange() {
@@ -10428,94 +10625,6 @@ countStarToggle.onclick = (evt) => {
 };
 var countStarToggle$1 = countStarToggle;
 
-class ContextMenuWidget extends ui.BaseMixin(s) {
-    constructor() {
-        super(...arguments);
-        this.commands = [];
-        this.onCommandRun = () => { };
-    }
-    render() {
-        return y `
-    <div class="gscape-panel">
-      <div>${this.title}</div>
-      ${this.commands.map((command, id) => {
-            return y `
-          <div class="command-entry actionable" command-id="${id}" @click=${this.handleCommandClick}>
-            ${command.icon ? y `<span class="command-icon">${command.icon}</span>` : null}
-            <span class="command-text">${command.content}</span>
-          <div>
-        `;
-        })}
-    </div>
-    `;
-    }
-    handleCommandClick(e) {
-        this.commands[e.currentTarget.getAttribute('command-id')].select();
-        this.onCommandRun();
-    }
-}
-ContextMenuWidget.properties = {
-    commands: { attribute: false }
-};
-ContextMenuWidget.styles = [
-    ui.baseStyle,
-    i$1 `
-      :host {
-        position: initial;
-        display: flex;
-        flex-direction: column;
-        padding: 5px 0;
-      }
-
-      .command-entry {
-        white-space: nowrap;
-        cursor: pointer;
-        padding: 5px 10px;
-        display: flex;
-        gap: 10px;
-        align-items: center;
-      }
-
-      .command-icon {
-        width: 19px;
-        height: 19px;
-      }
-
-      .command-text {
-        position: relative;
-        top: 2px;
-      }
-
-      .gscape-panel {
-        overflow: unset;
-      }
-    `
-];
-customElements.define('query-graph-cxt-menu', ContextMenuWidget);
-
-const cxtMenuWidget = new ContextMenuWidget();
-const cxtMenu = tippy(document.createElement('div'));
-function getCxtMenuProps() {
-    return {
-        trigger: 'manual',
-        allowHTML: true,
-        interactive: true,
-        placement: "bottom",
-        appendTo: document.querySelector('.gscape-ui') || undefined,
-        // content prop can be used when the target is a single element https://atomiks.github.io/tippyjs/v6/constructor/#prop
-        content: cxtMenuWidget,
-        hideOnClick: true,
-        offset: [0, 0],
-    };
-}
-function attachCxtMenuTo(element, commands) {
-    cxtMenu.setProps(getCxtMenuProps());
-    cxtMenu.setProps({ getReferenceClientRect: () => element.getBoundingClientRect() });
-    cxtMenuWidget.commands = commands;
-    cxtMenu.show();
-}
-cxtMenuWidget.onCommandRun = () => cxtMenu.hide();
-
 const sparqlDialog = new SparqlDialog();
 const relatedClassDialog = new RelatedClassSelection();
 const highlightsList = new HighlightsList();
@@ -10527,6 +10636,13 @@ const startRunButtons = new SparqlingStartRunButtons();
 const errorsDialog = new ErrorsDialog();
 const previewDialog = new SparqlingQueryResults();
 const loadingDialog = new LoadingDialog();
+// export * from './cxt-menu'
+const cxtMenu = new ui.ContextMenu();
+const exitFullscreenButton = new ui.GscapeButton();
+exitFullscreenButton.innerHTML = `<span slot="icon">${ui.icons.exitFullscreen.strings.join('')}</span>`;
+exitFullscreenButton.style.position = 'absolute';
+exitFullscreenButton.style.top = '10px';
+exitFullscreenButton.style.right = '10px';
 
 function isResponseError(response) {
     return !response || (response === null || response === void 0 ? void 0 : response.code) === 1 || (response === null || response === void 0 ? void 0 : response.type) === 'error';
@@ -10599,6 +10715,34 @@ var QueryStatusEnum;
 })(QueryStatusEnum || (QueryStatusEnum = {}));
 let endpoints = [];
 let selectedEndpoint;
+let emtpyUnfoldingEntities = {
+    emptyUnfoldingClasses: [],
+    emptyUnfoldingDataProperties: [],
+    emptyUnfoldingObjectProperties: []
+};
+// let emtpyUnfoldingEntities: EmptyUnfoldingEntities = {
+//   emptyUnfoldingClasses: [{
+//     entityID: '',
+//     entityIri: 'http://www.obdasystems.com/books/Edition',
+//     entityType: 'dp',
+//     entityPrefixIri: ':Edition',
+//     entityRemainder: 'Edition'
+//   }],
+//   emptyUnfoldingDataProperties: [{
+//     entityID: '',
+//     entityIri: 'http://www.obdasystems.com/books/title',
+//     entityType: 'dp',
+//     entityPrefixIri: ':title',
+//     entityRemainder: 'title'
+//   }],
+//   emptyUnfoldingObjectProperties: [{
+//     entityID: '',
+//     entityIri: 'http://www.obdasystems.com/books/hasEdition',
+//     entityType: 'dp',
+//     entityPrefixIri: ':hasEdition',
+//     entityRemainder: 'hasEdition'
+//   }]
+// }
 // export async function getFirstActiveEndpoint(): Promise<MastroEndpoint | undefined> {
 //   if (isStandalone()) return
 //   if (endpoints.length > 0) {
@@ -10612,7 +10756,7 @@ let selectedEndpoint;
 //   return endpoints[0]
 // }
 function getEndpoints() {
-    return endpoints;
+    return endpoints.sort((a, b) => a.name.localeCompare(b.name));
 }
 function updateEndpoints() {
     return __awaiter(this, void 0, void 0, function* () {
@@ -10624,10 +10768,13 @@ function updateEndpoints() {
         };
         Object.assign(mwsGetRunningEndpointsOptions, getRequestOptions());
         endpoints = (yield handlePromise(globalAxios.request(mwsGetRunningEndpointsOptions))).endpoints
-            .filter(endpoint => endpoint.mastroID.ontologyID.ontologyName === getGscape().ontology.name &&
-            endpoint.mastroID.ontologyID.ontologyVersion === getGscape().ontology.version);
+            .filter(endpoint => endpoint.mastroID.ontologyID.ontologyName === getName() &&
+            endpoint.mastroID.ontologyID.ontologyVersion === getVersion());
         if (!selectedEndpoint || !endpoints.map(e => e.name).includes(selectedEndpoint.name)) {
-            setSelectedEndpoint(endpoints[0]);
+            yield setSelectedEndpoint(endpoints[0]);
+        }
+        else {
+            yield updateEntitiesEmptyUnfoldings();
         }
     });
 }
@@ -10651,7 +10798,62 @@ function getSelectedEndpoint() {
     return selectedEndpoint;
 }
 function setSelectedEndpoint(endpoint) {
-    selectedEndpoint = endpoint;
+    return __awaiter(this, void 0, void 0, function* () {
+        selectedEndpoint = endpoint;
+        yield updateEntitiesEmptyUnfoldings();
+    });
+}
+function updateEntitiesEmptyUnfoldings() {
+    return __awaiter(this, void 0, void 0, function* () {
+        if (selectedEndpoint) {
+            const mwsEmptyUnfoldingRequestOptions = {
+                method: 'get',
+                url: `${localStorage.getItem('mastroUrl')}/endpoint/${selectedEndpoint.name}/emptyUnfoldingEntities`
+            };
+            Object.assign(mwsEmptyUnfoldingRequestOptions, getRequestOptions());
+            yield handlePromise(globalAxios.request(mwsEmptyUnfoldingRequestOptions)).then(emptyUnfoldings => {
+                emtpyUnfoldingEntities = emptyUnfoldings;
+                console.log(emptyUnfoldings);
+            });
+        }
+    });
+}
+function hasEntityEmptyUnfolding(entityIri, entityType) {
+    let arrToCheck = [];
+    switch (entityType) {
+        case EntityTypeEnum.Class: {
+            arrToCheck = arrToCheck.concat(...emtpyUnfoldingEntities.emptyUnfoldingClasses);
+            break;
+        }
+        case EntityTypeEnum.DataProperty: {
+            arrToCheck = arrToCheck.concat(...emtpyUnfoldingEntities.emptyUnfoldingDataProperties);
+            break;
+        }
+        case EntityTypeEnum.ObjectProperty:
+        case EntityTypeEnum.InverseObjectProperty: {
+            arrToCheck = arrToCheck.concat(...emtpyUnfoldingEntities.emptyUnfoldingObjectProperties);
+            break;
+        }
+        default:
+            arrToCheck = arrToCheck.concat(...emtpyUnfoldingEntities.emptyUnfoldingClasses, ...emtpyUnfoldingEntities.emptyUnfoldingDataProperties, ...emtpyUnfoldingEntities.emptyUnfoldingObjectProperties);
+    }
+    return arrToCheck.some(e => e.entityIRI === entityIri || e.entityPrefixIRI === entityIri);
+}
+function getEmptyUnfoldingEntities(type) {
+    switch (type) {
+        case EntityTypeEnum.Class: {
+            return emtpyUnfoldingEntities.emptyUnfoldingClasses;
+        }
+        case EntityTypeEnum.DataProperty: {
+            return emtpyUnfoldingEntities.emptyUnfoldingDataProperties;
+        }
+        case EntityTypeEnum.ObjectProperty:
+        case EntityTypeEnum.InverseObjectProperty: {
+            return emtpyUnfoldingEntities.emptyUnfoldingObjectProperties;
+        }
+        default:
+            return new Array().concat(...emtpyUnfoldingEntities.emptyUnfoldingClasses, ...emtpyUnfoldingEntities.emptyUnfoldingDataProperties, ...emtpyUnfoldingEntities.emptyUnfoldingObjectProperties);
+    }
 }
 
 function getPrefixedIri (iriValue) {
@@ -10663,11 +10865,33 @@ let actualHighlights;
 function computeHighlights(iri) {
     return __awaiter(this, void 0, void 0, function* () {
         const ogApi = new OntologyGraphApi(undefined, getBasePath());
-        const highlightsPromise = handlePromise(ogApi.highligths(iri, undefined, getRequestOptions()));
-        highlightsPromise.then(highlights => {
+        const highlights = yield handlePromise(ogApi.highligths(iri, undefined, getRequestOptions()));
+        if (!actualHighlights)
             actualHighlights = highlights;
-        });
-        return highlightsPromise;
+        else {
+            if (highlights.classes) {
+                if (actualHighlights.classes) {
+                    actualHighlights.classes = Array.from(new Set([...actualHighlights.classes, ...highlights.classes]));
+                }
+            }
+            if (highlights.dataProperties) {
+                if (actualHighlights.dataProperties) {
+                    actualHighlights.dataProperties = Array.from(new Set([...actualHighlights.dataProperties, ...highlights.dataProperties]));
+                }
+            }
+            if (highlights.objectProperties) {
+                if (actualHighlights.objectProperties) {
+                    const branches = [];
+                    for (let newBranch of highlights.objectProperties) {
+                        if (actualHighlights.objectProperties.every(b => b.objectPropertyIRI !== newBranch.objectPropertyIRI)) {
+                            branches.push(newBranch);
+                        }
+                    }
+                    actualHighlights.objectProperties.push(...branches);
+                }
+            }
+        }
+        return actualHighlights;
     });
 }
 function getActualHighlights() { return actualHighlights; }
@@ -10694,10 +10918,22 @@ function clearHighlights() {
     actualHighlights = undefined;
 }
 
+let config = {};
+function setConfig(newConfig = {}) {
+    config = newConfig;
+}
+function getConfig(configEntry) {
+    return configEntry && config ? config[configEntry] : config;
+}
+function isConfigEnabled(configEntry) {
+    return config[configEntry] !== false;
+}
+
 let file;
 let isRunning = false;
 let isFullPage = false;
 let previousOwlVisualizerState;
+let _isQueryDirty = true;
 const HIGHLIGHT_CLASS = 'highlighted';
 const FADED_CLASS = 'faded';
 const SPARQLING_SELECTED = 'sparqling-selected';
@@ -10725,6 +10961,12 @@ function setPreviousOwlVisualizerState(value) {
 function getPreviousOwlVisualizerState() {
     return previousOwlVisualizerState;
 }
+function setQueryDirtyState(isDirty) {
+    _isQueryDirty = isDirty;
+}
+function isQueryDirty() {
+    return _isQueryDirty;
+}
 
 function showUI() {
     widget.show();
@@ -10737,7 +10979,6 @@ function hideUI() {
     highlightsList.hide();
     sparqlDialog.hide();
     relatedClassDialog.hide();
-    cxtMenu.hide();
     filterDialog.hide();
     filterListDialog.hide();
     errorsDialog.hide();
@@ -10771,17 +11012,18 @@ function start () {
             owlVisualizer.disable();
             const settingsWidget = getGscape().widgets.get(ui.WidgetEnum.SETTINGS);
             delete settingsWidget.widgetStates[ui.WidgetEnum.OWL_VISUALIZER];
+            hideUI();
             showUI();
             setSparqlingRunning(true);
             startRunButtons.canQueryRun = ((_a = getQueryBody()) === null || _a === void 0 ? void 0 : _a.graph) && !isStandalone() && core.onQueryRun !== undefined;
             startRunButtons.endpoints = getEndpoints();
             startRunButtons.selectedEndpointName = (_b = getSelectedEndpoint()) === null || _b === void 0 ? void 0 : _b.name;
+            startRunButtons.showResultsEnabled = false;
             startRunButtons.requestUpdate();
             const selectedGraphElement = (_c = getActiveElement()) === null || _c === void 0 ? void 0 : _c.graphElement;
             if (selectedGraphElement) {
-                const selectedGraphElementIri = getIri(selectedGraphElement);
-                if (selectedGraphElementIri)
-                    performHighlights(selectedGraphElementIri);
+                performHighlights(getIris(selectedGraphElement));
+                selectEntity(getIri(selectedGraphElement) || '');
             }
             core.onStart();
         }
@@ -10817,7 +11059,8 @@ function clearQuery () {
     });
 }
 
-function loadQuery (queryBody) {
+function loadQuery (queryBody, queryName) {
+    var _a;
     return __awaiter(this, void 0, void 0, function* () {
         yield clearQuery();
         // Hide selectors
@@ -10835,12 +11078,16 @@ function loadQuery (queryBody) {
         setTheme(grapholscape.theme);
         const activeElementIri = getIri(queryBody.graph);
         if (activeElementIri) {
-            setActiveElement({
-                graphElement: queryBody.graph,
-                iri: grapholscape.ontology.getEntity(activeElementIri).iri
-            });
-            selectElement(activeElementIri);
-            performHighlights(activeElementIri);
+            const iri = (_a = grapholscape.ontology.getEntity(activeElementIri)) === null || _a === void 0 ? void 0 : _a.iri;
+            if (iri) {
+                setActiveElement({
+                    graphElement: queryBody.graph,
+                    iri: iri
+                });
+                selectElement(activeElementIri);
+                performHighlights(getIris(queryBody.graph));
+                selectEntity(activeElementIri);
+            }
         }
         countStarToggle$1.checked = isCountStarActive();
         distinctToggle.checked = isDistinctActive();
@@ -10848,6 +11095,9 @@ function loadQuery (queryBody) {
             limitInput$1.value = queryBody.limit.toString();
         if (queryBody.offset || queryBody.offset === 0)
             offsetInput.value = queryBody.offset.toString();
+        setQueryDirtyState(false);
+        startRunButtons.queryName = queryName;
+        setTimeout(() => cy.fit(), 200);
     });
 }
 
@@ -10867,6 +11117,11 @@ var core = {
     start: start,
     stop: stop,
     loadQuery: loadQuery,
+    setQueryDirtyState: (isDirty) => {
+        setQueryDirtyState(isDirty);
+        startRunButtons.requestUpdate();
+    },
+    setQueryName: (queryName) => startRunButtons.queryName = queryName
 };
 
 function handleEndpointSelection (callback) {
@@ -11079,22 +11334,22 @@ var sparqlingStyle = (theme) => [
         style: { 'underlay-shape': 'ellipse' }
     },
     {
-        selector: '.sparqling-selected',
-        style: {
-            'underlay-color': theme.getColour(ColoursNames.accent),
-            'underlay-padding': '4px',
-            'underlay-shape': (node) => node.style('shape') === Shape.ELLIPSE ? Shape.ELLIPSE : Shape.ROUND_RECTANGLE,
-            'underlay-opacity': 1,
-        }
-    },
-    {
-        selector: '.highlighted',
+        selector: `.${HIGHLIGHT_CLASS}`,
         style: {
             'underlay-color': theme.colours["sparqling-highlight"] || theme.getColour(ColoursNames.success_muted),
             'underlay-padding': '8px',
             'underlay-opacity': 1,
             'underlay-shape': (node) => node.style('shape') === Shape.ELLIPSE ? Shape.ELLIPSE : Shape.ROUND_RECTANGLE,
             'border-opacity': 1,
+        }
+    },
+    {
+        selector: `.${SPARQLING_SELECTED}`,
+        style: {
+            'underlay-color': theme.getColour(ColoursNames.accent),
+            'underlay-padding': '4px',
+            'underlay-shape': (node) => node.style('shape') === Shape.ELLIPSE ? Shape.ELLIPSE : Shape.ROUND_RECTANGLE,
+            'underlay-opacity': 1,
         }
     },
     {
@@ -11202,23 +11457,39 @@ function onChangeDiagramOrRenderer(gscape) {
         setHandlers(gscape.renderer.cy);
         addStylesheet(gscape.renderer.cy, sparqlingStyle(gscape.theme));
     }
-    if (gscape.renderState !== RendererStatesEnum.INCREMENTAL)
+    if (gscape.renderState !== RendererStatesEnum.INCREMENTAL && isSparqlingRunning()) {
+        resetHighlights();
+        performHighlightsEmptyUnfolding();
         refreshHighlights();
+        const activeElement = getActiveElement();
+        if (activeElement) {
+            getIris(activeElement.graphElement).forEach(iri => selectEntity(iri));
+        }
+    }
 }
 function setHandlers(cy) {
     // [diplayed_name] select only nodes with a defined displayed name, 
     // avoid fake nodes (for inverse/nonInverse functional obj properties)
     const objPropertiesSelector = `[iri][type = "${GrapholTypesEnum.OBJECT_PROPERTY}"]`;
     cy.on('mouseover', objPropertiesSelector, e => {
-        if (isSparqlingRunning())
+        if (isSparqlingRunning() && !hasEntityEmptyUnfolding(e.target.data().iri))
             showRelatedClassesWidget(e.target.data('iri'), e.renderedPosition);
+    });
+    cy.on('mouseover', `.${FADED_CLASS}`, e => {
+        if (hasEntityEmptyUnfolding(e.target.data().iri)) { // show empty unfolding tooltip
+            const popperRef = e.target.popperRef();
+            const msgSpan = document.createElement('span');
+            msgSpan.innerHTML = emptyUnfoldingEntityTooltip();
+            cxtMenu.attachTo(popperRef, undefined, [msgSpan]);
+            setTimeout(() => cxtMenu.tippyMenu.hide(), 1000);
+        }
     });
     cy.on('mouseout', objPropertiesSelector, e => {
         if (isSparqlingRunning())
             hideRelatedClassesWidget();
     });
     cy.on('dblclick', `[iri]`, e => {
-        if (isSparqlingRunning())
+        if (isSparqlingRunning() && getGscape().diagramId !== undefined && !hasEntityEmptyUnfolding(e.target.data().iri))
             handleEntitySelection(e.target.data().iri, e.target.data().type, { elementId: e.target.id(), diagramId: getGscape().diagramId });
     });
 }
@@ -11231,9 +11502,6 @@ function handleEntitySelection(entityIriString, entityType, entityOccurrence) {
         const entityIri = new Iri(entityIriString, gscape.ontology.namespaces);
         const activeElement = getActiveElement();
         if (activeElement && graphElementHasIri(activeElement.graphElement, entityIriString) && !lastObjProperty) {
-            if (!isIriSelected(entityIri)) {
-                performHighlights(entityIriString);
-            }
             return;
         }
         switch (entityType) {
@@ -11252,7 +11520,7 @@ function handleEntitySelection(entityIriString, entityType, entityOccurrence) {
                     // Get nodes not present in the old graph
                     const newGraphElements = getdiffNew((_a = getQueryBody()) === null || _a === void 0 ? void 0 : _a.graph, newBody.graph);
                     const newSelectedGraphElement = setOriginNode(entityOccurrence, newGraphElements, entityIriString);
-                    performHighlights(entityIriString);
+                    // performHighlights(entityIriString)
                     onNewBody(newBody);
                     // after onNewBody because we need to select the element after rendering phase
                     if (newSelectedGraphElement && newSelectedGraphElement.id) {
@@ -11262,6 +11530,9 @@ function handleEntitySelection(entityIriString, entityType, entityOccurrence) {
                             graphElement: newSelectedGraphElement,
                             iri: entityIri,
                         });
+                        const selectedClassesIris = getIris(newSelectedGraphElement);
+                        performHighlights(selectedClassesIris);
+                        selectedClassesIris.forEach(iri => selectEntity(iri));
                     }
                 });
                 break;
@@ -11286,10 +11557,13 @@ function handleObjectPropertySelection(branch, relatedClassEntityOccurrence) {
     var _a, _b;
     const gscape = getGscape();
     lastObjProperty = branch;
-    gscape.centerOnElement(relatedClassEntityOccurrence.elementId, relatedClassEntityOccurrence.diagramId);
-    gscape.selectElement(relatedClassEntityOccurrence.elementId);
-    const relatedClassCyElement = (_b = (_a = gscape.ontology
-        .getDiagram(relatedClassEntityOccurrence.diagramId)) === null || _a === void 0 ? void 0 : _a.representations.get(gscape.renderState)) === null || _b === void 0 ? void 0 : _b.cy.$id(relatedClassEntityOccurrence.elementId);
+    if (!isFullPageActive()) {
+        gscape.centerOnElement(relatedClassEntityOccurrence.elementId, relatedClassEntityOccurrence.diagramId);
+        gscape.selectElement(relatedClassEntityOccurrence.elementId);
+    }
+    const relatedClassCyElement = gscape.renderState
+        ? (_b = (_a = gscape.ontology.getDiagram(relatedClassEntityOccurrence.diagramId)) === null || _a === void 0 ? void 0 : _a.representations.get(gscape.renderState)) === null || _b === void 0 ? void 0 : _b.cy.$id(relatedClassEntityOccurrence.elementId)
+        : null;
     if (relatedClassCyElement)
         handleEntitySelection(relatedClassCyElement.data().iri, relatedClassCyElement.data().type, relatedClassEntityOccurrence);
 }
@@ -11365,6 +11639,7 @@ function setOriginNode(entityOccurrence, graphElements, clickedIri) {
 function isIriInQueryGraph(iri) { return isIriInQueryGraph$1(iri); }
 
 function showFormDialog (element, formDialog) {
+    var _a;
     let graphElement;
     let variableName;
     if (isHeadElement(element) && element.graphElementId) {
@@ -11392,17 +11667,25 @@ function showFormDialog (element, formDialog) {
     else {
         formDialog._id = element.id;
     }
-    formDialog.operator = undefined;
     formDialog.parameters = [{
             type: VarOrConstantTypeEnum.Var,
-            constantType: getGscape().ontology.getEntity(graphElementIri).datatype,
+            constantType: undefined,
             value: graphElement.id
         }];
+    formDialog.datatypeFromOntology = (_a = getGscape().ontology.getEntity(graphElementIri)) === null || _a === void 0 ? void 0 : _a.datatype;
+    formDialog.addInputValue(); // default with one input
+    if (formDialog instanceof FunctionDialog) {
+        formDialog.setDefaultOperator();
+    }
+    if (formDialog instanceof FilterDialog || formDialog instanceof AggregationDialog) {
+        formDialog.operator = FilterExpressionOperatorEnum.Equal;
+    }
     formDialog.variableName = variableName || graphElement.id;
     formDialog.examples = undefined;
     formDialog.acceptExamples = !isStandalone() && (isClass(graphElement) || isDataProperty(graphElement));
     formDialog.examplesSearchValue = undefined;
     formDialog.loadingExamples = false;
+    formDialog.canSave = true;
     formDialog.show();
 }
 function isHeadElement(element) {
@@ -11434,11 +11717,11 @@ onDelete$1((graphElement, iri) => {
     }
     const qgApi = QueryGraphBGPApiFactory(undefined, getBasePath());
     const body = getQueryBody();
-    const selectedGraphElement = (_a = getActiveElement()) === null || _a === void 0 ? void 0 : _a.graphElement;
+    const oldSelectedGraphElement = (_a = getActiveElement()) === null || _a === void 0 ? void 0 : _a.graphElement;
     const gscape = getGscape();
     if (!iri) {
         handlePromise(qgApi.deleteGraphElementId(graphElement.id, body, getRequestOptions())).then(newBody => {
-            if (newBody.graph && !findGraphElement(newBody.graph, ge => ge.id === (selectedGraphElement === null || selectedGraphElement === void 0 ? void 0 : selectedGraphElement.id))) {
+            if (newBody.graph && !findGraphElement(newBody.graph, ge => ge.id === (oldSelectedGraphElement === null || oldSelectedGraphElement === void 0 ? void 0 : oldSelectedGraphElement.id))) {
                 // if we deleted selectedGraphElem, then select its parent
                 let newSelectedGE = findGraphElement(body.graph, ge => {
                     var _a;
@@ -11456,7 +11739,6 @@ onDelete$1((graphElement, iri) => {
                             graphElement: newSelectedGE,
                             iri: new Iri(newSelectedGEIri, gscape.ontology.namespaces)
                         });
-                        performHighlights(newSelectedGEIri);
                     }
                 }
                 if (!isFullPageActive()) {
@@ -11481,6 +11763,17 @@ onDelete$1((graphElement, iri) => {
         if (graphElement.id) {
             getOriginGrapholNodes().delete(graphElement.id);
             onNewBody(newBody);
+            const activeElement = getActiveElement();
+            const updatedActiveElement = findGraphElement(newBody.graph, ge => ge.id === (activeElement === null || activeElement === void 0 ? void 0 : activeElement.graphElement.id));
+            if (activeElement) {
+                if (updatedActiveElement)
+                    activeElement.graphElement = updatedActiveElement;
+                if (iri || oldSelectedGraphElement !== activeElement) {
+                    clearHighlights$1();
+                    performHighlights(getIris(activeElement.graphElement));
+                    getIris(activeElement.graphElement).forEach(iri => selectEntity(iri));
+                }
+            }
         }
     }
 });
@@ -11503,14 +11796,16 @@ onJoin((ge1, ge2) => __awaiter(void 0, void 0, void 0, function* () {
 onElementClick((graphElement, iri) => {
     var _a;
     const gscape = getGscape();
-    // move ontology graph to show origin graphol node or any other iri occurrence
-    const originGrapholNodeOccurrence = getOriginGrapholNodes().get(graphElement.id + iri);
-    if (originGrapholNodeOccurrence) {
-        gscape.centerOnElement(originGrapholNodeOccurrence.elementId, originGrapholNodeOccurrence.diagramId, 1.5);
-        gscape.selectElement(originGrapholNodeOccurrence.elementId);
-    }
-    else {
-        gscape.selectEntity(iri);
+    if (!isFullPageActive()) {
+        // move ontology graph to show origin graphol node or any other iri occurrence
+        const originGrapholNodeOccurrence = getOriginGrapholNodes().get(graphElement.id + iri);
+        if (originGrapholNodeOccurrence) {
+            gscape.centerOnElement(originGrapholNodeOccurrence.elementId, originGrapholNodeOccurrence.diagramId, 1.5);
+            gscape.selectElement(originGrapholNodeOccurrence.elementId);
+        }
+        else {
+            gscape.selectEntity(iri);
+        }
     }
     if (isClass(graphElement)) {
         // if the new graphElement is different from the current selected one the select it
@@ -11519,8 +11814,12 @@ onElementClick((graphElement, iri) => {
                 graphElement: graphElement,
                 iri: new Iri(iri, gscape.ontology.namespaces)
             });
-            performHighlights(iri);
+            if (graphElement.entities)
+                performHighlights(getIris(graphElement));
+            else
+                performHighlights(iri);
         }
+        getIris(graphElement).forEach(iri => selectEntity(iri));
     }
     // keep focus on selected class
     const activeElement = getActiveElement();
@@ -11576,6 +11875,15 @@ onShowExamples(graphElement => {
 });
 widget.onSparqlButtonClick = () => sparqlDialog.isVisible ? sparqlDialog.hide() : sparqlDialog.show();
 widget.onQueryClear = () => { clearQuery(); };
+widget.onFullScreenEnter = () => {
+    bgpContainer.requestFullscreen().then(() => setTimeout(() => cy.fit(), 200));
+    bgpContainer.appendChild(exitFullscreenButton);
+    exitFullscreenButton.onclick = () => {
+        document.exitFullscreen().then(() => setTimeout(() => cy.fit(), 200));
+        exitFullscreenButton.remove();
+    };
+};
+widget.onCenterDiagram = () => cy.fit();
 
 filterListDialog.onEdit((filterId) => showFilterDialogEditingMode(filterId));
 filterListDialog.onDelete((filterId) => { deleteFilter(filterId); });
@@ -11739,7 +12047,7 @@ onAddAggregation(headElementId => {
     const headElement = getHeadElementByID(headElementId);
     if (headElement) {
         showFormDialog(headElement, aggregationDialog);
-        aggregationDialog.aggregateOperator = undefined;
+        aggregationDialog.aggregateOperator = GroupByElementAggregateFunctionEnum.Count;
         aggregationDialog.definingHaving = false;
         aggregationDialog.distinct = false;
         if (aggregationDialog.distinctCheckboxElem)
@@ -11900,9 +12208,13 @@ highlightsList.onSuggestionAddToQuery((entityIri, entityType, relatedClass) => {
 });
 
 classSelector.onClassSelection((classIri) => __awaiter(void 0, void 0, void 0, function* () {
+    if (hasEntityEmptyUnfolding(classIri, EntityTypeEnum.Class))
+        return;
     const qgBGPApi = new QueryGraphBGPApi(undefined, getBasePath());
     const qgExtraApi = new QueryGraphExtraApi(undefined, getBasePath());
     const classEntity = getGscape().ontology.getEntity(classIri);
+    if (!classEntity)
+        return;
     const tempNewQueryBody = yield handlePromise(qgBGPApi.getQueryGraph(classEntity.iri.fullIri, getRequestOptions()));
     const newQueryBody = yield handlePromise(qgExtraApi.distinctQueryGraph(true, tempNewQueryBody, getRequestOptions()));
     if (newQueryBody) {
@@ -11915,6 +12227,7 @@ classSelector.onClassSelection((classIri) => __awaiter(void 0, void 0, void 0, f
         if (newQueryBody.graph.id)
             selectElement(newQueryBody.graph.id);
         performHighlights(classEntity.iri.fullIri);
+        selectEntity(classEntity.iri.fullIri);
     }
 }));
 
@@ -11962,9 +12275,10 @@ function sparqlingStandalone(gscape, file) {
     showInitialModeSelector();
     return sparqlingCore;
 }
-function sparqling(gscape, file, requestOptions, useOntologyGraph = true) {
+function sparqling(gscape, file, requestOptions, useOntologyGraph = true, config) {
     var _a, _b;
     return __awaiter(this, void 0, void 0, function* () {
+        setConfig(config);
         if (gscape.renderState === RendererStatesEnum.INCREMENTAL) {
             gscape.widgets.get(ui.WidgetEnum.ENTITY_SELECTOR).hide();
         }
@@ -11989,6 +12303,7 @@ function sparqling(gscape, file, requestOptions, useOntologyGraph = true) {
                     if (core.onToggleCatalog) {
                         core.onToggleCatalog();
                     }
+                    performHighlightsEmptyUnfolding();
                     grapholscapeRendererSelector.onOptionSelection = onOptionSelection; // restore original callback
                 };
             }
@@ -12015,7 +12330,6 @@ function getCore(gscape, file) {
         }
         leftColumnContainer.appendChild(qhWidget);
         leftColumnContainer.appendChild(highlightsList);
-        gscape.container.appendChild(modalBackground);
         // Add query graph and query head widgets to grapholscape instance
         const uiContainer = gscape.container.querySelector('.gscape-ui');
         if (uiContainer) {
