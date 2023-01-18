@@ -1,7 +1,7 @@
 import { ui } from 'grapholscape'
 import { css, html, LitElement } from 'lit'
 import { HeadElement } from '../api/swagger'
-import { isCountStarActive } from '../model'
+import { getConfig, isConfigEnabled, isCountStarActive } from '../model'
 import { cxtMenu } from '../widgets'
 import { asterisk, code, counter, kebab, preview, tableEye } from '../widgets/assets/icons'
 import { countStarMsg, emptyHeadMsg, emptyHeadTipMsg, tipWhy } from '../widgets/assets/texts'
@@ -74,6 +74,7 @@ export default class QueryHeadWidget extends ui.BaseMixin(ui.DropPanelMixin(LitE
   ]
 
   render() {
+    this.title = getConfig('queryHeadWidgetTitle') || 'Query Columns'
     return html`
       ${this.isPanelClosed()
         ? html`

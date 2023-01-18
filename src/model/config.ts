@@ -6,6 +6,8 @@ export type SparqlingConfig = {
   aggregation?: boolean,
   filter?: boolean,
   function?: boolean,
+  queryHeadWidgetTitle?: string,
+  queryGraphWidgetTitle?: string,
 }
 
 let config: SparqlingConfig = {}
@@ -14,8 +16,8 @@ export function setConfig(newConfig: SparqlingConfig = {}) {
   config = newConfig
 }
 
-export function getConfig() {
-    config
+export function getConfig(configEntry?: string) {
+  return configEntry && config ? config[configEntry] : config
 }
 
 export function isConfigEnabled(configEntry: string) {

@@ -1,6 +1,6 @@
 import { ColoursNames, toPNG, toSVG, ui } from 'grapholscape'
 import { css, html, LitElement, PropertyValueMap } from 'lit'
-import { getName, isConfigEnabled, isFullPageActive } from '../model'
+import { getConfig, getName, isConfigEnabled, isFullPageActive } from '../model'
 import { getGscape } from '../ontology-graph'
 import { countStarToggle, cxtMenu } from '../widgets'
 import { code, dbClick, kebab, rdfLogo, refresh } from '../widgets/assets/icons'
@@ -92,6 +92,7 @@ export default class QueryGraphWidget extends ui.BaseMixin(ui.DropPanelMixin(Lit
   }
 
   render() {
+    this.title = getConfig('queryGraphWidgetTitle') || 'Query Graph'
     return html`
       ${this.isPanelClosed()
         ? html`
