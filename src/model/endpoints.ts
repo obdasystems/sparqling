@@ -121,7 +121,9 @@ export async function updateEndpoints() {
     )
 
   if (!selectedEndpoint || !endpoints.map(e => e.name).includes(selectedEndpoint.name)) {
-    setSelectedEndpoint(endpoints[0])
+    await setSelectedEndpoint(endpoints[0])
+  } else {
+    await updateEntitiesEmptyUnfoldings()
   }
 }
 
@@ -145,20 +147,9 @@ export function getSelectedEndpoint() {
   return selectedEndpoint
 }
 
-export function setSelectedEndpoint(endpoint: MastroEndpoint) {
+export async function setSelectedEndpoint(endpoint: MastroEndpoint) {
   selectedEndpoint = endpoint
-
-  if (endpoint) {
-    const mwsEmptyUnfoldingRequestOptions = {
-      method: 'get',
-      url: `${localStorage.getItem('mastroUrl')}/endpoint/${endpoint.name}/emptyUnfoldingEntities`
-    }
-
-    Object.assign(mwsEmptyUnfoldingRequestOptions, getRequestOptions())
-    handlePromise(axios.request<EmptyUnfoldingEntities>(mwsEmptyUnfoldingRequestOptions)).then(emptyUnfoldings => {
-      emtpyUnfoldingEntities = emptyUnfoldings
-    })
-  }
+  await updateEntitiesEmptyUnfoldings()
 }
 
 export function getEndpointsCxtMenuCommands(onEndpointSelectionCallback: (endpoint: MastroEndpoint) => void): ui.Command[] {
@@ -171,6 +162,21 @@ export function getEndpointsCxtMenuCommands(onEndpointSelectionCallback: (endpoi
       },
     }
   })
+}
+
+export async function updateEntitiesEmptyUnfoldings() {
+  if (selectedEndpoint) {
+    const mwsEmptyUnfoldingRequestOptions = {
+      method: 'get',
+      url: `${localStorage.getItem('mastroUrl')}/endpoint/${selectedEndpoint.name}/emptyUnfoldingEntities`
+    }
+
+    Object.assign(mwsEmptyUnfoldingRequestOptions, getRequestOptions())
+    await handlePromise(axios.request<EmptyUnfoldingEntities>(mwsEmptyUnfoldingRequestOptions)).then(emptyUnfoldings => {
+      emtpyUnfoldingEntities = emptyUnfoldings
+      console.log(emptyUnfoldings)
+    })
+  }
 }
 
 export function hasEntityEmptyUnfolding(entityIri: string, entityType?: EntityTypeEnum) {

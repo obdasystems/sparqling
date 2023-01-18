@@ -1,6 +1,6 @@
 import { GrapholTypesEnum, ui } from "grapholscape";
 import { EntityTypeEnum } from "../api/swagger";
-import { getEmptyUnfoldingEntities, hasEntityEmptyUnfolding } from "../model";
+import { hasEntityEmptyUnfolding } from "../model";
 import { getGscape } from "../ontology-graph";
 
 export const classSelector = new ui.GscapeEntitySelector()
@@ -12,10 +12,16 @@ export function initClassSelector() {
     [GrapholTypesEnum.CLASS]: 1,
     areAllFiltersDisabled: false,
   })
-  classSelector.entityList.map(e => e.value.iri).forEach((classIri, i) => {
-    if (hasEntityEmptyUnfolding(classIri.fullIri, EntityTypeEnum.Class)) {
-      classSelector.entityList.splice(i, 1)
-    }
+
+  classSelector.updateComplete.then(() => {
+    classSelector.entityList.map(e => e.value.iri).forEach((classIri, i) => {
+      if (hasEntityEmptyUnfolding(classIri.fullIri, EntityTypeEnum.Class)) {
+        const classElementInList = classSelector.shadowRoot?.querySelector(`gscape-action-list-item[iri = "${classIri.prefixed}"]`)
+        if (classElementInList) {
+          (classElementInList as HTMLElement).style.opacity = '0.5'
+        }
+      }
+    })
   })
-  classSelector.requestUpdate()
+  
 }

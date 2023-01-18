@@ -1,13 +1,16 @@
-import { QueryGraphBGPApi, QueryGraphExtraApi } from "../api/swagger";
+import { EntityTypeEnum, QueryGraphBGPApi, QueryGraphExtraApi } from "../api/swagger";
 import { performHighlights } from "../main";
 import { handlePromise } from "../main/handle-promises";
 import onNewBody from "../main/on-new-body";
-import { getBasePath, getRequestOptions, setActiveElement } from "../model";
+import { getBasePath, getRequestOptions, hasEntityEmptyUnfolding, setActiveElement } from "../model";
 import { getGscape, selectEntity } from "../ontology-graph";
 import { selectElement } from "../query-graph";
 import { classSelector } from "../widgets";
 
 classSelector.onClassSelection(async (classIri: string) => {
+  if (hasEntityEmptyUnfolding(classIri, EntityTypeEnum.Class))
+    return
+
   const qgBGPApi = new QueryGraphBGPApi(undefined, getBasePath())
   const qgExtraApi = new QueryGraphExtraApi(undefined, getBasePath())
   const classEntity = getGscape().ontology.getEntity(classIri)
