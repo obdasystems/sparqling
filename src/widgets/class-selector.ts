@@ -15,13 +15,13 @@ export function initClassSelector() {
 
   classSelector.updateComplete.then(() => {
     classSelector.entityList.map(e => e.value.iri).forEach((classIri, i) => {
+      const classElementInList = classSelector.shadowRoot?.querySelector(`gscape-action-list-item[iri = "${classIri.prefixed}"]`);
+      (classElementInList as HTMLElement).style.opacity = '1'
       if (hasEntityEmptyUnfolding(classIri.fullIri, EntityTypeEnum.Class)) {
-        const classElementInList = classSelector.shadowRoot?.querySelector(`gscape-action-list-item[iri = "${classIri.prefixed}"]`)
         if (classElementInList) {
           (classElementInList as HTMLElement).style.opacity = '0.5'
         }
       }
     })
   })
-  
 }
