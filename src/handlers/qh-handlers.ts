@@ -42,7 +42,9 @@ queryHead.onLocalize(headElement => {
       const geIri = getIri(graphElement)
       if (geIri) {
         queryGraph.centerOnElem(graphElement)
-        ontologyGraph.getGscape().centerOnEntity(geIri)
+
+        if(!model.isFullPageActive())
+          ontologyGraph.getGscape().centerOnEntity(geIri)
       }
     }
   }
