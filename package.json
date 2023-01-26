@@ -35,7 +35,7 @@
     "@types/jest": "^29.0.0",
     "cpy-cli": "^4.2.0",
     "cross-env": "^7.0.3",
-    "grapholscape": "^3.2.1-beta",
+    "grapholscape": "^3.2.1",
     "local-web-server": "^5.2.1",
     "npm-run-all": "^4.1.5",
     "rimraf": "^3.0.2",
@@ -60,6 +60,6 @@
     "tippy.js": "^6.3.7"
   },
   "peerDependencies": {
-    "grapholscape": "^3.2.1-beta"
+    "grapholscape": "^3.2.1"
   }
 }
