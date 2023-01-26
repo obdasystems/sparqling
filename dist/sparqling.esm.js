@@ -11992,7 +11992,8 @@ onLocalize(headElement => {
             const geIri = getIri(graphElement);
             if (geIri) {
                 centerOnElem(graphElement);
-                getGscape().centerOnEntity(geIri);
+                if (!isFullPageActive())
+                    getGscape().centerOnEntity(geIri);
             }
         }
     }
