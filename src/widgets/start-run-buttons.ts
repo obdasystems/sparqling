@@ -155,7 +155,7 @@ export default class SparqlingStartRunButtons extends ui.BaseMixin(ui.DropPanelM
             <gscape-button
               @click="${this._onQueryRunCallback}"
               type="subtle"
-              title="Send query to SPARQL endpoint"
+              title="Run query"
             >
               <span slot="icon">${playOutlined}</span>
             </gscape-button>
