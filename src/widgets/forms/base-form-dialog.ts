@@ -4,7 +4,7 @@ import { FilterExpressionOperatorEnum, FunctionNameEnum, GroupByElementAggregate
 import { QueryResult } from '../../main'
 import { FormID, FormOperator, FormWidget } from '../../util/filter-function-interface'
 import { loadingSpinnerStyle } from '../loading-spinner'
-import { queryResultTemplateStyle } from '../query-result-template'
+import { ExampleSelectionEvent, queryResultTemplateStyle } from '../query-result-template'
 import sparqlingWidgetStyle from '../sparqling-widget-style'
 import formStyle from './form-style'
 import validateForm from './validate-form'
@@ -59,6 +59,16 @@ export default class SparqlingFormDialog extends ui.ModalMixin(ui.BaseMixin(LitE
     formStyle,
   ]
 
+  constructor() {
+    super()
+
+    this.addEventListener('onexampleselection', (event: ExampleSelectionEvent) => {
+      if (this.parametersIriOrConstants && event.detail) {
+        this.parametersIriOrConstants[this.parametersIriOrConstants.length - 1].value = event.detail.exampleValue
+        this.requestUpdate()
+      }
+    })
+  }
   protected handleSubmit() {
     if (this.formElement && validateForm(this.formElement)) {
       this.normalizeDatatypes()

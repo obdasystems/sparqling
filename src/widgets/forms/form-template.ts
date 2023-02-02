@@ -73,7 +73,7 @@ export function getFormTemplate(formComponent: SparqlingFormDialog, operators: s
           ? html`<input id="search-examples-input" placeholder="Search Examples" type="text" />`
           : null
         } 
-        ${queryResultTemplate(formComponent.examples, formComponent.parametersType === VarOrConstantTypeEnum.Constant)}
+        ${queryResultTemplate(formComponent.examples)}
       `
       : null
     }

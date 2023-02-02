@@ -2,12 +2,16 @@ import { ui } from "grapholscape";
 import { css, html } from "lit";
 import { QueryResult } from "../main";
 
-export function queryResultTemplate(queryResult: QueryResult, includeSearch = false, onSearch?: () => void) {  
+export function queryResultTemplate(queryResult: QueryResult) {  
   return html`
     <table id="query-results">
       <tr>${queryResult.headTerms.map(columnName => html`<th>${columnName}</th>`)}</tr>
       ${queryResult.results.map(resultRow => {
-        return html`<tr>${resultRow.map(resultItem => html`<td>${resultItem.value}</td>`)}</tr>`
+        return html`
+          <tr class="actionable" @click=${handleRowClick}>
+            ${resultRow.map(resultItem => html`<td value=${resultItem.value}>${resultItem.value}</td>`)}
+          </tr>
+        `
       })}
     </table>
     ${queryResult.results.length === 0
@@ -20,6 +24,20 @@ export function queryResultTemplate(queryResult: QueryResult, includeSearch = fa
       : null
     }
   `
+}
+
+export type ExampleSelectionEvent = CustomEventInit<{ exampleValue: string }>
+
+function handleRowClick(ev: MouseEvent) {
+  const target = (ev.currentTarget as HTMLElement)
+
+  target.dispatchEvent(new CustomEvent('onexampleselection', { 
+    bubbles: true, 
+    composed: true, 
+    detail: {
+      exampleValue: target.querySelector('td')?.getAttribute('value')
+    }
+  }))
 }
 
 export const queryResultTemplateStyle = css`
@@ -37,7 +55,7 @@ export const queryResultTemplateStyle = css`
   }
 
   #query-results td, #query-results th {
-    padding: 4px 8px
+    padding: 4px 8px;
   }
 
   #query-results tr:hover {
