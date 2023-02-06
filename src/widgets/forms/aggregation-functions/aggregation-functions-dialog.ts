@@ -55,7 +55,7 @@ export default class AggregationDialog extends SparqlingFormDialog {
               </label>
             </div>
           </div>
-          
+          <div class="hr"></div>
           ${!this.definingHaving
             ? html`
                 <gscape-button title="Add Having" label="Filter Groups - Having" @click=${this.handleHavingButtonClick}>

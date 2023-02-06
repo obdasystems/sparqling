@@ -31,6 +31,8 @@ export default class SparqlingFormDialog extends ui.ModalMixin(ui.BaseMixin(LitE
   public canSave?: boolean
   public datatypeFromOntology?: string
 
+  private tabindex = '-1'
+
   // Examples
   public acceptExamples = false
   public examples?: QueryResult
@@ -49,6 +51,7 @@ export default class SparqlingFormDialog extends ui.ModalMixin(ui.BaseMixin(LitE
     loadingExamples: { attribute: false, type: Boolean },
     acceptExamples: { attribute: false, type: Boolean },
     canSave: { type: Boolean },
+    tabindex: { type: String, attribute: 'tabindex', reflect: true }
   }
 
   static styles = [

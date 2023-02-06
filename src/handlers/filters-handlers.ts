@@ -1,4 +1,4 @@
-import { FilterExpressionOperatorEnum, QueryGraph, QueryGraphFilterApi } from "../api/swagger"
+import { FilterExpressionOperatorEnum, QueryGraph, QueryGraphFilterApi, VarOrConstant, VarOrConstantConstantTypeEnum, VarOrConstantTypeEnum } from "../api/swagger"
 import { showIriExamplesInForm } from "../main"
 import { handlePromise } from "../main/handle-promises"
 import onNewBody from "../main/on-new-body"
@@ -16,8 +16,16 @@ filterDialog.onSubmit(async (id, op, params) => {
   const newFilter = {
     expression: {
       operator: op as FilterExpressionOperatorEnum,
-      parameters: params
+      parameters: JSON.parse(JSON.stringify(params))
     }
+  }
+
+  if (op === FilterExpressionOperatorEnum.Regex && filterDialog.regexFlags) {
+    newFilter.expression.parameters.push({
+      value: filterDialog.regexFlags,
+      type: VarOrConstantTypeEnum.Constant,
+      constantType: VarOrConstantConstantTypeEnum.String
+    })
   }
 
   // Perform edits on a dummy query body in order to preserve the actual working one
@@ -76,7 +84,22 @@ export function showFilterDialogEditingMode(filterId: number) {
     filterDialog.modality = Modality.EDIT
     filterDialog._id = filterId
     filterDialog.operator = filter.expression?.operator
-    filterDialog.parameters = filter.expression?.parameters
+
+    let parameters: VarOrConstant[] | undefined
+
+    // in case of regex, last parameter is about flags, add them in the regexFLagsSelector and not as parameter
+    // leave them in filter object => copy parameters with JSON.parse(JSON.stringify(...))
+    // from this copy remove last parameter so it won't be shown as value in the form
+    if (filter.expression?.parameters && filter.expression.operator === FilterExpressionOperatorEnum.Regex) {      
+      parameters = JSON.parse(JSON.stringify(filter.expression?.parameters))
+      if (parameters) {      
+        parameters[2]?.value?.split('').forEach(s => 
+          filterDialog.regexFlagsSelector?.selectedFlags.add(s)
+        )
+      }
+    }
+
+    filterDialog.parameters = parameters
     filterDialog.parametersType = filter.expression?.parameters ? filter.expression.parameters[1].type : undefined
     filterDialog.show()
     filterListDialog.hide()

@@ -16,21 +16,17 @@ export default css`
     gap: 10px;
     align-items: center;
     min-width: 350px;
-    max-width: 450px;
     padding: 8px;
     margin-top: 8px;
     min-height: 150px;
     justify-content: space-between;
   }
 
-  .form, .inputs-wrapper {
+  .form {
     display: flex;
     align-items: center;
-    gap: 10px;
-  }
-
-  .form {
-    margin: 0 12px;
+    gap: 8px;
+    padding: 12px;
   }
 
   .selects-wrapper {
@@ -38,13 +34,16 @@ export default css`
     display: flex;
     flex-direction: column;
     gap: 8px;
+    white-space: nowrap;
   }
 
   .inputs-wrapper {
+    display: flex;
+    align-items: center;
     flex-direction: column;
     overflow: auto;
     max-height: 260px;
-    padding-right: 8px;
+    gap: 10px;
   }
 
   .inputs-wrapper gscape-button {

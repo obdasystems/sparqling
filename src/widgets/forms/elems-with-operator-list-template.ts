@@ -1,5 +1,4 @@
-import { html, css, HTMLTemplateResult } from 'lit'
-import { ui } from 'grapholscape'
+import { html, HTMLTemplateResult } from 'lit'
 import { Filter, FilterExpressionOperatorEnum, FunctionNameEnum, GroupByElement, Function, GroupByElementAggregateFunctionEnum, VarOrConstantConstantTypeEnum, VarOrConstant } from '../../api/swagger'
 import { edit, rubbishBin } from '../assets/icons'
 import trayButtonTemplate from '../tray-button-template'
@@ -51,11 +50,12 @@ export function getElemWithOperatorList(list?: any, editElemCallback?, deleteEle
                   if (param.constantType === VarOrConstantConstantTypeEnum.DateTime) {
                     value = value?.split('T')[0] || value // Take only date from ISO format 2022-01-01T00:00:....
                   }
-                  return html`
-                    <div class="parameter ellipsed">
-                      ${value}
-                    </div>
-                  `
+
+                  if (operator === FilterExpressionOperatorEnum.Regex && index === 2) {
+                    return html`<div class="parameter ellipsed"><strong>Flags:</strong><span style="margin-left: 8px">${value}</span></div>`
+                  } else {
+                    return html`<div class="parameter ellipsed">${value}</div>`
+                  }
                 })}
               </div>
             `

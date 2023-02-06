@@ -1,10 +1,11 @@
 import { html } from "lit";
-import { FilterExpressionOperatorEnum, VarOrConstant } from "../../../api/swagger";
+import { FilterExpressionOperatorEnum, VarOrConstant, VarOrConstantConstantTypeEnum, VarOrConstantTypeEnum } from "../../../api/swagger";
 import { getFormTemplate } from "../form-template";
 import SparqlingFormDialog, { Modality } from "../base-form-dialog";
 import { FormID } from "../../../util/filter-function-interface";
 import { checkmark, filter, rubbishBin } from "../../assets/icons";
 import { ui } from "grapholscape";
+import RegexFlagSelection from "./regex-flag-selection";
 
 export default class FilterDialog extends SparqlingFormDialog {
   protected deleteCallback = (filterId: number) => { }
@@ -66,6 +67,28 @@ export default class FilterDialog extends SparqlingFormDialog {
 
   private handleDeleteClick() {
       this.deleteCallback(this._id as number)
+  }
+
+  // protected handleSubmit(): void {
+  //   if (this.regexFlagSelector) {
+  //     this.parameters?.push({
+  //       value: Array.from(this.regexFlagSelector.selectedFlags).join(''),
+  //       type: VarOrConstantTypeEnum.Constant,
+  //       constantType: VarOrConstantConstantTypeEnum.String
+  //     })
+  //   }
+
+  //   super.handleSubmit()
+  // }
+
+  get regexFlagsSelector() {
+    return this.shadowRoot?.querySelector('sparqling-regex-flag-select') as RegexFlagSelection | null
+  }
+
+  get regexFlags() {
+    if (this.regexFlagsSelector && !(this.regexFlagsSelector.selectedFlags.size === 0)) {
+      return Array.from(this.regexFlagsSelector.selectedFlags).join('')
+    }
   }
 }
 

@@ -4,6 +4,7 @@ import { FilterExpressionOperatorEnum, VarOrConstantConstantTypeEnum, VarOrConst
 import { getLoadingSpinner } from "../loading-spinner"
 import { queryResultTemplate } from "../query-result-template"
 import SparqlingFormDialog from "./base-form-dialog"
+import { regexFlags } from "./filters/regex-flag-selection"
 
 export function getFormTemplate(formComponent: SparqlingFormDialog, operators: string[]) {
 
@@ -65,6 +66,14 @@ export function getFormTemplate(formComponent: SparqlingFormDialog, operators: s
             : null
           }
         </div>
+        ${formComponent.operator === FilterExpressionOperatorEnum.Regex
+            ? html`
+              <sparqling-regex-flag-select
+                flags=${JSON.stringify(regexFlags)}
+              ></sparqling-regex-flag-select>
+            `
+            : null
+          }
       </form>
     </div>
     ${formComponent.examples
