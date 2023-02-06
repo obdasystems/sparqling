@@ -1,4 +1,4 @@
-import { Iri } from 'grapholscape'
+import { Iri, ui } from 'grapholscape'
 import { QueryGraph, QueryGraphBGPApiFactory, QueryGraphHeadApiFactory, QueryGraphOptionalApiFactory } from '../api/swagger'
 import { clearHighlights, clearQuery, performHighlights, showQueryResultInDialog } from '../main'
 import { handlePromise } from '../main/handle-promises'
@@ -212,7 +212,15 @@ queryGraph.onShowExamples(graphElement => {
 
 queryGraph.widget.onSparqlButtonClick = () => sparqlDialog.isVisible ? sparqlDialog.hide() : sparqlDialog.show()
 
-queryGraph.widget.onQueryClear = () => { clearQuery() }
+queryGraph.widget.onQueryClear = () => {
+  const confirmDialog = new ui.GscapeConfirmDialog()
+  confirmDialog.message = 'Are you sure to reset the query?'
+  confirmDialog.onConfirm = () => clearQuery()
+  confirmDialog.onCancel = () => confirmDialog.remove()
+
+  getGscape().container.querySelector('.gscape-ui')?.appendChild(confirmDialog)
+  confirmDialog.show()
+}
 
 queryGraph.widget.onFullScreenEnter = () => {
   bgpContainer.requestFullscreen().then(() => setTimeout(() => cy.fit(), 200))
