@@ -58,10 +58,6 @@ export default class FunctionDialog extends SparqlingFormDialog {
     this.canSave = false
   }
 
-  setDefaultOperator() {
-    this.operator = this.operators[0]
-  }
-
   protected get operators() {
     switch(this.datatypeFromOntology) {
       case VarOrConstantConstantTypeEnum.String:
