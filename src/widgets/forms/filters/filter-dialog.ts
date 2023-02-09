@@ -1,10 +1,10 @@
-import { html } from "lit";
-import { FilterExpressionOperatorEnum, VarOrConstant, VarOrConstantConstantTypeEnum, VarOrConstantTypeEnum } from "../../../api/swagger";
-import { getFormTemplate } from "../form-template";
-import SparqlingFormDialog, { Modality } from "../base-form-dialog";
-import { FormID } from "../../../util/filter-function-interface";
-import { checkmark, filter, rubbishBin } from "../../assets/icons";
 import { ui } from "grapholscape";
+import { html } from "lit";
+import { FilterExpressionOperatorEnum, VarOrConstant } from "../../../api/swagger";
+import { FormID, FormOperator } from "../../../util/filter-function-interface";
+import { filter, rubbishBin } from "../../assets/icons";
+import SparqlingFormDialog, { Modality } from "../base-form-dialog";
+import { getFormTemplate } from "../form-template";
 import RegexFlagSelection from "./regex-flag-selection";
 
 export default class FilterDialog extends SparqlingFormDialog {
@@ -38,7 +38,7 @@ export default class FilterDialog extends SparqlingFormDialog {
         </div>
 
         <div class="dialog-body">
-          ${getFormTemplate(this, Object.values(FilterExpressionOperatorEnum))}
+          ${getFormTemplate(this, this.operators)}
           
           <div class="bottom-buttons">
             ${this.modality === Modality.EDIT
@@ -89,6 +89,10 @@ export default class FilterDialog extends SparqlingFormDialog {
     if (this.regexFlagsSelector && !(this.regexFlagsSelector.selectedFlags.size === 0)) {
       return Array.from(this.regexFlagsSelector.selectedFlags).join('')
     }
+  }
+
+  protected get operators(): FormOperator[] {
+    return Object.values(FilterExpressionOperatorEnum)
   }
 }
 

@@ -31,6 +31,11 @@ export default class SparqlingFormDialog extends ui.ModalMixin(ui.BaseMixin(LitE
   public canSave?: boolean
   public datatypeFromOntology?: string
 
+  /**
+   * this means that the dialog can receive focus but is not
+   * focusable using tab.
+   * this allows regex selection panel to blur (disappear) on click outside panel
+   */
   private tabindex = '-1'
 
   // Examples
@@ -235,6 +240,10 @@ export default class SparqlingFormDialog extends ui.ModalMixin(ui.BaseMixin(LitE
     }
   }
 
+  setDefaultOperator() {
+    this.onOperatorChange(this.operators[0])
+  }
+
   private handleShowHideExamplesClick() {
     if (this.variable && !this.examples) {
       this.seeExamplesCallback()
@@ -246,6 +255,10 @@ export default class SparqlingFormDialog extends ui.ModalMixin(ui.BaseMixin(LitE
 
   protected onValidSubmit() {
     this.submitCallback(this._id, this.operator, this.parameters)
+  }
+
+  protected get operators(): FormOperator[] {
+    return []
   }
 
   protected get selectOperatorElem() {
