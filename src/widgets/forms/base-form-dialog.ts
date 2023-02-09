@@ -71,8 +71,20 @@ export default class SparqlingFormDialog extends ui.ModalMixin(ui.BaseMixin(LitE
     super()
 
     this.addEventListener('onexampleselection', (event: ExampleSelectionEvent) => {
-      if (this.parametersIriOrConstants && event.detail) {
-        this.parametersIriOrConstants[this.parametersIriOrConstants.length - 1].value = event.detail.exampleValue
+      if (this.parameters && event.detail) {
+        let parameterIndex = this.parameters.length - 1 // default use last parameter
+        
+        // If there is an input activated, then replace its value
+        if (this.inputElems) {
+          for(const input of this.inputElems){
+            if (input.matches(':focus')) {
+              parameterIndex = parseInt(input.getAttribute('index') || '0') || parameterIndex
+              break
+            }
+          }
+        }
+        
+        this.parameters[parameterIndex].value = event.detail.exampleValue
         this.requestUpdate()
       }
     })

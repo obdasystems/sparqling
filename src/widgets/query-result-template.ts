@@ -8,7 +8,7 @@ export function queryResultTemplate(queryResult: QueryResult) {
       <tr>${queryResult.headTerms.map(columnName => html`<th>${columnName}</th>`)}</tr>
       ${queryResult.results.map(resultRow => {
         return html`
-          <tr class="actionable" @click=${handleRowClick}>
+          <tr class="actionable" @mousedown=${handleRowClick}>
             ${resultRow.map(resultItem => html`<td value=${resultItem.value}>${resultItem.value}</td>`)}
           </tr>
         `
