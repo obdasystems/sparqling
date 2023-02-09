@@ -9,7 +9,7 @@ import { regexFlags } from "./filters/regex-flag-selection"
 export function getFormTemplate(formComponent: SparqlingFormDialog, operators: string[]) {
 
   const op: string = formComponent.operator || operators[0]
-  const dt: string = formComponent.datatypeFromOntology || operators[0]
+  const dt: string = formComponent.datatypeFromOntology || VarOrConstantConstantTypeEnum.String
   // const addInputButton = new UI.GscapeButton(UI.icons.plus, "Add input value")
   // addInputButton.id = "add-input-btn"
 
