@@ -137,6 +137,9 @@ export default class SparqlingFormDialog extends ui.ModalMixin(ui.BaseMixin(LitE
       case FunctionNameEnum.Seconds:
       case FunctionNameEnum.Lcase:
       case FunctionNameEnum.Ucase:
+      case FunctionNameEnum.Strlen:
+      case FilterExpressionOperatorEnum.Isblank:
+      case FilterExpressionOperatorEnum.NotIsblank:
         this.parameters?.splice(1) // no parameters
         break;
 

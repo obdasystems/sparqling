@@ -89,7 +89,12 @@ export default class FunctionDialog extends SparqlingFormDialog {
       FunctionNameEnum.Contains, 
       FunctionNameEnum.Lcase, 
       FunctionNameEnum.Substr,
-      FunctionNameEnum.Ucase
+      FunctionNameEnum.Ucase,
+      FunctionNameEnum.Strlen,
+      FunctionNameEnum.Strstarts,
+      FunctionNameEnum.Strends,
+      FunctionNameEnum.Strbefore,
+      FunctionNameEnum.Strafter,
     ]
   }
 
