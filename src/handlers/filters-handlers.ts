@@ -20,9 +20,9 @@ filterDialog.onSubmit(async (id, op, params) => {
     }
   }
 
-  if (op === FilterExpressionOperatorEnum.Regex && filterDialog.regexFlags) {
+  if (op === FilterExpressionOperatorEnum.Regex) {
     newFilter.expression.parameters.push({
-      value: filterDialog.regexFlags,
+      value: filterDialog.isCaseSensitive ? "" : "i",
       type: VarOrConstantTypeEnum.Constant,
       constantType: VarOrConstantConstantTypeEnum.String
     })
@@ -87,15 +87,15 @@ export function showFilterDialogEditingMode(filterId: number) {
 
     let parameters: VarOrConstant[] | undefined
 
-    // in case of regex, last parameter is about flags, add them in the regexFLagsSelector and not as parameter
+    // in case of regex, last parameter is about flags, add them but not as parameter
     // leave them in filter object => copy parameters with JSON.parse(JSON.stringify(...))
     // from this copy remove last parameter so it won't be shown as value in the form
     if (filter.expression?.parameters && filter.expression.operator === FilterExpressionOperatorEnum.Regex) {      
       parameters = JSON.parse(JSON.stringify(filter.expression?.parameters))
-      if (parameters) {      
-        parameters[2]?.value?.split('').forEach(s => 
-          filterDialog.regexFlagsSelector?.selectedFlags.add(s)
-        )
+      if (parameters && parameters[2]) {
+        if (filterDialog.caseSensitiveCheckbox)
+          filterDialog.caseSensitiveCheckbox.checked = parameters[2].value !== "i"
+        parameters.splice(2)
       }
     }
 

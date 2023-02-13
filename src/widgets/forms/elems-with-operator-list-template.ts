@@ -52,7 +52,7 @@ export function getElemWithOperatorList(list?: any, editElemCallback?, deleteEle
                   }
 
                   if (operator === FilterExpressionOperatorEnum.Regex && index === 2) {
-                    return html`<div class="parameter ellipsed"><strong>Flags:</strong><span style="margin-left: 8px">${value}</span></div>`
+                    return null
                   } else {
                     return html`<div class="parameter ellipsed">${value}</div>`
                   }

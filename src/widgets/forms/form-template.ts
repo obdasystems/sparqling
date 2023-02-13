@@ -68,9 +68,8 @@ export function getFormTemplate(formComponent: SparqlingFormDialog, operators: s
         </div>
         ${formComponent.operator === FilterExpressionOperatorEnum.Regex
             ? html`
-              <sparqling-regex-flag-select
-                flags=${JSON.stringify(regexFlags)}
-              ></sparqling-regex-flag-select>
+              <input type="checkbox" id="case-sensitive" name="flag" value="i">
+              <label for="case-sensitive">Case Sensitive</label>
             `
             : null
           }

@@ -12,11 +12,6 @@ export default class FilterDialog extends SparqlingFormDialog {
 
   static styles = super.styles
 
-  constructor() {
-    super()
-    // this.saveButton.label = "Save Filter"
-  }
-
   render() {
     this.title = `${this.modality} filter for ${this.variableName}`
     return html`
@@ -81,14 +76,12 @@ export default class FilterDialog extends SparqlingFormDialog {
   //   super.handleSubmit()
   // }
 
-  get regexFlagsSelector() {
-    return this.shadowRoot?.querySelector('sparqling-regex-flag-select') as RegexFlagSelection | null
+  get caseSensitiveCheckbox() {
+    return this.shadowRoot?.querySelector('#case-sensitive') as HTMLInputElement | null
   }
 
-  get regexFlags() {
-    if (this.regexFlagsSelector && !(this.regexFlagsSelector.selectedFlags.size === 0)) {
-      return Array.from(this.regexFlagsSelector.selectedFlags).join('')
-    }
+  get isCaseSensitive() {
+    return this.caseSensitiveCheckbox?.checked
   }
 
   protected get operators(): FormOperator[] {

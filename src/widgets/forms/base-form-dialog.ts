@@ -31,13 +31,6 @@ export default class SparqlingFormDialog extends ui.ModalMixin(ui.BaseMixin(LitE
   public canSave?: boolean
   public datatypeFromOntology?: string
 
-  /**
-   * this means that the dialog can receive focus but is not
-   * focusable using tab.
-   * this allows regex selection panel to blur (disappear) on click outside panel
-   */
-  private tabindex = '-1'
-
   // Examples
   public acceptExamples = false
   public examples?: QueryResult
@@ -56,7 +49,6 @@ export default class SparqlingFormDialog extends ui.ModalMixin(ui.BaseMixin(LitE
     loadingExamples: { attribute: false, type: Boolean },
     acceptExamples: { attribute: false, type: Boolean },
     canSave: { type: Boolean },
-    tabindex: { type: String, attribute: 'tabindex', reflect: true }
   }
 
   static styles = [
