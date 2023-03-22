@@ -74,7 +74,7 @@ function setHandlers(cy: Core) {
       const msgSpan = document.createElement('span')
       msgSpan.innerHTML = emptyUnfoldingEntityTooltip()
       cxtMenu.attachTo(popperRef, undefined, [msgSpan])
-      setTimeout(() => cxtMenu.tippyMenu.hide(), 1000)
+      setTimeout(() => cxtMenu.tippyWidget.hide(), 1000)
     }
   })
 
