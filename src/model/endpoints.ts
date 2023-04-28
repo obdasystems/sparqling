@@ -174,7 +174,6 @@ export async function updateEntitiesEmptyUnfoldings() {
     Object.assign(mwsEmptyUnfoldingRequestOptions, getRequestOptions())
     await handlePromise(axios.request<EmptyUnfoldingEntities>(mwsEmptyUnfoldingRequestOptions)).then(emptyUnfoldings => {
       emtpyUnfoldingEntities = emptyUnfoldings
-      console.log(emptyUnfoldings)
     })
   }
 }

@@ -268,7 +268,6 @@ export default class HighlightsList extends ui.DropPanelMixin(ui.BaseMixin(LitEl
   }
 
   private handleEntityNameClick(e: MouseEvent) {
-    console.log(e)
     e.preventDefault()
     const entityIri = (e.target as HTMLElement).parentElement?.getAttribute('iri')
     if (entityIri)
