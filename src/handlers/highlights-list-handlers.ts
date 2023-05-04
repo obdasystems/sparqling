@@ -1,10 +1,11 @@
-import { GrapholTypesEnum } from "grapholscape"
-import { Branch, EntityTypeEnum } from "../api/swagger"
+import { AnnotationsKind, GrapholTypesEnum } from "grapholscape"
+import { Branch } from "../api/swagger"
 import { getActualHighlights, isFullPageActive } from "../model"
 import { getEntityOccurrence, getGscape } from '../ontology-graph'
 import getPrefixedIri from "../util/get-prefixed-iri"
 import { highlightsList } from "../widgets"
 import { handleEntitySelection, handleObjectPropertySelection } from "./og-handlers"
+import addAnnotation from "./annotations-handlers"
 
 highlightsList.onSuggestionLocalization((entityIri) => {
   if (!isFullPageActive())
@@ -34,3 +35,6 @@ highlightsList.onSuggestionAddToQuery((entityIri, entityType, relatedClass) => {
       }
   }
 })
+
+highlightsList.onAddLabel(() => addAnnotation(AnnotationsKind.label))
+highlightsList.onAddComment(() => addAnnotation(AnnotationsKind.comment))

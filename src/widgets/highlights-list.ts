@@ -25,9 +25,11 @@ export default class HighlightsList extends ui.DropPanelMixin(ui.BaseMixin(LitEl
 
   private _onSuggestionLocalization = (element: string) => { }
   private _onSuggestionAddToQuery = (entityIri: string, entityType: GrapholTypesEnum, relatedClassIri?: string) => { }
+  private _onAddLabel = () => { }
+  private _onAddComment = () => { }
 
   static properties = {
-    class: { type: String, attribute: false},
+    class: { type: String, attribute: false },
     allHighlights: { type: Object, attribute: false }
   }
 
@@ -211,6 +213,27 @@ export default class HighlightsList extends ui.DropPanelMixin(ui.BaseMixin(LitEl
                   ? html`<div style="align-self: center">${ui.getContentSpinner()}</div>`
                   : this.hasAnyHighlights
                     ? html`
+
+                      <details>
+                        <summary class="actionable" style="padding: 8px">Annotations</summary>
+
+                        <gscape-action-list-item
+                          label = 'Label'
+                          @click=${this._onAddLabel}
+                        >
+                          <span slot="icon">${ui.icons.labelIcon}</span>
+                        </gscape-action-list-item>
+
+                        <gscape-action-list-item
+                          label = 'Comment'
+                          @click=${this._onAddComment}
+                        >
+                          <span slot="icon">${ui.icons.commentIcon}</span>
+                        </gscape-action-list-item>
+                      </details>
+
+                      <div class="hr" style="flex-shrink: 0; margin: 8px auto"></div>
+
                       ${this.dataProperties.map(dp => this.getEntitySuggestionTemplate(dp))}
                       ${this.objectProperties.map(op => this.getObjectPropertySuggestionTemplate(op))}
                       ${this.classes.map(c => this.getEntitySuggestionTemplate(c))}
@@ -365,6 +388,14 @@ export default class HighlightsList extends ui.DropPanelMixin(ui.BaseMixin(LitEl
 
   onSuggestionAddToQuery(callback: (entityIri:string, entityType: GrapholTypesEnum, relatedClass?: string) => void) {
     this._onSuggestionAddToQuery = callback
+  }
+
+  onAddLabel(callback: () => void) {
+    this._onAddLabel = callback
+  }
+
+  onAddComment(callback: () => void) {
+    this._onAddComment = callback
   }
 
   private get objectProperties() {
