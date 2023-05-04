@@ -1,8 +1,9 @@
 import { GrapholTypesEnum, ui } from 'grapholscape'
 import { LitElement, PropertyValueMap, css, html } from 'lit'
-import { lightbulb } from './assets/icons'
+import { crosshair, lightbulb } from './assets/icons'
 import { emptyUnfoldingEntityTooltip } from './assets/texts'
 import sparqlingWidgetStyle from './sparqling-widget-style'
+import { isFullPageActive } from '../model'
 
 export type ViewHighlights = {
   classes: ui.EntityViewDataUnfolding[],
@@ -267,6 +268,25 @@ export default class HighlightsList extends ui.DropPanelMixin(ui.BaseMixin(LitEl
           `
           : null
         }
+
+        ${!isFullPageActive()
+          ? html`
+            <div slot="trailing-element" class="actions">
+              <gscape-button
+                  title="Show in graphs"
+                  size="s"
+                  type="subtle"
+                  @click=${(e: MouseEvent) => {
+                    this.handleSuggestionLocalization(e, objectProperty.entityViewData.value.iri.fullIri)
+                  }}
+                >
+                  <span slot='icon' class="slotted-icon">${crosshair}</span>
+                </gscape-button>
+            </div>
+          `
+          : null
+        }
+        
       </gscape-entity-list-item>
     `
   }
@@ -280,8 +300,23 @@ export default class HighlightsList extends ui.DropPanelMixin(ui.BaseMixin(LitEl
         title=${entity.hasUnfolding ? entity.entityViewData.displayedName : emptyUnfoldingEntityTooltip()}
       >
         <div slot="trailing-element" class="actions">
+          ${!isFullPageActive()
+            ? html`
+              <gscape-button
+                title="Show in graphs"
+                size="s"
+                type="subtle"
+                @click=${(e: MouseEvent) => {
+                  this.handleSuggestionLocalization(e, entity.entityViewData.value.iri.fullIri)
+                }}
+              >
+                <span slot='icon' class="slotted-icon">${crosshair}</span>
+              </gscape-button>
+            `
+            : null
+          }
           <gscape-button
-            title="Add to Query"
+            title="Add to query"
             size="s"
             type="subtle"
             @click=${(e: MouseEvent) => {
@@ -305,9 +340,9 @@ export default class HighlightsList extends ui.DropPanelMixin(ui.BaseMixin(LitEl
     this.hide()
   }
 
-  private handleEntityNameClick(e: MouseEvent) {
+  private handleSuggestionLocalization(e: MouseEvent, entityIri: string) {
+    e.stopPropagation()
     e.preventDefault()
-    const entityIri = (e.target as HTMLElement).parentElement?.getAttribute('iri')
     if (entityIri)
       this._onSuggestionLocalization(entityIri)
   }
