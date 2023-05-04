@@ -18,13 +18,12 @@ export default css`
   }
 
   .top-bar.traslated-down {
-    top: unset;
-    right: unset;
     bottom: 0;
     left: 50%;
     transform: translate(-50%);
     width: fit-content;
     height: fit-content;
+    position: absolute;
   }
 
   #widget-header {
