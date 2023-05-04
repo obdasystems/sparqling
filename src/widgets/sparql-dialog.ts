@@ -24,7 +24,8 @@ export default class SparqlDialog extends ui.ModalMixin(ui.BaseMixin(LitElement)
         left: 50%;
         transform: translate(-50%, 0);
         min-width: 200px;
-        max-width: 800px;
+        max-width: 80vw;
+        max-height: calc(-100px + 80vh);
         height: unset;
       }
 
@@ -35,7 +36,6 @@ export default class SparqlDialog extends ui.ModalMixin(ui.BaseMixin(LitElement)
         cursor: copy;
         font-family: monospace;
         overflow: auto;
-        max-height: 300px;
         padding: 10px 20px;
         scrollbar-width: inherit;
       }

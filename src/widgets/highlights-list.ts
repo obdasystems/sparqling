@@ -50,10 +50,7 @@ export default class HighlightsList extends ui.DropPanelMixin(ui.BaseMixin(LitEl
       }
 
       .content-wrapper {
-        display: flex;
-        flex-direction: column;
-        scrollbar-width: inherit;
-        height: 100%;
+        overflow: auto;
       }
 
       .list {
@@ -65,7 +62,6 @@ export default class HighlightsList extends ui.DropPanelMixin(ui.BaseMixin(LitEl
         box-sizing: border-box;
         display: flex;
         flex-direction: column;
-        justify-content: center;
       }
 
       details.entity-list-item > .summary-body {
@@ -202,13 +198,14 @@ export default class HighlightsList extends ui.DropPanelMixin(ui.BaseMixin(LitEl
                 <span slot="icon">${ui.icons.minus}</span>
               </gscape-button>
             </div>
-            <div class="content-wrapper">
-              <gscape-entity-search
-                class=0
-                data-property=0
-                object-property=0
-              ></gscape-entity-search>
 
+            <gscape-entity-search
+              class=0
+              data-property=0
+              object-property=0
+            ></gscape-entity-search>
+
+            <div class="content-wrapper">
               <div class="list">
                 ${this.loading
                   ? html`<div style="align-self: center">${ui.getContentSpinner()}</div>`

@@ -4,11 +4,7 @@ export default css`
   .top-bar {
     font-size: 12px;
     display: flex;
-    flex-direction: row;
-    position: absolute;
-    top: 0;
-    right: 0;
-    
+    flex-direction: row;    
     align-items: center;
     justify-content: space-between;
     gap: 4px;
@@ -62,13 +58,14 @@ export default css`
   }
 
   .gscape-panel {
+    display: flex;
+    flex-direction: column;
     width: unset;
     max-width: unset;
     height: 100%;
     box-sizing: border-box;
     overflow: unset;
     padding: 0;
-    padding-top: 27px;
   }
 
   .sparqling-blank-slate {
