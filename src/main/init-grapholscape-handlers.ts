@@ -1,5 +1,5 @@
 import { Core } from "cytoscape"
-import { EntityNameType, Grapholscape, GrapholscapeTheme, GrapholTypesEnum, LifecycleEvent, RendererStatesEnum } from "grapholscape"
+import { EntityNameType, Grapholscape, GrapholscapeTheme, GrapholTypesEnum, LifecycleEvent, RendererStatesEnum, ui } from "grapholscape"
 import { OntologyGraphHandlers } from "../handlers"
 import * as model from '../model'
 import { hasEntityEmptyUnfolding } from "../model"
@@ -8,7 +8,7 @@ import { getGscape, resetHighlights, selectEntity } from "../ontology-graph"
 import sparqlingStyle from '../ontology-graph/style'
 import * as queryGraph from '../query-graph'
 import { getIris } from "../util/graph-element-utility"
-import { cxtMenu } from "../widgets"
+import { cxtMenu, highlightsList } from "../widgets"
 import { emptyUnfoldingEntityTooltip } from "../widgets/assets/texts"
 import { stopFullpage } from "./fullpage"
 import { performHighlightsEmptyUnfolding, refreshHighlights } from "./highlights"
@@ -21,9 +21,15 @@ export default function init() {
   if (gscape.renderer.cy && gscape.renderState !== RendererStatesEnum.INCREMENTAL)
     setHandlers(gscape.renderer.cy)
 
-  gscape.on(LifecycleEvent.LanguageChange, (newLanguage: string) => queryGraph.setLanguage(newLanguage))
+  gscape.on(LifecycleEvent.LanguageChange, (newLanguage: string) => {
+    queryGraph.setLanguage(newLanguage)
+    if (gscape.entityNameType === EntityNameType.LABEL) {
+      updateSuggestionsDisplayedNames()
+    }
+  })
   gscape.on(LifecycleEvent.EntityNameTypeChange, (newNameType: EntityNameType) => {
     queryGraph.setDisplayedNameType(newNameType, gscape.language)
+    updateSuggestionsDisplayedNames()
   })
 
   gscape.on(LifecycleEvent.ThemeChange, (newTheme: GrapholscapeTheme) => {
@@ -35,6 +41,21 @@ export default function init() {
   gscape.on(LifecycleEvent.DiagramChange, () => onChangeDiagramOrRenderer(gscape))
 
   gscape.on(LifecycleEvent.RendererChange, () => onChangeDiagramOrRenderer(gscape))
+
+  function updateSuggestionsDisplayedNames() {
+    const updateDisplayedName = (entity: ui.EntityViewDataUnfolding) => {
+      const grapholEntity = gscape.ontology.getEntity(entity.entityViewData.value.iri.fullIri)
+      if (grapholEntity)
+        entity.entityViewData.displayedName = grapholEntity.getDisplayedName(gscape.entityNameType, gscape.language)
+    }
+
+    if (highlightsList.allHighlights) {
+      highlightsList.allHighlights.classes.forEach(c => updateDisplayedName(c))
+      highlightsList.allHighlights.dataProperties.forEach(dp => updateDisplayedName(dp))
+      highlightsList.allHighlights.objectProperties.forEach(op => updateDisplayedName(op))
+      highlightsList.requestUpdate()
+    }
+  }
 }
 
 function onChangeDiagramOrRenderer(gscape: Grapholscape) {
