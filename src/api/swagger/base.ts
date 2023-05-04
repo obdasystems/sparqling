@@ -18,7 +18,7 @@ import { Configuration } from "./configuration";
 // @ts-ignore
 import globalAxios, { AxiosPromise, AxiosInstance, AxiosRequestConfig } from 'axios';
 
-export const BASE_PATH = "http://localhost:7979/sparqling/1.0.0".replace(/\/+$/, "");
+export const BASE_PATH = "http://192.168.1.102:7979/sparqling/1.0.0".replace(/\/+$/, "");
 
 /**
  *

@@ -1,30 +1,39 @@
 import { GrapholTypesEnum, ui } from 'grapholscape'
-import { css, html, LitElement, PropertyValueMap } from 'lit'
-import { Branch, EntityTypeEnum, Highlights } from '../api/swagger'
-import { hasEntityEmptyUnfolding } from '../model'
-import { lightbulb, placeItem } from './assets/icons'
+import { LitElement, PropertyValueMap, css, html } from 'lit'
+import { lightbulb } from './assets/icons'
 import { emptyUnfoldingEntityTooltip } from './assets/texts'
 import sparqlingWidgetStyle from './sparqling-widget-style'
-import getTrayButtonTemplate from './tray-button-template'
+
+export type ViewHighlights = {
+  classes: ui.EntityViewDataUnfolding[],
+  dataProperties: ui.EntityViewDataUnfolding[],
+  objectProperties: ui.ViewObjectPropertyUnfolding[],
+}
 
 export default class HighlightsList extends ui.DropPanelMixin(ui.BaseMixin(LitElement)) {
   class: string
-  private _allHighlights?: Highlights
-  private highlights?: Highlights
+  private _allHighlights?: ViewHighlights
+  private shownIRIs?: {
+    classes: string[],
+    dataProperties: string[],
+    objectProperties: string[],
+  }
   private entityFilters?: ui.IEntityFilters
   title = 'Suggestions'
+  loading: boolean = false
 
   private _onSuggestionLocalization = (element: string) => { }
-  private _onSuggestionAddToQuery = (entityIri: string, entityType: EntityTypeEnum, relatedClassIri?: string) => { }
+  private _onSuggestionAddToQuery = (entityIri: string, entityType: GrapholTypesEnum, relatedClassIri?: string) => { }
 
   static properties = {
     class: { type: String, attribute: false},
-    highlights: { type: Object, attribute: false }
+    allHighlights: { type: Object, attribute: false }
   }
 
   static styles = [
     ui.baseStyle,
     ui.entityListItemStyle,
+    ui.contentSpinnerStyle,
     sparqlingWidgetStyle,
     css`
       :host {
@@ -53,6 +62,9 @@ export default class HighlightsList extends ui.DropPanelMixin(ui.BaseMixin(LitEl
         padding: 0 8px 8px 8px;
         position: relative;
         box-sizing: border-box;
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
       }
 
       details.entity-list-item > .summary-body {
@@ -78,11 +90,15 @@ export default class HighlightsList extends ui.DropPanelMixin(ui.BaseMixin(LitEl
         line-height: 0;
       }
 
-      div.entity-list-item > .actions {
+      gscape-entity-list-item {
+        --custom-min-height: 26.5px;
+      }
+
+      gscape-entity-list-item > .actions {
         display: none;
       }
 
-      div.entity-list-item:hover > .actions {
+      gscape-entity-list-item:hover > .actions {
         display: unset;
       }
 
@@ -107,18 +123,39 @@ export default class HighlightsList extends ui.DropPanelMixin(ui.BaseMixin(LitEl
     // Should not be necessary the '| Event' and casting to SearchEvent custom Event
     this.addEventListener('onsearch', (evt: ui.SearchEvent| Event) => {
       const searchedText = (evt as ui.SearchEvent).detail.searchText
-      if (this.highlights && searchedText.length > 2) {
+      if (this.shownIRIs && searchedText.length > 2) {
         const isAmatch = (value1: string, value2: string) => value1.toLowerCase().includes(value2.toLowerCase())
 
-        this.highlights.classes = this.highlights.classes?.filter(classIri => 
-          isAmatch(classIri, searchedText)
-        )
-        this.highlights.dataProperties = this.highlights.dataProperties?.filter(dataPropertyIri => 
-          isAmatch(dataPropertyIri, searchedText)
-        )
-        this.highlights.objectProperties = this.highlights.objectProperties?.filter(branch => 
-          branch.objectPropertyIRI ? isAmatch(branch.objectPropertyIRI, searchedText) : false 
-        )
+        const checkEntity = (e: ui.EntityViewDataUnfolding) => {
+          return isAmatch(e.entityViewData.value.iri.remainder, searchedText) ||
+          e.entityViewData.value.getLabels().some(label => isAmatch(label.lexicalForm, searchedText))
+        }
+
+        if (!this.entityFilters || this.entityFilters.areAllFiltersDisabled ||
+            this.entityFilters[GrapholTypesEnum.CLASS]) {
+
+          this.shownIRIs.classes = this.allHighlights?.classes
+          ?.filter(c => checkEntity(c))
+          .map(e => e.entityViewData.value.iri.fullIri) || []
+        }
+
+        if (!this.entityFilters || this.entityFilters.areAllFiltersDisabled ||
+            this.entityFilters[GrapholTypesEnum.DATA_PROPERTY]) {
+
+          this.shownIRIs.dataProperties = this.allHighlights?.dataProperties
+            ?.filter(dp => checkEntity(dp))
+            .map(e => e.entityViewData.value.iri.fullIri) || []
+        }
+
+
+        if (!this.entityFilters || this.entityFilters.areAllFiltersDisabled ||
+            this.entityFilters[GrapholTypesEnum.OBJECT_PROPERTY]) {
+
+          this.shownIRIs.objectProperties = this.allHighlights?.objectProperties
+            ?.filter(op => checkEntity(op))
+            .map(e => e.entityViewData.value.iri.fullIri) || []
+        }
+        
         
         this.requestUpdate()
       } else {
@@ -165,26 +202,33 @@ export default class HighlightsList extends ui.DropPanelMixin(ui.BaseMixin(LitEl
               </gscape-button>
             </div>
             <div class="content-wrapper">
-              <gscape-entity-search></gscape-entity-search>
-              <div class="list">
-                ${this.highlights
-                  ? html`
-                    ${this.dataProperties.map((dataPropertyIri) => this.getEntitySuggestionTemplate(dataPropertyIri, EntityTypeEnum.DataProperty))}
-                    ${this.objectProperties.map(objectPropertyHighlight => this.getObjectPropertySuggestionTemplate(objectPropertyHighlight))}
-                    ${this.classes.map((classIri) => this.getEntitySuggestionTemplate(classIri, EntityTypeEnum.Class))}
-                  `
-                  : html`
-                    <div class="blank-slate">
-                      ${ui.icons.searchOff}
-                      <div class="header">No suggestions available</div>
-                      <div class="description">Add elements to the query and we will provide you next steps suggestions</div>
-                    </div>
-                  `
-                }
+              <gscape-entity-search
+                class=0
+                data-property=0
+                object-property=0
+              ></gscape-entity-search>
 
-                ${this.highlights && this.objectProperties.length === 0 && this.dataProperties.length === 0 && this.classes.length === 0
-                  ? ui.emptySearchBlankState
-                  : null
+              <div class="list">
+                ${this.loading
+                  ? html`<div style="align-self: center">${ui.getContentSpinner()}</div>`
+                  : this.hasAnyHighlights
+                    ? html`
+                      ${this.dataProperties.map(dp => this.getEntitySuggestionTemplate(dp))}
+                      ${this.objectProperties.map(op => this.getObjectPropertySuggestionTemplate(op))}
+                      ${this.classes.map(c => this.getEntitySuggestionTemplate(c))}
+
+                      ${this.shownIRIs && this.objectProperties.length === 0 && this.dataProperties.length === 0 && this.classes.length === 0
+                        ? ui.emptySearchBlankState
+                        : null
+                      }
+                    `
+                    : this.allHighlights === undefined && html`
+                      <div class="blank-slate">
+                        ${ui.icons.searchOff}
+                        <div class="header">No suggestions available</div>
+                        <div class="description">Add elements to the query and we will provide you next steps suggestions</div>
+                      </div>
+                    `
                 }
               </div>
             </div>
@@ -194,69 +238,63 @@ export default class HighlightsList extends ui.DropPanelMixin(ui.BaseMixin(LitEl
     `
   }
 
-  private getObjectPropertySuggestionTemplate(objectPropertyHighlight: Branch) {
-    if (!objectPropertyHighlight.objectPropertyIRI)
-      return
-
-    if (hasEntityEmptyUnfolding(objectPropertyHighlight.objectPropertyIRI, EntityTypeEnum.ObjectProperty)) {
-      return this.getEntitySuggestionTemplate(objectPropertyHighlight.objectPropertyIRI, EntityTypeEnum.ObjectProperty)
-    } else {
-      return html`
-      <details class="ellipsed entity-list-item" title=${objectPropertyHighlight.objectPropertyIRI}>
-        <summary class="actionable" iri=${objectPropertyHighlight.objectPropertyIRI}>
-          <span class="entity-icon">${ui.icons.objectPropertyIcon}</span>
-          <span @click=${this.handleEntityNameClick} class="entity-name">
-            ${objectPropertyHighlight.objectPropertyIRI}
-          </span>
-        </summary>
-
-        <div class="summary-body">
-          ${objectPropertyHighlight.relatedClasses?.map((relatedClass) => this.getEntitySuggestionTemplate(relatedClass, EntityTypeEnum.Class, objectPropertyHighlight.objectPropertyIRI))}
-        </div>
-      </details>
-    `
-    }
-  }
-
-  private getEntitySuggestionTemplate(entityIri: string, entityType: EntityTypeEnum, objectPropertyIri?: string) {
-    const hasEmptyUnfolding = hasEntityEmptyUnfolding(entityIri, entityType)
-    let entityIcon: { _$litType$: 2; strings: TemplateStringsArray; values: unknown[] }
-
-    switch(entityType) {
-      case EntityTypeEnum.Class:
-        entityIcon = ui.icons.classIcon
-        break
-
-      case EntityTypeEnum.DataProperty:
-        entityIcon = ui.icons.dataPropertyIcon
-        break
-
-      case EntityTypeEnum.ObjectProperty:
-      case EntityTypeEnum.InverseObjectProperty:
-        entityIcon = ui.icons.objectPropertyIcon
-        break
-    }
-    
+  private getObjectPropertySuggestionTemplate(objectProperty: ui.ViewObjectPropertyUnfolding) {
     return html`
-      <div 
-        iri=${entityIri}
-        entity-type="${entityType}"
-        class="ellipsed entity-list-item ${hasEmptyUnfolding ? 'disabled' : null}"
-        title=${hasEmptyUnfolding ? emptyUnfoldingEntityTooltip() : null}
+      <gscape-entity-list-item
+        displayedname=${objectProperty.entityViewData.displayedName}
+        iri=${objectProperty.entityViewData.value.iri.fullIri}
+        type=${objectProperty.entityViewData.value.type}
+        ?asaccordion=${true}
+        ?disabled=${objectProperty.hasUnfolding}
+        direct=${objectProperty.direct}
+        title=${objectProperty.hasUnfolding ? objectProperty.entityViewData.displayedName : emptyUnfoldingEntityTooltip()}
       >
-        <span class="entity-icon">${entityIcon}</span>
-        <span class="entity-name actionable" @click=${this.handleEntityNameClick}>${entityIri}</span>
-        ${!hasEmptyUnfolding
+        <div slot="accordion-body">
+          ${objectProperty.connectedClasses.map(connectedClass => this.getEntitySuggestionTemplate(
+            connectedClass, 
+            (e) => this.handleAddToQueryClick(
+              e, 
+              connectedClass.entityViewData.value.iri.fullIri, 
+              GrapholTypesEnum.OBJECT_PROPERTY, 
+              objectProperty.entityViewData.value.iri.fullIri
+              )
+            ))}
+        </div>
+
+        ${!objectProperty.direct
           ? html`
-            <span class="actions">
-              ${getTrayButtonTemplate('Add to query', placeItem, undefined, 'add-to-query-action', (e) => {
-                this.handleAddToQueryClick(e, objectPropertyIri)
-              })}
-            </span>
+            <span slot="trailing-element" class="chip" style="line-height: 1">Inverse</span>
           `
           : null
         }
-      </div>
+      </gscape-entity-list-item>
+    `
+  }
+
+  private getEntitySuggestionTemplate(entity: ui.EntityViewDataUnfolding, customCallback?: (e: MouseEvent) => void) {
+    return html`
+      <gscape-entity-list-item
+        displayedname=${entity.entityViewData.displayedName}
+        iri=${entity.entityViewData.value.iri}
+        type=${entity.entityViewData.value.type}
+        title=${entity.hasUnfolding ? entity.entityViewData.displayedName : emptyUnfoldingEntityTooltip()}
+      >
+        <div slot="trailing-element" class="actions">
+          <gscape-button
+            title="Add to Query"
+            size="s"
+            type="subtle"
+            @click=${(e: MouseEvent) => {
+              if (customCallback)
+                customCallback(e)
+              else
+                this.handleAddToQueryClick(e, entity.entityViewData.value.iri.fullIri, entity.entityViewData.value.type)
+            }}
+          >
+            <span slot='icon' class="slotted-icon">${ui.icons.insertInGraph}</span>
+          </gscape-button>
+        </div>
+      </gscape-entity-list-item>
     `
   }
 
@@ -274,19 +312,12 @@ export default class HighlightsList extends ui.DropPanelMixin(ui.BaseMixin(LitEl
       this._onSuggestionLocalization(entityIri)
   }
 
-  private handleAddToQueryClick(e: MouseEvent, objectPropertyIri?: string) {
+  private handleAddToQueryClick(e: MouseEvent, entityIri: string, entityType: GrapholTypesEnum, objectPropertyIri?: string) {
     e.preventDefault()
-
-    const entityIri = (e.currentTarget as HTMLElement).parentElement?.parentElement?.getAttribute('iri')
-    const entityType = (e.currentTarget as HTMLElement).parentElement?.parentElement?.getAttribute('entity-type') as EntityTypeEnum
-
-    if (entityIri && entityType) {
-      if (objectPropertyIri) { // if it's from object property, then the entityIri is the relatedClass iri
-        this._onSuggestionAddToQuery(objectPropertyIri, EntityTypeEnum.ObjectProperty, entityIri)
-      } else {
-        this._onSuggestionAddToQuery(entityIri, entityType)
-      }
-
+    if (objectPropertyIri) { // if it's from object property, then the entityIri is the relatedClass iri
+      this._onSuggestionAddToQuery(objectPropertyIri, GrapholTypesEnum.OBJECT_PROPERTY, entityIri)
+    } else {
+      this._onSuggestionAddToQuery(entityIri, entityType)
     }
   }
 
@@ -300,28 +331,29 @@ export default class HighlightsList extends ui.DropPanelMixin(ui.BaseMixin(LitEl
     this._onSuggestionLocalization = callback
   }
 
-  onSuggestionAddToQuery(callback: (entityIri:string, entityType: EntityTypeEnum, relatedClass?: string) => void) {
+  onSuggestionAddToQuery(callback: (entityIri:string, entityType: GrapholTypesEnum, relatedClass?: string) => void) {
     this._onSuggestionAddToQuery = callback
   }
 
   private get objectProperties() {
-    return this.highlights?.objectProperties?.sort((a,b) => {
-      if (a.objectPropertyIRI && b.objectPropertyIRI)
-        return a.objectPropertyIRI.localeCompare(b.objectPropertyIRI)
-      else
-        return 0
-    }) || []
+    return this.allHighlights?.objectProperties?.sort((a,b) => {
+      return a.entityViewData.displayedName.localeCompare(b.entityViewData.displayedName)
+    }).filter(op => !this.shownIRIs || this.shownIRIs?.objectProperties.includes(op.entityViewData.value.iri.fullIri)) || []
   }
 
   private get classes() {
-    return this.highlights?.classes?.sort((a,b) => a.localeCompare(b)) || []
+    return this.allHighlights?.classes?.sort((a,b) => {
+      return a.entityViewData.displayedName.localeCompare(b.entityViewData.displayedName)
+    }).filter(c => !this.shownIRIs || this.shownIRIs?.classes.includes(c.entityViewData.value.iri.fullIri)) || []
   }
 
   private get dataProperties() {
-    return this.highlights?.dataProperties?.sort((a,b) => a.localeCompare(b)) || []
+    return this.allHighlights?.dataProperties?.sort((a,b) => {
+      return a.entityViewData.displayedName.localeCompare(b.entityViewData.displayedName)
+    }).filter(dp => !this.shownIRIs || this.shownIRIs?.dataProperties.includes(dp.entityViewData.value.iri.fullIri)) || []
   }
 
-  set allHighlights(highlights: Highlights | undefined) {
+  set allHighlights(highlights: ViewHighlights | undefined) {
     this._allHighlights = highlights
     this.setHighlights()
   }
@@ -331,33 +363,44 @@ export default class HighlightsList extends ui.DropPanelMixin(ui.BaseMixin(LitEl
   }
 
   private setHighlights() {
-    if (this.allHighlights)
-      this.highlights = JSON.parse(JSON.stringify(this.allHighlights))
-    else 
-      this.highlights = this.allHighlights
+    
+    this.shownIRIs = {
+      classes: this.allHighlights?.classes.map(e => e.entityViewData.value.iri.fullIri) || [],
+      dataProperties: this.allHighlights?.dataProperties.map(e => e.entityViewData.value.iri.fullIri) || [],
+      objectProperties: this.allHighlights?.objectProperties.map(e => e.entityViewData.value.iri.fullIri) || [],
+    }
 
-    if (this.highlights && this.entityFilters && !this.entityFilters.areAllFiltersDisabled) {
+    if (this.shownIRIs && this.entityFilters && !this.entityFilters.areAllFiltersDisabled) {
       let count = 0
       if (!this.entityFilters[GrapholTypesEnum.CLASS]) {
-        this.highlights.classes = []
+        this.shownIRIs.classes = []
         count += 1
       }
 
       if (!this.entityFilters[GrapholTypesEnum.OBJECT_PROPERTY]) {
-        this.highlights.objectProperties = []
+        this.shownIRIs.objectProperties = []
         count += 1
       }
 
       if (!this.entityFilters[GrapholTypesEnum.DATA_PROPERTY]) {
-        this.highlights.dataProperties = []
+        this.shownIRIs.dataProperties = []
         count += 1
       }
 
       // if count = 3 then highlights empty, this will show the blank-slate
       if (count === 3) {
-        this.highlights = undefined
+        this.shownIRIs = undefined
       }
     }
+
+    this.requestUpdate()
+  }
+
+  private get hasAnyHighlights() {
+    if (this.allHighlights)
+      return this.allHighlights.classes.length > 0 ||
+        this.allHighlights.dataProperties.length > 0 ||
+        this.allHighlights.objectProperties.length > 0
   }
 
   private get searchEntityComponent() {

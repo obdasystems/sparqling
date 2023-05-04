@@ -13,16 +13,15 @@ highlightsList.onSuggestionLocalization((entityIri) => {
 
 highlightsList.onSuggestionAddToQuery((entityIri, entityType, relatedClass) => {
   switch (entityType) {
-    case EntityTypeEnum.Class:
-    case EntityTypeEnum.DataProperty:
-      const grapholEntityType = entityType === EntityTypeEnum.Class ? GrapholTypesEnum.CLASS : GrapholTypesEnum.DATA_PROPERTY
+    case GrapholTypesEnum.CLASS:
+    case GrapholTypesEnum.DATA_PROPERTY:
       const entityOccurrence = getEntityOccurrence(entityIri)
 
       if (entityOccurrence)
-        handleEntitySelection(getGscape().ontology.prefixedToFullIri(entityIri) || entityIri, grapholEntityType, entityOccurrence)
+        handleEntitySelection(entityIri, entityType, entityOccurrence)
       break
 
-    case EntityTypeEnum.ObjectProperty:
+    case GrapholTypesEnum.OBJECT_PROPERTY:
       if (relatedClass) {
         const objectPropertyBranch = getActualHighlights()?.objectProperties?.find((b: Branch) => {
           if (b.objectPropertyIRI)
