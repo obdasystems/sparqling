@@ -1,8 +1,8 @@
 import { Stylesheet } from "cytoscape"
-import { ColoursNames, GrapholscapeTheme, GrapholTypesEnum } from "grapholscape"
+import { ColoursNames, DefaultThemesEnum, GrapholscapeTheme } from "grapholscape"
 import { EntityTypeEnum } from "../../api/swagger"
 
-const { DataProperty, Class, ObjectProperty, InverseObjectProperty } = EntityTypeEnum
+const { DataProperty, Class, ObjectProperty, InverseObjectProperty, Annotation } = EntityTypeEnum
 
 export default (theme: GrapholscapeTheme) => {
   return [
@@ -76,6 +76,26 @@ export default (theme: GrapholscapeTheme) => {
         'target-arrow-color': theme.getColour(ColoursNames.object_property_contrast),
         'source-arrow-color': theme.getColour(ColoursNames.object_property_contrast),
         'text-max-width': '60px'
+      }
+    },
+
+    {
+      selector: `node[type = "${Annotation}"]`,
+      style: {
+        'shape': 'ellipse',
+        'height': 10,
+        'width': 10,
+        'background-color': theme.id === DefaultThemesEnum.GRAPHOL ? theme.getColour(ColoursNames.data_property) : '#FAAE99',
+        'border-color': theme.id === DefaultThemesEnum.GRAPHOL ? theme.getColour(ColoursNames.data_property_contrast) : '#F46036',
+      }
+    },
+
+    {
+      selector: `edge[type = "${Annotation}"]`,
+      style: {
+        'curve-style': 'straight',
+        'target-arrow-shape': 'none',
+        'line-color': theme.id === DefaultThemesEnum.GRAPHOL ? theme.getColour(ColoursNames.data_property_contrast) : '#F46036',
       }
     },
 

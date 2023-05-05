@@ -127,6 +127,7 @@ export function selectNode(nodeId: string): CollectionReturnValue {
  */
 export function arrange() {
   const dataPropertySelector = `node[type = "${EntityTypeEnum.DataProperty}"][!isSuggestion]`
+  const annotationSelector = `node[type = "${EntityTypeEnum.Annotation}"][!isSuggestion]`
   const classSelector = `node[type = "${EntityTypeEnum.Class}"][!isSuggestion]`
 
   if (getElements().length <= 1) {
@@ -153,14 +154,14 @@ export function arrange() {
   const klayLayout = cy.layout(klayLayoutOpt)
   klayLayout.on('layoutstop', () => {
     cy.$(classSelector).forEach(node => {
-      const dataProperties = node.neighborhood(dataPropertySelector)
+      const dataPropertiesAndAnnotations = node.neighborhood(`${dataPropertySelector},${annotationSelector}`)
       // run grid layout on compound nodes
       if (!node.isChildless()) {
         node.children().layout(gridLayoutOpt(node)).run()
       }
 
-      if (!dataProperties.empty()) {
-        dataProperties.layout(radialLayoutOpt(node)).run()
+      if (!dataPropertiesAndAnnotations.empty()) {
+        dataPropertiesAndAnnotations.layout(radialLayoutOpt(node)).run()
       }
     })
     cy.fit()

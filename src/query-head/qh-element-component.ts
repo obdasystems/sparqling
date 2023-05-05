@@ -1,6 +1,6 @@
 import { ui } from 'grapholscape';
 import { css, html, LitElement } from 'lit';
-import { Filter, Function, GroupByElement, HeadElement, VarOrConstantConstantTypeEnum } from '../api/swagger';
+import { EntityTypeEnum, Filter, Function, GroupByElement, HeadElement, VarOrConstantConstantTypeEnum } from '../api/swagger';
 import { getFiltersOnVariable, isConfigEnabled } from '../model';
 import { addFilter, crosshair, dragHandler, expandLess, expandMore, filter as filterIcon, functionIcon, kebab, rubbishBin, sigma, sortAscendingIcon, sortDescendingIcon, sortIcon } from '../widgets/assets/icons';
 import { getElemWithOperatorStyle } from '../widgets/forms/elem-with-operator-style';
@@ -284,13 +284,17 @@ export default class HeadElementComponent extends ui.BaseMixin(ui.DropPanelMixin
     if (newElement.having)
       this.having = newElement.having
 
-    let types = {
-      'class': 'class',
-      'objectProperty': 'object-property',
-      'dataProperty': 'data-property'
-    }
+    if (this.entityType === EntityTypeEnum.Annotation) {
+      this.style.borderColor = '#F46036'
+    } else {
+      let types = {
+        'class': 'class',
+        'objectProperty': 'object-property',
+        'dataProperty': 'data-property',
+      }
 
-    this.style.borderColor = `var(--gscape-color-${types[this.entityType]}-contrast)`
+      this.style.borderColor = `var(--gscape-color-${types[this.entityType]}-contrast)`
+    }
 
     if (newElement.graphElementId) {
       const filtersOnVariable = getFiltersOnVariable(newElement.graphElementId)

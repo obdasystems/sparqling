@@ -15,10 +15,10 @@ export default async function addAnnotation(annotationKind: AnnotationsKind) {
   const activeElement = model.getActiveElement()
 
   if (activeElement?.graphElement.id) {
-    const newQueryBody = await handlePromise(qgBGPApi.putQueryGraphDataProperty(
+    const newQueryBody = await handlePromise(qgBGPApi.putQueryGraphAnnotation(
       activeElement.graphElement.id,
       '',
-      `rdfs:${annotationKind}`,
+      `http://www.w3.org/2000/01/rdf-schema#${annotationKind}`,
       model.getQueryBody(),
       model.getRequestOptions()
     ))

@@ -214,7 +214,7 @@ export default class HighlightsList extends ui.DropPanelMixin(ui.BaseMixin(LitEl
                   : this.hasAnyHighlights
                     ? html`
 
-                      <details>
+                      <details open="">
                         <summary class="actionable" style="padding: 8px">Annotations</summary>
 
                         <gscape-action-list-item
