@@ -151,7 +151,7 @@ export function arrange() {
     return
   }
 
-  const klayLayout = cy.layout(klayLayoutOpt)
+  const klayLayout = cy.elements().difference(`${dataPropertySelector},${annotationSelector}`).layout(klayLayoutOpt)
   klayLayout.on('layoutstop', () => {
     cy.$(classSelector).forEach(node => {
       const dataPropertiesAndAnnotations = node.neighborhood(`${dataPropertySelector},${annotationSelector}`)

@@ -3,9 +3,10 @@ import { SingularElementReturnValue } from "cytoscape"
 export const klayLayoutOpt = {
   name: 'klay',
   klay: {
-    direction: 'RIGHT',
-    spacing: 60,
-    nodeLayering: 'INTERACTIVE',
+    spacing: 50,
+    fixedAlignment: 'BALANCED',
+    nodePlacement: 'LINEAR_SEGMENTS',
+    thoroughness: 10,
   }
 }
 
