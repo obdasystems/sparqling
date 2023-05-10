@@ -61,7 +61,9 @@ cy.on('cxttap', `[iri][!isSuggestion]`, e => {
 });
 
 (cy as any).automove({
-  nodesMatching: (node: NodeSingular) => cy.$(':grabbed').neighborhood(`[type = "${EntityTypeEnum.DataProperty}"]`).has(node),
+  nodesMatching: (node: NodeSingular) => cy.$(':grabbed')
+    .neighborhood(`[type = "${EntityTypeEnum.DataProperty}"],[type = "${EntityTypeEnum.Annotation}"]`)
+    .has(node),
   reposition: 'drag',
   dragWith: `[type ="${EntityTypeEnum.Class}"]`
 })
