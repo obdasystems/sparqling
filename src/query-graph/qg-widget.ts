@@ -43,6 +43,7 @@ export default class QueryGraphWidget extends ui.BaseMixin(ui.DropPanelMixin(Lit
         left: 50%;
         top: 100%;
         transform: translate(-50%, calc(-100% - 10px));
+        pointer-events: none;
       }
 
       :host([withoutBGP]) {
