@@ -1,4 +1,4 @@
-import { GraphElement, HeadElement, VarOrConstantTypeEnum } from "../api/swagger"
+import { EntityTypeEnum, GraphElement, HeadElement, VarOrConstantTypeEnum } from "../api/swagger"
 import { isStandalone } from "../model"
 import { getGscape } from "../ontology-graph"
 import * as GEUtility from "../util/graph-element-utility"
@@ -41,7 +41,10 @@ export default function (element: HeadElement | GraphElement, formDialog: Sparql
     value: graphElement.id
   }]
 
-  formDialog.datatypeFromOntology = getGscape().ontology.getEntity(graphElementIri)?.datatype
+  formDialog.datatypeFromOntology = 
+    GEUtility.getEntityType(graphElement) === EntityTypeEnum.Annotation
+      ? 'xsd:string'
+      : getGscape().ontology.getEntity(graphElementIri)?.datatype
 
   formDialog.setDefaultOperator()
 
