@@ -1,18 +1,18 @@
 /**
  * MIT License
- *
- * Copyright (c) 2022 OBDA Systems
- *
+ * 
+ * Copyright (c) 2022-2023 OBDA Systems
+ * 
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
  * in the Software without restriction, including without limitation the rights
  * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
  * copies of the Software, and to permit persons to whom the Software is
  * furnished to do so, subject to the following conditions:
- *
+ * 
  * The above copyright notice and this permission notice shall be included in all
  * copies or substantial portions of the Software.
- *
+ * 
  * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
  * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
  * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
@@ -22,7 +22,7 @@
  * SOFTWARE.
  */
 
-import { ui, GrapholTypesEnum, RendererStatesEnum, Iri, EntityNameType, ColoursNames, toPNG, toSVG, GrapholRendererState, Shape, LifecycleEvent } from 'grapholscape';
+import { ui, GrapholTypesEnum, RendererStatesEnum, Iri, EntityNameType, ColoursNames, DefaultThemesEnum, toPNG, toSVG, util, GrapholRendererState, Shape, LifecycleEvent, AnnotationsKind } from 'grapholscape';
 import globalAxios from 'axios';
 import cytoscape from 'cytoscape';
 import cola from 'cytoscape-cola';
@@ -57,35 +57,18 @@ function __awaiter(thisArg, _arguments, P, generator) {
     });
 }
 
-let body;
-let activeElement;
-// map GraphElementId+IRI -> EntityOccurrence: { OriginGrapholNodeID, diagramId }
-// Use iri to distinguish children of a GraphElement
-const originGrapholNodes = new Map();
-function setQueryBody(newBody) {
-    body = newBody;
-    return body;
+let config = {};
+function setConfig(newConfig = {}) {
+    config = newConfig;
 }
-function setActiveElement(newActiveElement) {
-    activeElement = newActiveElement;
+function getConfig(configEntry) {
+    return configEntry && config ? config[configEntry] : config;
 }
-function getActiveElement() { return activeElement; }
-function getQueryBody() { return body; }
-function getOriginGrapholNodes() {
-    return originGrapholNodes;
+function isConfigEnabled(configEntry) {
+    return config[configEntry] !== false;
 }
-function getTempQueryBody() {
-    return JSON.parse(JSON.stringify(body));
-}
-function getHeadElementByID(headElementId, queryBody = body) {
-    var _a;
-    return (_a = queryBody === null || queryBody === void 0 ? void 0 : queryBody.head) === null || _a === void 0 ? void 0 : _a.find(headElement => headElement.id === headElementId);
-}
-function isCountStarActive() {
-    return (body === null || body === void 0 ? void 0 : body.count_star) || false;
-}
-function isDistinctActive() {
-    return (body === null || body === void 0 ? void 0 : body.distinct) || false;
+function clearConfig() {
+    config = {};
 }
 
 /* tslint:disable */
@@ -192,7 +175,8 @@ const EntityTypeEnum = {
     Class: 'class',
     ObjectProperty: 'objectProperty',
     InverseObjectProperty: 'inverseObjectProperty',
-    DataProperty: 'dataProperty'
+    DataProperty: 'dataProperty',
+    Annotation: 'annotation'
 };
 const FilterExpressionOperatorEnum = {
     Equal: '=',
@@ -203,7 +187,9 @@ const FilterExpressionOperatorEnum = {
     GreaterThanOrEqualTo: '>=',
     In: 'IN',
     NotIn: 'NOT IN',
-    Regex: 'REGEX'
+    Regex: 'REGEX',
+    Isblank: 'ISBLANK',
+    NotIsblank: 'NOT ISBLANK'
 };
 const FunctionNameEnum = {
     Add: 'ADD',
@@ -223,7 +209,12 @@ const FunctionNameEnum = {
     Day: 'DAY',
     Hours: 'HOURS',
     Minutes: 'MINUTES',
-    Seconds: 'SECONDS'
+    Seconds: 'SECONDS',
+    Strlen: 'STRLEN',
+    Strstarts: 'STRSTARTS',
+    Strends: 'STRENDS',
+    Strbefore: 'STRBEFORE',
+    Strafter: 'STRAFTER'
 };
 const GroupByElementAggregateFunctionEnum = {
     Count: 'count',
@@ -539,6 +530,52 @@ const QueryGraphBGPApiAxiosParamCreator = function (configuration) {
             };
         }),
         /**
+         * This route is used when the user click a highlighted data property. The triple pattern to add is something like `?x <predicateIRI> ?y` where `?x` should be derived from `selectedClassIRI`. Note that `?y` is fresh new variable that should be added also to the head of the query (we assume data property values are interesting). The variable `?y` should be called according to the entity remainder or label and should add a counter if there is an already defined variable for that data property.
+         * @summary Starting from the current query graph continue to build the query graph through a data property.
+         * @param {string} graphElementId The id of the node of the selected class in the query graph.
+         * @param {string} sourceClassIRI The IRI of the last selected class. It could be selected from the ontology graph or from the query graph.
+         * @param {string} predicateIRI The IRI of the clicked data property.
+         * @param {QueryGraph} queryGraph
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        putQueryGraphAnnotation: (graphElementId, sourceClassIRI, predicateIRI, queryGraph, options = {}) => __awaiter(this, void 0, void 0, function* () {
+            // verify required parameter 'graphElementId' is not null or undefined
+            assertParamExists('putQueryGraphAnnotation', 'graphElementId', graphElementId);
+            // verify required parameter 'sourceClassIRI' is not null or undefined
+            assertParamExists('putQueryGraphAnnotation', 'sourceClassIRI', sourceClassIRI);
+            // verify required parameter 'predicateIRI' is not null or undefined
+            assertParamExists('putQueryGraphAnnotation', 'predicateIRI', predicateIRI);
+            // verify required parameter 'queryGraph' is not null or undefined
+            assertParamExists('putQueryGraphAnnotation', 'queryGraph', queryGraph);
+            const localVarPath = `/queryGraph/node/annotation/{graphElementId}`
+                .replace(`{${"graphElementId"}}`, encodeURIComponent(String(graphElementId)));
+            // use dummy base URL string because the URL constructor only accepts absolute URLs.
+            const localVarUrlObj = new URL(localVarPath, DUMMY_BASE_URL);
+            let baseOptions;
+            if (configuration) {
+                baseOptions = configuration.baseOptions;
+            }
+            const localVarRequestOptions = Object.assign(Object.assign({ method: 'PUT' }, baseOptions), options);
+            const localVarHeaderParameter = {};
+            const localVarQueryParameter = {};
+            if (sourceClassIRI !== undefined) {
+                localVarQueryParameter['sourceClassIRI'] = sourceClassIRI;
+            }
+            if (predicateIRI !== undefined) {
+                localVarQueryParameter['predicateIRI'] = predicateIRI;
+            }
+            localVarHeaderParameter['Content-Type'] = 'application/json';
+            setSearchParams(localVarUrlObj, localVarQueryParameter);
+            let headersFromBaseOptions = baseOptions && baseOptions.headers ? baseOptions.headers : {};
+            localVarRequestOptions.headers = Object.assign(Object.assign(Object.assign({}, localVarHeaderParameter), headersFromBaseOptions), options.headers);
+            localVarRequestOptions.data = serializeDataIfNeeded(queryGraph, localVarRequestOptions, configuration);
+            return {
+                url: toPathString(localVarUrlObj),
+                options: localVarRequestOptions,
+            };
+        }),
+        /**
          * This call is used when the user click on a highlighted class and should add a triple pattern of the form like `?x rdf:type <targetClassIRI>`. The server should find `?x` in the SPARQL code as the variable associated to the `sourceClassIRI`.
          * @summary Starting from the current query graph continue to build the query graph through a class.
          * @param {string} graphElementId The id of the node of the selected class in the query graph.
@@ -792,6 +829,22 @@ const QueryGraphBGPApiFp = function (configuration) {
             });
         },
         /**
+         * This route is used when the user click a highlighted data property. The triple pattern to add is something like `?x <predicateIRI> ?y` where `?x` should be derived from `selectedClassIRI`. Note that `?y` is fresh new variable that should be added also to the head of the query (we assume data property values are interesting). The variable `?y` should be called according to the entity remainder or label and should add a counter if there is an already defined variable for that data property.
+         * @summary Starting from the current query graph continue to build the query graph through a data property.
+         * @param {string} graphElementId The id of the node of the selected class in the query graph.
+         * @param {string} sourceClassIRI The IRI of the last selected class. It could be selected from the ontology graph or from the query graph.
+         * @param {string} predicateIRI The IRI of the clicked data property.
+         * @param {QueryGraph} queryGraph
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        putQueryGraphAnnotation(graphElementId, sourceClassIRI, predicateIRI, queryGraph, options) {
+            return __awaiter(this, void 0, void 0, function* () {
+                const localVarAxiosArgs = yield localVarAxiosParamCreator.putQueryGraphAnnotation(graphElementId, sourceClassIRI, predicateIRI, queryGraph, options);
+                return createRequestFunction(localVarAxiosArgs, globalAxios, BASE_PATH, configuration);
+            });
+        },
+        /**
          * This call is used when the user click on a highlighted class and should add a triple pattern of the form like `?x rdf:type <targetClassIRI>`. The server should find `?x` in the SPARQL code as the variable associated to the `sourceClassIRI`.
          * @summary Starting from the current query graph continue to build the query graph through a class.
          * @param {string} graphElementId The id of the node of the selected class in the query graph.
@@ -910,6 +963,19 @@ const QueryGraphBGPApiFactory = function (configuration, basePath, axios) {
             return localVarFp.getQueryGraph(clickedClassIRI, options).then((request) => request(axios, basePath));
         },
         /**
+         * This route is used when the user click a highlighted data property. The triple pattern to add is something like `?x <predicateIRI> ?y` where `?x` should be derived from `selectedClassIRI`. Note that `?y` is fresh new variable that should be added also to the head of the query (we assume data property values are interesting). The variable `?y` should be called according to the entity remainder or label and should add a counter if there is an already defined variable for that data property.
+         * @summary Starting from the current query graph continue to build the query graph through a data property.
+         * @param {string} graphElementId The id of the node of the selected class in the query graph.
+         * @param {string} sourceClassIRI The IRI of the last selected class. It could be selected from the ontology graph or from the query graph.
+         * @param {string} predicateIRI The IRI of the clicked data property.
+         * @param {QueryGraph} queryGraph
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        putQueryGraphAnnotation(graphElementId, sourceClassIRI, predicateIRI, queryGraph, options) {
+            return localVarFp.putQueryGraphAnnotation(graphElementId, sourceClassIRI, predicateIRI, queryGraph, options).then((request) => request(axios, basePath));
+        },
+        /**
          * This call is used when the user click on a highlighted class and should add a triple pattern of the form like `?x rdf:type <targetClassIRI>`. The server should find `?x` in the SPARQL code as the variable associated to the `sourceClassIRI`.
          * @summary Starting from the current query graph continue to build the query graph through a class.
          * @param {string} graphElementId The id of the node of the selected class in the query graph.
@@ -1018,6 +1084,20 @@ class QueryGraphBGPApi extends BaseAPI {
      */
     getQueryGraph(clickedClassIRI, options) {
         return QueryGraphBGPApiFp(this.configuration).getQueryGraph(clickedClassIRI, options).then((request) => request(this.axios, this.basePath));
+    }
+    /**
+     * This route is used when the user click a highlighted data property. The triple pattern to add is something like `?x <predicateIRI> ?y` where `?x` should be derived from `selectedClassIRI`. Note that `?y` is fresh new variable that should be added also to the head of the query (we assume data property values are interesting). The variable `?y` should be called according to the entity remainder or label and should add a counter if there is an already defined variable for that data property.
+     * @summary Starting from the current query graph continue to build the query graph through a data property.
+     * @param {string} graphElementId The id of the node of the selected class in the query graph.
+     * @param {string} sourceClassIRI The IRI of the last selected class. It could be selected from the ontology graph or from the query graph.
+     * @param {string} predicateIRI The IRI of the clicked data property.
+     * @param {QueryGraph} queryGraph
+     * @param {*} [options] Override http request option.
+     * @throws {RequiredError}
+     * @memberof QueryGraphBGPApi
+     */
+    putQueryGraphAnnotation(graphElementId, sourceClassIRI, predicateIRI, queryGraph, options) {
+        return QueryGraphBGPApiFp(this.configuration).putQueryGraphAnnotation(graphElementId, sourceClassIRI, predicateIRI, queryGraph, options).then((request) => request(this.axios, this.basePath));
     }
     /**
      * This call is used when the user click on a highlighted class and should add a triple pattern of the form like `?x rdf:type <targetClassIRI>`. The server should find `?x` in the SPARQL code as the variable associated to the `sourceClassIRI`.
@@ -2457,65 +2537,6 @@ class StandaloneApi extends BaseAPI {
     }
 }
 
-function getFilterById(filterId) {
-    const body = getQueryBody();
-    if (body.filters) {
-        return body.filters[filterId];
-    }
-}
-function getFiltersOnVariable(variable) {
-    var _a;
-    const body = getQueryBody();
-    let filters = (_a = body === null || body === void 0 ? void 0 : body.filters) === null || _a === void 0 ? void 0 : _a.map((filter, index) => {
-        return { id: index, value: filter };
-    });
-    return filters === null || filters === void 0 ? void 0 : filters.filter(f => {
-        var _a;
-        if ((_a = f.value.expression) === null || _a === void 0 ? void 0 : _a.parameters)
-            return f.value.expression.parameters[0].type === VarOrConstantTypeEnum.Var &&
-                f.value.expression.parameters[0].value === variable;
-    });
-}
-
-let _requestOptions = {
-    basePath: undefined,
-    version: undefined,
-    headers: undefined,
-    name: undefined,
-};
-function setRequestOptions(requestOptions) {
-    _requestOptions = requestOptions;
-}
-function getBasePath() { return _requestOptions.basePath; }
-function getVersion() { return _requestOptions.version; }
-function getName() { return _requestOptions.name; }
-function getRequestOptions() {
-    // { params: { version: 'version' }, headers: { "x-monolith-session-id": '0de2de0a-af44-4046-a91b-46b10394f068', 'Access-Control-Allow-Origin': '*', } }
-    return {
-        params: { version: _requestOptions.version },
-        headers: _requestOptions.headers,
-    };
-}
-function isStandalone() {
-    return _requestOptions.basePath ? false : true;
-}
-
-let loading;
-let numberLoadingProcesses = 0;
-function increaseLoadingProcesses() {
-    numberLoadingProcesses += 1;
-}
-function decreaseLoadingProcesses() {
-    numberLoadingProcesses -= 1;
-}
-function getNumberLoadingProcesses() {
-    return numberLoadingProcesses;
-}
-function isLoading() { return loading; }
-function setLoading(value) {
-    loading = value;
-}
-
 /**
  * @license
  * Copyright 2019 Google LLC
@@ -2541,6 +2562,64 @@ var t;const i=window,s$1=i.trustedTypes,e=s$1?s$1.createPolicy("lit-html",{creat
  * Copyright 2017 Google LLC
  * SPDX-License-Identifier: BSD-3-Clause
  */var l,o;class s extends d$1{constructor(){super(...arguments),this.renderOptions={host:this},this._$Do=void 0;}createRenderRoot(){var t,e;const i=super.createRenderRoot();return null!==(t=(e=this.renderOptions).renderBefore)&&void 0!==t||(e.renderBefore=i.firstChild),i}update(t){const i=this.render();this.hasUpdated||(this.renderOptions.isConnected=this.isConnected),super.update(t),this._$Do=A(i,this.renderRoot,this.renderOptions);}connectedCallback(){var t;super.connectedCallback(),null===(t=this._$Do)||void 0===t||t.setConnected(!0);}disconnectedCallback(){var t;super.disconnectedCallback(),null===(t=this._$Do)||void 0===t||t.setConnected(!1);}render(){return x}}s.finalized=!0,s._$litElement$=!0,null===(l=globalThis.litElementHydrateSupport)||void 0===l||l.call(globalThis,{LitElement:s});const n=globalThis.litElementPolyfillSupport;null==n||n({LitElement:s});(null!==(o=globalThis.litElementVersions)&&void 0!==o?o:globalThis.litElementVersions=[]).push("3.2.2");
+
+const rubbishBin = w `<svg fill="currentColor" xmlns="http://www.w3.org/2000/svg" height="20" width="20"><path d="M6.5 17q-.625 0-1.062-.438Q5 16.125 5 15.5v-10H4V4h4V3h4v1h4v1.5h-1v10q0 .625-.438 1.062Q14.125 17 13.5 17Zm7-11.5h-7v10h7ZM8 14h1.5V7H8Zm2.5 0H12V7h-1.5Zm-4-8.5v10Z"/></svg>`;
+const code = w `<svg fill="currentColor" xmlns="http://www.w3.org/2000/svg" height="20" width="20"><path d="M12 16v-1.5h1.75q.312 0 .531-.219.219-.219.219-.531v-1.5q0-.854.573-1.469.573-.614 1.427-.719v-.083q-.854-.167-1.427-.771-.573-.604-.573-1.458v-1.5q0-.312-.219-.531-.219-.219-.531-.219H12V4h1.75q.938 0 1.594.656Q16 5.312 16 6.25v1.5q0 .312.219.531.219.219.531.219H18v3h-1.25q-.312 0-.531.219-.219.219-.219.531v1.5q0 .938-.656 1.594-.656.656-1.594.656Zm-5.75 0q-.938 0-1.594-.656Q4 14.688 4 13.75v-1.5q0-.312-.219-.531-.219-.219-.531-.219H2v-3h1.25q.312 0 .531-.219Q4 8.062 4 7.75v-1.5q0-.938.656-1.594Q5.312 4 6.25 4H8v1.5H6.25q-.312 0-.531.219-.219.219-.219.531v1.5q0 .875-.573 1.49-.573.614-1.427.718v.084q.854.083 1.427.708.573.625.573 1.5v1.5q0 .312.219.531.219.219.531.219H8V16Z"/></svg>`;
+// https://github.com/Templarian/MaterialDesign/blob/master/svg/table-eye.svg
+const tableEye = w `<svg fill="currentColor" viewBox="0 0 24 24" style="height: 20px; width: 20px; padding:2px; box-sizing: border-box"><path d="M17 16.88C17.56 16.88 18 17.32 18 17.88S17.56 18.88 17 18.88 16 18.43 16 17.88 16.44 16.88 17 16.88M17 13.88C19.73 13.88 22.06 15.54 23 17.88C22.06 20.22 19.73 21.88 17 21.88S11.94 20.22 11 17.88C11.94 15.54 14.27 13.88 17 13.88M17 15.38C15.62 15.38 14.5 16.5 14.5 17.88S15.62 20.38 17 20.38 19.5 19.26 19.5 17.88 18.38 15.38 17 15.38M18 3H4C2.9 3 2 3.9 2 5V17C2 18.1 2.9 19 4 19H9.42C9.26 18.68 9.12 18.34 9 18C9.12 17.66 9.26 17.32 9.42 17H4V13H10V15.97C10.55 15.11 11.23 14.37 12 13.76V13H13.15C14.31 12.36 15.62 12 17 12C18.06 12 19.07 12.21 20 12.59V5C20 3.9 19.1 3 18 3M10 11H4V7H10V11M18 11H12V7H18V11Z" /></svg>`;
+// https://github.com/Templarian/MaterialDesign/blob/master/svg/asterisk.svg
+const asterisk = w `<svg fill="currentColor" viewBox="0 0 24 24" height="20px" width="20px"><path d="M11,3H13V10.27L19.29,6.64L20.29,8.37L14,12L20.3,15.64L19.3,17.37L13,13.72V21H11V13.73L4.69,17.36L3.69,15.63L10,12L3.72,8.36L4.72,6.63L11,10.26V3Z" /></svg>`;
+// https://cygri.github.io/rdf-logos/
+const rdfLogo = w `<svg viewBox="0 0 943 1019" style="fill: currentColor; display: inline-block; height: 20px; width: 20px; padding:2px; box-sizing: border-box"><path fill-rule="evenodd" d="M845,668c-6-3-13-6-19-9l5-0c0,0-42-18-45-152 c-4-133,40-156,40-156l-0,0c33-17,61-43,79-78c48-91,14-203-77-252 C729-26,617,8,569,99c-20,37-25,78-19,117l-2-3c0,0,11,48-103,119 c-113,71-165,35-165,35l3,5c-3-2-6-4-10-6C183,317,70,352,22,443 c-48,91-14,203,77,252c68,36,147,26,204-19l-1,2c0,0,41-34,160,30 c94,50,108,100,110,118c-2,69,33,137,98,171c91,48,203,14,252-77 C970,829,935,717,845,668z M635,693c-15,5-58,11-148-37 c-98-53-113-97-115-110c1-16,1-32-2-48l1,1c0,0-8-43,104-112 c100-62,146-50,154-47c5,4,11,7,17,10c11,6,23,11,35,14 c14,13,39,50,42,149c3,99-26,137-42,150C664,671,648,681,635,693z   M622,81c-54,59-55,146-3,196c-26-25-25-77,1-126 c3-4,13-15,27-10c1,0,2,1,3,1c3,1,7,1,10,1 c22-1,38-19,37-41c-0-10-4-18-11-25c50-33,107-37,131-15l1,0 C765,12,677,21,622,81z   M78,431c-54,59-55,146-03,196c-26-25-25-77,1-126 c3-4,13-15,27-10c1,0,2,1,3,1c3,1,7,1,10,1 c22-1,38-19,37-41c-0-10-4-18-11-25c50-33,107-37,131-15l1,0 C221,363,133,371,78,431z   M654,728c-54,59-55,146-3,196c-26-25-25-77,1-126 c3-4,13-15,27-10c1,0,2,1,3,1c3,1,7,1,10,1 c22-1,38-19,37-41c-0-10-4-18-11-25c50-33,107-37,131-15l1,0 C797,659,709,668,654,728z"></path></svg>`;
+const crosshair = w `<svg fill="currentcolor" xmlns="http://www.w3.org/2000/svg" height="20" width="20"><path d="M9.333 18.5v-1.458q-2.541-.271-4.323-2.052-1.781-1.782-2.052-4.323H1.5V9.333h1.458Q3.229 6.792 5.01 5.01q1.782-1.781 4.323-2.052V1.5h1.334v1.458q2.541.271 4.323 2.052 1.781 1.782 2.052 4.323H18.5v1.334h-1.458q-.271 2.541-2.052 4.323-1.782 1.781-4.323 2.052V18.5ZM10 15.729q2.396 0 4.062-1.667 1.667-1.666 1.667-4.062 0-2.396-1.667-4.062Q12.396 4.271 10 4.271q-2.396 0-4.062 1.667Q4.271 7.604 4.271 10q0 2.396 1.667 4.062Q7.604 15.729 10 15.729Zm0-2.75q-1.229 0-2.104-.875T7.021 10q0-1.229.875-2.104T10 7.021q1.229 0 2.104.875T12.979 10q0 1.229-.875 2.104T10 12.979Zm0-1.333q.667 0 1.156-.49.49-.489.49-1.156 0-.667-.49-1.156-.489-.49-1.156-.49-.667 0-1.156.49-.49.489-.49 1.156 0 .667.49 1.156.489.49 1.156.49Zm.021-1.667Z"/></svg>`;
+// https://materialdesignicons.com/icon/lightbulb-question
+const lightbulb = w `<svg fill="currentcolor" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" height="20" width="20" style="padding:1px; box-sizing:border-box"><path d="m18.292 8.375-.521-1.187-1.188-.521 1.188-.542.521-1.167.541 1.167L20 6.667l-1.167.521Zm-2.459-3.292-.812-1.729-1.729-.812 1.729-.813L15.833 0l.813 1.729 1.729.813-1.729.812ZM7.5 18.333q-.688 0-1.177-.489-.49-.49-.49-1.177h3.313q0 .687-.479 1.177-.479.489-1.167.489Zm-3.333-2.416v-1.75h6.645v1.75Zm.229-2.5q-1.458-.855-2.302-2.302-.844-1.448-.844-3.157 0-2.646 1.802-4.468Q4.854 1.667 7.5 1.667q2.604 0 4.417 1.823 1.812 1.822 1.812 4.468 0 1.709-.844 3.157-.843 1.447-2.302 2.302Zm.542-1.75h5.124Q11 11 11.49 10.042q.489-.959.489-2.084 0-1.896-1.291-3.218Q9.396 3.417 7.5 3.417q-1.896 0-3.198 1.323Q3 6.062 3 7.958q0 1.125.5 2.084.5.958 1.438 1.625Zm2.562 0Z"/></svg>`;
+// https://materialdesignicons.com/icon/filter-plus
+const addFilter$1 = w `<svg  fill="currentColor" viewBox="0 0 24 24" height="20px" width="20px" style="padding: 1px; box-sizing:border-box"><path d="M12 12V19.88C12.04 20.18 11.94 20.5 11.71 20.71C11.32 21.1 10.69 21.1 10.3 20.71L8.29 18.7C8.06 18.47 7.96 18.16 8 17.87V12H7.97L2.21 4.62C1.87 4.19 1.95 3.56 2.38 3.22C2.57 3.08 2.78 3 3 3H17C17.22 3 17.43 3.08 17.62 3.22C18.05 3.56 18.13 4.19 17.79 4.62L12.03 12H12M15 17H18V14H20V17H23V19H20V22H18V19H15V17Z" /></svg>`;
+// https://materialdesignicons.com/icon/pencil
+const edit = w `<svg fill="currentColor" viewBox="0 0 24 24" height="20px" width="20px"><path d="M20.71,7.04C21.1,6.65 21.1,6 20.71,5.63L18.37,3.29C18,2.9 17.35,2.9 16.96,3.29L15.12,5.12L18.87,8.87M3,17.25V21H6.75L17.81,9.93L14.06,6.18L3,17.25Z" /></svg>`;
+// https://materialdesignicons.com/icon/playlist-edit
+const editList = w `<svg fill="currentColor" viewBox="0 0 24 24" height="20px" width="20px"><path d="M2,6V8H14V6H2M2,10V12H14V10H2M20.04,10.13C19.9,10.13 19.76,10.19 19.65,10.3L18.65,11.3L20.7,13.35L21.7,12.35C21.92,12.14 21.92,11.79 21.7,11.58L20.42,10.3C20.31,10.19 20.18,10.13 20.04,10.13M18.07,11.88L12,17.94V20H14.06L20.12,13.93L18.07,11.88M2,14V16H10V14H2Z" /></svg>`;
+// https://materialdesignicons.com/icon/filter
+const filter = w `<svg fill="currentColor" viewBox="0 0 24 24" height="20px" width="20px"><path d="M14,12V19.88C14.04,20.18 13.94,20.5 13.71,20.71C13.32,21.1 12.69,21.1 12.3,20.71L10.29,18.7C10.06,18.47 9.96,18.16 10,17.87V12H9.97L4.21,4.62C3.87,4.19 3.95,3.56 4.38,3.22C4.57,3.08 4.78,3 5,3V3H19V3C19.22,3 19.43,3.08 19.62,3.22C20.05,3.56 20.13,4.19 19.79,4.62L14.03,12H14Z" /></svg>`;
+// https://materialdesignicons.com/icon/table-column-plus-after
+const tableColumnPlus = w `<svg fill="currentColor" viewBox="0 0 24 24" height="20px" width="20px"><path d="M11,2A2,2 0 0,1 13,4V20A2,2 0 0,1 11,22H2V2H11M4,10V14H11V10H4M4,16V20H11V16H4M4,4V8H11V4H4M15,11H18V8H20V11H23V13H20V16H18V13H15V11Z" /></svg>`;
+const questionMarkDashed = w `<svg fill="currentColor" viewBox="0 0 24 24" height="20px" width="20px"><path d="M13 2.03V4.05C17.39 4.59 20.5 8.58 19.96 12.97C19.5 16.61 16.64 19.5 13 19.93V21.93C18.5 21.38 22.5 16.5 21.95 11C21.5 6.25 17.73 2.5 13 2.03M11 2.06C9.05 2.25 7.19 3 5.67 4.26L7.1 5.74C8.22 4.84 9.57 4.26 11 4.06V2.06M4.26 5.67C3 7.19 2.25 9.04 2.05 11H4.05C4.24 9.58 4.8 8.23 5.69 7.1L4.26 5.67M2.06 13C2.26 14.96 3.03 16.81 4.27 18.33L5.69 16.9C4.81 15.77 4.24 14.42 4.06 13H2.06M7.1 18.37L5.67 19.74C7.18 21 9.04 21.79 11 22V20C9.58 19.82 8.23 19.25 7.1 18.37M20 4H44M13 18H11V16H13V18M13 15H11C11 11.75 14 12 14 10C14 8.9 13.1 8 12 8S10 8.9 10 10H8C8 7.79 9.79 6 12 6S16 7.79 16 10C16 12.5 13 12.75 13 15Z" /></svg>`;
+// https://materialdesignicons.com/icon/content-copy
+const copyContent = w `<svg fill="currentColor" viewBox="0 0 24 24" height="20px" width="20px" style="padding: 1px; box-sizing:border-box"><path d="M19,21H8V7H19M19,5H8A2,2 0 0,0 6,7V21A2,2 0 0,0 8,23H19A2,2 0 0,0 21,21V7A2,2 0 0,0 19,5M16,1H4A2,2 0 0,0 2,3V17H4V3H16V1Z" /></svg>`;
+// https://materialdesignicons.com/icon/alpha-s-circle
+//export const sparqlingIcon = svg`<svg fill="currentColor" viewBox="0 0 24 24" height="20px" width="20px"><path d="M11,7A2,2 0 0,0 9,9V11A2,2 0 0,0 11,13H13V15H9V17H13A2,2 0 0,0 15,15V13A2,2 0 0,0 13,11H11V9H15V7H11M12,2A10,10 0 0,1 22,12A10,10 0 0,1 12,22A10,10 0 0,1 2,12A10,10 0 0,1 12,2Z" /></svg>`
+// https://materialdesignicons.com/icon/play-circle-outline
+const playOutlined = w `<svg fill="currentColor" viewBox="0 0 24 24" height="20px" width="20px"><path d="M12,20C7.59,20 4,16.41 4,12C4,7.59 7.59,4 12,4C16.41,4 20,7.59 20,12C20,16.41 16.41,20 12,20M12,2A10,10 0 0,0 2,12A10,10 0 0,0 12,22A10,10 0 0,0 22,12A10,10 0 0,0 12,2M10,16.5L16,12L10,7.5V16.5Z" /></svg>`;
+// https://materialdesignicons.com/icon/refresh
+const refresh = w `<svg fill="currentColor" viewBox="0 0 24 24" height="20px" width="20px"><path d="M17.65,6.35C16.2,4.9 14.21,4 12,4A8,8 0 0,0 4,12A8,8 0 0,0 12,20C15.73,20 18.84,17.45 19.73,14H17.65C16.83,16.33 14.61,18 12,18A6,6 0 0,1 6,12A6,6 0 0,1 12,6C13.66,6 15.14,6.69 16.22,7.78L13,11H20V4L17.65,6.35Z" /></svg>`;
+const dragHandler = w `<svg fill="currentColor" xmlns="http://www.w3.org/2000/svg" height="20" width="20"><path d="M7.5 15.688q-.5 0-.844-.355-.344-.354-.344-.833 0-.5.355-.844.354-.344.833-.344.5 0 .844.355.344.354.344.833 0 .5-.355.844-.354.344-.833.344Zm5 0q-.5 0-.844-.355-.344-.354-.344-.833 0-.5.355-.844.354-.344.833-.344.5 0 .844.355.344.354.344.833 0 .5-.355.844-.354.344-.833.344Zm-5-4.5q-.5 0-.844-.355-.344-.354-.344-.833 0-.5.355-.844.354-.344.833-.344.5 0 .844.355.344.354.344.833 0 .5-.355.844-.354.344-.833.344Zm5 0q-.5 0-.844-.355-.344-.354-.344-.833 0-.5.355-.844.354-.344.833-.344.5 0 .844.355.344.354.344.833 0 .5-.355.844-.354.344-.833.344Zm-5-4.5q-.5 0-.844-.355-.344-.354-.344-.833 0-.5.355-.844.354-.344.833-.344.5 0 .844.355.344.354.344.833 0 .5-.355.844-.354.344-.833.344Zm5 0q-.5 0-.844-.355-.344-.354-.344-.833 0-.5.355-.844.354-.344.833-.344.5 0 .844.355.344.354.344.833 0 .5-.355.844-.354.344-.833.344Z"/></svg>`;
+// https://materialdesignicons.com/icon/function
+const functionIcon = w `<svg fill="currentColor" viewBox="0 0 24 24" height="20px" width="20px"><path d="M15.6,5.29C14.5,5.19 13.53,6 13.43,7.11L13.18,10H16V12H13L12.56,17.07C12.37,19.27 10.43,20.9 8.23,20.7C6.92,20.59 5.82,19.86 5.17,18.83L6.67,17.33C6.91,18.07 7.57,18.64 8.4,18.71C9.5,18.81 10.47,18 10.57,16.89L11,12H8V10H11.17L11.44,6.93C11.63,4.73 13.57,3.1 15.77,3.3C17.08,3.41 18.18,4.14 18.83,5.17L17.33,6.67C17.09,5.93 16.43,5.36 15.6,5.29Z" /></svg>`;
+// https://materialdesignicons.com/icon/sort-alphabetical-variant
+const sortIcon = w `<svg fill="currentColor" viewBox="0 0 24 24" height="20px" width="20px"><path d="M9.25,5L12.5,1.75L15.75,5H9.25M15.75,19L12.5,22.25L9.25,19H15.75M8.89,14.3H6L5.28,17H2.91L6,7H9L12.13,17H9.67L8.89,14.3M6.33,12.68H8.56L7.93,10.56L7.67,9.59L7.42,8.63H7.39L7.17,9.6L6.93,10.58L6.33,12.68M13.05,17V15.74L17.8,8.97V8.91H13.5V7H20.73V8.34L16.09,15V15.08H20.8V17H13.05Z" /></svg>`;
+// https://materialdesignicons.com/icon/sort-alphabetical-ascending
+const sortAscendingIcon = w `<svg fill="currentColor" viewBox="0 0 24 24" height="20px" width="20px"><path d="M19 17H22L18 21L14 17H17V3H19M11 13V15L7.67 19H11V21H5V19L8.33 15H5V13M9 3H7C5.9 3 5 3.9 5 5V11H7V9H9V11H11V5C11 3.9 10.11 3 9 3M9 7H7V5H9Z" /></svg>`;
+// https://materialdesignicons.com/icon/sort-alphabetical-descending
+const sortDescendingIcon = w `<svg fill="currentColor" viewBox="0 0 24 24" height="20px" width="20px"><path d="M19 7H22L18 3L14 7H17V21H19M11 13V15L7.67 19H11V21H5V19L8.33 15H5V13M9 3H7C5.9 3 5 3.9 5 5V11H7V9H9V11H11V5C11 3.9 10.11 3 9 3M9 7H7V5H9Z" /></svg>`;
+// https://materialdesignicons.com/icon/sigma
+const sigma = w `<svg fill="currentColor" viewBox="0 0 24 24" height="20px" width="20px"><path d="M18,6H8.83L14.83,12L8.83,18H18V20H6V18L12,12L6,6V4H18V6Z" /></svg>`;
+// https://materialdesignicons.com/icon/gesture-double-tap
+const dbClick = w `<svg fill="currentColor" viewBox="0 0 24 24" height="20px" width="20px"><path d="M10,9A1,1 0 0,1 11,8A1,1 0 0,1 12,9V13.47L13.21,13.6L18.15,15.79C18.68,16.03 19,16.56 19,17.14V21.5C18.97,22.32 18.32,22.97 17.5,23H11C10.62,23 10.26,22.85 10,22.57L5.1,18.37L5.84,17.6C6.03,17.39 6.3,17.28 6.58,17.28H6.8L10,19V9M11,5A4,4 0 0,1 15,9C15,10.5 14.2,11.77 13,12.46V11.24C13.61,10.69 14,9.89 14,9A3,3 0 0,0 11,6A3,3 0 0,0 8,9C8,9.89 8.39,10.69 9,11.24V12.46C7.8,11.77 7,10.5 7,9A4,4 0 0,1 11,5M11,3A6,6 0 0,1 17,9C17,10.7 16.29,12.23 15.16,13.33L14.16,12.88C15.28,11.96 16,10.56 16,9A5,5 0 0,0 11,4A5,5 0 0,0 6,9C6,11.05 7.23,12.81 9,13.58V14.66C6.67,13.83 5,11.61 5,9A6,6 0 0,1 11,3Z" /></svg>`;
+// https://materialdesignicons.com/icon/counter
+const counter = w `<svg fill="currentColor" viewBox="0 0 24 24" height="20px" width="20px"><path d="M4,4H20A2,2 0 0,1 22,6V18A2,2 0 0,1 20,20H4A2,2 0 0,1 2,18V6A2,2 0 0,1 4,4M4,6V18H11V6H4M20,18V6H18.76C19,6.54 18.95,7.07 18.95,7.13C18.88,7.8 18.41,8.5 18.24,8.75L15.91,11.3L19.23,11.28L19.24,12.5L14.04,12.47L14,11.47C14,11.47 17.05,8.24 17.2,7.95C17.34,7.67 17.91,6 16.5,6C15.27,6.05 15.41,7.3 15.41,7.3L13.87,7.31C13.87,7.31 13.88,6.65 14.25,6H13V18H15.58L15.57,17.14L16.54,17.13C16.54,17.13 17.45,16.97 17.46,16.08C17.5,15.08 16.65,15.08 16.5,15.08C16.37,15.08 15.43,15.13 15.43,15.95H13.91C13.91,15.95 13.95,13.89 16.5,13.89C19.1,13.89 18.96,15.91 18.96,15.91C18.96,15.91 19,17.16 17.85,17.63L18.37,18H20M8.92,16H7.42V10.2L5.62,10.76V9.53L8.76,8.41H8.92V16Z" /></svg>`;
+// https://materialdesignicons.com/icon/progress-close
+const dashedCross = w `<svg fill="currentColor" viewBox="0 0 24 24" height="20px" width="20px"><path d="M13 2.03V4.05C17.39 4.59 20.5 8.58 19.96 12.97C19.5 16.61 16.64 19.5 13 19.93V21.93C18.5 21.38 22.5 16.5 21.95 11C21.5 6.25 17.73 2.5 13 2.03M11 2.06C9.05 2.25 7.19 3 5.67 4.26L7.1 5.74C8.22 4.84 9.57 4.26 11 4.06V2.06M4.26 5.67C3 7.19 2.25 9.04 2.05 11H4.05C4.24 9.58 4.8 8.23 5.69 7.1L4.26 5.67M2.06 13C2.26 14.96 3.03 16.81 4.27 18.33L5.69 16.9C4.81 15.77 4.24 14.42 4.06 13H2.06M7.1 18.37L5.67 19.74C7.18 21 9.04 21.79 11 22V20C9.58 19.82 8.23 19.25 7.1 18.37M14.59 8L12 10.59L9.41 8L8 9.41L10.59 12L8 14.59L9.41 16L12 13.41L14.59 16L16 14.59L13.41 12L16 9.41L14.59 8Z" /></svg>`;
+const kebab = w `<svg fill="currentColor" xmlns="http://www.w3.org/2000/svg" height="20" width="20"><path d="M5.688 11.083q-.459 0-.771-.323-.313-.322-.313-.76 0-.458.323-.771.323-.312.761-.312.458 0 .77.323.313.322.313.76 0 .458-.313.771-.312.312-.77.312Zm4.312 0q-.458 0-.771-.323-.312-.322-.312-.76 0-.458.323-.771.322-.312.76-.312.458 0 .771.323.312.322.312.76 0 .458-.323.771-.322.312-.76.312Zm4.312 0q-.458 0-.77-.323-.313-.322-.313-.76 0-.458.313-.771.312-.312.77-.312.459 0 .771.323.313.322.313.76 0 .458-.323.771-.323.312-.761.312Z"/></svg>`;
+const expandMore = w `<svg fill="currentColor" xmlns="http://www.w3.org/2000/svg" height="20" width="20"><path d="m10 12.792-4.708-4.73.77-.77L10 11.229l3.938-3.937.77.77Z"/></svg>`;
+const expandLess = w `<svg fill="currentColor" xmlns="http://www.w3.org/2000/svg" height="20" width="20"><path d="m6.062 12.729-.77-.791L10 7.229l4.708 4.709-.77.791L10 8.792Z"/></svg>`;
+const error = w `<svg fill="currentColor" xmlns="http://www.w3.org/2000/svg" height="20" width="20"><path d="M10 13.771q.25 0 .417-.167.166-.166.166-.416 0-.25-.166-.417-.167-.167-.417-.167-.25 0-.417.167-.166.167-.166.417 0 .25.166.416.167.167.417.167Zm-.542-2.709h1.084v-5H9.458ZM10 17.583q-1.562 0-2.948-.593-1.385-.594-2.417-1.625-1.031-1.032-1.625-2.417-.593-1.386-.593-2.948 0-1.583.593-2.958.594-1.375 1.625-2.407Q5.667 3.604 7.052 3.01 8.438 2.417 10 2.417q1.583 0 2.958.593 1.375.594 2.407 1.625 1.031 1.032 1.625 2.417.593 1.386.593 2.948t-.593 2.948q-.594 1.385-1.625 2.417-1.032 1.031-2.417 1.625-1.386.593-2.948.593Zm0-1.083q2.708 0 4.604-1.896T16.5 10q0-2.708-1.896-4.604T10 3.5q-2.708 0-4.604 1.896T3.5 10q0 2.708 1.896 4.604T10 16.5Zm0-6.5Z"/></svg>`;
+const ellipsis = w `<svg fill="currentColor" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 16 16" width="16" height="16"><path fill-rule="evenodd" d="M0 5.75C0 4.784.784 4 1.75 4h12.5c.966 0 1.75.784 1.75 1.75v4.5A1.75 1.75 0 0114.25 12H1.75A1.75 1.75 0 010 10.25v-4.5zM4 7a1 1 0 100 2 1 1 0 000-2zm3 1a1 1 0 112 0 1 1 0 01-2 0zm5-1a1 1 0 100 2 1 1 0 000-2z"></path></svg>`;
+const preview = w `<svg fill="currentColor" xmlns="http://www.w3.org/2000/svg" height="20" width="20"><path d="M4.5 17q-.625 0-1.062-.438Q3 16.125 3 15.5v-11q0-.625.438-1.062Q3.875 3 4.5 3h11q.625 0 1.062.438Q17 3.875 17 4.5v11q0 .625-.438 1.062Q16.125 17 15.5 17Zm0-1.5h11V6h-11v9.5Zm5.5-1.75q-1.542 0-2.75-.844T5.5 10.75q.542-1.312 1.75-2.156Q8.458 7.75 10 7.75t2.75.844q1.208.844 1.75 2.156-.542 1.312-1.75 2.156-1.208.844-2.75.844Zm0-1q1.104 0 2-.531.896-.531 1.396-1.469-.5-.938-1.396-1.469-.896-.531-2-.531t-2 .531q-.896.531-1.396 1.469.5.938 1.396 1.469.896.531 2 .531Zm0-.75q-.521 0-.885-.365-.365-.364-.365-.885t.365-.885Q9.479 9.5 10 9.5t.885.365q.365.364.365.885t-.365.885Q10.521 12 10 12Z"/></svg>`;
+const mastroEndpointIcon = w `<svg fill="currentColor" xmlns="http://www.w3.org/2000/svg" height="20" width="20"><path d="M3.542 9.25q-.563 0-.948-.396-.386-.396-.386-.937V5.542q0-.542.396-.938.396-.396.938-.396H11V9.25Zm0-1.083h6.375V5.292H3.542q-.104 0-.177.073t-.073.177v2.375q0 .104.073.177t.177.073Zm0 7.625q-.542 0-.938-.396-.396-.396-.396-.938v-2.375q0-.541.396-.937t.938-.396H12.5v5.042Zm0-1.084h7.875v-2.875H3.542q-.104 0-.177.073t-.073.177v2.375q0 .104.073.177t.177.073ZM14 15.792V9.25h-1.5V4.208h5.188L16.25 7.854h1.438Zm-9.896-2.021h1v-1h-1Zm0-6.542h1v-1h-1Zm-.812.938V5.292v2.875Zm0 6.541v-2.875 2.875Z"/></svg>`;
+const description = w `<svg fill="currentColor" xmlns="http://www.w3.org/2000/svg" height="20" width="20" viewBox="0 0 20 20"><path d="M7 15h6v-1.5H7Zm0-3h6v-1.5H7Zm-1.5 6q-.625 0-1.062-.438Q4 17.125 4 16.5v-13q0-.625.438-1.062Q4.875 2 5.5 2H12l4 4v10.5q0 .625-.438 1.062Q15.125 18 14.5 18ZM11 7V3.5H5.5v13h9V7ZM5.5 3.5v3.938V3.5v13-13Z"/></svg>`;
+const editSquare = w `<svg fill="currentColor" style="position: relative; top: -1px" xmlns="http://www.w3.org/2000/svg" height="20" width="20"><path d="M4.5 19.146q-.625 0-1.062-.438Q3 18.271 3 17.646v-11q0-.625.438-1.063.437-.437 1.062-.437h6.521l-1.5 1.5H4.5v11h11v-4.979l1.5-1.521v6.5q0 .625-.438 1.062-.437.438-1.062.438Zm5.5-7Zm3.625-6.813 1.083 1.084L9.5 11.583v1.063h1.062l5.188-5.167 1.042 1.063-5.604 5.604H8v-3.167Zm3.167 3.209-3.167-3.209 1.771-1.771q.437-.437 1.052-.437.614 0 1.052.437l1.083 1.084q.438.437.438 1.052 0 .614-.438 1.052Z"/></svg>`;
+const toggleCatalog = w `<svg style="padding: 2px; box-sizing: border-box;" viewBox="64 64 896 896" width="20px" height="20px" fill="currentColor" aria-hidden="true"><path d="M408 442h480c4.4 0 8-3.6 8-8v-56c0-4.4-3.6-8-8-8H408c-4.4 0-8 3.6-8 8v56c0 4.4 3.6 8 8 8zm-8 204c0 4.4 3.6 8 8 8h480c4.4 0 8-3.6 8-8v-56c0-4.4-3.6-8-8-8H408c-4.4 0-8 3.6-8 8v56zm504-486H120c-4.4 0-8 3.6-8 8v56c0 4.4 3.6 8 8 8h784c4.4 0 8-3.6 8-8v-56c0-4.4-3.6-8-8-8zm0 632H120c-4.4 0-8 3.6-8 8v56c0 4.4 3.6 8 8 8h784c4.4 0 8-3.6 8-8v-56c0-4.4-3.6-8-8-8zM142.4 642.1L298.7 519a8.84 8.84 0 000-13.9L142.4 381.9c-5.8-4.6-14.4-.5-14.4 6.9v246.3a8.9 8.9 0 0014.4 7z"></path></svg>`;
 
 function getLoadingSpinner() {
     return y `<div class="lds-ring" title="Sparqling is loading"><div></div><div></div><div></div><div></div></div>`;
@@ -2582,12 +2661,16 @@ const loadingSpinnerStyle = i$1 `
   }
 `;
 
-function queryResultTemplate(queryResult, includeSearch = false, onSearch) {
+function queryResultTemplate(queryResult) {
     return y `
     <table id="query-results">
       <tr>${queryResult.headTerms.map(columnName => y `<th>${columnName}</th>`)}</tr>
       ${queryResult.results.map(resultRow => {
-        return y `<tr>${resultRow.map(resultItem => y `<td>${resultItem.value}</td>`)}</tr>`;
+        return y `
+          <tr class="actionable" @mousedown=${handleRowClick}>
+            ${resultRow.map(resultItem => y `<td value=${resultItem.value}>${resultItem.value}</td>`)}
+          </tr>
+        `;
     })}
     </table>
     ${queryResult.results.length === 0
@@ -2599,6 +2682,17 @@ function queryResultTemplate(queryResult, includeSearch = false, onSearch) {
       `
         : null}
   `;
+}
+function handleRowClick(ev) {
+    var _a;
+    const target = ev.currentTarget;
+    target.dispatchEvent(new CustomEvent('onexampleselection', {
+        bubbles: true,
+        composed: true,
+        detail: {
+            exampleValue: (_a = target.querySelector('td')) === null || _a === void 0 ? void 0 : _a.getAttribute('value')
+        }
+    }));
 }
 const queryResultTemplateStyle = i$1 `
   #query-results {
@@ -2615,7 +2709,7 @@ const queryResultTemplateStyle = i$1 `
   }
 
   #query-results td, #query-results th {
-    padding: 4px 8px
+    padding: 4px 8px;
   }
 
   #query-results tr:hover {
@@ -2623,127 +2717,11 @@ const queryResultTemplateStyle = i$1 `
   }
 `;
 
-function getFormTemplate(formComponent, operators) {
-    var _a;
-    const op = formComponent.operator || operators[0];
-    const dt = formComponent.datatypeFromOntology || operators[0];
-    // const addInputButton = new UI.GscapeButton(UI.icons.plus, "Add input value")
-    // addInputButton.id = "add-input-btn"
-    return y `
-    <div class="section">
-      ${formComponent.formTitle ? y `<div class="header">${formComponent.formTitle}</div>` : null}
-      <form id="form-dialog" class="form" action="javascript:void(0)" onsubmit="this.handleSubmit">
-        <div class="selects-wrapper">
-          <div id="select-operator">
-            <label>Operator</label>
-            ${getSelect(op, operators)}
-          </div>
-          ${formComponent.parametersType === VarOrConstantTypeEnum.Constant
-        ? y `
-              <div id="select-datatype">
-                <label>Datatype</label>
-                ${getSelect(dt, Object.values(VarOrConstantConstantTypeEnum), formComponent.datatypeFromOntology !== undefined)}
-              </div>`
-        : null}
-        </div>
-        <div class="inputs-wrapper">
-          ${(_a = formComponent.parametersIriOrConstants) === null || _a === void 0 ? void 0 : _a.map((parameter, index) => getInput(index, formComponent.datatypeFromOntology, parameter.value, "Set input value"))}
-          ${formComponent.operator === FilterExpressionOperatorEnum.In ||
-        formComponent.operator === FilterExpressionOperatorEnum.NotIn
-        ? y `
-              <div>
-                <gscape-button id="add-input-btn" type="subtle" title="Add input value">
-                  <span slot="icon">${ui.icons.plus}</span>
-                </gscape-button>
-                ${formComponent.parameters && formComponent.parameters.length > 3 // at least 3 custom inputs to remove one
-            ? y `
-                    <gscape-button id="remove-input-btn" type="subtle" title="Remove input value">
-                      <span slot="icon">${ui.icons.minus}</span>
-                    </gscape-button>
-                  `
-            : null}
-              </div>
-            `
-        : null}
-
-          ${formComponent.acceptExamples
-        ? y `
-              <gscape-button 
-                id="show-examples" 
-                label="Show/Hide Examples"
-                size='s' 
-                title="Show/Hide examples"
-              >
-              </gscape-button>
-            `
-        : null}
-        </div>
-      </form>
-    </div>
-    ${formComponent.examples
-        ? y `
-        ${formComponent.parametersType === VarOrConstantTypeEnum.Constant
-            ? y `<input id="search-examples-input" placeholder="Search Examples" type="text" />`
-            : null} 
-        ${queryResultTemplate(formComponent.examples, formComponent.parametersType === VarOrConstantTypeEnum.Constant)}
-      `
-        : null}
-    ${formComponent.loadingExamples ? getLoadingSpinner() : null}
-    <div id="message-tray"></div>
-  `;
-}
-function getInput(index, datatype, value = '', titleText = '') {
-    if (datatype === VarOrConstantConstantTypeEnum.DateTime) {
-        value = (value === null || value === void 0 ? void 0 : value.split('T')[0]) || 'value'; // Take only date from ISO format 2022-01-01T00:00:....
-    }
-    let placeholder = value || 'value';
-    const input = document.createElement('input');
-    input.type = getInputType(datatype);
-    input.placeholder = placeholder;
-    input.title = titleText;
-    input.setAttribute('index', (index + 1).toString());
-    input.required = true;
-    input.value = value;
-    return y `${input}`;
-}
-function getSelect(defaultOpt, options, disabled = false) {
-    const isDefaultAlreadySet = options.includes(defaultOpt);
-    return y `
-    <select required ?disabled=${disabled}>
-      ${isDefaultAlreadySet ? null : y `<option value="" hidden selected>${defaultOpt}</option>`}
-      ${options.map(op => {
-        if (op === defaultOpt)
-            return y `<option value="${op}" selected>${op}</option>`;
-        else
-            return y `<option value="${op}">${op}</option>`;
-    })}
-    </select>
-  `;
-}
-function getInputType(datatype) {
-    switch (datatype) {
-        case VarOrConstantConstantTypeEnum.DateTime:
-            return 'date';
-        case VarOrConstantConstantTypeEnum.Decimal:
-        case 'xsd:integer':
-        case 'xsd:int':
-            return 'number';
-        case VarOrConstantConstantTypeEnum.String:
-            return 'text';
-        default:
-            return '';
-    }
-}
-
 var sparqlingWidgetStyle = i$1 `
   .top-bar {
     font-size: 12px;
     display: flex;
-    flex-direction: row;
-    position: absolute;
-    top: 0;
-    right: 0;
-    
+    flex-direction: row;    
     align-items: center;
     justify-content: space-between;
     gap: 4px;
@@ -2757,13 +2735,12 @@ var sparqlingWidgetStyle = i$1 `
   }
 
   .top-bar.traslated-down {
-    top: unset;
-    right: unset;
     bottom: 0;
     left: 50%;
     transform: translate(-50%);
     width: fit-content;
     height: fit-content;
+    position: absolute;
   }
 
   #widget-header {
@@ -2771,6 +2748,7 @@ var sparqlingWidgetStyle = i$1 `
     display: flex;
     align-items: center;
     gap: 8px;
+    white-space: nowrap;
   }
 
   #buttons-tray > * {
@@ -2796,13 +2774,14 @@ var sparqlingWidgetStyle = i$1 `
   }
 
   .gscape-panel {
+    display: flex;
+    flex-direction: column;
     width: unset;
     max-width: unset;
     height: 100%;
     box-sizing: border-box;
     overflow: unset;
     padding: 0;
-    padding-top: 27px;
   }
 
   .sparqling-blank-slate {
@@ -2837,6 +2816,7 @@ var formStyle = i$1 `
     left: 50%;
     transform: translate(-50%, 0);
     height: unset;
+    max-height:unset;
   }
 
   .dialog-body {
@@ -2845,21 +2825,17 @@ var formStyle = i$1 `
     gap: 10px;
     align-items: center;
     min-width: 350px;
-    max-width: 450px;
     padding: 8px;
     margin-top: 8px;
     min-height: 150px;
     justify-content: space-between;
   }
 
-  .form, .inputs-wrapper {
+  .form {
     display: flex;
     align-items: center;
-    gap: 10px;
-  }
-
-  .form {
-    margin: 0 12px;
+    gap: 8px;
+    padding: 12px;
   }
 
   .selects-wrapper {
@@ -2867,13 +2843,16 @@ var formStyle = i$1 `
     display: flex;
     flex-direction: column;
     gap: 8px;
+    white-space: nowrap;
   }
 
   .inputs-wrapper {
+    display: flex;
+    align-items: center;
     flex-direction: column;
     overflow: auto;
     max-height: 260px;
-    padding-right: 8px;
+    gap: 10px;
   }
 
   .inputs-wrapper gscape-button {
@@ -2967,13 +2946,29 @@ var Modality;
 })(Modality || (Modality = {}));
 class SparqlingFormDialog extends ui.ModalMixin(ui.BaseMixin(s)) {
     constructor() {
-        super(...arguments);
+        super();
         this.modality = Modality.DEFINE;
         this.deleteCallback = (filterId) => { };
         // Examples
         this.acceptExamples = false;
         this.loadingExamples = false;
         this.seeExamplesCallback = () => { };
+        this.addEventListener('onexampleselection', (event) => {
+            if (this.parameters && event.detail) {
+                let parameterIndex = this.parameters.length - 1; // default use last parameter
+                // If there is an input activated, then replace its value
+                if (this.inputElems) {
+                    for (const input of this.inputElems) {
+                        if (input.matches(':focus')) {
+                            parameterIndex = parseInt(input.getAttribute('index') || '0') || parameterIndex;
+                            break;
+                        }
+                    }
+                }
+                this.parameters[parameterIndex].value = event.detail.exampleValue;
+                this.requestUpdate();
+            }
+        });
     }
     handleSubmit() {
         if (this.formElement && validateForm(this.formElement)) {
@@ -3019,6 +3014,9 @@ class SparqlingFormDialog extends ui.ModalMixin(ui.BaseMixin(s)) {
             case FunctionNameEnum.Seconds:
             case FunctionNameEnum.Lcase:
             case FunctionNameEnum.Ucase:
+            case FunctionNameEnum.Strlen:
+            case FilterExpressionOperatorEnum.Isblank:
+            case FilterExpressionOperatorEnum.NotIsblank:
                 (_a = this.parameters) === null || _a === void 0 ? void 0 : _a.splice(1); // no parameters
                 break;
             default:
@@ -3115,6 +3113,9 @@ class SparqlingFormDialog extends ui.ModalMixin(ui.BaseMixin(s)) {
             }
         };
     }
+    setDefaultOperator() {
+        this.onOperatorChange(this.operators[0]);
+    }
     handleShowHideExamplesClick() {
         if (this.variable && !this.examples) {
             this.seeExamplesCallback();
@@ -3126,6 +3127,9 @@ class SparqlingFormDialog extends ui.ModalMixin(ui.BaseMixin(s)) {
     }
     onValidSubmit() {
         this.submitCallback(this._id, this.operator, this.parameters);
+    }
+    get operators() {
+        return [];
     }
     get selectOperatorElem() {
         var _a;
@@ -3192,71 +3196,129 @@ SparqlingFormDialog.styles = [
     formStyle,
 ];
 
-const rubbishBin = w `<svg fill="currentColor" xmlns="http://www.w3.org/2000/svg" height="20" width="20"><path d="M6.5 17q-.625 0-1.062-.438Q5 16.125 5 15.5v-10H4V4h4V3h4v1h4v1.5h-1v10q0 .625-.438 1.062Q14.125 17 13.5 17Zm7-11.5h-7v10h7ZM8 14h1.5V7H8Zm2.5 0H12V7h-1.5Zm-4-8.5v10Z"/></svg>`;
-const code = w `<svg fill="currentColor" xmlns="http://www.w3.org/2000/svg" height="20" width="20"><path d="M12 16v-1.5h1.75q.312 0 .531-.219.219-.219.219-.531v-1.5q0-.854.573-1.469.573-.614 1.427-.719v-.083q-.854-.167-1.427-.771-.573-.604-.573-1.458v-1.5q0-.312-.219-.531-.219-.219-.531-.219H12V4h1.75q.938 0 1.594.656Q16 5.312 16 6.25v1.5q0 .312.219.531.219.219.531.219H18v3h-1.25q-.312 0-.531.219-.219.219-.219.531v1.5q0 .938-.656 1.594-.656.656-1.594.656Zm-5.75 0q-.938 0-1.594-.656Q4 14.688 4 13.75v-1.5q0-.312-.219-.531-.219-.219-.531-.219H2v-3h1.25q.312 0 .531-.219Q4 8.062 4 7.75v-1.5q0-.938.656-1.594Q5.312 4 6.25 4H8v1.5H6.25q-.312 0-.531.219-.219.219-.219.531v1.5q0 .875-.573 1.49-.573.614-1.427.718v.084q.854.083 1.427.708.573.625.573 1.5v1.5q0 .312.219.531.219.219.531.219H8V16Z"/></svg>`;
-// https://github.com/Templarian/MaterialDesign/blob/master/svg/table-eye.svg
-const tableEye = w `<svg fill="currentColor" viewBox="0 0 24 24" style="height: 20px; width: 20px; padding:2px; box-sizing: border-box"><path d="M17 16.88C17.56 16.88 18 17.32 18 17.88S17.56 18.88 17 18.88 16 18.43 16 17.88 16.44 16.88 17 16.88M17 13.88C19.73 13.88 22.06 15.54 23 17.88C22.06 20.22 19.73 21.88 17 21.88S11.94 20.22 11 17.88C11.94 15.54 14.27 13.88 17 13.88M17 15.38C15.62 15.38 14.5 16.5 14.5 17.88S15.62 20.38 17 20.38 19.5 19.26 19.5 17.88 18.38 15.38 17 15.38M18 3H4C2.9 3 2 3.9 2 5V17C2 18.1 2.9 19 4 19H9.42C9.26 18.68 9.12 18.34 9 18C9.12 17.66 9.26 17.32 9.42 17H4V13H10V15.97C10.55 15.11 11.23 14.37 12 13.76V13H13.15C14.31 12.36 15.62 12 17 12C18.06 12 19.07 12.21 20 12.59V5C20 3.9 19.1 3 18 3M10 11H4V7H10V11M18 11H12V7H18V11Z" /></svg>`;
-// https://github.com/Templarian/MaterialDesign/blob/master/svg/asterisk.svg
-const asterisk = w `<svg fill="currentColor" viewBox="0 0 24 24" height="20px" width="20px"><path d="M11,3H13V10.27L19.29,6.64L20.29,8.37L14,12L20.3,15.64L19.3,17.37L13,13.72V21H11V13.73L4.69,17.36L3.69,15.63L10,12L3.72,8.36L4.72,6.63L11,10.26V3Z" /></svg>`;
-// https://cygri.github.io/rdf-logos/
-const rdfLogo = w `<svg viewBox="0 0 943 1019" style="fill: currentColor; display: inline-block; height: 20px; width: 20px; padding:2px; box-sizing: border-box"><path fill-rule="evenodd" d="M845,668c-6-3-13-6-19-9l5-0c0,0-42-18-45-152 c-4-133,40-156,40-156l-0,0c33-17,61-43,79-78c48-91,14-203-77-252 C729-26,617,8,569,99c-20,37-25,78-19,117l-2-3c0,0,11,48-103,119 c-113,71-165,35-165,35l3,5c-3-2-6-4-10-6C183,317,70,352,22,443 c-48,91-14,203,77,252c68,36,147,26,204-19l-1,2c0,0,41-34,160,30 c94,50,108,100,110,118c-2,69,33,137,98,171c91,48,203,14,252-77 C970,829,935,717,845,668z M635,693c-15,5-58,11-148-37 c-98-53-113-97-115-110c1-16,1-32-2-48l1,1c0,0-8-43,104-112 c100-62,146-50,154-47c5,4,11,7,17,10c11,6,23,11,35,14 c14,13,39,50,42,149c3,99-26,137-42,150C664,671,648,681,635,693z   M622,81c-54,59-55,146-3,196c-26-25-25-77,1-126 c3-4,13-15,27-10c1,0,2,1,3,1c3,1,7,1,10,1 c22-1,38-19,37-41c-0-10-4-18-11-25c50-33,107-37,131-15l1,0 C765,12,677,21,622,81z   M78,431c-54,59-55,146-03,196c-26-25-25-77,1-126 c3-4,13-15,27-10c1,0,2,1,3,1c3,1,7,1,10,1 c22-1,38-19,37-41c-0-10-4-18-11-25c50-33,107-37,131-15l1,0 C221,363,133,371,78,431z   M654,728c-54,59-55,146-3,196c-26-25-25-77,1-126 c3-4,13-15,27-10c1,0,2,1,3,1c3,1,7,1,10,1 c22-1,38-19,37-41c-0-10-4-18-11-25c50-33,107-37,131-15l1,0 C797,659,709,668,654,728z"></path></svg>`;
-const crosshair = w `<svg fill="currentcolor" xmlns="http://www.w3.org/2000/svg" height="20" width="20"><path d="M9.333 18.5v-1.458q-2.541-.271-4.323-2.052-1.781-1.782-2.052-4.323H1.5V9.333h1.458Q3.229 6.792 5.01 5.01q1.782-1.781 4.323-2.052V1.5h1.334v1.458q2.541.271 4.323 2.052 1.781 1.782 2.052 4.323H18.5v1.334h-1.458q-.271 2.541-2.052 4.323-1.782 1.781-4.323 2.052V18.5ZM10 15.729q2.396 0 4.062-1.667 1.667-1.666 1.667-4.062 0-2.396-1.667-4.062Q12.396 4.271 10 4.271q-2.396 0-4.062 1.667Q4.271 7.604 4.271 10q0 2.396 1.667 4.062Q7.604 15.729 10 15.729Zm0-2.75q-1.229 0-2.104-.875T7.021 10q0-1.229.875-2.104T10 7.021q1.229 0 2.104.875T12.979 10q0 1.229-.875 2.104T10 12.979Zm0-1.333q.667 0 1.156-.49.49-.489.49-1.156 0-.667-.49-1.156-.489-.49-1.156-.49-.667 0-1.156.49-.49.489-.49 1.156 0 .667.49 1.156.489.49 1.156.49Zm.021-1.667Z"/></svg>`;
-// https://materialdesignicons.com/icon/lightbulb-question
-const lightbulb = w `<svg fill="currentcolor" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" height="20" width="20" style="padding:1px; box-sizing:border-box"><path d="m18.292 8.375-.521-1.187-1.188-.521 1.188-.542.521-1.167.541 1.167L20 6.667l-1.167.521Zm-2.459-3.292-.812-1.729-1.729-.812 1.729-.813L15.833 0l.813 1.729 1.729.813-1.729.812ZM7.5 18.333q-.688 0-1.177-.489-.49-.49-.49-1.177h3.313q0 .687-.479 1.177-.479.489-1.167.489Zm-3.333-2.416v-1.75h6.645v1.75Zm.229-2.5q-1.458-.855-2.302-2.302-.844-1.448-.844-3.157 0-2.646 1.802-4.468Q4.854 1.667 7.5 1.667q2.604 0 4.417 1.823 1.812 1.822 1.812 4.468 0 1.709-.844 3.157-.843 1.447-2.302 2.302Zm.542-1.75h5.124Q11 11 11.49 10.042q.489-.959.489-2.084 0-1.896-1.291-3.218Q9.396 3.417 7.5 3.417q-1.896 0-3.198 1.323Q3 6.062 3 7.958q0 1.125.5 2.084.5.958 1.438 1.625Zm2.562 0Z"/></svg>`;
-// https://materialdesignicons.com/icon/filter-plus
-const addFilter$1 = w `<svg  fill="currentColor" viewBox="0 0 24 24" height="20px" width="20px" style="padding: 1px; box-sizing:border-box"><path d="M12 12V19.88C12.04 20.18 11.94 20.5 11.71 20.71C11.32 21.1 10.69 21.1 10.3 20.71L8.29 18.7C8.06 18.47 7.96 18.16 8 17.87V12H7.97L2.21 4.62C1.87 4.19 1.95 3.56 2.38 3.22C2.57 3.08 2.78 3 3 3H17C17.22 3 17.43 3.08 17.62 3.22C18.05 3.56 18.13 4.19 17.79 4.62L12.03 12H12M15 17H18V14H20V17H23V19H20V22H18V19H15V17Z" /></svg>`;
-// https://materialdesignicons.com/icon/pencil
-const edit = w `<svg fill="currentColor" viewBox="0 0 24 24" height="20px" width="20px"><path d="M20.71,7.04C21.1,6.65 21.1,6 20.71,5.63L18.37,3.29C18,2.9 17.35,2.9 16.96,3.29L15.12,5.12L18.87,8.87M3,17.25V21H6.75L17.81,9.93L14.06,6.18L3,17.25Z" /></svg>`;
-// https://materialdesignicons.com/icon/playlist-edit
-const editList = w `<svg fill="currentColor" viewBox="0 0 24 24" height="20px" width="20px"><path d="M2,6V8H14V6H2M2,10V12H14V10H2M20.04,10.13C19.9,10.13 19.76,10.19 19.65,10.3L18.65,11.3L20.7,13.35L21.7,12.35C21.92,12.14 21.92,11.79 21.7,11.58L20.42,10.3C20.31,10.19 20.18,10.13 20.04,10.13M18.07,11.88L12,17.94V20H14.06L20.12,13.93L18.07,11.88M2,14V16H10V14H2Z" /></svg>`;
-// https://materialdesignicons.com/icon/filter
-const filter = w `<svg fill="currentColor" viewBox="0 0 24 24" height="20px" width="20px"><path d="M14,12V19.88C14.04,20.18 13.94,20.5 13.71,20.71C13.32,21.1 12.69,21.1 12.3,20.71L10.29,18.7C10.06,18.47 9.96,18.16 10,17.87V12H9.97L4.21,4.62C3.87,4.19 3.95,3.56 4.38,3.22C4.57,3.08 4.78,3 5,3V3H19V3C19.22,3 19.43,3.08 19.62,3.22C20.05,3.56 20.13,4.19 19.79,4.62L14.03,12H14Z" /></svg>`;
-// https://materialdesignicons.com/icon/table-column-plus-after
-const tableColumnPlus = w `<svg fill="currentColor" viewBox="0 0 24 24" height="20px" width="20px"><path d="M11,2A2,2 0 0,1 13,4V20A2,2 0 0,1 11,22H2V2H11M4,10V14H11V10H4M4,16V20H11V16H4M4,4V8H11V4H4M15,11H18V8H20V11H23V13H20V16H18V13H15V11Z" /></svg>`;
-const questionMarkDashed = w `<svg fill="currentColor" viewBox="0 0 24 24" height="20px" width="20px"><path d="M13 2.03V4.05C17.39 4.59 20.5 8.58 19.96 12.97C19.5 16.61 16.64 19.5 13 19.93V21.93C18.5 21.38 22.5 16.5 21.95 11C21.5 6.25 17.73 2.5 13 2.03M11 2.06C9.05 2.25 7.19 3 5.67 4.26L7.1 5.74C8.22 4.84 9.57 4.26 11 4.06V2.06M4.26 5.67C3 7.19 2.25 9.04 2.05 11H4.05C4.24 9.58 4.8 8.23 5.69 7.1L4.26 5.67M2.06 13C2.26 14.96 3.03 16.81 4.27 18.33L5.69 16.9C4.81 15.77 4.24 14.42 4.06 13H2.06M7.1 18.37L5.67 19.74C7.18 21 9.04 21.79 11 22V20C9.58 19.82 8.23 19.25 7.1 18.37M20 4H44M13 18H11V16H13V18M13 15H11C11 11.75 14 12 14 10C14 8.9 13.1 8 12 8S10 8.9 10 10H8C8 7.79 9.79 6 12 6S16 7.79 16 10C16 12.5 13 12.75 13 15Z" /></svg>`;
-// https://materialdesignicons.com/icon/content-copy
-const copyContent = w `<svg fill="currentColor" viewBox="0 0 24 24" height="20px" width="20px" style="padding: 1px; box-sizing:border-box"><path d="M19,21H8V7H19M19,5H8A2,2 0 0,0 6,7V21A2,2 0 0,0 8,23H19A2,2 0 0,0 21,21V7A2,2 0 0,0 19,5M16,1H4A2,2 0 0,0 2,3V17H4V3H16V1Z" /></svg>`;
-// https://materialdesignicons.com/icon/alpha-s-circle
-//export const sparqlingIcon = svg`<svg fill="currentColor" viewBox="0 0 24 24" height="20px" width="20px"><path d="M11,7A2,2 0 0,0 9,9V11A2,2 0 0,0 11,13H13V15H9V17H13A2,2 0 0,0 15,15V13A2,2 0 0,0 13,11H11V9H15V7H11M12,2A10,10 0 0,1 22,12A10,10 0 0,1 12,22A10,10 0 0,1 2,12A10,10 0 0,1 12,2Z" /></svg>`
-// https://materialdesignicons.com/icon/play-circle-outline
-const playOutlined = w `<svg fill="currentColor" viewBox="0 0 24 24" height="20px" width="20px"><path d="M12,20C7.59,20 4,16.41 4,12C4,7.59 7.59,4 12,4C16.41,4 20,7.59 20,12C20,16.41 16.41,20 12,20M12,2A10,10 0 0,0 2,12A10,10 0 0,0 12,22A10,10 0 0,0 22,12A10,10 0 0,0 12,2M10,16.5L16,12L10,7.5V16.5Z" /></svg>`;
-// https://materialdesignicons.com/icon/refresh
-const refresh = w `<svg fill="currentColor" viewBox="0 0 24 24" height="20px" width="20px"><path d="M17.65,6.35C16.2,4.9 14.21,4 12,4A8,8 0 0,0 4,12A8,8 0 0,0 12,20C15.73,20 18.84,17.45 19.73,14H17.65C16.83,16.33 14.61,18 12,18A6,6 0 0,1 6,12A6,6 0 0,1 12,6C13.66,6 15.14,6.69 16.22,7.78L13,11H20V4L17.65,6.35Z" /></svg>`;
-const dragHandler = w `<svg fill="currentColor" xmlns="http://www.w3.org/2000/svg" height="20" width="20"><path d="M7.5 15.688q-.5 0-.844-.355-.344-.354-.344-.833 0-.5.355-.844.354-.344.833-.344.5 0 .844.355.344.354.344.833 0 .5-.355.844-.354.344-.833.344Zm5 0q-.5 0-.844-.355-.344-.354-.344-.833 0-.5.355-.844.354-.344.833-.344.5 0 .844.355.344.354.344.833 0 .5-.355.844-.354.344-.833.344Zm-5-4.5q-.5 0-.844-.355-.344-.354-.344-.833 0-.5.355-.844.354-.344.833-.344.5 0 .844.355.344.354.344.833 0 .5-.355.844-.354.344-.833.344Zm5 0q-.5 0-.844-.355-.344-.354-.344-.833 0-.5.355-.844.354-.344.833-.344.5 0 .844.355.344.354.344.833 0 .5-.355.844-.354.344-.833.344Zm-5-4.5q-.5 0-.844-.355-.344-.354-.344-.833 0-.5.355-.844.354-.344.833-.344.5 0 .844.355.344.354.344.833 0 .5-.355.844-.354.344-.833.344Zm5 0q-.5 0-.844-.355-.344-.354-.344-.833 0-.5.355-.844.354-.344.833-.344.5 0 .844.355.344.354.344.833 0 .5-.355.844-.354.344-.833.344Z"/></svg>`;
-// https://materialdesignicons.com/icon/function
-const functionIcon = w `<svg fill="currentColor" viewBox="0 0 24 24" height="20px" width="20px"><path d="M15.6,5.29C14.5,5.19 13.53,6 13.43,7.11L13.18,10H16V12H13L12.56,17.07C12.37,19.27 10.43,20.9 8.23,20.7C6.92,20.59 5.82,19.86 5.17,18.83L6.67,17.33C6.91,18.07 7.57,18.64 8.4,18.71C9.5,18.81 10.47,18 10.57,16.89L11,12H8V10H11.17L11.44,6.93C11.63,4.73 13.57,3.1 15.77,3.3C17.08,3.41 18.18,4.14 18.83,5.17L17.33,6.67C17.09,5.93 16.43,5.36 15.6,5.29Z" /></svg>`;
-// https://materialdesignicons.com/icon/sort-alphabetical-variant
-const sortIcon = w `<svg fill="currentColor" viewBox="0 0 24 24" height="20px" width="20px"><path d="M9.25,5L12.5,1.75L15.75,5H9.25M15.75,19L12.5,22.25L9.25,19H15.75M8.89,14.3H6L5.28,17H2.91L6,7H9L12.13,17H9.67L8.89,14.3M6.33,12.68H8.56L7.93,10.56L7.67,9.59L7.42,8.63H7.39L7.17,9.6L6.93,10.58L6.33,12.68M13.05,17V15.74L17.8,8.97V8.91H13.5V7H20.73V8.34L16.09,15V15.08H20.8V17H13.05Z" /></svg>`;
-// https://materialdesignicons.com/icon/sort-alphabetical-ascending
-const sortAscendingIcon = w `<svg fill="currentColor" viewBox="0 0 24 24" height="20px" width="20px"><path d="M19 17H22L18 21L14 17H17V3H19M11 13V15L7.67 19H11V21H5V19L8.33 15H5V13M9 3H7C5.9 3 5 3.9 5 5V11H7V9H9V11H11V5C11 3.9 10.11 3 9 3M9 7H7V5H9Z" /></svg>`;
-// https://materialdesignicons.com/icon/sort-alphabetical-descending
-const sortDescendingIcon = w `<svg fill="currentColor" viewBox="0 0 24 24" height="20px" width="20px"><path d="M19 7H22L18 3L14 7H17V21H19M11 13V15L7.67 19H11V21H5V19L8.33 15H5V13M9 3H7C5.9 3 5 3.9 5 5V11H7V9H9V11H11V5C11 3.9 10.11 3 9 3M9 7H7V5H9Z" /></svg>`;
-// https://materialdesignicons.com/icon/sigma
-const sigma = w `<svg fill="currentColor" viewBox="0 0 24 24" height="20px" width="20px"><path d="M18,6H8.83L14.83,12L8.83,18H18V20H6V18L12,12L6,6V4H18V6Z" /></svg>`;
-// https://materialdesignicons.com/icon/gesture-double-tap
-const dbClick = w `<svg fill="currentColor" viewBox="0 0 24 24" height="20px" width="20px"><path d="M10,9A1,1 0 0,1 11,8A1,1 0 0,1 12,9V13.47L13.21,13.6L18.15,15.79C18.68,16.03 19,16.56 19,17.14V21.5C18.97,22.32 18.32,22.97 17.5,23H11C10.62,23 10.26,22.85 10,22.57L5.1,18.37L5.84,17.6C6.03,17.39 6.3,17.28 6.58,17.28H6.8L10,19V9M11,5A4,4 0 0,1 15,9C15,10.5 14.2,11.77 13,12.46V11.24C13.61,10.69 14,9.89 14,9A3,3 0 0,0 11,6A3,3 0 0,0 8,9C8,9.89 8.39,10.69 9,11.24V12.46C7.8,11.77 7,10.5 7,9A4,4 0 0,1 11,5M11,3A6,6 0 0,1 17,9C17,10.7 16.29,12.23 15.16,13.33L14.16,12.88C15.28,11.96 16,10.56 16,9A5,5 0 0,0 11,4A5,5 0 0,0 6,9C6,11.05 7.23,12.81 9,13.58V14.66C6.67,13.83 5,11.61 5,9A6,6 0 0,1 11,3Z" /></svg>`;
-// https://materialdesignicons.com/icon/counter
-const counter = w `<svg fill="currentColor" viewBox="0 0 24 24" height="20px" width="20px"><path d="M4,4H20A2,2 0 0,1 22,6V18A2,2 0 0,1 20,20H4A2,2 0 0,1 2,18V6A2,2 0 0,1 4,4M4,6V18H11V6H4M20,18V6H18.76C19,6.54 18.95,7.07 18.95,7.13C18.88,7.8 18.41,8.5 18.24,8.75L15.91,11.3L19.23,11.28L19.24,12.5L14.04,12.47L14,11.47C14,11.47 17.05,8.24 17.2,7.95C17.34,7.67 17.91,6 16.5,6C15.27,6.05 15.41,7.3 15.41,7.3L13.87,7.31C13.87,7.31 13.88,6.65 14.25,6H13V18H15.58L15.57,17.14L16.54,17.13C16.54,17.13 17.45,16.97 17.46,16.08C17.5,15.08 16.65,15.08 16.5,15.08C16.37,15.08 15.43,15.13 15.43,15.95H13.91C13.91,15.95 13.95,13.89 16.5,13.89C19.1,13.89 18.96,15.91 18.96,15.91C18.96,15.91 19,17.16 17.85,17.63L18.37,18H20M8.92,16H7.42V10.2L5.62,10.76V9.53L8.76,8.41H8.92V16Z" /></svg>`;
-// https://materialdesignicons.com/icon/progress-close
-const dashedCross = w `<svg fill="currentColor" viewBox="0 0 24 24" height="20px" width="20px"><path d="M13 2.03V4.05C17.39 4.59 20.5 8.58 19.96 12.97C19.5 16.61 16.64 19.5 13 19.93V21.93C18.5 21.38 22.5 16.5 21.95 11C21.5 6.25 17.73 2.5 13 2.03M11 2.06C9.05 2.25 7.19 3 5.67 4.26L7.1 5.74C8.22 4.84 9.57 4.26 11 4.06V2.06M4.26 5.67C3 7.19 2.25 9.04 2.05 11H4.05C4.24 9.58 4.8 8.23 5.69 7.1L4.26 5.67M2.06 13C2.26 14.96 3.03 16.81 4.27 18.33L5.69 16.9C4.81 15.77 4.24 14.42 4.06 13H2.06M7.1 18.37L5.67 19.74C7.18 21 9.04 21.79 11 22V20C9.58 19.82 8.23 19.25 7.1 18.37M14.59 8L12 10.59L9.41 8L8 9.41L10.59 12L8 14.59L9.41 16L12 13.41L14.59 16L16 14.59L13.41 12L16 9.41L14.59 8Z" /></svg>`;
-const kebab = w `<svg fill="currentColor" xmlns="http://www.w3.org/2000/svg" height="20" width="20"><path d="M5.688 11.083q-.459 0-.771-.323-.313-.322-.313-.76 0-.458.323-.771.323-.312.761-.312.458 0 .77.323.313.322.313.76 0 .458-.313.771-.312.312-.77.312Zm4.312 0q-.458 0-.771-.323-.312-.322-.312-.76 0-.458.323-.771.322-.312.76-.312.458 0 .771.323.312.322.312.76 0 .458-.323.771-.322.312-.76.312Zm4.312 0q-.458 0-.77-.323-.313-.322-.313-.76 0-.458.313-.771.312-.312.77-.312.459 0 .771.323.313.322.313.76 0 .458-.323.771-.323.312-.761.312Z"/></svg>`;
-const expandMore = w `<svg fill="currentColor" xmlns="http://www.w3.org/2000/svg" height="20" width="20"><path d="m10 12.792-4.708-4.73.77-.77L10 11.229l3.938-3.937.77.77Z"/></svg>`;
-const expandLess = w `<svg fill="currentColor" xmlns="http://www.w3.org/2000/svg" height="20" width="20"><path d="m6.062 12.729-.77-.791L10 7.229l4.708 4.709-.77.791L10 8.792Z"/></svg>`;
-const placeItem = w `<svg fill="currentColor" xmlns="http://www.w3.org/2000/svg" height="20" width="20"><path d="M4.5 17.083q-.667 0-1.125-.458-.458-.458-.458-1.125V7.833q0-.666.458-1.125.458-.458 1.125-.458h2.896v1.333H4.5q-.083 0-.167.084-.083.083-.083.166V15.5q0 .083.083.167.084.083.167.083h11q.083 0 .167-.083.083-.084.083-.167V7.833q0-.083-.083-.166-.084-.084-.167-.084h-2.896V6.25H15.5q.667 0 1.125.458.458.459.458 1.125V15.5q0 .667-.458 1.125-.458.458-1.125.458Zm5.5-4.041L6.938 9.979l.937-.937L9.333 10.5V.625h1.334V10.5l1.458-1.458.937.937Z"/></svg>`;
-const error = w `<svg fill="currentColor" xmlns="http://www.w3.org/2000/svg" height="20" width="20"><path d="M10 13.771q.25 0 .417-.167.166-.166.166-.416 0-.25-.166-.417-.167-.167-.417-.167-.25 0-.417.167-.166.167-.166.417 0 .25.166.416.167.167.417.167Zm-.542-2.709h1.084v-5H9.458ZM10 17.583q-1.562 0-2.948-.593-1.385-.594-2.417-1.625-1.031-1.032-1.625-2.417-.593-1.386-.593-2.948 0-1.583.593-2.958.594-1.375 1.625-2.407Q5.667 3.604 7.052 3.01 8.438 2.417 10 2.417q1.583 0 2.958.593 1.375.594 2.407 1.625 1.031 1.032 1.625 2.417.593 1.386.593 2.948t-.593 2.948q-.594 1.385-1.625 2.417-1.032 1.031-2.417 1.625-1.386.593-2.948.593Zm0-1.083q2.708 0 4.604-1.896T16.5 10q0-2.708-1.896-4.604T10 3.5q-2.708 0-4.604 1.896T3.5 10q0 2.708 1.896 4.604T10 16.5Zm0-6.5Z"/></svg>`;
-const ellipsis = w `<svg fill="currentColor" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 16 16" width="16" height="16"><path fill-rule="evenodd" d="M0 5.75C0 4.784.784 4 1.75 4h12.5c.966 0 1.75.784 1.75 1.75v4.5A1.75 1.75 0 0114.25 12H1.75A1.75 1.75 0 010 10.25v-4.5zM4 7a1 1 0 100 2 1 1 0 000-2zm3 1a1 1 0 112 0 1 1 0 01-2 0zm5-1a1 1 0 100 2 1 1 0 000-2z"></path></svg>`;
-const preview = w `<svg fill="currentColor" xmlns="http://www.w3.org/2000/svg" height="20" width="20"><path d="M4.5 17q-.625 0-1.062-.438Q3 16.125 3 15.5v-11q0-.625.438-1.062Q3.875 3 4.5 3h11q.625 0 1.062.438Q17 3.875 17 4.5v11q0 .625-.438 1.062Q16.125 17 15.5 17Zm0-1.5h11V6h-11v9.5Zm5.5-1.75q-1.542 0-2.75-.844T5.5 10.75q.542-1.312 1.75-2.156Q8.458 7.75 10 7.75t2.75.844q1.208.844 1.75 2.156-.542 1.312-1.75 2.156-1.208.844-2.75.844Zm0-1q1.104 0 2-.531.896-.531 1.396-1.469-.5-.938-1.396-1.469-.896-.531-2-.531t-2 .531q-.896.531-1.396 1.469.5.938 1.396 1.469.896.531 2 .531Zm0-.75q-.521 0-.885-.365-.365-.364-.365-.885t.365-.885Q9.479 9.5 10 9.5t.885.365q.365.364.365.885t-.365.885Q10.521 12 10 12Z"/></svg>`;
-const mastroEndpointIcon = w `<svg fill="currentColor" xmlns="http://www.w3.org/2000/svg" height="20" width="20"><path d="M3.542 9.25q-.563 0-.948-.396-.386-.396-.386-.937V5.542q0-.542.396-.938.396-.396.938-.396H11V9.25Zm0-1.083h6.375V5.292H3.542q-.104 0-.177.073t-.073.177v2.375q0 .104.073.177t.177.073Zm0 7.625q-.542 0-.938-.396-.396-.396-.396-.938v-2.375q0-.541.396-.937t.938-.396H12.5v5.042Zm0-1.084h7.875v-2.875H3.542q-.104 0-.177.073t-.073.177v2.375q0 .104.073.177t.177.073ZM14 15.792V9.25h-1.5V4.208h5.188L16.25 7.854h1.438Zm-9.896-2.021h1v-1h-1Zm0-6.542h1v-1h-1Zm-.812.938V5.292v2.875Zm0 6.541v-2.875 2.875Z"/></svg>`;
-const description = w `<svg fill="currentColor" xmlns="http://www.w3.org/2000/svg" height="20" width="20" viewBox="0 0 20 20"><path d="M7 15h6v-1.5H7Zm0-3h6v-1.5H7Zm-1.5 6q-.625 0-1.062-.438Q4 17.125 4 16.5v-13q0-.625.438-1.062Q4.875 2 5.5 2H12l4 4v10.5q0 .625-.438 1.062Q15.125 18 14.5 18ZM11 7V3.5H5.5v13h9V7ZM5.5 3.5v3.938V3.5v13-13Z"/></svg>`;
-const editSquare = w `<svg fill="currentColor" style="position: relative; top: -1px" xmlns="http://www.w3.org/2000/svg" height="20" width="20"><path d="M4.5 19.146q-.625 0-1.062-.438Q3 18.271 3 17.646v-11q0-.625.438-1.063.437-.437 1.062-.437h6.521l-1.5 1.5H4.5v11h11v-4.979l1.5-1.521v6.5q0 .625-.438 1.062-.437.438-1.062.438Zm5.5-7Zm3.625-6.813 1.083 1.084L9.5 11.583v1.063h1.062l5.188-5.167 1.042 1.063-5.604 5.604H8v-3.167Zm3.167 3.209-3.167-3.209 1.771-1.771q.437-.437 1.052-.437.614 0 1.052.437l1.083 1.084q.438.437.438 1.052 0 .614-.438 1.052Z"/></svg>`;
-const toggleCatalog = w `<svg style="padding: 2px; box-sizing: border-box;" viewBox="64 64 896 896" width="20px" height="20px" fill="currentColor" aria-hidden="true"><path d="M408 442h480c4.4 0 8-3.6 8-8v-56c0-4.4-3.6-8-8-8H408c-4.4 0-8 3.6-8 8v56c0 4.4 3.6 8 8 8zm-8 204c0 4.4 3.6 8 8 8h480c4.4 0 8-3.6 8-8v-56c0-4.4-3.6-8-8-8H408c-4.4 0-8 3.6-8 8v56zm504-486H120c-4.4 0-8 3.6-8 8v56c0 4.4 3.6 8 8 8h784c4.4 0 8-3.6 8-8v-56c0-4.4-3.6-8-8-8zm0 632H120c-4.4 0-8 3.6-8 8v56c0 4.4 3.6 8 8 8h784c4.4 0 8-3.6 8-8v-56c0-4.4-3.6-8-8-8zM142.4 642.1L298.7 519a8.84 8.84 0 000-13.9L142.4 381.9c-5.8-4.6-14.4-.5-14.4 6.9v246.3a8.9 8.9 0 0014.4 7z"></path></svg>`;
+function getFormTemplate(formComponent, operators) {
+    var _a;
+    const op = formComponent.operator || operators[0];
+    const dt = formComponent.datatypeFromOntology || VarOrConstantConstantTypeEnum.String;
+    // const addInputButton = new UI.GscapeButton(UI.icons.plus, "Add input value")
+    // addInputButton.id = "add-input-btn"
+    return y `
+    <div class="section">
+      ${formComponent.formTitle ? y `<div class="header">${formComponent.formTitle}</div>` : null}
+      <form id="form-dialog" class="form" action="javascript:void(0)" onsubmit="this.handleSubmit">
+        <div class="selects-wrapper">
+          <div id="select-operator">
+            <label>Operator</label>
+            ${getSelect(op, operators)}
+          </div>
+          ${formComponent.parametersType === VarOrConstantTypeEnum.Constant
+        ? y `
+              <div id="select-datatype">
+                <label>Datatype</label>
+                ${getSelect(dt, Object.values(VarOrConstantConstantTypeEnum), formComponent.datatypeFromOntology !== undefined)}
+              </div>`
+        : null}
+        </div>
+        <div class="inputs-wrapper">
+          ${(_a = formComponent.parametersIriOrConstants) === null || _a === void 0 ? void 0 : _a.map((parameter, index) => getInput(index, formComponent.datatypeFromOntology, parameter.value, "Set input value"))}
+          ${formComponent.operator === FilterExpressionOperatorEnum.In ||
+        formComponent.operator === FilterExpressionOperatorEnum.NotIn
+        ? y `
+              <div>
+                <gscape-button id="add-input-btn" type="subtle" title="Add input value">
+                  <span slot="icon">${ui.icons.plus}</span>
+                </gscape-button>
+                ${formComponent.parameters && formComponent.parameters.length > 3 // at least 3 custom inputs to remove one
+            ? y `
+                    <gscape-button id="remove-input-btn" type="subtle" title="Remove input value">
+                      <span slot="icon">${ui.icons.minus}</span>
+                    </gscape-button>
+                  `
+            : null}
+              </div>
+            `
+        : null}
+
+          ${formComponent.acceptExamples
+        ? y `
+              <gscape-button 
+                id="show-examples" 
+                label="Show/Hide Examples"
+                size='s' 
+                title="Show/Hide examples"
+              >
+              </gscape-button>
+            `
+        : null}
+        </div>
+        ${formComponent.operator === FilterExpressionOperatorEnum.Regex
+        ? y `
+              <input type="checkbox" id="case-sensitive" name="flag" value="i">
+              <label for="case-sensitive">Case Sensitive</label>
+            `
+        : null}
+      </form>
+    </div>
+    ${formComponent.examples
+        ? y `
+        ${formComponent.parametersType === VarOrConstantTypeEnum.Constant
+            ? y `<input id="search-examples-input" placeholder="Search Examples" type="text" />`
+            : null} 
+        ${queryResultTemplate(formComponent.examples)}
+      `
+        : null}
+    ${formComponent.loadingExamples ? getLoadingSpinner() : null}
+    <div id="message-tray"></div>
+  `;
+}
+function getInput(index, datatype, value = '', titleText = '') {
+    if (datatype === VarOrConstantConstantTypeEnum.DateTime) {
+        value = (value === null || value === void 0 ? void 0 : value.split('T')[0]) || 'value'; // Take only date from ISO format 2022-01-01T00:00:....
+    }
+    let placeholder = value || 'value';
+    const input = document.createElement('input');
+    input.type = getInputType(datatype);
+    input.placeholder = placeholder;
+    input.title = titleText;
+    input.setAttribute('index', (index + 1).toString());
+    input.required = true;
+    input.value = value;
+    return y `${input}`;
+}
+function getSelect(defaultOpt, options, disabled = false) {
+    const isDefaultAlreadySet = options.includes(defaultOpt);
+    return y `
+    <select required ?disabled=${disabled}>
+      ${isDefaultAlreadySet ? null : y `<option value="" hidden selected>${defaultOpt}</option>`}
+      ${options.map(op => {
+        if (op === defaultOpt)
+            return y `<option value="${op}" selected>${op}</option>`;
+        else
+            return y `<option value="${op}">${op}</option>`;
+    })}
+    </select>
+  `;
+}
+function getInputType(datatype) {
+    switch (datatype) {
+        case VarOrConstantConstantTypeEnum.DateTime:
+            return 'date';
+        case VarOrConstantConstantTypeEnum.Decimal:
+        case 'xsd:integer':
+        case 'xsd:int':
+            return 'number';
+        case VarOrConstantConstantTypeEnum.String:
+            return 'text';
+        default:
+            return '';
+    }
+}
 
 var _a$1, _b$1;
 class FilterDialog extends (_b$1 = SparqlingFormDialog) {
     constructor() {
-        super();
+        super(...arguments);
         this.deleteCallback = (filterId) => { };
-        // this.saveButton.label = "Save Filter"
     }
     render() {
         this.title = `${this.modality} filter for ${this.variableName}`;
@@ -3279,7 +3341,7 @@ class FilterDialog extends (_b$1 = SparqlingFormDialog) {
         </div>
 
         <div class="dialog-body">
-          ${getFormTemplate(this, Object.values(FilterExpressionOperatorEnum))}
+          ${getFormTemplate(this, this.operators)}
           
           <div class="bottom-buttons">
             ${this.modality === Modality.EDIT
@@ -3304,6 +3366,27 @@ class FilterDialog extends (_b$1 = SparqlingFormDialog) {
     }
     handleDeleteClick() {
         this.deleteCallback(this._id);
+    }
+    // protected handleSubmit(): void {
+    //   if (this.regexFlagSelector) {
+    //     this.parameters?.push({
+    //       value: Array.from(this.regexFlagSelector.selectedFlags).join(''),
+    //       type: VarOrConstantTypeEnum.Constant,
+    //       constantType: VarOrConstantConstantTypeEnum.String
+    //     })
+    //   }
+    //   super.handleSubmit()
+    // }
+    get caseSensitiveCheckbox() {
+        var _c;
+        return (_c = this.shadowRoot) === null || _c === void 0 ? void 0 : _c.querySelector('#case-sensitive');
+    }
+    get isCaseSensitive() {
+        var _c;
+        return (_c = this.caseSensitiveCheckbox) === null || _c === void 0 ? void 0 : _c.checked;
+    }
+    get operators() {
+        return Object.values(FilterExpressionOperatorEnum);
     }
 }
 _a$1 = FilterDialog;
@@ -3394,11 +3477,12 @@ function getElemWithOperatorList(list, editElemCallback, deleteElemCallback) {
                 if (param.constantType === VarOrConstantConstantTypeEnum.DateTime) {
                     value = (value === null || value === void 0 ? void 0 : value.split('T')[0]) || value; // Take only date from ISO format 2022-01-01T00:00:....
                 }
-                return y `
-                    <div class="parameter ellipsed">
-                      ${value}
-                    </div>
-                  `;
+                if (operator === FilterExpressionOperatorEnum.Regex && index === 2) {
+                    return null;
+                }
+                else {
+                    return y `<div class="parameter ellipsed">${value}</div>`;
+                }
             })}
               </div>
             `
@@ -3616,21 +3700,37 @@ class HighlightsList extends ui.DropPanelMixin(ui.BaseMixin(s)) {
     constructor() {
         super();
         this.title = 'Suggestions';
+        this.loading = false;
         this._onSuggestionLocalization = (element) => { };
         this._onSuggestionAddToQuery = (entityIri, entityType, relatedClassIri) => { };
+        this._onAddLabel = () => { };
+        this._onAddComment = () => { };
         this.togglePanel = () => {
             super.togglePanel();
             this.requestUpdate();
         };
         // Should not be necessary the '| Event' and casting to SearchEvent custom Event
         this.addEventListener('onsearch', (evt) => {
-            var _a, _b, _c;
+            var _a, _b, _c, _d, _e, _f;
             const searchedText = evt.detail.searchText;
-            if (this.highlights && searchedText.length > 2) {
+            if (this.shownIRIs && searchedText.length > 2) {
                 const isAmatch = (value1, value2) => value1.toLowerCase().includes(value2.toLowerCase());
-                this.highlights.classes = (_a = this.highlights.classes) === null || _a === void 0 ? void 0 : _a.filter(classIri => isAmatch(classIri, searchedText));
-                this.highlights.dataProperties = (_b = this.highlights.dataProperties) === null || _b === void 0 ? void 0 : _b.filter(dataPropertyIri => isAmatch(dataPropertyIri, searchedText));
-                this.highlights.objectProperties = (_c = this.highlights.objectProperties) === null || _c === void 0 ? void 0 : _c.filter(branch => branch.objectPropertyIRI ? isAmatch(branch.objectPropertyIRI, searchedText) : false);
+                const checkEntity = (e) => {
+                    return isAmatch(e.entityViewData.value.iri.remainder, searchedText) ||
+                        e.entityViewData.value.getLabels().some(label => isAmatch(label.lexicalForm, searchedText));
+                };
+                if (!this.entityFilters || this.entityFilters.areAllFiltersDisabled ||
+                    this.entityFilters[GrapholTypesEnum.CLASS]) {
+                    this.shownIRIs.classes = ((_b = (_a = this.allHighlights) === null || _a === void 0 ? void 0 : _a.classes) === null || _b === void 0 ? void 0 : _b.filter(c => checkEntity(c)).map(e => e.entityViewData.value.iri.fullIri)) || [];
+                }
+                if (!this.entityFilters || this.entityFilters.areAllFiltersDisabled ||
+                    this.entityFilters[GrapholTypesEnum.DATA_PROPERTY]) {
+                    this.shownIRIs.dataProperties = ((_d = (_c = this.allHighlights) === null || _c === void 0 ? void 0 : _c.dataProperties) === null || _d === void 0 ? void 0 : _d.filter(dp => checkEntity(dp)).map(e => e.entityViewData.value.iri.fullIri)) || [];
+                }
+                if (!this.entityFilters || this.entityFilters.areAllFiltersDisabled ||
+                    this.entityFilters[GrapholTypesEnum.OBJECT_PROPERTY]) {
+                    this.shownIRIs.objectProperties = ((_f = (_e = this.allHighlights) === null || _e === void 0 ? void 0 : _e.objectProperties) === null || _f === void 0 ? void 0 : _f.filter(op => checkEntity(op)).map(e => e.entityViewData.value.iri.fullIri)) || [];
+                }
                 this.requestUpdate();
             }
             else {
@@ -3674,90 +3774,147 @@ class HighlightsList extends ui.DropPanelMixin(ui.BaseMixin(s)) {
                 <span slot="icon">${ui.icons.minus}</span>
               </gscape-button>
             </div>
-            <div class="content-wrapper">
-              <gscape-entity-search></gscape-entity-search>
-              <div class="list">
-                ${this.highlights
-                ? y `
-                    ${this.dataProperties.map((dataPropertyIri) => this.getEntitySuggestionTemplate(dataPropertyIri, EntityTypeEnum.DataProperty))}
-                    ${this.objectProperties.map(objectPropertyHighlight => this.getObjectPropertySuggestionTemplate(objectPropertyHighlight))}
-                    ${this.classes.map((classIri) => this.getEntitySuggestionTemplate(classIri, EntityTypeEnum.Class))}
-                  `
-                : y `
-                    <div class="blank-slate">
-                      ${ui.icons.searchOff}
-                      <div class="header">No suggestions available</div>
-                      <div class="description">Add elements to the query and we will provide you next steps suggestions</div>
-                    </div>
-                  `}
 
-                ${this.highlights && this.objectProperties.length === 0 && this.dataProperties.length === 0 && this.classes.length === 0
-                ? ui.emptySearchBlankState
-                : null}
+            <gscape-entity-search
+              class=0
+              data-property=0
+              object-property=0
+            ></gscape-entity-search>
+
+            <div class="content-wrapper">
+              <div class="list">
+                ${this.loading
+                ? y `<div style="align-self: center">${ui.getContentSpinner()}</div>`
+                : this.hasAnyHighlights
+                    ? y `
+
+                      <details open="">
+                        <summary class="actionable" style="padding: 8px">Annotations</summary>
+
+                        <gscape-action-list-item
+                          label = 'Label'
+                          @click=${this._onAddLabel}
+                        >
+                          <span slot="icon">${ui.icons.labelIcon}</span>
+                        </gscape-action-list-item>
+
+                        <gscape-action-list-item
+                          label = 'Comment'
+                          @click=${this._onAddComment}
+                        >
+                          <span slot="icon">${ui.icons.commentIcon}</span>
+                        </gscape-action-list-item>
+                      </details>
+
+                      <div class="hr" style="flex-shrink: 0; margin: 8px auto"></div>
+
+                      ${this.dataProperties.map(dp => this.getEntitySuggestionTemplate(dp))}
+                      ${this.objectProperties.map(op => this.getObjectPropertySuggestionTemplate(op))}
+                      ${this.classes.map(c => this.getEntitySuggestionTemplate(c))}
+
+                      ${this.shownIRIs && this.objectProperties.length === 0 && this.dataProperties.length === 0 && this.classes.length === 0
+                        ? ui.emptySearchBlankState
+                        : null}
+                    `
+                    : this.allHighlights === undefined && y `
+                      <div class="blank-slate">
+                        ${ui.icons.searchOff}
+                        <div class="header">No suggestions available</div>
+                        <div class="description">Add elements to the query and we will provide you next steps suggestions</div>
+                      </div>
+                    `}
               </div>
             </div>
           </div>
         `}
     `;
     }
-    getObjectPropertySuggestionTemplate(objectPropertyHighlight) {
-        var _a;
-        if (!objectPropertyHighlight.objectPropertyIRI)
-            return;
-        if (hasEntityEmptyUnfolding(objectPropertyHighlight.objectPropertyIRI, EntityTypeEnum.ObjectProperty)) {
-            return this.getEntitySuggestionTemplate(objectPropertyHighlight.objectPropertyIRI, EntityTypeEnum.ObjectProperty);
-        }
-        else {
-            return y `
-      <details class="ellipsed entity-list-item" title=${objectPropertyHighlight.objectPropertyIRI}>
-        <summary class="actionable" iri=${objectPropertyHighlight.objectPropertyIRI}>
-          <span class="entity-icon">${ui.icons.objectPropertyIcon}</span>
-          <span @click=${this.handleEntityNameClick} class="entity-name">
-            ${objectPropertyHighlight.objectPropertyIRI}
-          </span>
-        </summary>
-
-        <div class="summary-body">
-          ${(_a = objectPropertyHighlight.relatedClasses) === null || _a === void 0 ? void 0 : _a.map((relatedClass) => this.getEntitySuggestionTemplate(relatedClass, EntityTypeEnum.Class, objectPropertyHighlight.objectPropertyIRI))}
-        </div>
-      </details>
-    `;
-        }
-    }
-    getEntitySuggestionTemplate(entityIri, entityType, objectPropertyIri) {
-        const hasEmptyUnfolding = hasEntityEmptyUnfolding(entityIri, entityType);
-        let entityIcon;
-        switch (entityType) {
-            case EntityTypeEnum.Class:
-                entityIcon = ui.icons.classIcon;
-                break;
-            case EntityTypeEnum.DataProperty:
-                entityIcon = ui.icons.dataPropertyIcon;
-                break;
-            case EntityTypeEnum.ObjectProperty:
-            case EntityTypeEnum.InverseObjectProperty:
-                entityIcon = ui.icons.objectPropertyIcon;
-                break;
-        }
+    getObjectPropertySuggestionTemplate(objectProperty) {
+        const disabled = objectProperty.hasUnfolding === false;
         return y `
-      <div 
-        iri=${entityIri}
-        entity-type="${entityType}"
-        class="ellipsed entity-list-item ${hasEmptyUnfolding ? 'disabled' : null}"
-        title=${hasEmptyUnfolding ? emptyUnfoldingEntityTooltip() : null}
+      <gscape-entity-list-item
+        displayedname=${objectProperty.entityViewData.displayedName}
+        iri=${objectProperty.entityViewData.value.iri.fullIri}
+        type=${objectProperty.entityViewData.value.type}
+        ?asaccordion=${true}
+        ?disabled=${disabled}
+        direct=${objectProperty.direct}
+        title=${objectProperty.hasUnfolding ? objectProperty.entityViewData.displayedName : emptyUnfoldingEntityTooltip()}
       >
-        <span class="entity-icon">${entityIcon}</span>
-        <span class="entity-name actionable" @click=${this.handleEntityNameClick}>${entityIri}</span>
-        ${!hasEmptyUnfolding
+        <div slot="accordion-body">
+          ${objectProperty.connectedClasses.map(connectedClass => this.getEntitySuggestionTemplate(connectedClass, (e) => this.handleAddToQueryClick(e, connectedClass.entityViewData.value.iri.fullIri, GrapholTypesEnum.OBJECT_PROPERTY, objectProperty.entityViewData.value.iri.fullIri), disabled))}
+        </div>
+
+        ${!objectProperty.direct
             ? y `
-            <span class="actions">
-              ${getTrayButtonTemplate('Add to query', placeItem, undefined, 'add-to-query-action', (e) => {
-                this.handleAddToQueryClick(e, objectPropertyIri);
-            })}
-            </span>
+            <span slot="trailing-element" class="chip" style="line-height: 1">Inverse</span>
           `
             : null}
-      </div>
+
+        ${!isFullPageActive()
+            ? y `
+            <div slot="trailing-element" class="actions">
+              <gscape-button
+                  title="Show in graphs"
+                  size="s"
+                  type="subtle"
+                  @click=${(e) => {
+                this.handleSuggestionLocalization(e, objectProperty.entityViewData.value.iri.fullIri);
+            }}
+                >
+                  <span slot='icon' class="slotted-icon">${crosshair}</span>
+                </gscape-button>
+            </div>
+          `
+            : null}
+        
+      </gscape-entity-list-item>
+    `;
+    }
+    getEntitySuggestionTemplate(entity, customCallback, forceDisabled = false) {
+        const disabled = forceDisabled || entity.hasUnfolding === false;
+        return y `
+      <gscape-entity-list-item
+        displayedname=${entity.entityViewData.displayedName}
+        iri=${entity.entityViewData.value.iri}
+        type=${entity.entityViewData.value.type}
+        ?disabled=${disabled}
+        title=${entity.hasUnfolding ? entity.entityViewData.displayedName : emptyUnfoldingEntityTooltip()}
+      >
+        <div slot="trailing-element" class="actions">
+          ${!isFullPageActive()
+            ? y `
+              <gscape-button
+                title="Show in graphs"
+                size="s"
+                type="subtle"
+                @click=${(e) => {
+                this.handleSuggestionLocalization(e, entity.entityViewData.value.iri.fullIri);
+            }}
+              >
+                <span slot='icon' class="slotted-icon">${crosshair}</span>
+              </gscape-button>
+            `
+            : null}
+          ${!disabled
+            ? y `
+              <gscape-button
+                title="Add to query"
+                size="s"
+                type="subtle"
+                @click=${(e) => {
+                if (customCallback)
+                    customCallback(e);
+                else
+                    this.handleAddToQueryClick(e, entity.entityViewData.value.iri.fullIri, entity.entityViewData.value.type);
+            }}
+              >
+                <span slot='icon' class="slotted-icon">${ui.icons.insertInGraph}</span>
+              </gscape-button>
+            `
+            : null}
+        </div>
+      </gscape-entity-list-item>
     `;
     }
     firstUpdated(_changedProperties) {
@@ -3766,26 +3923,19 @@ class HighlightsList extends ui.DropPanelMixin(ui.BaseMixin(s)) {
         this.requestUpdate();
         this.hide();
     }
-    handleEntityNameClick(e) {
-        var _a;
-        console.log(e);
+    handleSuggestionLocalization(e, entityIri) {
+        e.stopPropagation();
         e.preventDefault();
-        const entityIri = (_a = e.target.parentElement) === null || _a === void 0 ? void 0 : _a.getAttribute('iri');
         if (entityIri)
             this._onSuggestionLocalization(entityIri);
     }
-    handleAddToQueryClick(e, objectPropertyIri) {
-        var _a, _b, _c, _d;
+    handleAddToQueryClick(e, entityIri, entityType, objectPropertyIri) {
         e.preventDefault();
-        const entityIri = (_b = (_a = e.currentTarget.parentElement) === null || _a === void 0 ? void 0 : _a.parentElement) === null || _b === void 0 ? void 0 : _b.getAttribute('iri');
-        const entityType = (_d = (_c = e.currentTarget.parentElement) === null || _c === void 0 ? void 0 : _c.parentElement) === null || _d === void 0 ? void 0 : _d.getAttribute('entity-type');
-        if (entityIri && entityType) {
-            if (objectPropertyIri) { // if it's from object property, then the entityIri is the relatedClass iri
-                this._onSuggestionAddToQuery(objectPropertyIri, EntityTypeEnum.ObjectProperty, entityIri);
-            }
-            else {
-                this._onSuggestionAddToQuery(entityIri, entityType);
-            }
+        if (objectPropertyIri) { // if it's from object property, then the entityIri is the relatedClass iri
+            this._onSuggestionAddToQuery(objectPropertyIri, GrapholTypesEnum.OBJECT_PROPERTY, entityIri);
+        }
+        else {
+            this._onSuggestionAddToQuery(entityIri, entityType);
         }
     }
     onSuggestionLocalization(callback) {
@@ -3794,22 +3944,29 @@ class HighlightsList extends ui.DropPanelMixin(ui.BaseMixin(s)) {
     onSuggestionAddToQuery(callback) {
         this._onSuggestionAddToQuery = callback;
     }
+    onAddLabel(callback) {
+        this._onAddLabel = callback;
+    }
+    onAddComment(callback) {
+        this._onAddComment = callback;
+    }
     get objectProperties() {
         var _a, _b;
-        return ((_b = (_a = this.highlights) === null || _a === void 0 ? void 0 : _a.objectProperties) === null || _b === void 0 ? void 0 : _b.sort((a, b) => {
-            if (a.objectPropertyIRI && b.objectPropertyIRI)
-                return a.objectPropertyIRI.localeCompare(b.objectPropertyIRI);
-            else
-                return 0;
-        })) || [];
+        return ((_b = (_a = this.allHighlights) === null || _a === void 0 ? void 0 : _a.objectProperties) === null || _b === void 0 ? void 0 : _b.sort((a, b) => {
+            return a.entityViewData.displayedName.localeCompare(b.entityViewData.displayedName);
+        }).filter(op => { var _a; return !this.shownIRIs || ((_a = this.shownIRIs) === null || _a === void 0 ? void 0 : _a.objectProperties.includes(op.entityViewData.value.iri.fullIri)); })) || [];
     }
     get classes() {
         var _a, _b;
-        return ((_b = (_a = this.highlights) === null || _a === void 0 ? void 0 : _a.classes) === null || _b === void 0 ? void 0 : _b.sort((a, b) => a.localeCompare(b))) || [];
+        return ((_b = (_a = this.allHighlights) === null || _a === void 0 ? void 0 : _a.classes) === null || _b === void 0 ? void 0 : _b.sort((a, b) => {
+            return a.entityViewData.displayedName.localeCompare(b.entityViewData.displayedName);
+        }).filter(c => { var _a; return !this.shownIRIs || ((_a = this.shownIRIs) === null || _a === void 0 ? void 0 : _a.classes.includes(c.entityViewData.value.iri.fullIri)); })) || [];
     }
     get dataProperties() {
         var _a, _b;
-        return ((_b = (_a = this.highlights) === null || _a === void 0 ? void 0 : _a.dataProperties) === null || _b === void 0 ? void 0 : _b.sort((a, b) => a.localeCompare(b))) || [];
+        return ((_b = (_a = this.allHighlights) === null || _a === void 0 ? void 0 : _a.dataProperties) === null || _b === void 0 ? void 0 : _b.sort((a, b) => {
+            return a.entityViewData.displayedName.localeCompare(b.entityViewData.displayedName);
+        }).filter(dp => { var _a; return !this.shownIRIs || ((_a = this.shownIRIs) === null || _a === void 0 ? void 0 : _a.dataProperties.includes(dp.entityViewData.value.iri.fullIri)); })) || [];
     }
     set allHighlights(highlights) {
         this._allHighlights = highlights;
@@ -3819,29 +3976,38 @@ class HighlightsList extends ui.DropPanelMixin(ui.BaseMixin(s)) {
         return this._allHighlights;
     }
     setHighlights() {
-        if (this.allHighlights)
-            this.highlights = JSON.parse(JSON.stringify(this.allHighlights));
-        else
-            this.highlights = this.allHighlights;
-        if (this.highlights && this.entityFilters && !this.entityFilters.areAllFiltersDisabled) {
+        var _a, _b, _c;
+        this.shownIRIs = {
+            classes: ((_a = this.allHighlights) === null || _a === void 0 ? void 0 : _a.classes.map(e => e.entityViewData.value.iri.fullIri)) || [],
+            dataProperties: ((_b = this.allHighlights) === null || _b === void 0 ? void 0 : _b.dataProperties.map(e => e.entityViewData.value.iri.fullIri)) || [],
+            objectProperties: ((_c = this.allHighlights) === null || _c === void 0 ? void 0 : _c.objectProperties.map(e => e.entityViewData.value.iri.fullIri)) || [],
+        };
+        if (this.shownIRIs && this.entityFilters && !this.entityFilters.areAllFiltersDisabled) {
             let count = 0;
             if (!this.entityFilters[GrapholTypesEnum.CLASS]) {
-                this.highlights.classes = [];
+                this.shownIRIs.classes = [];
                 count += 1;
             }
             if (!this.entityFilters[GrapholTypesEnum.OBJECT_PROPERTY]) {
-                this.highlights.objectProperties = [];
+                this.shownIRIs.objectProperties = [];
                 count += 1;
             }
             if (!this.entityFilters[GrapholTypesEnum.DATA_PROPERTY]) {
-                this.highlights.dataProperties = [];
+                this.shownIRIs.dataProperties = [];
                 count += 1;
             }
             // if count = 3 then highlights empty, this will show the blank-slate
             if (count === 3) {
-                this.highlights = undefined;
+                this.shownIRIs = undefined;
             }
         }
+        this.requestUpdate();
+    }
+    get hasAnyHighlights() {
+        if (this.allHighlights)
+            return this.allHighlights.classes.length > 0 ||
+                this.allHighlights.dataProperties.length > 0 ||
+                this.allHighlights.objectProperties.length > 0;
     }
     get searchEntityComponent() {
         var _a;
@@ -3858,11 +4024,12 @@ class HighlightsList extends ui.DropPanelMixin(ui.BaseMixin(s)) {
 }
 HighlightsList.properties = {
     class: { type: String, attribute: false },
-    highlights: { type: Object, attribute: false }
+    allHighlights: { type: Object, attribute: false }
 };
 HighlightsList.styles = [
     ui.baseStyle,
     ui.entityListItemStyle,
+    ui.contentSpinnerStyle,
     sparqlingWidgetStyle,
     i$1 `
       :host {
@@ -3878,10 +4045,7 @@ HighlightsList.styles = [
       }
 
       .content-wrapper {
-        display: flex;
-        flex-direction: column;
-        scrollbar-width: inherit;
-        height: 100%;
+        overflow: auto;
       }
 
       .list {
@@ -3891,6 +4055,8 @@ HighlightsList.styles = [
         padding: 0 8px 8px 8px;
         position: relative;
         box-sizing: border-box;
+        display: flex;
+        flex-direction: column;
       }
 
       details.entity-list-item > .summary-body {
@@ -3916,11 +4082,15 @@ HighlightsList.styles = [
         line-height: 0;
       }
 
-      div.entity-list-item > .actions {
+      gscape-entity-list-item {
+        --custom-min-height: 26.5px;
+      }
+
+      gscape-entity-list-item > .actions {
         display: none;
       }
 
-      div.entity-list-item:hover > .actions {
+      gscape-entity-list-item:hover > .actions {
         display: unset;
       }
 
@@ -4222,7 +4392,8 @@ SparqlDialog.styles = [
         left: 50%;
         transform: translate(-50%, 0);
         min-width: 200px;
-        max-width: 800px;
+        max-width: 80vw;
+        max-height: calc(-100px + 80vh);
         height: unset;
       }
 
@@ -4233,7 +4404,6 @@ SparqlDialog.styles = [
         cursor: copy;
         font-family: monospace;
         overflow: auto;
-        max-height: 300px;
         padding: 10px 20px;
         scrollbar-width: inherit;
       }
@@ -4359,7 +4529,7 @@ class SparqlingStartRunButtons extends ui.BaseMixin(ui.DropPanelMixin(s)) {
             <gscape-button
               @click="${this._onQueryRunCallback}"
               type="subtle"
-              title="Send query to SPARQL endpoint"
+              title="Run query"
             >
               <span slot="icon">${playOutlined}</span>
             </gscape-button>
@@ -4568,9 +4738,6 @@ class FunctionDialog extends SparqlingFormDialog {
         super.setAsCorrect(customText);
         this.canSave = false;
     }
-    setDefaultOperator() {
-        this.operator = this.operators[0];
-    }
     get operators() {
         switch (this.datatypeFromOntology) {
             case VarOrConstantConstantTypeEnum.String:
@@ -4598,7 +4765,12 @@ class FunctionDialog extends SparqlingFormDialog {
             FunctionNameEnum.Contains,
             FunctionNameEnum.Lcase,
             FunctionNameEnum.Substr,
-            FunctionNameEnum.Ucase
+            FunctionNameEnum.Ucase,
+            FunctionNameEnum.Strlen,
+            FunctionNameEnum.Strstarts,
+            FunctionNameEnum.Strends,
+            FunctionNameEnum.Strbefore,
+            FunctionNameEnum.Strafter,
         ];
     }
     get operatorsOnNumber() {
@@ -4673,7 +4845,7 @@ class AggregationDialog extends SparqlingFormDialog {
               </label>
             </div>
           </div>
-          
+          <div class="hr"></div>
           ${!this.definingHaving
             ? y `
                 <gscape-button title="Add Having" label="Filter Groups - Having" @click=${this.handleHavingButtonClick}>
@@ -5147,7 +5319,7 @@ function initClassSelector() {
     classSelector.updateComplete.then(() => {
         classSelector.entityList.map(e => e.value.iri).forEach((classIri, i) => {
             var _a;
-            const classElementInList = (_a = classSelector.shadowRoot) === null || _a === void 0 ? void 0 : _a.querySelector(`gscape-action-list-item[iri = "${classIri.prefixed}"]`);
+            const classElementInList = (_a = classSelector.shadowRoot) === null || _a === void 0 ? void 0 : _a.querySelector(`gscape-entity-list-item[iri = "${classIri.fullIri}"]`);
             classElementInList.style.opacity = '1';
             if (hasEntityEmptyUnfolding(classIri.fullIri, EntityTypeEnum.Class)) {
                 if (classElementInList) {
@@ -5502,7 +5674,9 @@ cy.on('cxttap', `[iri][!isSuggestion]`, e => {
     cxtMenu.attachTo(e.target.popperRef(), getCommandsForElement(e.target));
 });
 cy.automove({
-    nodesMatching: (node) => cy.$(':grabbed').neighborhood(`[type = "${EntityTypeEnum.DataProperty}"]`).has(node),
+    nodesMatching: (node) => cy.$(':grabbed')
+        .neighborhood(`[type = "${EntityTypeEnum.DataProperty}"],[type = "${EntityTypeEnum.Annotation}"]`)
+        .has(node),
     reposition: 'drag',
     dragWith: `[type ="${EntityTypeEnum.Class}"]`
 });
@@ -8948,9 +9122,10 @@ function addOrRemoveFilterIcon(node) {
 const klayLayoutOpt = {
     name: 'klay',
     klay: {
-        direction: 'RIGHT',
-        spacing: 60,
-        nodeLayering: 'INTERACTIVE',
+        spacing: 50,
+        fixedAlignment: 'BALANCED',
+        nodePlacement: 'LINEAR_SEGMENTS',
+        thoroughness: 10,
     }
 };
 function radialLayoutOpt(node) {
@@ -9096,6 +9271,7 @@ function selectNode(nodeId) {
  */
 function arrange() {
     const dataPropertySelector = `node[type = "${EntityTypeEnum.DataProperty}"][!isSuggestion]`;
+    const annotationSelector = `node[type = "${EntityTypeEnum.Annotation}"][!isSuggestion]`;
     const classSelector = `node[type = "${EntityTypeEnum.Class}"][!isSuggestion]`;
     if (getElements().length <= 1) {
         /**
@@ -9116,16 +9292,16 @@ function arrange() {
         }
         return;
     }
-    const klayLayout = cy.layout(klayLayoutOpt);
+    const klayLayout = cy.elements().difference(`${dataPropertySelector},${annotationSelector}`).layout(klayLayoutOpt);
     klayLayout.on('layoutstop', () => {
         cy.$(classSelector).forEach(node => {
-            const dataProperties = node.neighborhood(dataPropertySelector);
+            const dataPropertiesAndAnnotations = node.neighborhood(`${dataPropertySelector},${annotationSelector}`);
             // run grid layout on compound nodes
             if (!node.isChildless()) {
                 node.children().layout(gridLayoutOpt(node)).run();
             }
-            if (!dataProperties.empty()) {
-                dataProperties.layout(radialLayoutOpt(node)).run();
+            if (!dataPropertiesAndAnnotations.empty()) {
+                dataPropertiesAndAnnotations.layout(radialLayoutOpt(node)).run();
             }
         });
         cy.fit();
@@ -9186,7 +9362,7 @@ function getDisplayedName(data) {
         return data[EntityNameType.PREFIXED_IRI] || data.iri;
 }
 
-const { DataProperty, Class, ObjectProperty, InverseObjectProperty } = EntityTypeEnum;
+const { DataProperty, Class, ObjectProperty, InverseObjectProperty, Annotation } = EntityTypeEnum;
 var getStylesheet = (theme) => {
     return [
         {
@@ -9255,6 +9431,24 @@ var getStylesheet = (theme) => {
                 'target-arrow-color': theme.getColour(ColoursNames.object_property_contrast),
                 'source-arrow-color': theme.getColour(ColoursNames.object_property_contrast),
                 'text-max-width': '60px'
+            }
+        },
+        {
+            selector: `node[type = "${Annotation}"]`,
+            style: {
+                'shape': 'ellipse',
+                'height': 10,
+                'width': 10,
+                'background-color': theme.id === DefaultThemesEnum.GRAPHOL ? theme.getColour(ColoursNames.data_property) : '#FAAE99',
+                'border-color': theme.id === DefaultThemesEnum.GRAPHOL ? theme.getColour(ColoursNames.data_property_contrast) : '#F46036',
+            }
+        },
+        {
+            selector: `edge[type = "${Annotation}"]`,
+            style: {
+                'curve-style': 'straight',
+                'target-arrow-shape': 'none',
+                'line-color': theme.id === DefaultThemesEnum.GRAPHOL ? theme.getColour(ColoursNames.data_property_contrast) : '#F46036',
             }
         },
         {
@@ -9572,6 +9766,7 @@ QueryGraphWidget.styles = [
         left: 50%;
         top: 100%;
         transform: translate(-50%, calc(-100% - 10px));
+        pointer-events: none;
       }
 
       :host([withoutBGP]) {
@@ -9946,12 +10141,17 @@ class HeadElementComponent extends ui.BaseMixin(ui.DropPanelMixin(s)) {
             this.groupBy = newElement.groupBy;
         if (newElement.having)
             this.having = newElement.having;
-        let types = {
-            'class': 'class',
-            'objectProperty': 'object-property',
-            'dataProperty': 'data-property'
-        };
-        this.style.borderColor = `var(--gscape-color-${types[this.entityType]}-contrast)`;
+        if (this.entityType === EntityTypeEnum.Annotation) {
+            this.style.borderColor = '#F46036';
+        }
+        else {
+            let types = {
+                'class': 'class',
+                'objectProperty': 'object-property',
+                'dataProperty': 'data-property',
+            };
+            this.style.borderColor = `var(--gscape-color-${types[this.entityType]}-contrast)`;
+        }
         if (newElement.graphElementId) {
             const filtersOnVariable = getFiltersOnVariable(newElement.graphElementId);
             if (filtersOnVariable)
@@ -10453,21 +10653,46 @@ function performHighlights(iri) {
     const _iris = typeof iri === 'string' ? [iri] : iri;
     // Highlight suggestions for the actual clicked iri (might be a child node)
     clearHighlights$1();
+    highlightsList.loading = true;
     for (let iri of _iris) {
+        const grapholscape = getGscape();
         computeHighlights(iri).then(highlights => {
-            var _a, _b, _c;
-            highlightsList.allHighlights = transformHighlightsToPrefixedIRIs();
+            var _a, _b, _c, _d, _e, _f;
+            highlightsList.allHighlights = {
+                classes: ((_a = highlights.classes) === null || _a === void 0 ? void 0 : _a.map(iri => {
+                    return _getEntityViewDataUnfolding(iri, grapholscape);
+                }).filter(e => e !== undefined)) || [],
+                dataProperties: ((_b = highlights.dataProperties) === null || _b === void 0 ? void 0 : _b.map(iri => {
+                    return _getEntityViewDataUnfolding(iri, grapholscape);
+                }).filter(e => e !== undefined)) || [],
+                objectProperties: ((_c = highlights.objectProperties) === null || _c === void 0 ? void 0 : _c.map(op => {
+                    var _a;
+                    if (op.objectPropertyIRI) {
+                        const grapholEntity = grapholscape.ontology.getEntity(op.objectPropertyIRI);
+                        if (grapholEntity) {
+                            const objPropViewData = util.grapholEntityToEntityViewData(grapholEntity, grapholscape);
+                            return {
+                                entityViewData: objPropViewData,
+                                hasUnfolding: !hasEntityEmptyUnfolding(op.objectPropertyIRI, GrapholTypesEnum.OBJECT_PROPERTY),
+                                connectedClasses: ((_a = op.relatedClasses) === null || _a === void 0 ? void 0 : _a.map(rc => _getEntityViewDataUnfolding(rc, grapholscape)).filter(rc => rc !== undefined)) || [],
+                                direct: op.direct,
+                            };
+                        }
+                    }
+                }).filter(e => e !== undefined)) || [],
+            };
+            highlightsList.loading = false;
             if (!isFullPageActive()) {
                 const activeElement = getActiveElement();
                 let activeElementIris = [];
                 if (activeElement)
                     activeElementIris = getIris(activeElement === null || activeElement === void 0 ? void 0 : activeElement.graphElement);
-                (_a = highlights === null || highlights === void 0 ? void 0 : highlights.classes) === null || _a === void 0 ? void 0 : _a.forEach((iri) => {
+                (_d = highlights === null || highlights === void 0 ? void 0 : highlights.classes) === null || _d === void 0 ? void 0 : _d.forEach((iri) => {
                     if (!activeElement || !activeElementIris.includes(iri))
                         highlightIRI(iri);
                 });
-                (_b = highlights === null || highlights === void 0 ? void 0 : highlights.dataProperties) === null || _b === void 0 ? void 0 : _b.forEach((iri) => highlightIRI(iri));
-                (_c = highlights === null || highlights === void 0 ? void 0 : highlights.objectProperties) === null || _c === void 0 ? void 0 : _c.forEach((o) => highlightIRI(o.objectPropertyIRI));
+                (_e = highlights === null || highlights === void 0 ? void 0 : highlights.dataProperties) === null || _e === void 0 ? void 0 : _e.forEach((iri) => highlightIRI(iri));
+                (_f = highlights === null || highlights === void 0 ? void 0 : highlights.objectProperties) === null || _f === void 0 ? void 0 : _f.forEach((o) => highlightIRI(o.objectPropertyIRI));
                 fadeEntitiesNotHighlighted();
             }
         });
@@ -10490,6 +10715,11 @@ function performHighlightsEmptyUnfolding() {
     for (const mwsEntity of getEmptyUnfoldingEntities()) {
         fadeEntity(mwsEntity.entityIRI);
     }
+}
+function _getEntityViewDataUnfolding(entityIri, grapholscape) {
+    const grapholEntity = grapholscape.ontology.getEntity(entityIri);
+    if (grapholEntity)
+        return util.getEntityViewDataUnfolding(grapholEntity, grapholscape, (iri, type) => !hasEntityEmptyUnfolding(iri, type));
 }
 
 function onNewBody(newBody) {
@@ -10702,6 +10932,29 @@ function stopLoading() {
     }
 }
 
+let _requestOptions = {
+    basePath: undefined,
+    version: undefined,
+    headers: undefined,
+    name: undefined,
+};
+function setRequestOptions(requestOptions) {
+    _requestOptions = requestOptions;
+}
+function getBasePath() { return _requestOptions.basePath; }
+function getVersion() { return _requestOptions.version; }
+function getName() { return _requestOptions.name; }
+function getRequestOptions() {
+    // { params: { version: 'version' }, headers: { "x-monolith-session-id": '0de2de0a-af44-4046-a91b-46b10394f068', 'Access-Control-Allow-Origin': '*', } }
+    return {
+        params: { version: _requestOptions.version },
+        headers: _requestOptions.headers,
+    };
+}
+function isStandalone() {
+    return _requestOptions.basePath ? false : true;
+}
+
 var EndpointStatusEnum;
 (function (EndpointStatusEnum) {
     EndpointStatusEnum["RUNNNING"] = "RUNNING";
@@ -10720,41 +10973,6 @@ let emtpyUnfoldingEntities = {
     emptyUnfoldingDataProperties: [],
     emptyUnfoldingObjectProperties: []
 };
-// let emtpyUnfoldingEntities: EmptyUnfoldingEntities = {
-//   emptyUnfoldingClasses: [{
-//     entityID: '',
-//     entityIri: 'http://www.obdasystems.com/books/Edition',
-//     entityType: 'dp',
-//     entityPrefixIri: ':Edition',
-//     entityRemainder: 'Edition'
-//   }],
-//   emptyUnfoldingDataProperties: [{
-//     entityID: '',
-//     entityIri: 'http://www.obdasystems.com/books/title',
-//     entityType: 'dp',
-//     entityPrefixIri: ':title',
-//     entityRemainder: 'title'
-//   }],
-//   emptyUnfoldingObjectProperties: [{
-//     entityID: '',
-//     entityIri: 'http://www.obdasystems.com/books/hasEdition',
-//     entityType: 'dp',
-//     entityPrefixIri: ':hasEdition',
-//     entityRemainder: 'hasEdition'
-//   }]
-// }
-// export async function getFirstActiveEndpoint(): Promise<MastroEndpoint | undefined> {
-//   if (isStandalone()) return
-//   if (endpoints.length > 0) {
-//     for (let i = 0; i < endpoints.length; i++) {
-//       if (await isEndpointRunning(endpoints[i])) {
-//         return endpoints.find(endpoint => JSON.stringify(endpoint.mastroID) === JSON.stringify(endpoints[i].mastroID))
-//       }
-//     }
-//   }
-//   await updateEndpoints()
-//   return endpoints[0]
-// }
 function getEndpoints() {
     return endpoints.sort((a, b) => a.name.localeCompare(b.name));
 }
@@ -10813,7 +11031,6 @@ function updateEntitiesEmptyUnfoldings() {
             Object.assign(mwsEmptyUnfoldingRequestOptions, getRequestOptions());
             yield handlePromise(globalAxios.request(mwsEmptyUnfoldingRequestOptions)).then(emptyUnfoldings => {
                 emtpyUnfoldingEntities = emptyUnfoldings;
-                console.log(emptyUnfoldings);
             });
         }
     });
@@ -10821,14 +11038,17 @@ function updateEntitiesEmptyUnfoldings() {
 function hasEntityEmptyUnfolding(entityIri, entityType) {
     let arrToCheck = [];
     switch (entityType) {
+        case GrapholTypesEnum.CLASS:
         case EntityTypeEnum.Class: {
             arrToCheck = arrToCheck.concat(...emtpyUnfoldingEntities.emptyUnfoldingClasses);
             break;
         }
+        case GrapholTypesEnum.DATA_PROPERTY:
         case EntityTypeEnum.DataProperty: {
             arrToCheck = arrToCheck.concat(...emtpyUnfoldingEntities.emptyUnfoldingDataProperties);
             break;
         }
+        case GrapholTypesEnum.OBJECT_PROPERTY:
         case EntityTypeEnum.ObjectProperty:
         case EntityTypeEnum.InverseObjectProperty: {
             arrToCheck = arrToCheck.concat(...emtpyUnfoldingEntities.emptyUnfoldingObjectProperties);
@@ -10854,6 +11074,86 @@ function getEmptyUnfoldingEntities(type) {
         default:
             return new Array().concat(...emtpyUnfoldingEntities.emptyUnfoldingClasses, ...emtpyUnfoldingEntities.emptyUnfoldingDataProperties, ...emtpyUnfoldingEntities.emptyUnfoldingObjectProperties);
     }
+}
+function clearEndpoints() {
+    endpoints = [];
+    selectedEndpoint = undefined;
+    emtpyUnfoldingEntities = {
+        emptyUnfoldingClasses: [],
+        emptyUnfoldingDataProperties: [],
+        emptyUnfoldingObjectProperties: [],
+    };
+}
+
+let loading;
+let numberLoadingProcesses = 0;
+function increaseLoadingProcesses() {
+    numberLoadingProcesses += 1;
+}
+function decreaseLoadingProcesses() {
+    numberLoadingProcesses -= 1;
+}
+function getNumberLoadingProcesses() {
+    return numberLoadingProcesses;
+}
+function isLoading() { return loading; }
+function setLoading(value) {
+    loading = value;
+}
+function clearLoadingState() {
+    loading = false;
+    numberLoadingProcesses = 0;
+}
+
+let body;
+let activeElement;
+// map GraphElementId+IRI -> EntityOccurrence: { OriginGrapholNodeID, diagramId }
+// Use iri to distinguish children of a GraphElement
+const originGrapholNodes = new Map();
+function setQueryBody(newBody) {
+    body = newBody;
+    return body;
+}
+function setActiveElement(newActiveElement) {
+    activeElement = newActiveElement;
+}
+function getActiveElement() { return activeElement; }
+function getQueryBody() { return body; }
+function getOriginGrapholNodes() {
+    return originGrapholNodes;
+}
+function getTempQueryBody() {
+    return JSON.parse(JSON.stringify(body));
+}
+function getHeadElementByID(headElementId, queryBody = body) {
+    var _a;
+    return (_a = queryBody === null || queryBody === void 0 ? void 0 : queryBody.head) === null || _a === void 0 ? void 0 : _a.find(headElement => headElement.id === headElementId);
+}
+function isCountStarActive() {
+    return (body === null || body === void 0 ? void 0 : body.count_star) || false;
+}
+function isDistinctActive() {
+    return (body === null || body === void 0 ? void 0 : body.distinct) || false;
+}
+
+function getFilterById(filterId) {
+    const body = getQueryBody();
+    if (body.filters) {
+        return body.filters[filterId];
+    }
+}
+function getFiltersOnVariable(variable) {
+    var _a;
+    const body = getQueryBody();
+    let filters = (_a = body === null || body === void 0 ? void 0 : body.filters) === null || _a === void 0 ? void 0 : _a.map((filter, index) => {
+        return { id: index, value: filter };
+    });
+    return filters === null || filters === void 0 ? void 0 : filters.filter(f => {
+        var _a;
+        if ((_a = f.value.expression) === null || _a === void 0 ? void 0 : _a.parameters)
+            return f.value.expression.parameters[0].type === VarOrConstantTypeEnum.Var &&
+                f.value.expression.parameters[0].value === variable;
+    });
 }
 
 function getPrefixedIri (iriValue) {
@@ -10895,19 +11195,6 @@ function computeHighlights(iri) {
     });
 }
 function getActualHighlights() { return actualHighlights; }
-function transformHighlightsToPrefixedIRIs() {
-    var _a, _b, _c;
-    let transformedHighlights = JSON.parse(JSON.stringify(actualHighlights));
-    transformedHighlights.classes = (_a = transformedHighlights.classes) === null || _a === void 0 ? void 0 : _a.map(iri => getPrefixedIri(iri));
-    transformedHighlights.dataProperties = (_b = transformedHighlights.dataProperties) === null || _b === void 0 ? void 0 : _b.map(iri => getPrefixedIri(iri));
-    transformedHighlights.objectProperties = (_c = transformedHighlights.objectProperties) === null || _c === void 0 ? void 0 : _c.map(branch => {
-        var _a;
-        branch.objectPropertyIRI = getPrefixedIri(branch.objectPropertyIRI || '');
-        branch.relatedClasses = (_a = branch.relatedClasses) === null || _a === void 0 ? void 0 : _a.map(iri => getPrefixedIri(iri));
-        return branch;
-    });
-    return transformedHighlights;
-}
 function isIriHighlighted(iri) {
     var _a, _b, _c;
     return ((_a = actualHighlights === null || actualHighlights === void 0 ? void 0 : actualHighlights.classes) === null || _a === void 0 ? void 0 : _a.includes(iri)) ||
@@ -10916,17 +11203,6 @@ function isIriHighlighted(iri) {
 }
 function clearHighlights() {
     actualHighlights = undefined;
-}
-
-let config = {};
-function setConfig(newConfig = {}) {
-    config = newConfig;
-}
-function getConfig(configEntry) {
-    return configEntry && config ? config[configEntry] : config;
-}
-function isConfigEnabled(configEntry) {
-    return config[configEntry] !== false;
 }
 
 let file;
@@ -10966,6 +11242,23 @@ function setQueryDirtyState(isDirty) {
 }
 function isQueryDirty() {
     return _isQueryDirty;
+}
+function clear() {
+    clearConfig();
+    clearEndpoints();
+    setQueryBody({
+        head: [],
+        graph: null,
+        sparql: ''
+    });
+    setActiveElement(undefined);
+    clearLoadingState();
+    setRequestOptions({
+        basePath: undefined,
+        version: undefined,
+        headers: undefined,
+        name: undefined,
+    });
 }
 
 function showUI() {
@@ -11386,7 +11679,7 @@ function startFullpage() {
     widget.withoutBGP = true;
     grapholscape.renderer.cy = cy;
     const queryBody = getQueryBody();
-    if (!queryBody || !queryBody.graph) {
+    if (!queryBody || !queryBody.graph || !queryBody.graph.id) {
         // show class selector
         initClassSelector();
         classSelector.show();
@@ -11437,9 +11730,15 @@ function init() {
         addStylesheet(gscape.renderer.cy, sparqlingStyle(gscape.theme));
     if (gscape.renderer.cy && gscape.renderState !== RendererStatesEnum.INCREMENTAL)
         setHandlers(gscape.renderer.cy);
-    gscape.on(LifecycleEvent.LanguageChange, (newLanguage) => setLanguage(newLanguage));
+    gscape.on(LifecycleEvent.LanguageChange, (newLanguage) => {
+        setLanguage(newLanguage);
+        if (gscape.entityNameType === EntityNameType.LABEL) {
+            updateSuggestionsDisplayedNames();
+        }
+    });
     gscape.on(LifecycleEvent.EntityNameTypeChange, (newNameType) => {
         setDisplayedNameType(newNameType, gscape.language);
+        updateSuggestionsDisplayedNames();
     });
     gscape.on(LifecycleEvent.ThemeChange, (newTheme) => {
         setTheme(newTheme);
@@ -11448,6 +11747,19 @@ function init() {
     });
     gscape.on(LifecycleEvent.DiagramChange, () => onChangeDiagramOrRenderer(gscape));
     gscape.on(LifecycleEvent.RendererChange, () => onChangeDiagramOrRenderer(gscape));
+    function updateSuggestionsDisplayedNames() {
+        const updateDisplayedName = (entity) => {
+            const grapholEntity = gscape.ontology.getEntity(entity.entityViewData.value.iri.fullIri);
+            if (grapholEntity)
+                entity.entityViewData.displayedName = grapholEntity.getDisplayedName(gscape.entityNameType, gscape.language);
+        };
+        if (highlightsList.allHighlights) {
+            highlightsList.allHighlights.classes.forEach(c => updateDisplayedName(c));
+            highlightsList.allHighlights.dataProperties.forEach(dp => updateDisplayedName(dp));
+            highlightsList.allHighlights.objectProperties.forEach(op => updateDisplayedName(op));
+            highlightsList.requestUpdate();
+        }
+    }
 }
 function onChangeDiagramOrRenderer(gscape) {
     if (isFullPageActive()) {
@@ -11481,7 +11793,7 @@ function setHandlers(cy) {
             const msgSpan = document.createElement('span');
             msgSpan.innerHTML = emptyUnfoldingEntityTooltip();
             cxtMenu.attachTo(popperRef, undefined, [msgSpan]);
-            setTimeout(() => cxtMenu.tippyMenu.hide(), 1000);
+            setTimeout(() => cxtMenu.tippyWidget.hide(), 1000);
         }
     });
     cy.on('mouseout', objPropertiesSelector, e => {
@@ -11568,6 +11880,7 @@ function handleObjectPropertySelection(branch, relatedClassEntityOccurrence) {
         handleEntitySelection(relatedClassCyElement.data().iri, relatedClassCyElement.data().type, relatedClassEntityOccurrence);
 }
 function handleConceptSelection(cyEntity) {
+    var _a, _b, _c;
     return __awaiter(this, void 0, void 0, function* () {
         const qgBGPApi = new QueryGraphBGPApi(undefined, getBasePath());
         const clickedIRI = typeof cyEntity === 'string' ? cyEntity : cyEntity.data().iri;
@@ -11579,9 +11892,9 @@ function handleConceptSelection(cyEntity) {
          * it's not connected to a objectProperty
          * and it's not already in the queryGraph, then skip this click
          */
-        if ((actualBody === null || actualBody === void 0 ? void 0 : actualBody.graph) && !isIriHighlighted(clickedIRI) && !lastObjProperty && !isIriInQueryGraph(clickedIRI)) {
+        if (((_a = actualBody.graph) === null || _a === void 0 ? void 0 : _a.id) && !isIriHighlighted(clickedIRI) && !lastObjProperty && !isIriInQueryGraph(clickedIRI)) {
             //cyEntity.unselect()
-            console.log('selection ignored for class ' + clickedIRI);
+            console.warn('selection ignored for class ' + clickedIRI);
             return newQueryGraph; // empty promise
         }
         let activeElement = getActiveElement();
@@ -11589,10 +11902,10 @@ function handleConceptSelection(cyEntity) {
             // this comes after a selection of a object property
             newQueryGraph = handlePromise(qgBGPApi.putQueryGraphObjectProperty(activeElement.graphElement.id, "", lastObjProperty.objectPropertyIRI, clickedIRI, lastObjProperty.direct || false, actualBody, getRequestOptions()));
         }
-        else if ((actualBody === null || actualBody === void 0 ? void 0 : actualBody.graph) && isIriHighlighted(clickedIRI) && (activeElement === null || activeElement === void 0 ? void 0 : activeElement.graphElement.id)) {
+        else if (((_b = actualBody.graph) === null || _b === void 0 ? void 0 : _b.id) && isIriHighlighted(clickedIRI) && (activeElement === null || activeElement === void 0 ? void 0 : activeElement.graphElement.id)) {
             newQueryGraph = handlePromise(qgBGPApi.putQueryGraphClass(activeElement.graphElement.id, '', clickedIRI, actualBody, getRequestOptions()));
         }
-        else if (!(actualBody === null || actualBody === void 0 ? void 0 : actualBody.graph)) {
+        else if (!((_c = actualBody.graph) === null || _c === void 0 ? void 0 : _c.id)) {
             // initial selection
             const tempNewQueryGraph = yield handlePromise(qgBGPApi.getQueryGraph(clickedIRI, getRequestOptions()));
             const qgExtraApi = new QueryGraphExtraApi(undefined, getBasePath());
@@ -11672,14 +11985,11 @@ function showFormDialog (element, formDialog) {
             constantType: undefined,
             value: graphElement.id
         }];
-    formDialog.datatypeFromOntology = (_a = getGscape().ontology.getEntity(graphElementIri)) === null || _a === void 0 ? void 0 : _a.datatype;
-    formDialog.addInputValue(); // default with one input
-    if (formDialog instanceof FunctionDialog) {
-        formDialog.setDefaultOperator();
-    }
-    if (formDialog instanceof FilterDialog || formDialog instanceof AggregationDialog) {
-        formDialog.operator = FilterExpressionOperatorEnum.Equal;
-    }
+    formDialog.datatypeFromOntology =
+        getEntityType(graphElement) === EntityTypeEnum.Annotation
+            ? 'xsd:string'
+            : (_a = getGscape().ontology.getEntity(graphElementIri)) === null || _a === void 0 ? void 0 : _a.datatype;
+    formDialog.setDefaultOperator();
     formDialog.variableName = variableName || graphElement.id;
     formDialog.examples = undefined;
     formDialog.acceptExamples = !isStandalone() && (isClass(graphElement) || isDataProperty(graphElement));
@@ -11874,7 +12184,15 @@ onShowExamples(graphElement => {
     }
 });
 widget.onSparqlButtonClick = () => sparqlDialog.isVisible ? sparqlDialog.hide() : sparqlDialog.show();
-widget.onQueryClear = () => { clearQuery(); };
+widget.onQueryClear = () => {
+    var _a;
+    const confirmDialog = new ui.GscapeConfirmDialog();
+    confirmDialog.message = 'Are you sure to reset the query?';
+    confirmDialog.onConfirm = () => clearQuery();
+    confirmDialog.onCancel = () => confirmDialog.remove();
+    (_a = getGscape().container.querySelector('.gscape-ui')) === null || _a === void 0 ? void 0 : _a.appendChild(confirmDialog);
+    confirmDialog.show();
+};
 widget.onFullScreenEnter = () => {
     bgpContainer.requestFullscreen().then(() => setTimeout(() => cy.fit(), 200));
     bgpContainer.appendChild(exitFullscreenButton);
@@ -11892,9 +12210,16 @@ filterDialog.onSubmit((id, op, params) => __awaiter(void 0, void 0, void 0, func
     const newFilter = {
         expression: {
             operator: op,
-            parameters: params
+            parameters: JSON.parse(JSON.stringify(params))
         }
     };
+    if (op === FilterExpressionOperatorEnum.Regex) {
+        newFilter.expression.parameters.push({
+            value: filterDialog.isCaseSensitive ? "" : "i",
+            type: VarOrConstantTypeEnum.Constant,
+            constantType: VarOrConstantConstantTypeEnum.String
+        });
+    }
     // Perform edits on a dummy query body in order to preserve the actual working one
     // The new data will be saved on service correct response
     const tempQueryBody = getTempQueryBody();
@@ -11943,14 +12268,26 @@ function deleteFilter(filterId) {
     });
 }
 function showFilterDialogEditingMode(filterId) {
-    var _a, _b, _c;
+    var _a, _b, _c, _d;
     const filter = getFilterById(filterId);
     if (filter) {
         filterDialog.modality = Modality.EDIT;
         filterDialog._id = filterId;
         filterDialog.operator = (_a = filter.expression) === null || _a === void 0 ? void 0 : _a.operator;
-        filterDialog.parameters = (_b = filter.expression) === null || _b === void 0 ? void 0 : _b.parameters;
-        filterDialog.parametersType = ((_c = filter.expression) === null || _c === void 0 ? void 0 : _c.parameters) ? filter.expression.parameters[1].type : undefined;
+        let parameters;
+        // in case of regex, last parameter is about flags, add them but not as parameter
+        // leave them in filter object => copy parameters with JSON.parse(JSON.stringify(...))
+        // from this copy remove last parameter so it won't be shown as value in the form
+        if (((_b = filter.expression) === null || _b === void 0 ? void 0 : _b.parameters) && filter.expression.operator === FilterExpressionOperatorEnum.Regex) {
+            parameters = JSON.parse(JSON.stringify((_c = filter.expression) === null || _c === void 0 ? void 0 : _c.parameters));
+            if (parameters && parameters[2]) {
+                if (filterDialog.caseSensitiveCheckbox)
+                    filterDialog.caseSensitiveCheckbox.checked = parameters[2].value !== "i";
+                parameters.splice(2);
+            }
+        }
+        filterDialog.parameters = parameters;
+        filterDialog.parametersType = ((_d = filter.expression) === null || _d === void 0 ? void 0 : _d.parameters) ? filter.expression.parameters[1].type : undefined;
         filterDialog.show();
         filterListDialog.hide();
     }
@@ -12180,6 +12517,22 @@ functionDialog.onSeeExamples((variable) => __awaiter(void 0, void 0, void 0, fun
     }
 }));
 
+function addAnnotation(annotationKind) {
+    return __awaiter(this, void 0, void 0, function* () {
+        if (annotationKind !== AnnotationsKind.label && annotationKind !== AnnotationsKind.comment) {
+            console.warn(`Annotations of kind [${annotationKind}] are not supported yet.`);
+            return;
+        }
+        const qgBGPApi = new QueryGraphBGPApi(undefined, getBasePath());
+        const activeElement = getActiveElement();
+        if (activeElement === null || activeElement === void 0 ? void 0 : activeElement.graphElement.id) {
+            const newQueryBody = yield handlePromise(qgBGPApi.putQueryGraphAnnotation(activeElement.graphElement.id, '', `http://www.w3.org/2000/01/rdf-schema#${annotationKind}`, getQueryBody(), getRequestOptions()));
+            if (newQueryBody)
+                onNewBody(newQueryBody);
+        }
+    });
+}
+
 highlightsList.onSuggestionLocalization((entityIri) => {
     if (!isFullPageActive())
         getGscape().centerOnEntity(entityIri);
@@ -12187,14 +12540,13 @@ highlightsList.onSuggestionLocalization((entityIri) => {
 highlightsList.onSuggestionAddToQuery((entityIri, entityType, relatedClass) => {
     var _a, _b;
     switch (entityType) {
-        case EntityTypeEnum.Class:
-        case EntityTypeEnum.DataProperty:
-            const grapholEntityType = entityType === EntityTypeEnum.Class ? GrapholTypesEnum.CLASS : GrapholTypesEnum.DATA_PROPERTY;
+        case GrapholTypesEnum.CLASS:
+        case GrapholTypesEnum.DATA_PROPERTY:
             const entityOccurrence = getEntityOccurrence(entityIri);
             if (entityOccurrence)
-                handleEntitySelection(getGscape().ontology.prefixedToFullIri(entityIri) || entityIri, grapholEntityType, entityOccurrence);
+                handleEntitySelection(entityIri, entityType, entityOccurrence);
             break;
-        case EntityTypeEnum.ObjectProperty:
+        case GrapholTypesEnum.OBJECT_PROPERTY:
             if (relatedClass) {
                 const objectPropertyBranch = (_b = (_a = getActualHighlights()) === null || _a === void 0 ? void 0 : _a.objectProperties) === null || _b === void 0 ? void 0 : _b.find((b) => {
                     if (b.objectPropertyIRI)
@@ -12207,6 +12559,8 @@ highlightsList.onSuggestionAddToQuery((entityIri, entityType, relatedClass) => {
             }
     }
 });
+highlightsList.onAddLabel(() => addAnnotation(AnnotationsKind.label));
+highlightsList.onAddComment(() => addAnnotation(AnnotationsKind.comment));
 
 classSelector.onClassSelection((classIri) => __awaiter(void 0, void 0, void 0, function* () {
     if (hasEntityEmptyUnfolding(classIri, EntityTypeEnum.Class))
@@ -12272,6 +12626,7 @@ function showInitialModeSelector() {
  * @returns a core object, see ./core.ts
  */
 function sparqlingStandalone(gscape, file) {
+    clear();
     const sparqlingCore = getCore(gscape, file);
     showInitialModeSelector();
     return sparqlingCore;
@@ -12279,6 +12634,7 @@ function sparqlingStandalone(gscape, file) {
 function sparqling(gscape, file, requestOptions, useOntologyGraph = true, config) {
     var _a, _b;
     return __awaiter(this, void 0, void 0, function* () {
+        clear();
         setConfig(config);
         if (gscape.renderState === RendererStatesEnum.INCREMENTAL) {
             gscape.widgets.get(ui.WidgetEnum.ENTITY_SELECTOR).hide();
