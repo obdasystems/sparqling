@@ -61,45 +61,6 @@ let emtpyUnfoldingEntities: EmptyUnfoldingEntities = {
   emptyUnfoldingDataProperties: [],
   emptyUnfoldingObjectProperties: []
 }
-// let emtpyUnfoldingEntities: EmptyUnfoldingEntities = {
-//   emptyUnfoldingClasses: [{
-//     entityID: '',
-//     entityIri: 'http://www.obdasystems.com/books/Edition',
-//     entityType: 'dp',
-//     entityPrefixIri: ':Edition',
-//     entityRemainder: 'Edition'
-//   }],
-//   emptyUnfoldingDataProperties: [{
-//     entityID: '',
-//     entityIri: 'http://www.obdasystems.com/books/title',
-//     entityType: 'dp',
-//     entityPrefixIri: ':title',
-//     entityRemainder: 'title'
-//   }],
-//   emptyUnfoldingObjectProperties: [{
-//     entityID: '',
-//     entityIri: 'http://www.obdasystems.com/books/hasEdition',
-//     entityType: 'dp',
-//     entityPrefixIri: ':hasEdition',
-//     entityRemainder: 'hasEdition'
-//   }]
-// }
-
-// export async function getFirstActiveEndpoint(): Promise<MastroEndpoint | undefined> {
-//   if (isStandalone()) return
-
-//   if (endpoints.length > 0) {
-//     for (let i = 0; i < endpoints.length; i++) {
-//       if (await isEndpointRunning(endpoints[i])) {
-//         return endpoints.find(endpoint => JSON.stringify(endpoint.mastroID) === JSON.stringify(endpoints[i].mastroID))
-//       }
-//     }
-//   }
-
-//   await updateEndpoints()
-
-//   return endpoints[0]
-// }
 
 export function getEndpoints(): MastroEndpoint[] {
   return endpoints.sort((a, b) => a.name.localeCompare(b.name))
@@ -188,7 +149,7 @@ export function hasEntityEmptyUnfolding(entityIri: string, entityType?: EntityTy
       break
     }
 
-    case GrapholTypesEnum.DATATYPE_RESTRICTION:
+    case GrapholTypesEnum.DATA_PROPERTY:
     case EntityTypeEnum.DataProperty: {
       arrToCheck = arrToCheck.concat(...emtpyUnfoldingEntities.emptyUnfoldingDataProperties)
       break

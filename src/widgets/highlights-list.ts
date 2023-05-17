@@ -260,13 +260,14 @@ export default class HighlightsList extends ui.DropPanelMixin(ui.BaseMixin(LitEl
   }
 
   private getObjectPropertySuggestionTemplate(objectProperty: ui.ViewObjectPropertyUnfolding) {
+    const disabled = objectProperty.hasUnfolding === false
     return html`
       <gscape-entity-list-item
         displayedname=${objectProperty.entityViewData.displayedName}
         iri=${objectProperty.entityViewData.value.iri.fullIri}
         type=${objectProperty.entityViewData.value.type}
         ?asaccordion=${true}
-        ?disabled=${objectProperty.hasUnfolding}
+        ?disabled=${disabled}
         direct=${objectProperty.direct}
         title=${objectProperty.hasUnfolding ? objectProperty.entityViewData.displayedName : emptyUnfoldingEntityTooltip()}
       >
@@ -275,10 +276,11 @@ export default class HighlightsList extends ui.DropPanelMixin(ui.BaseMixin(LitEl
             connectedClass, 
             (e) => this.handleAddToQueryClick(
               e, 
-              connectedClass.entityViewData.value.iri.fullIri, 
-              GrapholTypesEnum.OBJECT_PROPERTY, 
+              connectedClass.entityViewData.value.iri.fullIri,
+              GrapholTypesEnum.OBJECT_PROPERTY,
               objectProperty.entityViewData.value.iri.fullIri
-              )
+            ),
+            disabled
             ))}
         </div>
 
@@ -311,12 +313,14 @@ export default class HighlightsList extends ui.DropPanelMixin(ui.BaseMixin(LitEl
     `
   }
 
-  private getEntitySuggestionTemplate(entity: ui.EntityViewDataUnfolding, customCallback?: (e: MouseEvent) => void) {
+  private getEntitySuggestionTemplate(entity: ui.EntityViewDataUnfolding, customCallback?: (e: MouseEvent) => void, forceDisabled = false) {
+    const disabled = forceDisabled || entity.hasUnfolding === false
     return html`
       <gscape-entity-list-item
         displayedname=${entity.entityViewData.displayedName}
         iri=${entity.entityViewData.value.iri}
         type=${entity.entityViewData.value.type}
+        ?disabled=${disabled}
         title=${entity.hasUnfolding ? entity.entityViewData.displayedName : emptyUnfoldingEntityTooltip()}
       >
         <div slot="trailing-element" class="actions">
@@ -335,19 +339,24 @@ export default class HighlightsList extends ui.DropPanelMixin(ui.BaseMixin(LitEl
             `
             : null
           }
-          <gscape-button
-            title="Add to query"
-            size="s"
-            type="subtle"
-            @click=${(e: MouseEvent) => {
-              if (customCallback)
-                customCallback(e)
-              else
-                this.handleAddToQueryClick(e, entity.entityViewData.value.iri.fullIri, entity.entityViewData.value.type)
-            }}
-          >
-            <span slot='icon' class="slotted-icon">${ui.icons.insertInGraph}</span>
-          </gscape-button>
+          ${!disabled
+            ? html`
+              <gscape-button
+                title="Add to query"
+                size="s"
+                type="subtle"
+                @click=${(e: MouseEvent) => {
+                  if (customCallback)
+                    customCallback(e)
+                  else
+                    this.handleAddToQueryClick(e, entity.entityViewData.value.iri.fullIri, entity.entityViewData.value.type)
+                }}
+              >
+                <span slot='icon' class="slotted-icon">${ui.icons.insertInGraph}</span>
+              </gscape-button>
+            `
+            : null
+          }
         </div>
       </gscape-entity-list-item>
     `

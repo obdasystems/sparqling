@@ -31,7 +31,7 @@ export function performHighlights(iri: string | string[]) {
               const objPropViewData = util.grapholEntityToEntityViewData(grapholEntity, grapholscape)
               return {
                 entityViewData: objPropViewData,
-                hasUnfolding: hasEntityEmptyUnfolding(op.objectPropertyIRI, GrapholTypesEnum.OBJECT_PROPERTY),
+                hasUnfolding: !hasEntityEmptyUnfolding(op.objectPropertyIRI, GrapholTypesEnum.OBJECT_PROPERTY),
                 connectedClasses: op.relatedClasses
                   ?.map(rc => _getEntityViewDataUnfolding(rc, grapholscape))
                   .filter(rc => rc !== undefined) as ui.EntityViewDataUnfolding[] || [],
@@ -89,5 +89,5 @@ export function performHighlightsEmptyUnfolding() {
 function _getEntityViewDataUnfolding(entityIri: string, grapholscape: Grapholscape) {
   const grapholEntity = grapholscape.ontology.getEntity(entityIri)
   if (grapholEntity)
-    return util.getEntityViewDataUnfolding(grapholEntity, grapholscape, hasEntityEmptyUnfolding)
+    return util.getEntityViewDataUnfolding(grapholEntity, grapholscape, (iri, type) => !hasEntityEmptyUnfolding(iri, type))
 }
