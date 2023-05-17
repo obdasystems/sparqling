@@ -60,6 +60,6 @@
     "tippy.js": "^6.3.7"
   },
   "peerDependencies": {
-    "grapholscape": "^3.2.1"
+    "grapholscape": "^3.2.5"
   }
 }
