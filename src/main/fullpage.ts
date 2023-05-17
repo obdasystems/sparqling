@@ -40,7 +40,7 @@ export function startFullpage() {
 
   const queryBody = getQueryBody()
 
-  if (!queryBody || !queryBody.graph) {
+  if (!queryBody || !queryBody.graph || !queryBody.graph.id) {
     // show class selector
     initClassSelector()
     classSelector.show()

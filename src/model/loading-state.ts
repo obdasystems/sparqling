@@ -19,3 +19,8 @@ export function isLoading() { return loading }
 export function setLoading(value: boolean) {
   loading = value
 }
+
+export function clearLoadingState() {
+  loading = false
+  numberLoadingProcesses = 0
+}

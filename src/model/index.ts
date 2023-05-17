@@ -1,3 +1,9 @@
+import { clearConfig } from './config'
+import { clearEndpoints } from './endpoints'
+import { clearLoadingState } from './loading-state'
+import { setActiveElement, setQueryBody } from './query-body'
+import { setRequestOptions } from './request-options'
+
 export * from './query-body'
 export * from './filters'
 export * from './request-options'
@@ -54,4 +60,22 @@ export function setQueryDirtyState(isDirty: boolean) {
 
 export function isQueryDirty() {
   return _isQueryDirty
+}
+
+export function clear() {
+  clearConfig()
+  clearEndpoints()
+  setQueryBody({
+    head: [],
+    graph: null as any,
+    sparql: ''
+  })
+  setActiveElement(undefined)
+  clearLoadingState()
+  setRequestOptions({
+    basePath: undefined,
+    version: undefined,
+    headers: undefined,
+    name: undefined,
+  })
 }

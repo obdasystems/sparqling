@@ -105,9 +105,9 @@ export async function handleConceptSelection(cyEntity: CollectionReturnValue | s
    * it's not connected to a objectProperty 
    * and it's not already in the queryGraph, then skip this click
    */
-  if (actualBody?.graph && !isIriHighlighted(clickedIRI) && !lastObjProperty && !isIriInQueryGraph(clickedIRI)) {
+  if (actualBody.graph?.id && !isIriHighlighted(clickedIRI) && !lastObjProperty && !isIriInQueryGraph(clickedIRI)) {
     //cyEntity.unselect()
-    console.log('selection ignored for class ' + clickedIRI)
+    console.warn('selection ignored for class ' + clickedIRI)
     return newQueryGraph // empty promise
   }
 
@@ -121,12 +121,12 @@ export async function handleConceptSelection(cyEntity: CollectionReturnValue | s
       actualBody, model.getRequestOptions()
     ))
 
-  } else if (actualBody?.graph && isIriHighlighted(clickedIRI) && activeElement?.graphElement.id) {
+  } else if (actualBody.graph?.id && isIriHighlighted(clickedIRI) && activeElement?.graphElement.id) {
     newQueryGraph = handlePromise(qgBGPApi.putQueryGraphClass(
       activeElement.graphElement.id, '',
       clickedIRI,
       actualBody, model.getRequestOptions()))
-  } else if (!actualBody?.graph) {
+  } else if (!actualBody.graph?.id) {
     // initial selection
     const tempNewQueryGraph = await handlePromise(qgBGPApi.getQueryGraph(clickedIRI, model.getRequestOptions()))
     const qgExtraApi = new QueryGraphExtraApi(undefined, model.getBasePath())

@@ -197,3 +197,13 @@ export function getEmptyUnfoldingEntities(type?: EntityTypeEnum) {
       )
   }
 }
+
+export function clearEndpoints() {
+  endpoints = []
+  selectedEndpoint = undefined
+  emtpyUnfoldingEntities = {
+    emptyUnfoldingClasses: [],
+    emptyUnfoldingDataProperties: [],
+    emptyUnfoldingObjectProperties: [],
+  }
+}
