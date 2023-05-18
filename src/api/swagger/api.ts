@@ -247,7 +247,7 @@ export const GroupByElementAggregateFunctionEnum = {
     Sum: 'sum',
     Min: 'min',
     Max: 'max',
-    Avarage: 'avarage'
+    Average: 'average'
 } as const;
 
 export type GroupByElementAggregateFunctionEnum = typeof GroupByElementAggregateFunctionEnum[keyof typeof GroupByElementAggregateFunctionEnum];
@@ -340,10 +340,10 @@ export interface Highlights {
 export interface OntologyPath {
     /**
      * Starts with lastSelectedIRI and ends with clickedIRI. In between the nodes and edges traversed in the path (ISA edge are marked as ISA)
-     * @type {Array<string>}
+     * @type {Array<Entity>}
      * @memberof OntologyPath
      */
-    'entities'?: Array<string>;
+    'entities'?: Array<Entity>;
 }
 /**
  * 
