@@ -1,6 +1,6 @@
 {
   "name": "sparqling",
-  "version": "1.3.3",
+  "version": "1.3.3-snap.2",
   "description": "",
   "main": "dist/sparqling.esm.js",
   "module": "dist/sparqling.esm.js",
@@ -15,7 +15,8 @@
     "apigen": "openapi-generator-cli generate -g typescript-axios -o ./src/api/swagger -i https://api.swaggerhub.com/apis/OBDASystems/swagger-sparqling_ws/1.0.3",
     "inject-grapholscape": "cpy ./node_modules/grapholscape/dist/grapholscape.min.js ./public/js --flat",
     "clean": "rimraf ./dist ./public/js/sparqling*.js",
-    "version": "npm run build && git add -A"
+    "version": "npm run build && git add -A",
+    "snapshot": "npm version prerelease --no-git-tag --preid=snap"
   },
   "repository": {
     "type": "git",

@@ -80,6 +80,7 @@ The Sparqling core object expose the following API:
 - **`inject-grapholscape`**: copy `./node_modules/grapholscape/dist/grapholscape.min.js` build into `./public/js` for the web-app to work
 - **`clean`**: clean generated sparqling files in `./dist` and `./public/js`
 - **`version`**: build and tag a new release version
+- **`snapshot`**: build a snapshot prerelease version to be published with tag `snapshot` for testing
 
 
 ## Release a new version
@@ -90,6 +91,10 @@ The Sparqling core object expose the following API:
 4. Push the new release: `git push && git push --tags"`
 5. Publish to npm
 
+## Release a snapshot test version
+1. Use `npm run snapshot`
+2. Publish using *snapshot* tag `npm publish --tag snapshot`
+> To install latest snapshot version use `npm i sparqling@snapshot`
 
 ## Swagger
 https://app.swaggerhub.com/apis/OBDASystems/swagger-sparqling_ws/1.0.0

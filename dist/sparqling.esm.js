@@ -1,18 +1,18 @@
 /**
  * MIT License
- * 
+ *
  * Copyright (c) 2022-2023 OBDA Systems
- * 
+ *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
  * in the Software without restriction, including without limitation the rights
  * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
  * copies of the Software, and to permit persons to whom the Software is
  * furnished to do so, subject to the following conditions:
- * 
+ *
  * The above copyright notice and this permission notice shall be included in all
  * copies or substantial portions of the Software.
- * 
+ *
  * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
  * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
  * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
@@ -4478,7 +4478,7 @@ class SparqlingStartRunButtons extends ui.BaseMixin(ui.DropPanelMixin(s)) {
                 ? y `${getLoadingSpinner()}`
                 : null}
                 <div class="bold-text">
-                  ${this.queryName || 'new_0'}${isQueryDirty() ? '*' : null}
+                  ${this.queryName || 'new_query'}${isQueryDirty() ? '*' : null}
                 </div>
                 <div class="hr"></div>
             `}
@@ -4530,6 +4530,7 @@ class SparqlingStartRunButtons extends ui.BaseMixin(ui.DropPanelMixin(s)) {
               @click="${this._onQueryRunCallback}"
               type="subtle"
               title="Run query"
+              ?disabled=${!this.canQueryRun}
             >
               <span slot="icon">${playOutlined}</span>
             </gscape-button>
@@ -10527,12 +10528,8 @@ class QueryHeadWidget extends ui.BaseMixin(ui.DropPanelMixin(s)) {
         });
     }
     firstUpdated() {
-        if (this.previewButton) {
-            this.previewButton.disabled = true;
-        }
         this.hide();
     }
-    get previewButton() { var _a; return (_a = this.shadowRoot) === null || _a === void 0 ? void 0 : _a.querySelector('#preview-btn'); }
 }
 QueryHeadWidget.properties = {
     headElements: { type: Object, attribute: false },
@@ -10723,7 +10720,7 @@ function _getEntityViewDataUnfolding(entityIri, grapholscape) {
 }
 
 function onNewBody(newBody) {
-    var _a;
+    var _a, _b;
     // empty query
     if (!newBody.graph) {
         setActiveElement(undefined);
@@ -10732,23 +10729,21 @@ function onNewBody(newBody) {
         getGscape().unselect();
         distinctToggle.checked = true;
         countStarToggle$1.checked = false;
+        startRunButtons.queryName = undefined;
         limitInput$1.value = '';
         offsetInput.value = '';
         if (isFullPageActive()) {
             classSelector.show();
         }
     }
-    startRunButtons.canQueryRun = newBody.graph && !isStandalone() && core.onQueryRun !== undefined;
-    if (qhWidget.previewButton) {
-        qhWidget.previewButton.disabled = !newBody.graph || isStandalone();
-    }
+    startRunButtons.canQueryRun = ((_a = newBody.graph) === null || _a === void 0 ? void 0 : _a.id) !== undefined && !isStandalone() && core.onQueryRun !== undefined;
     let body = setQueryBody(newBody);
     widget.isBGPEmpty = body.graph === null || body.graph === undefined;
     render$1(body.graph);
     const deletedNodeIds = removeNodesNotInQuery();
     deletedNodeIds.forEach(id => getOriginGrapholNodes().delete(id));
     renderOptionals(body.optionals);
-    render((_a = body.head) === null || _a === void 0 ? void 0 : _a.map((headElem) => getHeadElementWithDatatype(headElem)));
+    render((_b = body.head) === null || _b === void 0 ? void 0 : _b.map((headElem) => getHeadElementWithDatatype(headElem)));
     filterListDialog.filterList = getFiltersOnVariable(filterListDialog.variable);
     sparqlDialog.text = (body === null || body === void 0 ? void 0 : body.sparql) ? body.sparql : emptyQueryMsg();
     distinctToggle.disabled =
@@ -12644,6 +12639,8 @@ function sparqling(gscape, file, requestOptions, useOntologyGraph = true, config
             setRequestOptions(requestOptions);
             if ((_a = getQueryBody()) === null || _a === void 0 ? void 0 : _a.graph)
                 yield clearQuery();
+            else
+                onNewBody(getQueryBody());
             yield updateEndpoints();
             startRunButtons.endpoints = getEndpoints();
             startRunButtons.selectedEndpointName = (_b = getSelectedEndpoint()) === null || _b === void 0 ? void 0 : _b.name;
