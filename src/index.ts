@@ -4,6 +4,7 @@ import * as handlers from './handlers'
 import { initGrapholscapeHandlers, performHighlightsEmptyUnfolding, start } from './main'
 import clearQuery from './main/clear-query'
 import { startFullpage, stopFullpage } from './main/fullpage'
+import onNewBody from './main/on-new-body'
 import showInitialModeSelector from './main/show-initial-mode-selector'
 import * as model from './model'
 import { SparqlingRequestOptions } from './model/request-options'
@@ -40,6 +41,8 @@ export async function sparqling(gscape: Grapholscape, file: string | Blob, reque
 
     if (model.getQueryBody()?.graph)
       await clearQuery()
+    else
+      onNewBody(model.getQueryBody())
 
     await model.updateEndpoints()
     widgets.startRunButtons.endpoints = model.getEndpoints()

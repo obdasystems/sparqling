@@ -222,13 +222,8 @@ export default class QueryHeadWidget extends ui.BaseMixin(ui.DropPanelMixin(LitE
   }
 
   protected firstUpdated() {
-    if (this.previewButton) {
-      this.previewButton.disabled = true
-    }
     this.hide()
   }
-
-  get previewButton() { return this.shadowRoot?.querySelector('#preview-btn') as ui.GscapeButton | undefined }
 
   //createRenderRoot() { return this as any }
 }

@@ -19,6 +19,7 @@ export default function onNewBody(newBody: QueryGraph) {
     getGscape().unselect()
     distinctToggle.checked = true
     countStarToggle.checked = false
+    startRunButtons.queryName = undefined
 
     limitInput.value = ''
     offsetInput.value = ''
@@ -27,11 +28,7 @@ export default function onNewBody(newBody: QueryGraph) {
       classSelector.show()
     }
   }
-  startRunButtons.canQueryRun = newBody.graph && !model.isStandalone() && core.onQueryRun !== undefined
-
-  if (queryHead.widget.previewButton) {
-    queryHead.widget.previewButton.disabled = !newBody.graph || model.isStandalone()
-  }
+  startRunButtons.canQueryRun = newBody.graph?.id !== undefined && !model.isStandalone() && core.onQueryRun !== undefined
 
   let body = model.setQueryBody(newBody)
   queryGraph.widget.isBGPEmpty = body.graph === null || body.graph === undefined

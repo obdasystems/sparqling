@@ -103,7 +103,7 @@ export default class SparqlingStartRunButtons extends ui.BaseMixin(ui.DropPanelM
                   : null
                 }
                 <div class="bold-text">
-                  ${this.queryName || 'new_0'}${model.isQueryDirty() ? '*' : null}
+                  ${this.queryName || 'new_query'}${model.isQueryDirty() ? '*' : null}
                 </div>
                 <div class="hr"></div>
             `
@@ -156,6 +156,7 @@ export default class SparqlingStartRunButtons extends ui.BaseMixin(ui.DropPanelM
               @click="${this._onQueryRunCallback}"
               type="subtle"
               title="Run query"
+              ?disabled=${!this.canQueryRun}
             >
               <span slot="icon">${playOutlined}</span>
             </gscape-button>
