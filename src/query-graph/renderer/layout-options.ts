@@ -3,7 +3,7 @@ import { SingularElementReturnValue } from "cytoscape"
 export const klayLayoutOpt = {
   name: 'klay',
   klay: {
-    spacing: 50,
+    spacing: 80,
     fixedAlignment: 'BALANCED',
     nodePlacement: 'LINEAR_SEGMENTS',
     thoroughness: 10,

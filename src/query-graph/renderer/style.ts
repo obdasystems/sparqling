@@ -43,8 +43,7 @@ export default (theme: GrapholscapeTheme) => {
       selector: '[displayed_name]',
       style: {
         'text-wrap': 'wrap',
-        'text-max-width': '80px',
-        'text-overflow-wrap': 'anywhere',
+        'text-max-width': '60px',
         'label': 'data(displayed_name)',
       },
     },
