@@ -84,8 +84,8 @@ export default (theme: GrapholscapeTheme) => {
         'shape': 'ellipse',
         'height': 10,
         'width': 10,
-        'background-color': theme.id === DefaultThemesEnum.GRAPHOL ? theme.getColour(ColoursNames.data_property) : '#FAAE99',
-        'border-color': theme.id === DefaultThemesEnum.GRAPHOL ? theme.getColour(ColoursNames.data_property_contrast) : '#F46036',
+        'background-color': theme.id === DefaultThemesEnum.GRAPHOL ? theme.getColour(ColoursNames.data_property) : '#EDCF9A',
+        'border-color': theme.id === DefaultThemesEnum.GRAPHOL ? theme.getColour(ColoursNames.data_property_contrast) : '#DC8D00',
       }
     },
 
@@ -94,7 +94,7 @@ export default (theme: GrapholscapeTheme) => {
       style: {
         'curve-style': 'straight',
         'target-arrow-shape': 'none',
-        'line-color': theme.id === DefaultThemesEnum.GRAPHOL ? theme.getColour(ColoursNames.data_property_contrast) : '#F46036',
+        'line-color': theme.id === DefaultThemesEnum.GRAPHOL ? theme.getColour(ColoursNames.data_property_contrast) : '#DC8D00',
       }
     },
 
