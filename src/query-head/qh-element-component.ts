@@ -285,7 +285,7 @@ export default class HeadElementComponent extends ui.BaseMixin(ui.DropPanelMixin
       this.having = newElement.having
 
     if (this.entityType === EntityTypeEnum.Annotation) {
-      this.style.borderColor = '#F46036'
+      this.style.borderColor = '#DC8D00'
     } else {
       let types = {
         'class': 'class',
