@@ -20,10 +20,9 @@ export default (theme: GrapholscapeTheme) => [
   {
     selector: `.${SPARQLING_SELECTED}`,
     style: {
-      'underlay-color': theme.getColour(ColoursNames.accent),
-      'underlay-padding': '4px',
-      'underlay-shape': (node) => node.style('shape') === Shape.ELLIPSE ? Shape.ELLIPSE : Shape.ROUND_RECTANGLE,
-      'underlay-opacity': 1,
+      "border-color": theme.getColour(ColoursNames.accent),
+      "border-width": 8,
+      padding: 4,
     }
   },
   {

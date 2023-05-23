@@ -1,6 +1,7 @@
 import { Stylesheet } from "cytoscape"
 import { ColoursNames, DefaultThemesEnum, GrapholscapeTheme } from "grapholscape"
 import { EntityTypeEnum } from "../../api/swagger"
+import { SPARQLING_SELECTED } from "../../model"
 
 const { DataProperty, Class, ObjectProperty, InverseObjectProperty, Annotation } = EntityTypeEnum
 
@@ -159,11 +160,11 @@ export default (theme: GrapholscapeTheme) => {
     //-----------------------------------------------------------
     // selected selector always last
     {
-      selector: '.sparqling-selected',
+      selector: `.${SPARQLING_SELECTED}`,
       style: {
-        'underlay-color': theme.getColour(ColoursNames.accent),
-        'underlay-padding': '2.5px',
-        'underlay-opacity': 1,
+        "border-color": theme.getColour(ColoursNames.accent),
+        "border-width": 4,
+        padding: 4,
       }
     },
 
