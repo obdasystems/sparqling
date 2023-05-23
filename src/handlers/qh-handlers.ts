@@ -118,3 +118,12 @@ queryHead.onAddAggregation(headElementId => {
       (aggregationDialog.distinctCheckboxElem as HTMLInputElement).checked = false
   }
 })
+
+queryHead.onHighlightVariable(headElementId => {
+  const headElement = model.getHeadElementByID(headElementId)
+  if (headElement?.graphElementId) {
+    queryGraph.highlightNode(headElement.graphElementId)
+  }
+})
+
+queryHead.onResetHighlightOnVariable(queryGraph.resetHighlight)

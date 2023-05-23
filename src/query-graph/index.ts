@@ -158,3 +158,21 @@ export function onElementClick(callback: (graphElem: GraphElement, iri: string) 
 export function isIriInQueryGraph(iri: string): boolean {
   return GEUtility.getGraphElementByIRI(iri) ? true : false
 }
+
+export function highlightNode(graphElement: GraphElement | string) {
+  const _graphElement = typeof(graphElement) === 'string' ? GEUtility.getGraphElementByID(graphElement) : graphElement
+
+  if (_graphElement?.id) {
+    bgp.cy.$id(_graphElement.id).addClass('highlight')
+  }
+}
+
+export function resetHighlight(graphElement?: GraphElement | string) {
+  const _graphElement = typeof(graphElement) === 'string' ? GEUtility.getGraphElementByID(graphElement) : graphElement
+
+  if (_graphElement?.id) {
+    bgp.cy.$id(_graphElement.id).removeClass('highlight')
+  } else {
+    bgp.cy.$('.highlight').removeClass('highlight')
+  }
+}

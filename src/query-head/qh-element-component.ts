@@ -45,7 +45,7 @@ export default class HeadElementComponent extends ui.BaseMixin(ui.DropPanelMixin
     graphElementId: { attribute: false },
     function: { attribute: false },
     _entityType: { type: String },
-}
+  }
 
   static styles = [
     ui.baseStyle,
@@ -216,7 +216,7 @@ export default class HeadElementComponent extends ui.BaseMixin(ui.DropPanelMixin
                 <div class="filters-function-list">
                   ${getElemWithOperatorList([this.groupBy])}
                 </div>
-                ${this.having 
+                ${this.having
                   ? html`
                     <span class="title">Having</span>
                     <div class="filters-function-list">
@@ -230,7 +230,7 @@ export default class HeadElementComponent extends ui.BaseMixin(ui.DropPanelMixin
             : null
           }
 
-          ${this.function 
+          ${this.function
             ? html`
               <div class="section">
                 <div class="section-header bold-text">Function</div>
@@ -301,21 +301,6 @@ export default class HeadElementComponent extends ui.BaseMixin(ui.DropPanelMixin
       if (filtersOnVariable)
         this.filters = filtersOnVariable  
     }
-  }
-
-  private getSelect(sectionName: string, name: string, defaultOpt: string, options: object) {
-    const isDefaultAlreadySet = Object.values(options).includes(defaultOpt)
-    return html`
-      <select name="${name}" sectionName="${sectionName}">
-        ${isDefaultAlreadySet ? null : html`<option selected>${defaultOpt}</option>`}
-        ${Object.keys(options).map(key => {
-      if (options[key] === defaultOpt)
-        return html`<option value="${key}" selected>${options[key]}</option>`
-      else
-        return html`<option value="${key}">${options[key]}</option>`
-    })}
-          </select>
-    `
   }
 
   private handleInputChange(evt: Event) {

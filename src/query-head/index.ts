@@ -63,3 +63,11 @@ export function onAddAggregation(callback: (headElementId: string) => void) {
   qhWidget.onAddAggregation(headElementId => callback(headElementId))
 }
 
+export function onHighlightVariable(callback: HeadElementCallback) {
+  qhWidget.onHighlightVariable(headElementId => callback(headElementId))
+}
+
+export function onResetHighlightOnVariable(callback: HeadElementCallback) {
+  qhWidget.onResetHighlightOnVariable(headElemenId => callback(headElemenId))
+}
+

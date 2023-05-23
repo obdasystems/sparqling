@@ -22,6 +22,8 @@ export default class QueryHeadWidget extends ui.BaseMixin(ui.DropPanelMixin(LitE
   private addFunctionCallback: HeadElementCallback
   private orderByChangeCallback: HeadElementCallback
   private addAggregationCallback: HeadElementCallback
+  private highlightVariableCallback: HeadElementCallback
+  private resetHighlightCallback: HeadElementCallback
   
   static properties = {
     headElements: { type: Object, attribute: false },
@@ -153,6 +155,8 @@ export default class QueryHeadWidget extends ui.BaseMixin(ui.DropPanelMixin(LitE
           // attachCxtMenuTo(headElementComponent.moreActionsButton, headElementComponent.cxtMenuCommands)
         }
       }
+      headElementComponent.onmouseover = () => this.highlightVariableCallback(headElementComponent._id)
+      headElementComponent.onmouseout = () => this.resetHighlightCallback(headElementComponent._id)
     });
   }
 
@@ -202,6 +206,14 @@ export default class QueryHeadWidget extends ui.BaseMixin(ui.DropPanelMixin(LitE
 
   onAddAggregation(callback: HeadElementCallback) {
     this.addAggregationCallback = callback
+  }
+
+  onHighlightVariable(callback: HeadElementCallback) {
+    this.highlightVariableCallback = callback
+  }
+
+  onResetHighlightOnVariable(callback: HeadElementCallback) {
+    this.resetHighlightCallback = callback
   }
 
 

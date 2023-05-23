@@ -166,5 +166,14 @@ export default (theme: GrapholscapeTheme) => {
         'underlay-opacity': 1,
       }
     },
+
+    {
+      selector: '.highlight',
+      style: {
+        'underlay-color': theme.getColour(ColoursNames.accent_muted),
+        'underlay-padding': '8px',
+        'underlay-opacity': 0.6,
+      }
+    },
   ] as Stylesheet[]
 }
