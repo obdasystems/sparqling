@@ -41,7 +41,13 @@ export function getCommandsForElement(elem: SingularElementReturnValue) {
       if (isConfigEnabled('filter'))
         commands.push(addFilter)
 
-      if (!isStandalone() && (elem.data().type === EntityTypeEnum.Class || elem.data().type === EntityTypeEnum.DataProperty)) {
+      if (!isStandalone() &&
+        (
+          elem.data().type === EntityTypeEnum.Class ||
+          elem.data().type === EntityTypeEnum.DataProperty ||
+          elem.data().type === EntityTypeEnum.Annotation
+        )
+      ) {
         commands.push(showExamples)
       }
 

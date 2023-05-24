@@ -96,6 +96,11 @@ export function isObjectProperty(graphElement: GraphElement) {
 export function isInverseObjectProperty(graphElement: GraphElement) {
   return getEntityType(graphElement) === EntityTypeEnum.InverseObjectProperty
 }
+
+export function isAnnotation(graphElement: GraphElement) {
+  return getEntityType(graphElement) === EntityTypeEnum.Annotation
+}
+
 /**
  * Return a set of GraphElements which are present in newGraph and not in oldGraph
  */

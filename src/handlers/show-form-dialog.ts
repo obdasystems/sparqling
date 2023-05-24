@@ -50,7 +50,8 @@ export default function (element: HeadElement | GraphElement, formDialog: Sparql
 
   formDialog.variableName = variableName || graphElement.id
   formDialog.examples = undefined
-  formDialog.acceptExamples = !isStandalone() && (GEUtility.isClass(graphElement) || GEUtility.isDataProperty(graphElement))
+  formDialog.acceptExamples = !isStandalone() &&
+    (GEUtility.isClass(graphElement) || GEUtility.isDataProperty(graphElement) || GEUtility.isAnnotation(graphElement))
   formDialog.examplesSearchValue = undefined
   formDialog.loadingExamples = false
   formDialog.canSave = true

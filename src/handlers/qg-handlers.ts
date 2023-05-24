@@ -1,6 +1,6 @@
 import { Iri, ui } from 'grapholscape'
 import { QueryGraph, QueryGraphBGPApiFactory, QueryGraphHeadApiFactory, QueryGraphOptionalApiFactory } from '../api/swagger'
-import { clearHighlights, clearQuery, performHighlights, showQueryResultInDialog } from '../main'
+import { clearHighlights, clearQuery, performHighlights, showExamplesInDialog } from '../main'
 import { handlePromise } from '../main/handle-promises'
 import onNewBody from '../main/on-new-body'
 import * as model from '../model'
@@ -203,10 +203,9 @@ queryGraph.onSeeFilters(graphElement => {
 })
 
 queryGraph.onShowExamples(graphElement => {
-  const iri = GEUtility.getIri(graphElement)
-  if (iri) {
+  if (graphElement.id) {
     previewDialog.examplesSearchValue = undefined
-    showQueryResultInDialog(iri)
+    showExamplesInDialog(graphElement.id)
   }
 })
 

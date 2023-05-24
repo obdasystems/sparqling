@@ -1,5 +1,5 @@
 import { Function, QueryGraphHeadApi } from "../api/swagger"
-import { showIriExamplesInForm } from "../main"
+import { showExamplesInForm } from "../main"
 import { handlePromise } from "../main/handle-promises"
 import onNewBody from "../main/on-new-body"
 import * as model from '../model'
@@ -32,11 +32,7 @@ functionDialog.onSubmit(async (id, op, params) => {
 })
 
 functionDialog.onSeeExamples(async variable => {
-  const graphElementId = getGraphElementByID(variable.value || '')
-  if (graphElementId) {
-    const iri = getIri(graphElementId)
-    if (iri) {
-      showIriExamplesInForm(iri, functionDialog)
-    }
+  if (variable.value) {
+    showExamplesInForm(variable.value, functionDialog)
   }
 })
