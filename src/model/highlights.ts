@@ -9,9 +9,12 @@ export async function computeHighlights(iri: string): Promise<Highlights> {
   const ogApi = new OntologyGraphApi(undefined, getBasePath())
 
   const highlights = await handlePromise(ogApi.highligths(iri, undefined, getRequestOptions()))
-  if (!actualHighlights)
+  if (!actualHighlights) {
     actualHighlights = highlights
-  else {
+    actualHighlights.classes = highlights.classes || []
+    actualHighlights.dataProperties = highlights.dataProperties || []
+    actualHighlights.objectProperties = highlights.objectProperties || []
+  } else {
     if (highlights.classes) {
       if (actualHighlights.classes) {
         actualHighlights.classes = Array.from(new Set([...actualHighlights.classes, ...highlights.classes]))
