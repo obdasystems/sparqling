@@ -221,7 +221,7 @@ const GroupByElementAggregateFunctionEnum = {
     Sum: 'sum',
     Min: 'min',
     Max: 'max',
-    Avarage: 'avarage'
+    Average: 'average'
 };
 const VarOrConstantTypeEnum = {
     Var: 'var',
@@ -5460,6 +5460,9 @@ function isObjectProperty(graphElement) {
 function isInverseObjectProperty(graphElement) {
     return getEntityType(graphElement) === EntityTypeEnum.InverseObjectProperty;
 }
+function isAnnotation(graphElement) {
+    return getEntityType(graphElement) === EntityTypeEnum.Annotation;
+}
 /**
  * Return a set of GraphElements which are present in newGraph and not in oldGraph
  */
@@ -5554,7 +5557,10 @@ function getCommandsForElement(elem) {
             }
             if (isConfigEnabled('filter'))
                 commands.push(addFilter);
-            if (!isStandalone() && (elem.data().type === EntityTypeEnum.Class || elem.data().type === EntityTypeEnum.DataProperty)) {
+            if (!isStandalone() &&
+                (elem.data().type === EntityTypeEnum.Class ||
+                    elem.data().type === EntityTypeEnum.DataProperty ||
+                    elem.data().type === EntityTypeEnum.Annotation)) {
                 commands.push(showExamples);
             }
             if (!elem.incomers().empty() && elem.data().type !== EntityTypeEnum.Class) {
@@ -9123,7 +9129,7 @@ function addOrRemoveFilterIcon(node) {
 const klayLayoutOpt = {
     name: 'klay',
     klay: {
-        spacing: 50,
+        spacing: 80,
         fixedAlignment: 'BALANCED',
         nodePlacement: 'LINEAR_SEGMENTS',
         thoroughness: 10,
@@ -9134,7 +9140,7 @@ function radialLayoutOpt(node) {
     const radius = Math.sqrt((Math.pow(node.width() / 2, 2) + Math.pow(node.height() / 2, 2))) + 20;
     return {
         name: 'circle',
-        avoidOverlap: true,
+        avoidOverlap: false,
         fit: false,
         boundingBox: {
             x1: p.x - 2,
@@ -9402,8 +9408,7 @@ var getStylesheet = (theme) => {
             selector: '[displayed_name]',
             style: {
                 'text-wrap': 'wrap',
-                'text-max-width': '80px',
-                'text-overflow-wrap': 'anywhere',
+                'text-max-width': '60px',
                 'label': 'data(displayed_name)',
             },
         },
@@ -9440,8 +9445,8 @@ var getStylesheet = (theme) => {
                 'shape': 'ellipse',
                 'height': 10,
                 'width': 10,
-                'background-color': theme.id === DefaultThemesEnum.GRAPHOL ? theme.getColour(ColoursNames.data_property) : '#FAAE99',
-                'border-color': theme.id === DefaultThemesEnum.GRAPHOL ? theme.getColour(ColoursNames.data_property_contrast) : '#F46036',
+                'background-color': theme.id === DefaultThemesEnum.GRAPHOL ? theme.getColour(ColoursNames.data_property) : '#EDCF9A',
+                'border-color': theme.id === DefaultThemesEnum.GRAPHOL ? theme.getColour(ColoursNames.data_property_contrast) : '#DC8D00',
             }
         },
         {
@@ -9449,7 +9454,7 @@ var getStylesheet = (theme) => {
             style: {
                 'curve-style': 'straight',
                 'target-arrow-shape': 'none',
-                'line-color': theme.id === DefaultThemesEnum.GRAPHOL ? theme.getColour(ColoursNames.data_property_contrast) : '#F46036',
+                'line-color': theme.id === DefaultThemesEnum.GRAPHOL ? theme.getColour(ColoursNames.data_property_contrast) : '#DC8D00',
             }
         },
         {
@@ -9506,11 +9511,19 @@ var getStylesheet = (theme) => {
         //-----------------------------------------------------------
         // selected selector always last
         {
-            selector: '.sparqling-selected',
+            selector: `.${SPARQLING_SELECTED}`,
             style: {
-                'underlay-color': theme.getColour(ColoursNames.accent),
-                'underlay-padding': '2.5px',
-                'underlay-opacity': 1,
+                "border-color": theme.getColour(ColoursNames.accent),
+                "border-width": 4,
+                padding: 4,
+            }
+        },
+        {
+            selector: '.highlight',
+            style: {
+                'underlay-color': theme.getColour(ColoursNames.accent_muted),
+                'underlay-padding': '8px',
+                'underlay-opacity': 0.6,
             }
         },
     ];
@@ -9951,6 +9964,21 @@ function onElementClick(callback) {
 function isIriInQueryGraph$1(iri) {
     return getGraphElementByIRI(iri) ? true : false;
 }
+function highlightNode(graphElement) {
+    const _graphElement = typeof (graphElement) === 'string' ? getGraphElementByID(graphElement) : graphElement;
+    if (_graphElement === null || _graphElement === void 0 ? void 0 : _graphElement.id) {
+        cy.$id(_graphElement.id).addClass('highlight');
+    }
+}
+function resetHighlight(graphElement) {
+    const _graphElement = typeof (graphElement) === 'string' ? getGraphElementByID(graphElement) : graphElement;
+    if (_graphElement === null || _graphElement === void 0 ? void 0 : _graphElement.id) {
+        cy.$id(_graphElement.id).removeClass('highlight');
+    }
+    else {
+        cy.$('.highlight').removeClass('highlight');
+    }
+}
 
 let sortChangedCallback;
 let dragging;
@@ -10143,7 +10171,7 @@ class HeadElementComponent extends ui.BaseMixin(ui.DropPanelMixin(s)) {
         if (newElement.having)
             this.having = newElement.having;
         if (this.entityType === EntityTypeEnum.Annotation) {
-            this.style.borderColor = '#F46036';
+            this.style.borderColor = '#DC8D00';
         }
         else {
             let types = {
@@ -10158,20 +10186,6 @@ class HeadElementComponent extends ui.BaseMixin(ui.DropPanelMixin(s)) {
             if (filtersOnVariable)
                 this.filters = filtersOnVariable;
         }
-    }
-    getSelect(sectionName, name, defaultOpt, options) {
-        const isDefaultAlreadySet = Object.values(options).includes(defaultOpt);
-        return y `
-      <select name="${name}" sectionName="${sectionName}">
-        ${isDefaultAlreadySet ? null : y `<option selected>${defaultOpt}</option>`}
-        ${Object.keys(options).map(key => {
-            if (options[key] === defaultOpt)
-                return y `<option value="${key}" selected>${options[key]}</option>`;
-            else
-                return y `<option value="${key}">${options[key]}</option>`;
-        })}
-          </select>
-    `;
     }
     handleInputChange(evt) {
         let target = evt.currentTarget;
@@ -10475,6 +10489,8 @@ class QueryHeadWidget extends ui.BaseMixin(ui.DropPanelMixin(s)) {
                     // attachCxtMenuTo(headElementComponent.moreActionsButton, headElementComponent.cxtMenuCommands)
                 }
             };
+            headElementComponent.onmouseover = () => this.highlightVariableCallback(headElementComponent._id);
+            headElementComponent.onmouseout = () => this.resetHighlightCallback(headElementComponent._id);
         });
     }
     /**
@@ -10515,6 +10531,12 @@ class QueryHeadWidget extends ui.BaseMixin(ui.DropPanelMixin(s)) {
     }
     onAddAggregation(callback) {
         this.addAggregationCallback = callback;
+    }
+    onHighlightVariable(callback) {
+        this.highlightVariableCallback = callback;
+    }
+    onResetHighlightOnVariable(callback) {
+        this.resetHighlightCallback = callback;
     }
     blur() {
         var _a;
@@ -10625,6 +10647,12 @@ function onOrderByChange(callback) {
 }
 function onAddAggregation(callback) {
     qhWidget.onAddAggregation(headElementId => callback(headElementId));
+}
+function onHighlightVariable(callback) {
+    qhWidget.onHighlightVariable(headElementId => callback(headElementId));
+}
+function onResetHighlightOnVariable(callback) {
+    qhWidget.onResetHighlightOnVariable(headElemenId => callback(headElemenId));
 }
 
 function getHeadElementWithDatatype(headElement) {
@@ -11161,8 +11189,12 @@ function computeHighlights(iri) {
     return __awaiter(this, void 0, void 0, function* () {
         const ogApi = new OntologyGraphApi(undefined, getBasePath());
         const highlights = yield handlePromise(ogApi.highligths(iri, undefined, getRequestOptions()));
-        if (!actualHighlights)
+        if (!actualHighlights) {
             actualHighlights = highlights;
+            actualHighlights.classes = highlights.classes || [];
+            actualHighlights.dataProperties = highlights.dataProperties || [];
+            actualHighlights.objectProperties = highlights.objectProperties || [];
+        }
         else {
             if (highlights.classes) {
                 if (actualHighlights.classes) {
@@ -11502,7 +11534,7 @@ class QueryPoller {
 QueryPoller.TIMEOUT_LENGTH = 5000;
 QueryPoller.INTERVAL_LENGTH = 1000;
 
-function showIriExamplesInForm(iri, formDialog) {
+function showExamplesInForm(graphElementId, formDialog) {
     return __awaiter(this, void 0, void 0, function* () {
         handleEndpointSelection(((endpoint) => __awaiter(this, void 0, void 0, function* () {
             if (!endpoint) {
@@ -11512,21 +11544,24 @@ function showIriExamplesInForm(iri, formDialog) {
                 setTimeout(() => formDialog.resetMessages(), 3000);
                 return;
             }
-            const queryString = yield getExamplesQueryString(iri, endpoint, formDialog.examplesSearchValue);
-            if (!queryString)
-                return;
-            const queryStartResponse = yield handlePromise(globalAxios.request(getNewQueryRequestOptions(endpoint, queryString)));
-            const queryPoller = new QueryPoller(endpoint, queryStartResponse.executionId, 10);
-            queryPoller.onNewResults = (result) => {
-                if (queryPoller.status !== QueryPollerStatus.RUNNING) {
+            const graphElement = getGraphElementByID(graphElementId);
+            if (graphElement) {
+                const queryString = yield getExamplesQueryString(graphElement, endpoint, formDialog.examplesSearchValue);
+                if (!queryString)
+                    return;
+                const queryStartResponse = yield handlePromise(globalAxios.request(getNewQueryRequestOptions(endpoint, queryString)));
+                const queryPoller = new QueryPoller(endpoint, queryStartResponse.executionId, 10);
+                queryPoller.onNewResults = (result) => {
+                    if (queryPoller.status !== QueryPollerStatus.RUNNING) {
+                        formDialog.loadingExamples = false;
+                    }
+                    formDialog.examples = result;
+                };
+                queryPoller.onTimeoutExpiration = queryPoller.onStop = () => {
                     formDialog.loadingExamples = false;
-                }
-                formDialog.examples = result;
-            };
-            queryPoller.onTimeoutExpiration = queryPoller.onStop = () => {
-                formDialog.loadingExamples = false;
-            };
-            queryPoller.start();
+                };
+                queryPoller.start();
+            }
         })));
     });
 }
@@ -11543,47 +11578,45 @@ function getNewQueryRequestOptions(endpoint, queryString) {
     };
     return startNewQueryRequestOptions;
 }
-function showQueryResultInDialog(iri) {
+function showExamplesInDialog(graphElementId) {
     return __awaiter(this, void 0, void 0, function* () {
-        if (iri) {
-            const graphElement = getGraphElementByIRI(iri);
-            if (graphElement) {
-                if (isDataProperty(graphElement)) {
-                    previewDialog.allowSearch = true;
-                    // previewDialog.examplesSearchValue = ''
+        const graphElement = getGraphElementByID(graphElementId);
+        if (graphElement) {
+            if (isDataProperty(graphElement) || isAnnotation(graphElement)) {
+                previewDialog.allowSearch = true;
+                // previewDialog.examplesSearchValue = ''
+            }
+            previewDialog.result = undefined;
+            previewDialog.title = 'Examples';
+            previewDialog.show();
+            previewDialog.onSearchExamples(() => {
+                showExamplesInDialog(graphElementId);
+            });
+            handleEndpointSelection((endpoint) => __awaiter(this, void 0, void 0, function* () {
+                if (!endpoint) {
+                    return;
                 }
-            }
-        }
-        previewDialog.result = undefined;
-        previewDialog.title = iri ? 'Examples' : 'Query Results Preview';
-        previewDialog.show();
-        previewDialog.onSearchExamples(() => {
-            showQueryResultInDialog(iri);
-        });
-        handleEndpointSelection((endpoint) => __awaiter(this, void 0, void 0, function* () {
-            if (!endpoint) {
-                return;
-            }
-            previewDialog.isLoading = true;
-            const queryString = iri ? yield getExamplesQueryString(iri, endpoint, previewDialog.examplesSearchValue) : getQueryBody().sparql;
-            if (!queryString)
-                return;
-            const queryStartResponse = yield handlePromise(globalAxios.request(getNewQueryRequestOptions(endpoint, queryString)));
-            const queryPoller = new QueryPoller(endpoint, queryStartResponse.executionId, 10);
-            queryPoller.onNewResults = (result) => {
-                if (queryPoller.status !== QueryPollerStatus.RUNNING) {
+                previewDialog.isLoading = true;
+                const queryString = yield getExamplesQueryString(graphElement, endpoint, previewDialog.examplesSearchValue);
+                if (!queryString)
+                    return;
+                const queryStartResponse = yield handlePromise(globalAxios.request(getNewQueryRequestOptions(endpoint, queryString)));
+                const queryPoller = new QueryPoller(endpoint, queryStartResponse.executionId, 10);
+                queryPoller.onNewResults = (result) => {
+                    if (queryPoller.status !== QueryPollerStatus.RUNNING) {
+                        previewDialog.isLoading = false;
+                    }
+                    previewDialog.result = result;
+                };
+                queryPoller.onTimeoutExpiration = queryPoller.onStop = () => {
                     previewDialog.isLoading = false;
-                }
-                previewDialog.result = result;
-            };
-            queryPoller.onTimeoutExpiration = queryPoller.onStop = () => {
-                previewDialog.isLoading = false;
-            };
-            queryPoller.start();
-        }));
+                };
+                queryPoller.start();
+            }));
+        }
     });
 }
-function getExamplesQueryString(iri, endpoint, searchValue) {
+function getExamplesQueryString(graphElement, endpoint, searchValue) {
     var _a;
     return __awaiter(this, void 0, void 0, function* () {
         const prefixes = yield handlePromise(globalAxios.request({
@@ -11592,19 +11625,29 @@ function getExamplesQueryString(iri, endpoint, searchValue) {
             headers: JSON.parse(localStorage.getItem('headers') || '')
         }));
         let queryString = prefixes.map((p) => `PREFIX ${p.name} <${p.namespace}>`).join('\n');
-        const graphElement = getGraphElementByIRI(iri);
-        if (graphElement) {
+        let iris = getIris(graphElement);
+        if (iris.length > 0) {
             if (isClass(graphElement)) {
-                queryString += `\nSELECT DISTINCT * WHERE { ?Examples  rdf:type <${iri}> }`;
+                queryString += `\nSELECT DISTINCT * WHERE { 
+        ${iris.map(iri => `?Examples  rdf:type <${iri}>.`).join('\n')}
+      }`;
             }
-            else if (isDataProperty(graphElement)) {
+            else {
                 const classGraphElement = findGraphElement((_a = getQueryBody()) === null || _a === void 0 ? void 0 : _a.graph, (ge) => { var _a; return ((_a = ge.children) === null || _a === void 0 ? void 0 : _a.includes(graphElement)) || false; });
+                const propertyIri = getIri(graphElement);
                 if (classGraphElement) {
-                    const classIri = getIri(classGraphElement);
-                    queryString += `\nSELECT DISTINCT ?Examples WHERE { ?x rdf:type <${classIri}>; <${iri}> ?Examples;`;
+                    iris = getIris(classGraphElement);
+                    if (iris.length > 0 && propertyIri) {
+                        queryString += `\nSELECT DISTINCT ?Examples WHERE {
+            ${iris.map(iri => `?x rdf:type <${iri}>.`).join('\n')}
+            ?x <${propertyIri}> ?Examples;`;
+                    }
+                    else {
+                        return;
+                    }
                 }
-                else {
-                    queryString += `\nSELECT DISTINCT ?Examples WHERE { ?x  <${iri}> ?Examples;`;
+                else if (propertyIri) {
+                    queryString += `\nSELECT DISTINCT ?Examples WHERE { ?x  <${propertyIri}> ?Examples;`;
                 }
                 if (searchValue)
                     queryString += `\nFILTER (regex(?Examples, "${searchValue}", 'i'))`;
@@ -11634,10 +11677,9 @@ var sparqlingStyle = (theme) => [
     {
         selector: `.${SPARQLING_SELECTED}`,
         style: {
-            'underlay-color': theme.getColour(ColoursNames.accent),
-            'underlay-padding': '4px',
-            'underlay-shape': (node) => node.style('shape') === Shape.ELLIPSE ? Shape.ELLIPSE : Shape.ROUND_RECTANGLE,
-            'underlay-opacity': 1,
+            "border-color": theme.getColour(ColoursNames.accent),
+            "border-width": 8,
+            padding: 4,
         }
     },
     {
@@ -11987,7 +12029,8 @@ function showFormDialog (element, formDialog) {
     formDialog.setDefaultOperator();
     formDialog.variableName = variableName || graphElement.id;
     formDialog.examples = undefined;
-    formDialog.acceptExamples = !isStandalone() && (isClass(graphElement) || isDataProperty(graphElement));
+    formDialog.acceptExamples = !isStandalone() &&
+        (isClass(graphElement) || isDataProperty(graphElement) || isAnnotation(graphElement));
     formDialog.examplesSearchValue = undefined;
     formDialog.loadingExamples = false;
     formDialog.canSave = true;
@@ -12172,10 +12215,9 @@ onSeeFilters(graphElement => {
     }
 });
 onShowExamples(graphElement => {
-    const iri = getIri(graphElement);
-    if (iri) {
+    if (graphElement.id) {
         previewDialog.examplesSearchValue = undefined;
-        showQueryResultInDialog(iri);
+        showExamplesInDialog(graphElement.id);
     }
 });
 widget.onSparqlButtonClick = () => sparqlDialog.isVisible ? sparqlDialog.hide() : sparqlDialog.show();
@@ -12288,12 +12330,8 @@ function showFilterDialogEditingMode(filterId) {
     }
 }
 filterDialog.onSeeExamples((variable) => __awaiter(void 0, void 0, void 0, function* () {
-    const graphElementId = getGraphElementByID(variable.value || '');
-    if (graphElementId) {
-        const iri = getIri(graphElementId);
-        if (iri) {
-            showIriExamplesInForm(iri, filterDialog);
-        }
+    if (variable.value) {
+        showExamplesInForm(variable.value, filterDialog);
     }
 }));
 
@@ -12387,6 +12425,13 @@ onAddAggregation(headElementId => {
             aggregationDialog.distinctCheckboxElem.checked = false;
     }
 });
+onHighlightVariable(headElementId => {
+    const headElement = getHeadElementByID(headElementId);
+    if (headElement === null || headElement === void 0 ? void 0 : headElement.graphElementId) {
+        highlightNode(headElement.graphElementId);
+    }
+});
+onResetHighlightOnVariable(resetHighlight);
 
 startRunButtons.onSparqlingStart(() => {
     try {
@@ -12472,12 +12517,8 @@ aggregationDialog.onSubmit((headElementId, aggregateOperator, distinct, havingOp
     }
 });
 aggregationDialog.onSeeExamples((variable) => __awaiter(void 0, void 0, void 0, function* () {
-    const graphElementId = getGraphElementByID(variable.value || '');
-    if (graphElementId) {
-        const iri = getIri(graphElementId);
-        if (iri) {
-            showIriExamplesInForm(iri, aggregationDialog);
-        }
+    if (variable.value) {
+        showExamplesInForm(variable.value, aggregationDialog);
     }
 }));
 
@@ -12503,12 +12544,8 @@ functionDialog.onSubmit((id, op, params) => __awaiter(void 0, void 0, void 0, fu
     }
 }));
 functionDialog.onSeeExamples((variable) => __awaiter(void 0, void 0, void 0, function* () {
-    const graphElementId = getGraphElementByID(variable.value || '');
-    if (graphElementId) {
-        const iri = getIri(graphElementId);
-        if (iri) {
-            showIriExamplesInForm(iri, functionDialog);
-        }
+    if (variable.value) {
+        showExamplesInForm(variable.value, functionDialog);
     }
 }));
 
