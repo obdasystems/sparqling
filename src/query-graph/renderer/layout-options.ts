@@ -15,8 +15,8 @@ export function radialLayoutOpt(node: SingularElementReturnValue) {
   const radius = Math.sqrt((Math.pow(node.width() / 2, 2) + Math.pow(node.height() / 2, 2))) + 20
   return {
     name: 'circle',
-    avoidOverlap: true,
-    fit:false,
+    avoidOverlap: false,
+    fit: false,
     boundingBox: {
       x1: p.x - 2,
       x2: p.x + 2,
@@ -43,5 +43,5 @@ export function gridLayoutOpt(node: SingularElementReturnValue) {
       y1: p.y - 20,
       y2: p.y + 20
     },
-  } 
+  }
 }

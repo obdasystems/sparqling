@@ -32,7 +32,7 @@ export function addNode(node: GraphElement) {
 
   if (!existingNode) {
     newNode = cy.add({ data: newNodeData })
-    
+
     if (node.entities && node.entities?.length > 1) {
       node.entities?.forEach((child: Entity, i: number) => {
         if (!newNode?.children().some(c => c[0].data('iri') === child.iri)) {
@@ -225,7 +225,7 @@ function getDisplayedName(data: Entity) {
   let labels = data.labels
   const displayedNameType = getDisplayedNameType()
 
-  if (displayedNameType === EntityNameType.LABEL && labels &&  Object.keys(labels).length > 0)
+  if (displayedNameType === EntityNameType.LABEL && labels && Object.keys(labels).length > 0)
     // use first language found if the actual one is not available
     return labels[getLanguage()] || labels[Object.keys(labels)[0]]
   else if (displayedNameType === EntityNameType.FULL_IRI)
