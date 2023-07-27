@@ -116,3 +116,5 @@ function getCore(gscape: Grapholscape, file: string | Blob) {
     return null
   }
 }
+
+export { queryGraph }

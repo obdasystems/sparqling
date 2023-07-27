@@ -52,6 +52,7 @@ export function render(graphElem: GraphElement, parent?: GraphElement, objectPro
   } else {
     graphElem.children?.forEach((childGraphElem: GraphElement) => render(childGraphElem, graphElem))
   }
+  return bgp.cy
 }
 
 // // remove elements not in query anymore, asynchronously

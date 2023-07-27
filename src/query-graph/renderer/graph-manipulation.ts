@@ -140,7 +140,7 @@ export function arrange() {
      * to the graph.
      */
     const container = cy.container()
-    if (container) {
+    if (container && container.clientHeight !== 0 && container.clientWidth !== 0) {
       container.style.visibility = 'hidden' // avoid seeing node moving across the viewport
       setTimeout(() => {
         cy.fit()
