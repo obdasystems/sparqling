@@ -1,4 +1,4 @@
-import { Grapholscape, GrapholTypesEnum, ui, util } from 'grapholscape'
+import { Grapholscape, TypesEnum, ui, util } from 'grapholscape'
 import * as model from '../model'
 import { hasEntityEmptyUnfolding } from '../model'
 import * as ontologyGraph from '../ontology-graph'
@@ -31,7 +31,7 @@ export function performHighlights(iri: string | string[]) {
               const objPropViewData = util.grapholEntityToEntityViewData(grapholEntity, grapholscape)
               return {
                 entityViewData: objPropViewData,
-                hasUnfolding: !hasEntityEmptyUnfolding(op.objectPropertyIRI, GrapholTypesEnum.OBJECT_PROPERTY),
+                hasUnfolding: !hasEntityEmptyUnfolding(op.objectPropertyIRI, TypesEnum.OBJECT_PROPERTY),
                 connectedClasses: op.relatedClasses
                   ?.map(rc => _getEntityViewDataUnfolding(rc, grapholscape))
                   .filter(rc => rc !== undefined) as ui.EntityViewDataUnfolding[] || [],

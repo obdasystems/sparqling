@@ -126,8 +126,8 @@ queryGraph.onElementClick((graphElement, iri) => {
     // move ontology graph to show origin graphol node or any other iri occurrence
     const originGrapholNodeOccurrence = model.getOriginGrapholNodes().get(graphElement.id + iri)
     if (originGrapholNodeOccurrence) {
-      gscape.centerOnElement(originGrapholNodeOccurrence.elementId, originGrapholNodeOccurrence.diagramId, 1.5)
-      gscape.selectElement(originGrapholNodeOccurrence.elementId)
+      gscape.centerOnElement(originGrapholNodeOccurrence.id, originGrapholNodeOccurrence.diagramId, 1.5)
+      gscape.selectElement(originGrapholNodeOccurrence.id)
     } else {
       gscape.selectEntity(iri)
     }
@@ -212,13 +212,11 @@ queryGraph.onShowExamples(graphElement => {
 queryGraph.widget.onSparqlButtonClick = () => sparqlDialog.isVisible ? sparqlDialog.hide() : sparqlDialog.show()
 
 queryGraph.widget.onQueryClear = () => {
-  const confirmDialog = new ui.GscapeConfirmDialog()
-  confirmDialog.message = 'Are you sure to reset the query?'
-  confirmDialog.onConfirm = () => clearQuery()
-  confirmDialog.onCancel = () => confirmDialog.remove()
-
-  getGscape().container.querySelector('.gscape-ui')?.appendChild(confirmDialog)
-  confirmDialog.show()
+  ui.showMessage(
+    'Are you sure to reset the query?',
+    'Confirm Action',
+    getGscape().uiContainer
+  ).onConfirm(clearQuery)
 }
 
 queryGraph.widget.onFullScreenEnter = () => {

@@ -1,5 +1,5 @@
 import axios from "axios"
-import { GrapholTypesEnum, ui } from "grapholscape"
+import { TypesEnum, ui } from "grapholscape"
 import { EntityTypeEnum } from "../api/swagger"
 import { handlePromise } from "../main/handle-promises"
 import { getName, getRequestOptions, getVersion, isStandalone } from "./request-options"
@@ -139,23 +139,23 @@ export async function updateEntitiesEmptyUnfoldings() {
   }
 }
 
-export function hasEntityEmptyUnfolding(entityIri: string, entityType?: EntityTypeEnum | GrapholTypesEnum) {
+export function hasEntityEmptyUnfolding(entityIri: string, entityType?: EntityTypeEnum | TypesEnum) {
   let arrToCheck: MWSEntity[] = []
 
   switch (entityType) {
-    case GrapholTypesEnum.CLASS:
+    case TypesEnum.CLASS:
     case EntityTypeEnum.Class: {
       arrToCheck = arrToCheck.concat(...emtpyUnfoldingEntities.emptyUnfoldingClasses)
       break
     }
 
-    case GrapholTypesEnum.DATA_PROPERTY:
+    case TypesEnum.DATA_PROPERTY:
     case EntityTypeEnum.DataProperty: {
       arrToCheck = arrToCheck.concat(...emtpyUnfoldingEntities.emptyUnfoldingDataProperties)
       break
     }
 
-    case GrapholTypesEnum.OBJECT_PROPERTY:
+    case TypesEnum.OBJECT_PROPERTY:
     case EntityTypeEnum.ObjectProperty:
     case EntityTypeEnum.InverseObjectProperty: {
       arrToCheck = arrToCheck.concat(...emtpyUnfoldingEntities.emptyUnfoldingObjectProperties)

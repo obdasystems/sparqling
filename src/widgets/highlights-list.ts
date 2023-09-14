@@ -1,4 +1,4 @@
-import { GrapholTypesEnum, ui } from 'grapholscape'
+import { TypesEnum, ui } from 'grapholscape'
 import { LitElement, PropertyValueMap, css, html } from 'lit'
 import { crosshair, lightbulb } from './assets/icons'
 import { emptyUnfoldingEntityTooltip } from './assets/texts'
@@ -23,8 +23,10 @@ export default class HighlightsList extends ui.DropPanelMixin(ui.BaseMixin(LitEl
   title = 'Suggestions'
   loading: boolean = false
 
+  protected isDefaultClosed: boolean = false
+
   private _onSuggestionLocalization = (element: string) => { }
-  private _onSuggestionAddToQuery = (entityIri: string, entityType: GrapholTypesEnum, relatedClassIri?: string) => { }
+  private _onSuggestionAddToQuery = (entityIri: string, entityType: TypesEnum, relatedClassIri?: string) => { }
   private _onAddLabel = () => { }
   private _onAddComment = () => { }
 
@@ -131,7 +133,7 @@ export default class HighlightsList extends ui.DropPanelMixin(ui.BaseMixin(LitEl
         }
 
         if (!this.entityFilters || this.entityFilters.areAllFiltersDisabled ||
-            this.entityFilters[GrapholTypesEnum.CLASS]) {
+            this.entityFilters[TypesEnum.CLASS]) {
 
           this.shownIRIs.classes = this.allHighlights?.classes
           ?.filter(c => checkEntity(c))
@@ -139,7 +141,7 @@ export default class HighlightsList extends ui.DropPanelMixin(ui.BaseMixin(LitEl
         }
 
         if (!this.entityFilters || this.entityFilters.areAllFiltersDisabled ||
-            this.entityFilters[GrapholTypesEnum.DATA_PROPERTY]) {
+            this.entityFilters[TypesEnum.DATA_PROPERTY]) {
 
           this.shownIRIs.dataProperties = this.allHighlights?.dataProperties
             ?.filter(dp => checkEntity(dp))
@@ -148,7 +150,7 @@ export default class HighlightsList extends ui.DropPanelMixin(ui.BaseMixin(LitEl
 
 
         if (!this.entityFilters || this.entityFilters.areAllFiltersDisabled ||
-            this.entityFilters[GrapholTypesEnum.OBJECT_PROPERTY]) {
+            this.entityFilters[TypesEnum.OBJECT_PROPERTY]) {
 
           this.shownIRIs.objectProperties = this.allHighlights?.objectProperties
             ?.filter(op => checkEntity(op))
@@ -183,79 +185,79 @@ export default class HighlightsList extends ui.DropPanelMixin(ui.BaseMixin(LitEl
             </gscape-button>
           </div>
         `
-        : html`
-          <div class="gscape-panel" id="drop-panel">
-            <div class="top-bar">
-              <div id="widget-header" class="bold-text">
-                ${lightbulb}
-                <span>${this.title}</span>
-              </div>
-
-              <gscape-button 
-                id="toggle-panel-button"
-                size="s" 
-                type="subtle"
-                @click=${this.togglePanel}
-              > 
-                <span slot="icon">${ui.icons.minus}</span>
-              </gscape-button>
-            </div>
-
-            <gscape-entity-search
-              class=0
-              data-property=0
-              object-property=0
-            ></gscape-entity-search>
-
-            <div class="content-wrapper">
-              <div class="list">
-                ${this.loading
-                  ? html`<div style="align-self: center">${ui.getContentSpinner()}</div>`
-                  : this.hasAnyHighlights
-                    ? html`
-
-                      <details open="">
-                        <summary class="actionable" style="padding: 8px">Annotations</summary>
-
-                        <gscape-action-list-item
-                          label = 'Label'
-                          @click=${this._onAddLabel}
-                        >
-                          <span slot="icon">${ui.icons.labelIcon}</span>
-                        </gscape-action-list-item>
-
-                        <gscape-action-list-item
-                          label = 'Comment'
-                          @click=${this._onAddComment}
-                        >
-                          <span slot="icon">${ui.icons.commentIcon}</span>
-                        </gscape-action-list-item>
-                      </details>
-
-                      <div class="hr" style="flex-shrink: 0; margin: 8px auto"></div>
-
-                      ${this.dataProperties.map(dp => this.getEntitySuggestionTemplate(dp))}
-                      ${this.objectProperties.map(op => this.getObjectPropertySuggestionTemplate(op))}
-                      ${this.classes.map(c => this.getEntitySuggestionTemplate(c))}
-
-                      ${this.shownIRIs && this.objectProperties.length === 0 && this.dataProperties.length === 0 && this.classes.length === 0
-                        ? ui.emptySearchBlankState
-                        : null
-                      }
-                    `
-                    : this.allHighlights === undefined && html`
-                      <div class="blank-slate">
-                        ${ui.icons.searchOff}
-                        <div class="header">No suggestions available</div>
-                        <div class="description">Add elements to the query and we will provide you next steps suggestions</div>
-                      </div>
-                    `
-                }
-              </div>
-            </div>
-          </div>
-        `
+        : null
       }
+
+      <div class="gscape-panel" id="drop-panel">
+        <div class="top-bar">
+          <div id="widget-header" class="bold-text">
+            ${lightbulb}
+            <span>${this.title}</span>
+          </div>
+
+          <gscape-button 
+            id="toggle-panel-button"
+            size="s" 
+            type="subtle"
+            @click=${this.togglePanel}
+          > 
+            <span slot="icon">${ui.icons.minus}</span>
+          </gscape-button>
+        </div>
+
+        <gscape-entity-search
+          class=0
+          data-property=0
+          object-property=0
+        ></gscape-entity-search>
+
+        <div class="content-wrapper">
+          <div class="list">
+            ${this.loading
+              ? html`<div style="align-self: center">${ui.getContentSpinner()}</div>`
+              : this.hasAnyHighlights
+                ? html`
+
+                  <details open="">
+                    <summary class="actionable" style="padding: 8px">Annotations</summary>
+
+                    <gscape-action-list-item
+                      label = 'Label'
+                      @click=${this._onAddLabel}
+                    >
+                      <span slot="icon">${ui.icons.labelIcon}</span>
+                    </gscape-action-list-item>
+
+                    <gscape-action-list-item
+                      label = 'Comment'
+                      @click=${this._onAddComment}
+                    >
+                      <span slot="icon">${ui.icons.commentIcon}</span>
+                    </gscape-action-list-item>
+                  </details>
+
+                  <div class="hr" style="flex-shrink: 0; margin: 8px auto"></div>
+
+                  ${this.dataProperties.map(dp => this.getEntitySuggestionTemplate(dp))}
+                  ${this.objectProperties.map(op => this.getObjectPropertySuggestionTemplate(op))}
+                  ${this.classes.map(c => this.getEntitySuggestionTemplate(c))}
+
+                  ${this.shownIRIs && this.objectProperties.length === 0 && this.dataProperties.length === 0 && this.classes.length === 0
+                    ? ui.emptySearchBlankState
+                    : null
+                  }
+                `
+                : this.allHighlights === undefined && html`
+                  <div class="blank-slate">
+                    ${ui.icons.searchOff}
+                    <div class="header">No suggestions available</div>
+                    <div class="description">Add elements to the query and we will provide you next steps suggestions</div>
+                  </div>
+                `
+            }
+          </div>
+        </div>
+      </div>
     `
   }
 
@@ -265,7 +267,7 @@ export default class HighlightsList extends ui.DropPanelMixin(ui.BaseMixin(LitEl
       <gscape-entity-list-item
         displayedname=${objectProperty.entityViewData.displayedName}
         iri=${objectProperty.entityViewData.value.iri.fullIri}
-        type=${objectProperty.entityViewData.value.type}
+        .types=${objectProperty.entityViewData.value.types}
         ?asaccordion=${true}
         ?disabled=${disabled}
         direct=${objectProperty.direct}
@@ -277,7 +279,7 @@ export default class HighlightsList extends ui.DropPanelMixin(ui.BaseMixin(LitEl
             (e) => this.handleAddToQueryClick(
               e, 
               connectedClass.entityViewData.value.iri.fullIri,
-              GrapholTypesEnum.OBJECT_PROPERTY,
+              objectProperty.entityViewData.value.types,
               objectProperty.entityViewData.value.iri.fullIri
             ),
             disabled
@@ -319,7 +321,7 @@ export default class HighlightsList extends ui.DropPanelMixin(ui.BaseMixin(LitEl
       <gscape-entity-list-item
         displayedname=${entity.entityViewData.displayedName}
         iri=${entity.entityViewData.value.iri}
-        type=${entity.entityViewData.value.type}
+        .types=${entity.entityViewData.value.types}
         ?disabled=${disabled}
         title=${entity.hasUnfolding ? entity.entityViewData.displayedName : emptyUnfoldingEntityTooltip()}
       >
@@ -349,7 +351,7 @@ export default class HighlightsList extends ui.DropPanelMixin(ui.BaseMixin(LitEl
                   if (customCallback)
                     customCallback(e)
                   else
-                    this.handleAddToQueryClick(e, entity.entityViewData.value.iri.fullIri, entity.entityViewData.value.type)
+                    this.handleAddToQueryClick(e, entity.entityViewData.value.iri.fullIri, entity.entityViewData.value.types)
                 }}
               >
                 <span slot='icon' class="slotted-icon">${ui.icons.insertInGraph}</span>
@@ -364,8 +366,6 @@ export default class HighlightsList extends ui.DropPanelMixin(ui.BaseMixin(LitEl
 
   protected firstUpdated(_changedProperties: PropertyValueMap<any> | Map<PropertyKey, unknown>): void {
     super.firstUpdated(_changedProperties)
-    this.closePanel()
-    this.requestUpdate()
     this.hide()
   }
 
@@ -376,12 +376,12 @@ export default class HighlightsList extends ui.DropPanelMixin(ui.BaseMixin(LitEl
       this._onSuggestionLocalization(entityIri)
   }
 
-  private handleAddToQueryClick(e: MouseEvent, entityIri: string, entityType: GrapholTypesEnum, objectPropertyIri?: string) {
+  private handleAddToQueryClick(e: MouseEvent, entityIri: string, entityType: Set<TypesEnum>, objectPropertyIri?: string) {
     e.preventDefault()
     if (objectPropertyIri) { // if it's from object property, then the entityIri is the relatedClass iri
-      this._onSuggestionAddToQuery(objectPropertyIri, GrapholTypesEnum.OBJECT_PROPERTY, entityIri)
+      this._onSuggestionAddToQuery(objectPropertyIri, TypesEnum.OBJECT_PROPERTY, entityIri)
     } else {
-      this._onSuggestionAddToQuery(entityIri, entityType)
+      this._onSuggestionAddToQuery(entityIri, entityType.values()[0])
     }
   }
 
@@ -395,7 +395,7 @@ export default class HighlightsList extends ui.DropPanelMixin(ui.BaseMixin(LitEl
     this._onSuggestionLocalization = callback
   }
 
-  onSuggestionAddToQuery(callback: (entityIri:string, entityType: GrapholTypesEnum, relatedClass?: string) => void) {
+  onSuggestionAddToQuery(callback: (entityIri:string, entityType: TypesEnum, relatedClass?: string) => void) {
     this._onSuggestionAddToQuery = callback
   }
 
@@ -444,17 +444,17 @@ export default class HighlightsList extends ui.DropPanelMixin(ui.BaseMixin(LitEl
 
     if (this.shownIRIs && this.entityFilters && !this.entityFilters.areAllFiltersDisabled) {
       let count = 0
-      if (!this.entityFilters[GrapholTypesEnum.CLASS]) {
+      if (!this.entityFilters[TypesEnum.CLASS]) {
         this.shownIRIs.classes = []
         count += 1
       }
 
-      if (!this.entityFilters[GrapholTypesEnum.OBJECT_PROPERTY]) {
+      if (!this.entityFilters[TypesEnum.OBJECT_PROPERTY]) {
         this.shownIRIs.objectProperties = []
         count += 1
       }
 
-      if (!this.entityFilters[GrapholTypesEnum.DATA_PROPERTY]) {
+      if (!this.entityFilters[TypesEnum.DATA_PROPERTY]) {
         this.shownIRIs.dataProperties = []
         count += 1
       }

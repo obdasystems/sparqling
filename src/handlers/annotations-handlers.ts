@@ -1,11 +1,10 @@
-import { AnnotationsKind } from "grapholscape"
 import { QueryGraphBGPApi } from "../api/swagger"
 import { handlePromise } from "../main/handle-promises"
 import onNewBody from "../main/on-new-body"
 import * as model from "../model"
 
-export default async function addAnnotation(annotationKind: AnnotationsKind) {
-  if (annotationKind !== AnnotationsKind.label && annotationKind !== AnnotationsKind.comment) {
+export default async function addAnnotation(annotationKind: string) {
+  if (annotationKind !== 'label' && annotationKind !== 'comment') {
     console.warn(`Annotations of kind [${annotationKind}] are not supported yet.`)
     return
   }

@@ -31,7 +31,7 @@ export { default as distinctToggle } from "./distinct-toggle"
 export { default as countStarToggle } from './count-star-toggle'
 
 // export * from './cxt-menu'
-export const cxtMenu = new ui.ContextMenu()
+export const cxtMenu = new ui.GscapeContextMenu()
 
 export const exitFullscreenButton = new ui.GscapeButton()
 exitFullscreenButton.innerHTML = `<span slot="icon">${ui.icons.exitFullscreen.strings.join('')}</span>`

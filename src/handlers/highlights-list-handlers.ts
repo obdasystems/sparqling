@@ -1,4 +1,4 @@
-import { AnnotationsKind, GrapholTypesEnum } from "grapholscape"
+import { TypesEnum } from "grapholscape"
 import { Branch } from "../api/swagger"
 import { getActualHighlights, isFullPageActive } from "../model"
 import { getEntityOccurrence, getGscape } from '../ontology-graph'
@@ -14,15 +14,15 @@ highlightsList.onSuggestionLocalization((entityIri) => {
 
 highlightsList.onSuggestionAddToQuery((entityIri, entityType, relatedClass) => {
   switch (entityType) {
-    case GrapholTypesEnum.CLASS:
-    case GrapholTypesEnum.DATA_PROPERTY:
+    case TypesEnum.CLASS:
+    case TypesEnum.DATA_PROPERTY:
       const entityOccurrence = getEntityOccurrence(entityIri)
 
       if (entityOccurrence)
         handleEntitySelection(entityIri, entityType, entityOccurrence)
       break
 
-    case GrapholTypesEnum.OBJECT_PROPERTY:
+    case TypesEnum.OBJECT_PROPERTY:
       if (relatedClass) {
         const objectPropertyBranch = getActualHighlights()?.objectProperties?.find((b: Branch) => {
           if (b.objectPropertyIRI)
@@ -36,5 +36,5 @@ highlightsList.onSuggestionAddToQuery((entityIri, entityType, relatedClass) => {
   }
 })
 
-highlightsList.onAddLabel(() => addAnnotation(AnnotationsKind.label))
-highlightsList.onAddComment(() => addAnnotation(AnnotationsKind.comment))
+highlightsList.onAddLabel(() => addAnnotation('label'))
+highlightsList.onAddComment(() => addAnnotation('comment'))

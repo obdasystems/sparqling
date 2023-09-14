@@ -1,5 +1,5 @@
 import { Core } from "cytoscape"
-import { EntityNameType, Grapholscape, GrapholscapeTheme, GrapholTypesEnum, LifecycleEvent, RendererStatesEnum, ui } from "grapholscape"
+import { EntityNameType, Grapholscape, GrapholscapeTheme, TypesEnum, LifecycleEvent, RendererStatesEnum, ui } from "grapholscape"
 import { OntologyGraphHandlers } from "../handlers"
 import * as model from '../model'
 import { hasEntityEmptyUnfolding } from "../model"
@@ -83,7 +83,7 @@ function onChangeDiagramOrRenderer(gscape: Grapholscape) {
 function setHandlers(cy: Core) {
   // [diplayed_name] select only nodes with a defined displayed name, 
   // avoid fake nodes (for inverse/nonInverse functional obj properties)
-  const objPropertiesSelector = `[iri][type = "${GrapholTypesEnum.OBJECT_PROPERTY}"]`
+  const objPropertiesSelector = `[iri][type = "${TypesEnum.OBJECT_PROPERTY}"]`
   cy.on('mouseover', objPropertiesSelector, e => {
     if (model.isSparqlingRunning() && !hasEntityEmptyUnfolding(e.target.data().iri))
       ontologyGraph.showRelatedClassesWidget(e.target.data('iri'), e.renderedPosition)
@@ -105,7 +105,14 @@ function setHandlers(cy: Core) {
   })
 
   cy.on('dblclick', `[iri]`, e => {
-    if (model.isSparqlingRunning() && getGscape().diagramId !== undefined && !hasEntityEmptyUnfolding(e.target.data().iri))
-      OntologyGraphHandlers.handleEntitySelection(e.target.data().iri, e.target.data().type, { elementId: e.target.id(), diagramId: getGscape().diagramId! })
+    const gscape = getGscape()
+    const grapholElment = gscape.ontology.getGrapholElement(e.target.id(), gscape.diagramId, gscape.renderState)
+    if (grapholElment &&
+      model.isSparqlingRunning() &&
+      gscape.diagramId !== undefined &&
+      !hasEntityEmptyUnfolding(e.target.data().iri)
+    ) {
+      OntologyGraphHandlers.handleEntitySelection(e.target.data().iri, e.target.data().type, grapholElment)
+    }
   })
 }

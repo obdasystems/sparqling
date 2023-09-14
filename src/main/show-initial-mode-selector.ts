@@ -33,7 +33,8 @@ export default function showInitialModeSelector() {
     } else {
       if (isFullPageActive())
         stopFullpage();
-      (getGscape().widgets.get(ui.WidgetEnum.INITIAL_RENDERER_SELECTOR) as any).show()
+      (getGscape().widgets.get(ui.WidgetEnum.INITIAL_RENDERER_SELECTOR) as any)?.show()
+      console.log(getGscape().widgets)
     }
   }
 

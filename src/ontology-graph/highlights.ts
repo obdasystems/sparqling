@@ -1,5 +1,5 @@
 import cytoscape from "cytoscape"
-import { EntityOccurrence, RendererStatesEnum } from "grapholscape"
+import { GrapholElement, RendererStatesEnum } from "grapholscape"
 import * as model from "../model"
 import { hasEntityEmptyUnfolding } from "../model"
 import getGscape from "./get-gscape"
@@ -55,11 +55,11 @@ function addClassToEntity(iri: string, classToAdd: string) {
 }
 
 
-function addClassToEntityOccurrences(entityOccurrences: EntityOccurrence[], classToAdd: string) {
+function addClassToEntityOccurrences(entityOccurrences: GrapholElement[], classToAdd: string) {
   const gscape = getGscape()
   entityOccurrences.forEach(occurrence => {
     if (occurrence.diagramId === gscape.diagramId) {
-      const cyElem = gscape.renderer.cy?.$id(occurrence.elementId)
+      const cyElem = gscape.renderer.cy?.$id(occurrence.id)
 
       cyElem?.addClass(classToAdd)
 

@@ -7,7 +7,7 @@ import { getGscape, selectEntity } from "../ontology-graph";
 import { selectElement } from "../query-graph";
 import { classSelector } from "../widgets";
 
-classSelector.onClassSelection(async (classIri: string) => {
+classSelector.onClassSelection = async (classIri) => {
   if (hasEntityEmptyUnfolding(classIri, EntityTypeEnum.Class))
     return
 
@@ -34,4 +34,4 @@ classSelector.onClassSelection(async (classIri: string) => {
     performHighlights(classEntity.iri.fullIri)
     selectEntity(classEntity.iri.fullIri)
   }
-})
+}

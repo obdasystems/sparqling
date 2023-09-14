@@ -1,4 +1,4 @@
-import { GrapholTypesEnum, ui } from "grapholscape";
+import { TypesEnum, ui } from "grapholscape";
 import { EntityTypeEnum } from "../api/swagger";
 import { hasEntityEmptyUnfolding } from "../model";
 import { getGscape } from "../ontology-graph";
@@ -9,7 +9,7 @@ classSelector.hide()
 
 export function initClassSelector() {
   classSelector.entityList = ui.createEntitiesList(getGscape(), {
-    [GrapholTypesEnum.CLASS]: 1,
+    [TypesEnum.CLASS]: 1,
     areAllFiltersDisabled: false,
   })
 

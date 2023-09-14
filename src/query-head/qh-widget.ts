@@ -1,12 +1,11 @@
 import { ui } from 'grapholscape'
 import { css, html, LitElement } from 'lit'
 import { HeadElement } from '../api/swagger'
-import { getConfig, isConfigEnabled, isCountStarActive } from '../model'
+import { getConfig, isCountStarActive } from '../model'
 import { cxtMenu } from '../widgets'
-import { asterisk, code, counter, kebab, preview, tableEye } from '../widgets/assets/icons'
+import { asterisk, counter, tableEye } from '../widgets/assets/icons'
 import { countStarMsg, emptyHeadMsg, emptyHeadTipMsg, tipWhy } from '../widgets/assets/texts'
 import sparqlingWidgetStyle from '../widgets/sparqling-widget-style'
-import getTrayButtonTemplate from '../widgets/tray-button-template'
 import { allowDrop } from './drag-sorting'
 import HeadElementComponent, { HeadElementCallback, HeadElementRenameCallback } from './qh-element-component'
 
@@ -24,6 +23,8 @@ export default class QueryHeadWidget extends ui.BaseMixin(ui.DropPanelMixin(LitE
   private addAggregationCallback: HeadElementCallback
   private highlightVariableCallback: HeadElementCallback
   private resetHighlightCallback: HeadElementCallback
+
+  isDefaultClosed = false
   
   static properties = {
     headElements: { type: Object, attribute: false },

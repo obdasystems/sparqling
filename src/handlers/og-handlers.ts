@@ -1,5 +1,5 @@
 import { CollectionReturnValue } from "cytoscape"
-import { EntityOccurrence, GrapholTypesEnum, Iri } from "grapholscape"
+import { TypesEnum, Iri, GrapholElement } from "grapholscape"
 import { Branch, GraphElement, QueryGraph, QueryGraphBGPApi, QueryGraphExtraApi } from "../api/swagger"
 import { performHighlights } from "../main"
 import { handlePromise } from "../main/handle-promises"
@@ -15,7 +15,7 @@ import { getdiffNew, getIris, graphElementHasIri, isClass } from "../util/graph-
 
 let lastObjProperty: Branch | null
 
-export async function handleEntitySelection(entityIriString: string, entityType: GrapholTypesEnum, entityOccurrence: EntityOccurrence) {
+export async function handleEntitySelection(entityIriString: string, entityType: TypesEnum, entityOccurrence: GrapholElement) {
   const gscape = getGscape()
   const entityIri = new Iri(entityIriString, gscape.ontology.namespaces)
   const activeElement = model.getActiveElement()
@@ -25,14 +25,14 @@ export async function handleEntitySelection(entityIriString: string, entityType:
   }
 
   switch (entityType) {
-    case GrapholTypesEnum.OBJECT_PROPERTY: {
+    case TypesEnum.OBJECT_PROPERTY: {
       // let result = await handleObjectPropertySelection(cyEntity)
       // if (result && result.connectedClass) {
       //   gscape.centerOnNode(result.connectedClass.id(), 1.8)
       // }
       break
     }
-    case GrapholTypesEnum.CLASS: {
+    case TypesEnum.CLASS: {
       handleConceptSelection(entityIriString)?.then(newBody => {
         if (!newBody) return
 
@@ -58,7 +58,7 @@ export async function handleEntitySelection(entityIriString: string, entityType:
       })
       break
     }
-    case GrapholTypesEnum.DATA_PROPERTY: {
+    case TypesEnum.DATA_PROPERTY: {
       handleDataPropertySelection(entityIriString)?.then(newBody => {
         if (!newBody) return
 
@@ -75,19 +75,19 @@ export async function handleEntitySelection(entityIriString: string, entityType:
 
 ontologyGraph.onRelatedClassSelection(handleObjectPropertySelection)
 
-export function handleObjectPropertySelection(branch: Branch, relatedClassEntityOccurrence: EntityOccurrence) {
+export function handleObjectPropertySelection(branch: Branch, relatedClassEntityOccurrence: GrapholElement) {
   const gscape = getGscape()
   lastObjProperty = branch
 
   if (!model.isFullPageActive()) {
-    gscape.centerOnElement(relatedClassEntityOccurrence.elementId, relatedClassEntityOccurrence.diagramId)
-    gscape.selectElement(relatedClassEntityOccurrence.elementId)
+    gscape.centerOnElement(relatedClassEntityOccurrence.id, relatedClassEntityOccurrence.diagramId)
+    gscape.selectElement(relatedClassEntityOccurrence.id)
   }
 
   const relatedClassCyElement = gscape.renderState
     ? gscape.ontology.getDiagram(relatedClassEntityOccurrence.diagramId)
       ?.representations.get(gscape.renderState)
-      ?.cy.$id(relatedClassEntityOccurrence.elementId)
+      ?.cy.$id(relatedClassEntityOccurrence.id)
     : null
 
   if (relatedClassCyElement)
@@ -170,7 +170,7 @@ export async function handleDataPropertySelection(cyEntity: string | CollectionR
  * @param graphElements Array of newly added graphElements
  * @returns The GraphElement corresponding to the clicked entity
  */
-export function setOriginNode(entityOccurrence: EntityOccurrence, graphElements: GraphElement[], clickedIri: string) {
+export function setOriginNode(entityOccurrence: GrapholElement, graphElements: GraphElement[], clickedIri: string) {
   let graphElement = graphElements?.find(ge => graphElementHasIri(ge, clickedIri))
   if (graphElement) {
     model.getOriginGrapholNodes().set(graphElement.id + clickedIri, entityOccurrence)

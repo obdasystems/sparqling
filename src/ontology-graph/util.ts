@@ -1,5 +1,5 @@
 import { Core, StylesheetStyle } from "cytoscape"
-import { EntityOccurrence, RendererStatesEnum } from "grapholscape"
+import { GrapholElement, RendererStatesEnum } from "grapholscape"
 import getGscape from "./get-gscape"
 
 /**
@@ -7,7 +7,7 @@ import getGscape from "./get-gscape"
  * Prefer instance in actual diagram, pick first one in the list as fallback
  * @param entityIri the entity's IRI to look for
  */
-export function getEntityOccurrence(entityIri: string): EntityOccurrence | undefined {
+export function getEntityOccurrence(entityIri: string): GrapholElement | undefined {
   const gscape = getGscape()
   // Prefer instance in actual diagram, first one as fallback
   const selectedClassEntity = gscape.ontology.getEntity(entityIri)

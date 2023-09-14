@@ -2,11 +2,11 @@ import { Branch } from "../api/swagger"
 import getGscape from "./get-gscape"
 import { relatedClassDialog } from "../widgets"
 import EventPosition from "../util/event-position"
-import { EntityOccurrence, Iri } from "grapholscape"
+import { GrapholElement, Iri } from "grapholscape"
 import { getEntityOccurrence } from "./util"
 import { getActiveElement, getActualHighlights, isIriHighlighted } from "../model"
 
-let _onRelatedClassSelection = (objectProperty: Branch, relatedClass: EntityOccurrence) => { }
+let _onRelatedClassSelection = (objectProperty: Branch, relatedClass: GrapholElement) => { }
 
 export function showRelatedClassesWidget(objPropertyIri: string, position: EventPosition) {
   const actualHighlights = getActualHighlights()
@@ -57,6 +57,6 @@ export function hideRelatedClassesWidget() {
   relatedClassDialog.hide()
 }
 
-export function onRelatedClassSelection(callback: (objectProperty: Branch, relatedClass: EntityOccurrence) => void) {
+export function onRelatedClassSelection(callback: (objectProperty: Branch, relatedClass: GrapholElement) => void) {
   _onRelatedClassSelection = callback
 }

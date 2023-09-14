@@ -20,6 +20,8 @@ export default class QueryGraphWidget extends ui.BaseMixin(ui.DropPanelMixin(Lit
   private _isBGPEmpty: boolean = true
   private _withoutBGP: boolean = false
   
+  isDefaultClosed = false
+
   onQueryClear = () => { }
   onSparqlButtonClick = () => { }
   onFullScreenEnter = () => { }
