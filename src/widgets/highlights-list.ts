@@ -322,8 +322,16 @@ export default class HighlightsList extends ui.DropPanelMixin(ui.BaseMixin(LitEl
         displayedname=${entity.entityViewData.displayedName}
         iri=${entity.entityViewData.value.iri}
         .types=${entity.entityViewData.value.types}
+        actionable
         ?disabled=${disabled}
         title=${entity.hasUnfolding ? entity.entityViewData.displayedName : emptyUnfoldingEntityTooltip()}
+        @click=${(e: MouseEvent) => {
+          console.log(e)
+          if (customCallback)
+            customCallback(e)
+          else
+            this.handleAddToQueryClick(e, entity.entityViewData.value.iri.fullIri, entity.entityViewData.value.types)
+        }}
       >
         <div slot="trailing-element" class="actions">
           ${!isFullPageActive()
@@ -341,7 +349,7 @@ export default class HighlightsList extends ui.DropPanelMixin(ui.BaseMixin(LitEl
             `
             : null
           }
-          ${!disabled
+          <!-- ${!disabled
             ? html`
               <gscape-button
                 title="Add to query"
@@ -358,7 +366,7 @@ export default class HighlightsList extends ui.DropPanelMixin(ui.BaseMixin(LitEl
               </gscape-button>
             `
             : null
-          }
+          } -->
         </div>
       </gscape-entity-list-item>
     `
@@ -381,7 +389,7 @@ export default class HighlightsList extends ui.DropPanelMixin(ui.BaseMixin(LitEl
     if (objectPropertyIri) { // if it's from object property, then the entityIri is the relatedClass iri
       this._onSuggestionAddToQuery(objectPropertyIri, TypesEnum.OBJECT_PROPERTY, entityIri)
     } else {
-      this._onSuggestionAddToQuery(entityIri, entityType.values()[0])
+      this._onSuggestionAddToQuery(entityIri, Array.from(entityType)[0])
     }
   }
 
