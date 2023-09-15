@@ -58,7 +58,6 @@ export async function sparqling(gscape: Grapholscape, file: string | Blob, reque
       }
 
       const grapholscapeRendererSelector = gscape.widgets.get(ui.WidgetEnum.INITIAL_RENDERER_SELECTOR) as any
-      console.log(grapholscapeRendererSelector)
       const onOptionSelection = grapholscapeRendererSelector?.onOptionSelection
       if (onOptionSelection) {
         grapholscapeRendererSelector.onOptionSelection = (optionId) => {
