@@ -53,17 +53,24 @@ export async function sparqling(gscape: Grapholscape, file: string | Blob, reque
         stopFullpage()
       }
       // show grapholscape renderer selector
-      const grapholscapeRendererSelector = (gscape.widgets.get(ui.WidgetEnum.INITIAL_RENDERER_SELECTOR) as any)
-      grapholscapeRendererSelector.show()
-      const onOptionSelection = grapholscapeRendererSelector.onOptionSelection
-      grapholscapeRendererSelector.onOptionSelection = (optionId) => {
-        onOptionSelection(optionId) // call original callback
-        if (core.onToggleCatalog) {
-          core.onToggleCatalog()
-        }
+      if (!gscape.widgets.get(ui.WidgetEnum.INITIAL_RENDERER_SELECTOR)) {
+        ui.initInitialRendererSelector(gscape)
+      }
 
-        performHighlightsEmptyUnfolding()
-        grapholscapeRendererSelector.onOptionSelection = onOptionSelection // restore original callback
+      const grapholscapeRendererSelector = gscape.widgets.get(ui.WidgetEnum.INITIAL_RENDERER_SELECTOR) as any
+      console.log(grapholscapeRendererSelector)
+      const onOptionSelection = grapholscapeRendererSelector?.onOptionSelection
+      if (onOptionSelection) {
+        grapholscapeRendererSelector.onOptionSelection = (optionId) => {
+          onOptionSelection(optionId) // call original callback
+          if (core.onToggleCatalog) {
+            core.onToggleCatalog()
+          }
+  
+          performHighlightsEmptyUnfolding()
+          grapholscapeRendererSelector.onOptionSelection = onOptionSelection // restore original callback
+        }
+        grapholscapeRendererSelector?.enable()
       }
     } else {
       if (model.isSparqlingRunning()) {
