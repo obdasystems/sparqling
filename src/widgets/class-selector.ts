@@ -5,6 +5,12 @@ import { getGscape } from "../ontology-graph";
 
 export const classSelector = new ui.GscapeEntitySelector()
 
+classSelector.style.top = '20%'
+classSelector.style.left = '50%'
+classSelector.style.transform = 'translate(-50%)'
+classSelector.style.width = '40%'
+classSelector.style.minWidth = '150px'
+classSelector.style.position = 'absolute'
 classSelector.hide()
 
 export function initClassSelector() {
