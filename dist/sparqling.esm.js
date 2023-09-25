@@ -22,7 +22,7 @@
  * SOFTWARE.
  */
 
-import { ui, GrapholTypesEnum, RendererStatesEnum, Iri, EntityNameType, ColoursNames, DefaultThemesEnum, toPNG, toSVG, util, GrapholRendererState, Shape, LifecycleEvent, AnnotationsKind } from 'grapholscape';
+import { ui, TypesEnum, RendererStatesEnum, Iri, EntityNameType, ColoursNames, DefaultThemesEnum, toPNG, toSVG, util, GrapholRendererState, Shape, LifecycleEvent } from 'grapholscape';
 import globalAxios from 'axios';
 import cytoscape from 'cytoscape';
 import cola from 'cytoscape-cola';
@@ -2548,81 +2548,81 @@ const t$1=window,e$2=t$1.ShadowRoot&&(void 0===t$1.ShadyCSS||t$1.ShadyCSS.native
  * @license
  * Copyright 2017 Google LLC
  * SPDX-License-Identifier: BSD-3-Clause
- */var s$2;const e$1=window,r$1=e$1.trustedTypes,h$1=r$1?r$1.emptyScript:"",o$2=e$1.reactiveElementPolyfillSupport,n$2={toAttribute(t,i){switch(i){case Boolean:t=t?h$1:null;break;case Object:case Array:t=null==t?t:JSON.stringify(t);}return t},fromAttribute(t,i){let s=t;switch(i){case Boolean:s=null!==t;break;case Number:s=null===t?null:Number(t);break;case Object:case Array:try{s=JSON.parse(t);}catch(t){s=null;}}return s}},a$1=(t,i)=>i!==t&&(i==i||t==t),l$2={attribute:!0,type:String,converter:n$2,reflect:!1,hasChanged:a$1};class d$1 extends HTMLElement{constructor(){super(),this._$Ei=new Map,this.isUpdatePending=!1,this.hasUpdated=!1,this._$El=null,this.u();}static addInitializer(t){var i;null!==(i=this.h)&&void 0!==i||(this.h=[]),this.h.push(t);}static get observedAttributes(){this.finalize();const t=[];return this.elementProperties.forEach(((i,s)=>{const e=this._$Ep(s,i);void 0!==e&&(this._$Ev.set(e,s),t.push(e));})),t}static createProperty(t,i=l$2){if(i.state&&(i.attribute=!1),this.finalize(),this.elementProperties.set(t,i),!i.noAccessor&&!this.prototype.hasOwnProperty(t)){const s="symbol"==typeof t?Symbol():"__"+t,e=this.getPropertyDescriptor(t,s,i);void 0!==e&&Object.defineProperty(this.prototype,t,e);}}static getPropertyDescriptor(t,i,s){return {get(){return this[i]},set(e){const r=this[t];this[i]=e,this.requestUpdate(t,r,s);},configurable:!0,enumerable:!0}}static getPropertyOptions(t){return this.elementProperties.get(t)||l$2}static finalize(){if(this.hasOwnProperty("finalized"))return !1;this.finalized=!0;const t=Object.getPrototypeOf(this);if(t.finalize(),this.elementProperties=new Map(t.elementProperties),this._$Ev=new Map,this.hasOwnProperty("properties")){const t=this.properties,i=[...Object.getOwnPropertyNames(t),...Object.getOwnPropertySymbols(t)];for(const s of i)this.createProperty(s,t[s]);}return this.elementStyles=this.finalizeStyles(this.styles),!0}static finalizeStyles(i){const s=[];if(Array.isArray(i)){const e=new Set(i.flat(1/0).reverse());for(const i of e)s.unshift(c$1(i));}else void 0!==i&&s.push(c$1(i));return s}static _$Ep(t,i){const s=i.attribute;return !1===s?void 0:"string"==typeof s?s:"string"==typeof t?t.toLowerCase():void 0}u(){var t;this._$E_=new Promise((t=>this.enableUpdating=t)),this._$AL=new Map,this._$Eg(),this.requestUpdate(),null===(t=this.constructor.h)||void 0===t||t.forEach((t=>t(this)));}addController(t){var i,s;(null!==(i=this._$ES)&&void 0!==i?i:this._$ES=[]).push(t),void 0!==this.renderRoot&&this.isConnected&&(null===(s=t.hostConnected)||void 0===s||s.call(t));}removeController(t){var i;null===(i=this._$ES)||void 0===i||i.splice(this._$ES.indexOf(t)>>>0,1);}_$Eg(){this.constructor.elementProperties.forEach(((t,i)=>{this.hasOwnProperty(i)&&(this._$Ei.set(i,this[i]),delete this[i]);}));}createRenderRoot(){var t;const s=null!==(t=this.shadowRoot)&&void 0!==t?t:this.attachShadow(this.constructor.shadowRootOptions);return S$1(s,this.constructor.elementStyles),s}connectedCallback(){var t;void 0===this.renderRoot&&(this.renderRoot=this.createRenderRoot()),this.enableUpdating(!0),null===(t=this._$ES)||void 0===t||t.forEach((t=>{var i;return null===(i=t.hostConnected)||void 0===i?void 0:i.call(t)}));}enableUpdating(t){}disconnectedCallback(){var t;null===(t=this._$ES)||void 0===t||t.forEach((t=>{var i;return null===(i=t.hostDisconnected)||void 0===i?void 0:i.call(t)}));}attributeChangedCallback(t,i,s){this._$AK(t,s);}_$EO(t,i,s=l$2){var e;const r=this.constructor._$Ep(t,s);if(void 0!==r&&!0===s.reflect){const h=(void 0!==(null===(e=s.converter)||void 0===e?void 0:e.toAttribute)?s.converter:n$2).toAttribute(i,s.type);this._$El=t,null==h?this.removeAttribute(r):this.setAttribute(r,h),this._$El=null;}}_$AK(t,i){var s;const e=this.constructor,r=e._$Ev.get(t);if(void 0!==r&&this._$El!==r){const t=e.getPropertyOptions(r),h="function"==typeof t.converter?{fromAttribute:t.converter}:void 0!==(null===(s=t.converter)||void 0===s?void 0:s.fromAttribute)?t.converter:n$2;this._$El=r,this[r]=h.fromAttribute(i,t.type),this._$El=null;}}requestUpdate(t,i,s){let e=!0;void 0!==t&&(((s=s||this.constructor.getPropertyOptions(t)).hasChanged||a$1)(this[t],i)?(this._$AL.has(t)||this._$AL.set(t,i),!0===s.reflect&&this._$El!==t&&(void 0===this._$EC&&(this._$EC=new Map),this._$EC.set(t,s))):e=!1),!this.isUpdatePending&&e&&(this._$E_=this._$Ej());}async _$Ej(){this.isUpdatePending=!0;try{await this._$E_;}catch(t){Promise.reject(t);}const t=this.scheduleUpdate();return null!=t&&await t,!this.isUpdatePending}scheduleUpdate(){return this.performUpdate()}performUpdate(){var t;if(!this.isUpdatePending)return;this.hasUpdated,this._$Ei&&(this._$Ei.forEach(((t,i)=>this[i]=t)),this._$Ei=void 0);let i=!1;const s=this._$AL;try{i=this.shouldUpdate(s),i?(this.willUpdate(s),null===(t=this._$ES)||void 0===t||t.forEach((t=>{var i;return null===(i=t.hostUpdate)||void 0===i?void 0:i.call(t)})),this.update(s)):this._$Ek();}catch(t){throw i=!1,this._$Ek(),t}i&&this._$AE(s);}willUpdate(t){}_$AE(t){var i;null===(i=this._$ES)||void 0===i||i.forEach((t=>{var i;return null===(i=t.hostUpdated)||void 0===i?void 0:i.call(t)})),this.hasUpdated||(this.hasUpdated=!0,this.firstUpdated(t)),this.updated(t);}_$Ek(){this._$AL=new Map,this.isUpdatePending=!1;}get updateComplete(){return this.getUpdateComplete()}getUpdateComplete(){return this._$E_}shouldUpdate(t){return !0}update(t){void 0!==this._$EC&&(this._$EC.forEach(((t,i)=>this._$EO(i,this[i],t))),this._$EC=void 0),this._$Ek();}updated(t){}firstUpdated(t){}}d$1.finalized=!0,d$1.elementProperties=new Map,d$1.elementStyles=[],d$1.shadowRootOptions={mode:"open"},null==o$2||o$2({ReactiveElement:d$1}),(null!==(s$2=e$1.reactiveElementVersions)&&void 0!==s$2?s$2:e$1.reactiveElementVersions=[]).push("1.4.1");
+ */var s$2;const e$1=window,r$1=e$1.trustedTypes,h$1=r$1?r$1.emptyScript:"",o$2=e$1.reactiveElementPolyfillSupport,n$2={toAttribute(t,i){switch(i){case Boolean:t=t?h$1:null;break;case Object:case Array:t=null==t?t:JSON.stringify(t);}return t},fromAttribute(t,i){let s=t;switch(i){case Boolean:s=null!==t;break;case Number:s=null===t?null:Number(t);break;case Object:case Array:try{s=JSON.parse(t);}catch(t){s=null;}}return s}},a$1=(t,i)=>i!==t&&(i==i||t==t),l$2={attribute:!0,type:String,converter:n$2,reflect:!1,hasChanged:a$1},d$1="finalized";class u$1 extends HTMLElement{constructor(){super(),this._$Ei=new Map,this.isUpdatePending=!1,this.hasUpdated=!1,this._$El=null,this._$Eu();}static addInitializer(t){var i;this.finalize(),(null!==(i=this.h)&&void 0!==i?i:this.h=[]).push(t);}static get observedAttributes(){this.finalize();const t=[];return this.elementProperties.forEach(((i,s)=>{const e=this._$Ep(s,i);void 0!==e&&(this._$Ev.set(e,s),t.push(e));})),t}static createProperty(t,i=l$2){if(i.state&&(i.attribute=!1),this.finalize(),this.elementProperties.set(t,i),!i.noAccessor&&!this.prototype.hasOwnProperty(t)){const s="symbol"==typeof t?Symbol():"__"+t,e=this.getPropertyDescriptor(t,s,i);void 0!==e&&Object.defineProperty(this.prototype,t,e);}}static getPropertyDescriptor(t,i,s){return {get(){return this[i]},set(e){const r=this[t];this[i]=e,this.requestUpdate(t,r,s);},configurable:!0,enumerable:!0}}static getPropertyOptions(t){return this.elementProperties.get(t)||l$2}static finalize(){if(this.hasOwnProperty(d$1))return !1;this[d$1]=!0;const t=Object.getPrototypeOf(this);if(t.finalize(),void 0!==t.h&&(this.h=[...t.h]),this.elementProperties=new Map(t.elementProperties),this._$Ev=new Map,this.hasOwnProperty("properties")){const t=this.properties,i=[...Object.getOwnPropertyNames(t),...Object.getOwnPropertySymbols(t)];for(const s of i)this.createProperty(s,t[s]);}return this.elementStyles=this.finalizeStyles(this.styles),!0}static finalizeStyles(i){const s=[];if(Array.isArray(i)){const e=new Set(i.flat(1/0).reverse());for(const i of e)s.unshift(c$1(i));}else void 0!==i&&s.push(c$1(i));return s}static _$Ep(t,i){const s=i.attribute;return !1===s?void 0:"string"==typeof s?s:"string"==typeof t?t.toLowerCase():void 0}_$Eu(){var t;this._$E_=new Promise((t=>this.enableUpdating=t)),this._$AL=new Map,this._$Eg(),this.requestUpdate(),null===(t=this.constructor.h)||void 0===t||t.forEach((t=>t(this)));}addController(t){var i,s;(null!==(i=this._$ES)&&void 0!==i?i:this._$ES=[]).push(t),void 0!==this.renderRoot&&this.isConnected&&(null===(s=t.hostConnected)||void 0===s||s.call(t));}removeController(t){var i;null===(i=this._$ES)||void 0===i||i.splice(this._$ES.indexOf(t)>>>0,1);}_$Eg(){this.constructor.elementProperties.forEach(((t,i)=>{this.hasOwnProperty(i)&&(this._$Ei.set(i,this[i]),delete this[i]);}));}createRenderRoot(){var t;const s=null!==(t=this.shadowRoot)&&void 0!==t?t:this.attachShadow(this.constructor.shadowRootOptions);return S$1(s,this.constructor.elementStyles),s}connectedCallback(){var t;void 0===this.renderRoot&&(this.renderRoot=this.createRenderRoot()),this.enableUpdating(!0),null===(t=this._$ES)||void 0===t||t.forEach((t=>{var i;return null===(i=t.hostConnected)||void 0===i?void 0:i.call(t)}));}enableUpdating(t){}disconnectedCallback(){var t;null===(t=this._$ES)||void 0===t||t.forEach((t=>{var i;return null===(i=t.hostDisconnected)||void 0===i?void 0:i.call(t)}));}attributeChangedCallback(t,i,s){this._$AK(t,s);}_$EO(t,i,s=l$2){var e;const r=this.constructor._$Ep(t,s);if(void 0!==r&&!0===s.reflect){const h=(void 0!==(null===(e=s.converter)||void 0===e?void 0:e.toAttribute)?s.converter:n$2).toAttribute(i,s.type);this._$El=t,null==h?this.removeAttribute(r):this.setAttribute(r,h),this._$El=null;}}_$AK(t,i){var s;const e=this.constructor,r=e._$Ev.get(t);if(void 0!==r&&this._$El!==r){const t=e.getPropertyOptions(r),h="function"==typeof t.converter?{fromAttribute:t.converter}:void 0!==(null===(s=t.converter)||void 0===s?void 0:s.fromAttribute)?t.converter:n$2;this._$El=r,this[r]=h.fromAttribute(i,t.type),this._$El=null;}}requestUpdate(t,i,s){let e=!0;void 0!==t&&(((s=s||this.constructor.getPropertyOptions(t)).hasChanged||a$1)(this[t],i)?(this._$AL.has(t)||this._$AL.set(t,i),!0===s.reflect&&this._$El!==t&&(void 0===this._$EC&&(this._$EC=new Map),this._$EC.set(t,s))):e=!1),!this.isUpdatePending&&e&&(this._$E_=this._$Ej());}async _$Ej(){this.isUpdatePending=!0;try{await this._$E_;}catch(t){Promise.reject(t);}const t=this.scheduleUpdate();return null!=t&&await t,!this.isUpdatePending}scheduleUpdate(){return this.performUpdate()}performUpdate(){var t;if(!this.isUpdatePending)return;this.hasUpdated,this._$Ei&&(this._$Ei.forEach(((t,i)=>this[i]=t)),this._$Ei=void 0);let i=!1;const s=this._$AL;try{i=this.shouldUpdate(s),i?(this.willUpdate(s),null===(t=this._$ES)||void 0===t||t.forEach((t=>{var i;return null===(i=t.hostUpdate)||void 0===i?void 0:i.call(t)})),this.update(s)):this._$Ek();}catch(t){throw i=!1,this._$Ek(),t}i&&this._$AE(s);}willUpdate(t){}_$AE(t){var i;null===(i=this._$ES)||void 0===i||i.forEach((t=>{var i;return null===(i=t.hostUpdated)||void 0===i?void 0:i.call(t)})),this.hasUpdated||(this.hasUpdated=!0,this.firstUpdated(t)),this.updated(t);}_$Ek(){this._$AL=new Map,this.isUpdatePending=!1;}get updateComplete(){return this.getUpdateComplete()}getUpdateComplete(){return this._$E_}shouldUpdate(t){return !0}update(t){void 0!==this._$EC&&(this._$EC.forEach(((t,i)=>this._$EO(i,this[i],t))),this._$EC=void 0),this._$Ek();}updated(t){}firstUpdated(t){}}u$1[d$1]=!0,u$1.elementProperties=new Map,u$1.elementStyles=[],u$1.shadowRootOptions={mode:"open"},null==o$2||o$2({ReactiveElement:u$1}),(null!==(s$2=e$1.reactiveElementVersions)&&void 0!==s$2?s$2:e$1.reactiveElementVersions=[]).push("1.6.3");
 
 /**
  * @license
  * Copyright 2017 Google LLC
  * SPDX-License-Identifier: BSD-3-Clause
  */
-var t;const i=window,s$1=i.trustedTypes,e=s$1?s$1.createPolicy("lit-html",{createHTML:t=>t}):void 0,o$1=`lit$${(Math.random()+"").slice(9)}$`,n$1="?"+o$1,l$1=`<${n$1}>`,h=document,r=(t="")=>h.createComment(t),d=t=>null===t||"object"!=typeof t&&"function"!=typeof t,u=Array.isArray,c=t=>u(t)||"function"==typeof(null==t?void 0:t[Symbol.iterator]),v=/<(?:(!--|\/[^a-zA-Z])|(\/?[a-zA-Z][^>\s]*)|(\/?$))/g,a=/-->/g,f=/>/g,_=RegExp(">|[ \t\n\f\r](?:([^\\s\"'>=/]+)([ \t\n\f\r]*=[ \t\n\f\r]*(?:[^ \t\n\f\r\"'`<>=]|(\"|')|))|$)","g"),m=/'/g,p=/"/g,$=/^(?:script|style|textarea|title)$/i,g=t=>(i,...s)=>({_$litType$:t,strings:i,values:s}),y=g(1),w=g(2),x=Symbol.for("lit-noChange"),b=Symbol.for("lit-nothing"),T=new WeakMap,A=(t,i,s)=>{var e,o;const n=null!==(e=null==s?void 0:s.renderBefore)&&void 0!==e?e:i;let l=n._$litPart$;if(void 0===l){const t=null!==(o=null==s?void 0:s.renderBefore)&&void 0!==o?o:null;n._$litPart$=l=new S(i.insertBefore(r(),t),t,void 0,null!=s?s:{});}return l._$AI(t),l},E=h.createTreeWalker(h,129,null,!1),C=(t,i)=>{const s=t.length-1,n=[];let h,r=2===i?"<svg>":"",d=v;for(let i=0;i<s;i++){const s=t[i];let e,u,c=-1,g=0;for(;g<s.length&&(d.lastIndex=g,u=d.exec(s),null!==u);)g=d.lastIndex,d===v?"!--"===u[1]?d=a:void 0!==u[1]?d=f:void 0!==u[2]?($.test(u[2])&&(h=RegExp("</"+u[2],"g")),d=_):void 0!==u[3]&&(d=_):d===_?">"===u[0]?(d=null!=h?h:v,c=-1):void 0===u[1]?c=-2:(c=d.lastIndex-u[2].length,e=u[1],d=void 0===u[3]?_:'"'===u[3]?p:m):d===p||d===m?d=_:d===a||d===f?d=v:(d=_,h=void 0);const y=d===_&&t[i+1].startsWith("/>")?" ":"";r+=d===v?s+l$1:c>=0?(n.push(e),s.slice(0,c)+"$lit$"+s.slice(c)+o$1+y):s+o$1+(-2===c?(n.push(void 0),i):y);}const u=r+(t[s]||"<?>")+(2===i?"</svg>":"");if(!Array.isArray(t)||!t.hasOwnProperty("raw"))throw Error("invalid template strings array");return [void 0!==e?e.createHTML(u):u,n]};class P{constructor({strings:t,_$litType$:i},e){let l;this.parts=[];let h=0,d=0;const u=t.length-1,c=this.parts,[v,a]=C(t,i);if(this.el=P.createElement(v,e),E.currentNode=this.el.content,2===i){const t=this.el.content,i=t.firstChild;i.remove(),t.append(...i.childNodes);}for(;null!==(l=E.nextNode())&&c.length<u;){if(1===l.nodeType){if(l.hasAttributes()){const t=[];for(const i of l.getAttributeNames())if(i.endsWith("$lit$")||i.startsWith(o$1)){const s=a[d++];if(t.push(i),void 0!==s){const t=l.getAttribute(s.toLowerCase()+"$lit$").split(o$1),i=/([.?@])?(.*)/.exec(s);c.push({type:1,index:h,name:i[2],strings:t,ctor:"."===i[1]?R:"?"===i[1]?H:"@"===i[1]?I:M});}else c.push({type:6,index:h});}for(const i of t)l.removeAttribute(i);}if($.test(l.tagName)){const t=l.textContent.split(o$1),i=t.length-1;if(i>0){l.textContent=s$1?s$1.emptyScript:"";for(let s=0;s<i;s++)l.append(t[s],r()),E.nextNode(),c.push({type:2,index:++h});l.append(t[i],r());}}}else if(8===l.nodeType)if(l.data===n$1)c.push({type:2,index:h});else {let t=-1;for(;-1!==(t=l.data.indexOf(o$1,t+1));)c.push({type:7,index:h}),t+=o$1.length-1;}h++;}}static createElement(t,i){const s=h.createElement("template");return s.innerHTML=t,s}}function V(t,i,s=t,e){var o,n,l,h;if(i===x)return i;let r=void 0!==e?null===(o=s._$Cl)||void 0===o?void 0:o[e]:s._$Cu;const u=d(i)?void 0:i._$litDirective$;return (null==r?void 0:r.constructor)!==u&&(null===(n=null==r?void 0:r._$AO)||void 0===n||n.call(r,!1),void 0===u?r=void 0:(r=new u(t),r._$AT(t,s,e)),void 0!==e?(null!==(l=(h=s)._$Cl)&&void 0!==l?l:h._$Cl=[])[e]=r:s._$Cu=r),void 0!==r&&(i=V(t,r._$AS(t,i.values),r,e)),i}class N{constructor(t,i){this.v=[],this._$AN=void 0,this._$AD=t,this._$AM=i;}get parentNode(){return this._$AM.parentNode}get _$AU(){return this._$AM._$AU}p(t){var i;const{el:{content:s},parts:e}=this._$AD,o=(null!==(i=null==t?void 0:t.creationScope)&&void 0!==i?i:h).importNode(s,!0);E.currentNode=o;let n=E.nextNode(),l=0,r=0,d=e[0];for(;void 0!==d;){if(l===d.index){let i;2===d.type?i=new S(n,n.nextSibling,this,t):1===d.type?i=new d.ctor(n,d.name,d.strings,this,t):6===d.type&&(i=new L(n,this,t)),this.v.push(i),d=e[++r];}l!==(null==d?void 0:d.index)&&(n=E.nextNode(),l++);}return o}m(t){let i=0;for(const s of this.v)void 0!==s&&(void 0!==s.strings?(s._$AI(t,s,i),i+=s.strings.length-2):s._$AI(t[i])),i++;}}class S{constructor(t,i,s,e){var o;this.type=2,this._$AH=b,this._$AN=void 0,this._$AA=t,this._$AB=i,this._$AM=s,this.options=e,this._$C_=null===(o=null==e?void 0:e.isConnected)||void 0===o||o;}get _$AU(){var t,i;return null!==(i=null===(t=this._$AM)||void 0===t?void 0:t._$AU)&&void 0!==i?i:this._$C_}get parentNode(){let t=this._$AA.parentNode;const i=this._$AM;return void 0!==i&&11===t.nodeType&&(t=i.parentNode),t}get startNode(){return this._$AA}get endNode(){return this._$AB}_$AI(t,i=this){t=V(this,t,i),d(t)?t===b||null==t||""===t?(this._$AH!==b&&this._$AR(),this._$AH=b):t!==this._$AH&&t!==x&&this.$(t):void 0!==t._$litType$?this.T(t):void 0!==t.nodeType?this.k(t):c(t)?this.O(t):this.$(t);}S(t,i=this._$AB){return this._$AA.parentNode.insertBefore(t,i)}k(t){this._$AH!==t&&(this._$AR(),this._$AH=this.S(t));}$(t){this._$AH!==b&&d(this._$AH)?this._$AA.nextSibling.data=t:this.k(h.createTextNode(t)),this._$AH=t;}T(t){var i;const{values:s,_$litType$:e}=t,o="number"==typeof e?this._$AC(t):(void 0===e.el&&(e.el=P.createElement(e.h,this.options)),e);if((null===(i=this._$AH)||void 0===i?void 0:i._$AD)===o)this._$AH.m(s);else {const t=new N(o,this),i=t.p(this.options);t.m(s),this.k(i),this._$AH=t;}}_$AC(t){let i=T.get(t.strings);return void 0===i&&T.set(t.strings,i=new P(t)),i}O(t){u(this._$AH)||(this._$AH=[],this._$AR());const i=this._$AH;let s,e=0;for(const o of t)e===i.length?i.push(s=new S(this.S(r()),this.S(r()),this,this.options)):s=i[e],s._$AI(o),e++;e<i.length&&(this._$AR(s&&s._$AB.nextSibling,e),i.length=e);}_$AR(t=this._$AA.nextSibling,i){var s;for(null===(s=this._$AP)||void 0===s||s.call(this,!1,!0,i);t&&t!==this._$AB;){const i=t.nextSibling;t.remove(),t=i;}}setConnected(t){var i;void 0===this._$AM&&(this._$C_=t,null===(i=this._$AP)||void 0===i||i.call(this,t));}}class M{constructor(t,i,s,e,o){this.type=1,this._$AH=b,this._$AN=void 0,this.element=t,this.name=i,this._$AM=e,this.options=o,s.length>2||""!==s[0]||""!==s[1]?(this._$AH=Array(s.length-1).fill(new String),this.strings=s):this._$AH=b;}get tagName(){return this.element.tagName}get _$AU(){return this._$AM._$AU}_$AI(t,i=this,s,e){const o=this.strings;let n=!1;if(void 0===o)t=V(this,t,i,0),n=!d(t)||t!==this._$AH&&t!==x,n&&(this._$AH=t);else {const e=t;let l,h;for(t=o[0],l=0;l<o.length-1;l++)h=V(this,e[s+l],i,l),h===x&&(h=this._$AH[l]),n||(n=!d(h)||h!==this._$AH[l]),h===b?t=b:t!==b&&(t+=(null!=h?h:"")+o[l+1]),this._$AH[l]=h;}n&&!e&&this.P(t);}P(t){t===b?this.element.removeAttribute(this.name):this.element.setAttribute(this.name,null!=t?t:"");}}class R extends M{constructor(){super(...arguments),this.type=3;}P(t){this.element[this.name]=t===b?void 0:t;}}const k=s$1?s$1.emptyScript:"";class H extends M{constructor(){super(...arguments),this.type=4;}P(t){t&&t!==b?this.element.setAttribute(this.name,k):this.element.removeAttribute(this.name);}}class I extends M{constructor(t,i,s,e,o){super(t,i,s,e,o),this.type=5;}_$AI(t,i=this){var s;if((t=null!==(s=V(this,t,i,0))&&void 0!==s?s:b)===x)return;const e=this._$AH,o=t===b&&e!==b||t.capture!==e.capture||t.once!==e.once||t.passive!==e.passive,n=t!==b&&(e===b||o);o&&this.element.removeEventListener(this.name,this,e),n&&this.element.addEventListener(this.name,this,t),this._$AH=t;}handleEvent(t){var i,s;"function"==typeof this._$AH?this._$AH.call(null!==(s=null===(i=this.options)||void 0===i?void 0:i.host)&&void 0!==s?s:this.element,t):this._$AH.handleEvent(t);}}class L{constructor(t,i,s){this.element=t,this.type=6,this._$AN=void 0,this._$AM=i,this.options=s;}get _$AU(){return this._$AM._$AU}_$AI(t){V(this,t);}}const Z=i.litHtmlPolyfillSupport;null==Z||Z(P,S),(null!==(t=i.litHtmlVersions)&&void 0!==t?t:i.litHtmlVersions=[]).push("2.3.1");
+var t;const i=window,s$1=i.trustedTypes,e=s$1?s$1.createPolicy("lit-html",{createHTML:t=>t}):void 0,o$1="$lit$",n$1=`lit$${(Math.random()+"").slice(9)}$`,l$1="?"+n$1,h=`<${l$1}>`,r=document,u=()=>r.createComment(""),d=t=>null===t||"object"!=typeof t&&"function"!=typeof t,c=Array.isArray,v=t=>c(t)||"function"==typeof(null==t?void 0:t[Symbol.iterator]),a="[ \t\n\f\r]",f=/<(?:(!--|\/[^a-zA-Z])|(\/?[a-zA-Z][^>\s]*)|(\/?$))/g,_=/-->/g,m=/>/g,p=RegExp(`>|${a}(?:([^\\s"'>=/]+)(${a}*=${a}*(?:[^ \t\n\f\r"'\`<>=]|("|')|))|$)`,"g"),g=/'/g,$=/"/g,y=/^(?:script|style|textarea|title)$/i,w=t=>(i,...s)=>({_$litType$:t,strings:i,values:s}),x=w(1),b=w(2),T=Symbol.for("lit-noChange"),A=Symbol.for("lit-nothing"),E=new WeakMap,C=r.createTreeWalker(r,129,null,!1);function P(t,i){if(!Array.isArray(t)||!t.hasOwnProperty("raw"))throw Error("invalid template strings array");return void 0!==e?e.createHTML(i):i}const V=(t,i)=>{const s=t.length-1,e=[];let l,r=2===i?"<svg>":"",u=f;for(let i=0;i<s;i++){const s=t[i];let d,c,v=-1,a=0;for(;a<s.length&&(u.lastIndex=a,c=u.exec(s),null!==c);)a=u.lastIndex,u===f?"!--"===c[1]?u=_:void 0!==c[1]?u=m:void 0!==c[2]?(y.test(c[2])&&(l=RegExp("</"+c[2],"g")),u=p):void 0!==c[3]&&(u=p):u===p?">"===c[0]?(u=null!=l?l:f,v=-1):void 0===c[1]?v=-2:(v=u.lastIndex-c[2].length,d=c[1],u=void 0===c[3]?p:'"'===c[3]?$:g):u===$||u===g?u=p:u===_||u===m?u=f:(u=p,l=void 0);const w=u===p&&t[i+1].startsWith("/>")?" ":"";r+=u===f?s+h:v>=0?(e.push(d),s.slice(0,v)+o$1+s.slice(v)+n$1+w):s+n$1+(-2===v?(e.push(void 0),i):w);}return [P(t,r+(t[s]||"<?>")+(2===i?"</svg>":"")),e]};class N{constructor({strings:t,_$litType$:i},e){let h;this.parts=[];let r=0,d=0;const c=t.length-1,v=this.parts,[a,f]=V(t,i);if(this.el=N.createElement(a,e),C.currentNode=this.el.content,2===i){const t=this.el.content,i=t.firstChild;i.remove(),t.append(...i.childNodes);}for(;null!==(h=C.nextNode())&&v.length<c;){if(1===h.nodeType){if(h.hasAttributes()){const t=[];for(const i of h.getAttributeNames())if(i.endsWith(o$1)||i.startsWith(n$1)){const s=f[d++];if(t.push(i),void 0!==s){const t=h.getAttribute(s.toLowerCase()+o$1).split(n$1),i=/([.?@])?(.*)/.exec(s);v.push({type:1,index:r,name:i[2],strings:t,ctor:"."===i[1]?H:"?"===i[1]?L:"@"===i[1]?z:k});}else v.push({type:6,index:r});}for(const i of t)h.removeAttribute(i);}if(y.test(h.tagName)){const t=h.textContent.split(n$1),i=t.length-1;if(i>0){h.textContent=s$1?s$1.emptyScript:"";for(let s=0;s<i;s++)h.append(t[s],u()),C.nextNode(),v.push({type:2,index:++r});h.append(t[i],u());}}}else if(8===h.nodeType)if(h.data===l$1)v.push({type:2,index:r});else {let t=-1;for(;-1!==(t=h.data.indexOf(n$1,t+1));)v.push({type:7,index:r}),t+=n$1.length-1;}r++;}}static createElement(t,i){const s=r.createElement("template");return s.innerHTML=t,s}}function S(t,i,s=t,e){var o,n,l,h;if(i===T)return i;let r=void 0!==e?null===(o=s._$Co)||void 0===o?void 0:o[e]:s._$Cl;const u=d(i)?void 0:i._$litDirective$;return (null==r?void 0:r.constructor)!==u&&(null===(n=null==r?void 0:r._$AO)||void 0===n||n.call(r,!1),void 0===u?r=void 0:(r=new u(t),r._$AT(t,s,e)),void 0!==e?(null!==(l=(h=s)._$Co)&&void 0!==l?l:h._$Co=[])[e]=r:s._$Cl=r),void 0!==r&&(i=S(t,r._$AS(t,i.values),r,e)),i}class M{constructor(t,i){this._$AV=[],this._$AN=void 0,this._$AD=t,this._$AM=i;}get parentNode(){return this._$AM.parentNode}get _$AU(){return this._$AM._$AU}u(t){var i;const{el:{content:s},parts:e}=this._$AD,o=(null!==(i=null==t?void 0:t.creationScope)&&void 0!==i?i:r).importNode(s,!0);C.currentNode=o;let n=C.nextNode(),l=0,h=0,u=e[0];for(;void 0!==u;){if(l===u.index){let i;2===u.type?i=new R(n,n.nextSibling,this,t):1===u.type?i=new u.ctor(n,u.name,u.strings,this,t):6===u.type&&(i=new Z(n,this,t)),this._$AV.push(i),u=e[++h];}l!==(null==u?void 0:u.index)&&(n=C.nextNode(),l++);}return C.currentNode=r,o}v(t){let i=0;for(const s of this._$AV)void 0!==s&&(void 0!==s.strings?(s._$AI(t,s,i),i+=s.strings.length-2):s._$AI(t[i])),i++;}}class R{constructor(t,i,s,e){var o;this.type=2,this._$AH=A,this._$AN=void 0,this._$AA=t,this._$AB=i,this._$AM=s,this.options=e,this._$Cp=null===(o=null==e?void 0:e.isConnected)||void 0===o||o;}get _$AU(){var t,i;return null!==(i=null===(t=this._$AM)||void 0===t?void 0:t._$AU)&&void 0!==i?i:this._$Cp}get parentNode(){let t=this._$AA.parentNode;const i=this._$AM;return void 0!==i&&11===(null==t?void 0:t.nodeType)&&(t=i.parentNode),t}get startNode(){return this._$AA}get endNode(){return this._$AB}_$AI(t,i=this){t=S(this,t,i),d(t)?t===A||null==t||""===t?(this._$AH!==A&&this._$AR(),this._$AH=A):t!==this._$AH&&t!==T&&this._(t):void 0!==t._$litType$?this.g(t):void 0!==t.nodeType?this.$(t):v(t)?this.T(t):this._(t);}k(t){return this._$AA.parentNode.insertBefore(t,this._$AB)}$(t){this._$AH!==t&&(this._$AR(),this._$AH=this.k(t));}_(t){this._$AH!==A&&d(this._$AH)?this._$AA.nextSibling.data=t:this.$(r.createTextNode(t)),this._$AH=t;}g(t){var i;const{values:s,_$litType$:e}=t,o="number"==typeof e?this._$AC(t):(void 0===e.el&&(e.el=N.createElement(P(e.h,e.h[0]),this.options)),e);if((null===(i=this._$AH)||void 0===i?void 0:i._$AD)===o)this._$AH.v(s);else {const t=new M(o,this),i=t.u(this.options);t.v(s),this.$(i),this._$AH=t;}}_$AC(t){let i=E.get(t.strings);return void 0===i&&E.set(t.strings,i=new N(t)),i}T(t){c(this._$AH)||(this._$AH=[],this._$AR());const i=this._$AH;let s,e=0;for(const o of t)e===i.length?i.push(s=new R(this.k(u()),this.k(u()),this,this.options)):s=i[e],s._$AI(o),e++;e<i.length&&(this._$AR(s&&s._$AB.nextSibling,e),i.length=e);}_$AR(t=this._$AA.nextSibling,i){var s;for(null===(s=this._$AP)||void 0===s||s.call(this,!1,!0,i);t&&t!==this._$AB;){const i=t.nextSibling;t.remove(),t=i;}}setConnected(t){var i;void 0===this._$AM&&(this._$Cp=t,null===(i=this._$AP)||void 0===i||i.call(this,t));}}class k{constructor(t,i,s,e,o){this.type=1,this._$AH=A,this._$AN=void 0,this.element=t,this.name=i,this._$AM=e,this.options=o,s.length>2||""!==s[0]||""!==s[1]?(this._$AH=Array(s.length-1).fill(new String),this.strings=s):this._$AH=A;}get tagName(){return this.element.tagName}get _$AU(){return this._$AM._$AU}_$AI(t,i=this,s,e){const o=this.strings;let n=!1;if(void 0===o)t=S(this,t,i,0),n=!d(t)||t!==this._$AH&&t!==T,n&&(this._$AH=t);else {const e=t;let l,h;for(t=o[0],l=0;l<o.length-1;l++)h=S(this,e[s+l],i,l),h===T&&(h=this._$AH[l]),n||(n=!d(h)||h!==this._$AH[l]),h===A?t=A:t!==A&&(t+=(null!=h?h:"")+o[l+1]),this._$AH[l]=h;}n&&!e&&this.j(t);}j(t){t===A?this.element.removeAttribute(this.name):this.element.setAttribute(this.name,null!=t?t:"");}}class H extends k{constructor(){super(...arguments),this.type=3;}j(t){this.element[this.name]=t===A?void 0:t;}}const I=s$1?s$1.emptyScript:"";class L extends k{constructor(){super(...arguments),this.type=4;}j(t){t&&t!==A?this.element.setAttribute(this.name,I):this.element.removeAttribute(this.name);}}class z extends k{constructor(t,i,s,e,o){super(t,i,s,e,o),this.type=5;}_$AI(t,i=this){var s;if((t=null!==(s=S(this,t,i,0))&&void 0!==s?s:A)===T)return;const e=this._$AH,o=t===A&&e!==A||t.capture!==e.capture||t.once!==e.once||t.passive!==e.passive,n=t!==A&&(e===A||o);o&&this.element.removeEventListener(this.name,this,e),n&&this.element.addEventListener(this.name,this,t),this._$AH=t;}handleEvent(t){var i,s;"function"==typeof this._$AH?this._$AH.call(null!==(s=null===(i=this.options)||void 0===i?void 0:i.host)&&void 0!==s?s:this.element,t):this._$AH.handleEvent(t);}}class Z{constructor(t,i,s){this.element=t,this.type=6,this._$AN=void 0,this._$AM=i,this.options=s;}get _$AU(){return this._$AM._$AU}_$AI(t){S(this,t);}}const B=i.litHtmlPolyfillSupport;null==B||B(N,R),(null!==(t=i.litHtmlVersions)&&void 0!==t?t:i.litHtmlVersions=[]).push("2.8.0");const D=(t,i,s)=>{var e,o;const n=null!==(e=null==s?void 0:s.renderBefore)&&void 0!==e?e:i;let l=n._$litPart$;if(void 0===l){const t=null!==(o=null==s?void 0:s.renderBefore)&&void 0!==o?o:null;n._$litPart$=l=new R(i.insertBefore(u(),t),t,void 0,null!=s?s:{});}return l._$AI(t),l};
 
 /**
  * @license
  * Copyright 2017 Google LLC
  * SPDX-License-Identifier: BSD-3-Clause
- */var l,o;class s extends d$1{constructor(){super(...arguments),this.renderOptions={host:this},this._$Do=void 0;}createRenderRoot(){var t,e;const i=super.createRenderRoot();return null!==(t=(e=this.renderOptions).renderBefore)&&void 0!==t||(e.renderBefore=i.firstChild),i}update(t){const i=this.render();this.hasUpdated||(this.renderOptions.isConnected=this.isConnected),super.update(t),this._$Do=A(i,this.renderRoot,this.renderOptions);}connectedCallback(){var t;super.connectedCallback(),null===(t=this._$Do)||void 0===t||t.setConnected(!0);}disconnectedCallback(){var t;super.disconnectedCallback(),null===(t=this._$Do)||void 0===t||t.setConnected(!1);}render(){return x}}s.finalized=!0,s._$litElement$=!0,null===(l=globalThis.litElementHydrateSupport)||void 0===l||l.call(globalThis,{LitElement:s});const n=globalThis.litElementPolyfillSupport;null==n||n({LitElement:s});(null!==(o=globalThis.litElementVersions)&&void 0!==o?o:globalThis.litElementVersions=[]).push("3.2.2");
+ */var l,o;class s extends u$1{constructor(){super(...arguments),this.renderOptions={host:this},this._$Do=void 0;}createRenderRoot(){var t,e;const i=super.createRenderRoot();return null!==(t=(e=this.renderOptions).renderBefore)&&void 0!==t||(e.renderBefore=i.firstChild),i}update(t){const i=this.render();this.hasUpdated||(this.renderOptions.isConnected=this.isConnected),super.update(t),this._$Do=D(i,this.renderRoot,this.renderOptions);}connectedCallback(){var t;super.connectedCallback(),null===(t=this._$Do)||void 0===t||t.setConnected(!0);}disconnectedCallback(){var t;super.disconnectedCallback(),null===(t=this._$Do)||void 0===t||t.setConnected(!1);}render(){return T}}s.finalized=!0,s._$litElement$=!0,null===(l=globalThis.litElementHydrateSupport)||void 0===l||l.call(globalThis,{LitElement:s});const n=globalThis.litElementPolyfillSupport;null==n||n({LitElement:s});(null!==(o=globalThis.litElementVersions)&&void 0!==o?o:globalThis.litElementVersions=[]).push("3.3.3");
 
-const rubbishBin = w `<svg fill="currentColor" xmlns="http://www.w3.org/2000/svg" height="20" width="20"><path d="M6.5 17q-.625 0-1.062-.438Q5 16.125 5 15.5v-10H4V4h4V3h4v1h4v1.5h-1v10q0 .625-.438 1.062Q14.125 17 13.5 17Zm7-11.5h-7v10h7ZM8 14h1.5V7H8Zm2.5 0H12V7h-1.5Zm-4-8.5v10Z"/></svg>`;
-const code = w `<svg fill="currentColor" xmlns="http://www.w3.org/2000/svg" height="20" width="20"><path d="M12 16v-1.5h1.75q.312 0 .531-.219.219-.219.219-.531v-1.5q0-.854.573-1.469.573-.614 1.427-.719v-.083q-.854-.167-1.427-.771-.573-.604-.573-1.458v-1.5q0-.312-.219-.531-.219-.219-.531-.219H12V4h1.75q.938 0 1.594.656Q16 5.312 16 6.25v1.5q0 .312.219.531.219.219.531.219H18v3h-1.25q-.312 0-.531.219-.219.219-.219.531v1.5q0 .938-.656 1.594-.656.656-1.594.656Zm-5.75 0q-.938 0-1.594-.656Q4 14.688 4 13.75v-1.5q0-.312-.219-.531-.219-.219-.531-.219H2v-3h1.25q.312 0 .531-.219Q4 8.062 4 7.75v-1.5q0-.938.656-1.594Q5.312 4 6.25 4H8v1.5H6.25q-.312 0-.531.219-.219.219-.219.531v1.5q0 .875-.573 1.49-.573.614-1.427.718v.084q.854.083 1.427.708.573.625.573 1.5v1.5q0 .312.219.531.219.219.531.219H8V16Z"/></svg>`;
+const rubbishBin = b `<svg fill="currentColor" xmlns="http://www.w3.org/2000/svg" height="20" width="20"><path d="M6.5 17q-.625 0-1.062-.438Q5 16.125 5 15.5v-10H4V4h4V3h4v1h4v1.5h-1v10q0 .625-.438 1.062Q14.125 17 13.5 17Zm7-11.5h-7v10h7ZM8 14h1.5V7H8Zm2.5 0H12V7h-1.5Zm-4-8.5v10Z"/></svg>`;
+const code = b `<svg fill="currentColor" xmlns="http://www.w3.org/2000/svg" height="20" width="20"><path d="M12 16v-1.5h1.75q.312 0 .531-.219.219-.219.219-.531v-1.5q0-.854.573-1.469.573-.614 1.427-.719v-.083q-.854-.167-1.427-.771-.573-.604-.573-1.458v-1.5q0-.312-.219-.531-.219-.219-.531-.219H12V4h1.75q.938 0 1.594.656Q16 5.312 16 6.25v1.5q0 .312.219.531.219.219.531.219H18v3h-1.25q-.312 0-.531.219-.219.219-.219.531v1.5q0 .938-.656 1.594-.656.656-1.594.656Zm-5.75 0q-.938 0-1.594-.656Q4 14.688 4 13.75v-1.5q0-.312-.219-.531-.219-.219-.531-.219H2v-3h1.25q.312 0 .531-.219Q4 8.062 4 7.75v-1.5q0-.938.656-1.594Q5.312 4 6.25 4H8v1.5H6.25q-.312 0-.531.219-.219.219-.219.531v1.5q0 .875-.573 1.49-.573.614-1.427.718v.084q.854.083 1.427.708.573.625.573 1.5v1.5q0 .312.219.531.219.219.531.219H8V16Z"/></svg>`;
 // https://github.com/Templarian/MaterialDesign/blob/master/svg/table-eye.svg
-const tableEye = w `<svg fill="currentColor" viewBox="0 0 24 24" style="height: 20px; width: 20px; padding:2px; box-sizing: border-box"><path d="M17 16.88C17.56 16.88 18 17.32 18 17.88S17.56 18.88 17 18.88 16 18.43 16 17.88 16.44 16.88 17 16.88M17 13.88C19.73 13.88 22.06 15.54 23 17.88C22.06 20.22 19.73 21.88 17 21.88S11.94 20.22 11 17.88C11.94 15.54 14.27 13.88 17 13.88M17 15.38C15.62 15.38 14.5 16.5 14.5 17.88S15.62 20.38 17 20.38 19.5 19.26 19.5 17.88 18.38 15.38 17 15.38M18 3H4C2.9 3 2 3.9 2 5V17C2 18.1 2.9 19 4 19H9.42C9.26 18.68 9.12 18.34 9 18C9.12 17.66 9.26 17.32 9.42 17H4V13H10V15.97C10.55 15.11 11.23 14.37 12 13.76V13H13.15C14.31 12.36 15.62 12 17 12C18.06 12 19.07 12.21 20 12.59V5C20 3.9 19.1 3 18 3M10 11H4V7H10V11M18 11H12V7H18V11Z" /></svg>`;
+const tableEye = b `<svg fill="currentColor" viewBox="0 0 24 24" style="height: 20px; width: 20px; padding:2px; box-sizing: border-box"><path d="M17 16.88C17.56 16.88 18 17.32 18 17.88S17.56 18.88 17 18.88 16 18.43 16 17.88 16.44 16.88 17 16.88M17 13.88C19.73 13.88 22.06 15.54 23 17.88C22.06 20.22 19.73 21.88 17 21.88S11.94 20.22 11 17.88C11.94 15.54 14.27 13.88 17 13.88M17 15.38C15.62 15.38 14.5 16.5 14.5 17.88S15.62 20.38 17 20.38 19.5 19.26 19.5 17.88 18.38 15.38 17 15.38M18 3H4C2.9 3 2 3.9 2 5V17C2 18.1 2.9 19 4 19H9.42C9.26 18.68 9.12 18.34 9 18C9.12 17.66 9.26 17.32 9.42 17H4V13H10V15.97C10.55 15.11 11.23 14.37 12 13.76V13H13.15C14.31 12.36 15.62 12 17 12C18.06 12 19.07 12.21 20 12.59V5C20 3.9 19.1 3 18 3M10 11H4V7H10V11M18 11H12V7H18V11Z" /></svg>`;
 // https://github.com/Templarian/MaterialDesign/blob/master/svg/asterisk.svg
-const asterisk = w `<svg fill="currentColor" viewBox="0 0 24 24" height="20px" width="20px"><path d="M11,3H13V10.27L19.29,6.64L20.29,8.37L14,12L20.3,15.64L19.3,17.37L13,13.72V21H11V13.73L4.69,17.36L3.69,15.63L10,12L3.72,8.36L4.72,6.63L11,10.26V3Z" /></svg>`;
+const asterisk = b `<svg fill="currentColor" viewBox="0 0 24 24" height="20px" width="20px"><path d="M11,3H13V10.27L19.29,6.64L20.29,8.37L14,12L20.3,15.64L19.3,17.37L13,13.72V21H11V13.73L4.69,17.36L3.69,15.63L10,12L3.72,8.36L4.72,6.63L11,10.26V3Z" /></svg>`;
 // https://cygri.github.io/rdf-logos/
-const rdfLogo = w `<svg viewBox="0 0 943 1019" style="fill: currentColor; display: inline-block; height: 20px; width: 20px; padding:2px; box-sizing: border-box"><path fill-rule="evenodd" d="M845,668c-6-3-13-6-19-9l5-0c0,0-42-18-45-152 c-4-133,40-156,40-156l-0,0c33-17,61-43,79-78c48-91,14-203-77-252 C729-26,617,8,569,99c-20,37-25,78-19,117l-2-3c0,0,11,48-103,119 c-113,71-165,35-165,35l3,5c-3-2-6-4-10-6C183,317,70,352,22,443 c-48,91-14,203,77,252c68,36,147,26,204-19l-1,2c0,0,41-34,160,30 c94,50,108,100,110,118c-2,69,33,137,98,171c91,48,203,14,252-77 C970,829,935,717,845,668z M635,693c-15,5-58,11-148-37 c-98-53-113-97-115-110c1-16,1-32-2-48l1,1c0,0-8-43,104-112 c100-62,146-50,154-47c5,4,11,7,17,10c11,6,23,11,35,14 c14,13,39,50,42,149c3,99-26,137-42,150C664,671,648,681,635,693z   M622,81c-54,59-55,146-3,196c-26-25-25-77,1-126 c3-4,13-15,27-10c1,0,2,1,3,1c3,1,7,1,10,1 c22-1,38-19,37-41c-0-10-4-18-11-25c50-33,107-37,131-15l1,0 C765,12,677,21,622,81z   M78,431c-54,59-55,146-03,196c-26-25-25-77,1-126 c3-4,13-15,27-10c1,0,2,1,3,1c3,1,7,1,10,1 c22-1,38-19,37-41c-0-10-4-18-11-25c50-33,107-37,131-15l1,0 C221,363,133,371,78,431z   M654,728c-54,59-55,146-3,196c-26-25-25-77,1-126 c3-4,13-15,27-10c1,0,2,1,3,1c3,1,7,1,10,1 c22-1,38-19,37-41c-0-10-4-18-11-25c50-33,107-37,131-15l1,0 C797,659,709,668,654,728z"></path></svg>`;
-const crosshair = w `<svg fill="currentcolor" xmlns="http://www.w3.org/2000/svg" height="20" width="20"><path d="M9.333 18.5v-1.458q-2.541-.271-4.323-2.052-1.781-1.782-2.052-4.323H1.5V9.333h1.458Q3.229 6.792 5.01 5.01q1.782-1.781 4.323-2.052V1.5h1.334v1.458q2.541.271 4.323 2.052 1.781 1.782 2.052 4.323H18.5v1.334h-1.458q-.271 2.541-2.052 4.323-1.782 1.781-4.323 2.052V18.5ZM10 15.729q2.396 0 4.062-1.667 1.667-1.666 1.667-4.062 0-2.396-1.667-4.062Q12.396 4.271 10 4.271q-2.396 0-4.062 1.667Q4.271 7.604 4.271 10q0 2.396 1.667 4.062Q7.604 15.729 10 15.729Zm0-2.75q-1.229 0-2.104-.875T7.021 10q0-1.229.875-2.104T10 7.021q1.229 0 2.104.875T12.979 10q0 1.229-.875 2.104T10 12.979Zm0-1.333q.667 0 1.156-.49.49-.489.49-1.156 0-.667-.49-1.156-.489-.49-1.156-.49-.667 0-1.156.49-.49.489-.49 1.156 0 .667.49 1.156.489.49 1.156.49Zm.021-1.667Z"/></svg>`;
+const rdfLogo = b `<svg viewBox="0 0 943 1019" style="fill: currentColor; display: inline-block; height: 20px; width: 20px; padding:2px; box-sizing: border-box"><path fill-rule="evenodd" d="M845,668c-6-3-13-6-19-9l5-0c0,0-42-18-45-152 c-4-133,40-156,40-156l-0,0c33-17,61-43,79-78c48-91,14-203-77-252 C729-26,617,8,569,99c-20,37-25,78-19,117l-2-3c0,0,11,48-103,119 c-113,71-165,35-165,35l3,5c-3-2-6-4-10-6C183,317,70,352,22,443 c-48,91-14,203,77,252c68,36,147,26,204-19l-1,2c0,0,41-34,160,30 c94,50,108,100,110,118c-2,69,33,137,98,171c91,48,203,14,252-77 C970,829,935,717,845,668z M635,693c-15,5-58,11-148-37 c-98-53-113-97-115-110c1-16,1-32-2-48l1,1c0,0-8-43,104-112 c100-62,146-50,154-47c5,4,11,7,17,10c11,6,23,11,35,14 c14,13,39,50,42,149c3,99-26,137-42,150C664,671,648,681,635,693z   M622,81c-54,59-55,146-3,196c-26-25-25-77,1-126 c3-4,13-15,27-10c1,0,2,1,3,1c3,1,7,1,10,1 c22-1,38-19,37-41c-0-10-4-18-11-25c50-33,107-37,131-15l1,0 C765,12,677,21,622,81z   M78,431c-54,59-55,146-03,196c-26-25-25-77,1-126 c3-4,13-15,27-10c1,0,2,1,3,1c3,1,7,1,10,1 c22-1,38-19,37-41c-0-10-4-18-11-25c50-33,107-37,131-15l1,0 C221,363,133,371,78,431z   M654,728c-54,59-55,146-3,196c-26-25-25-77,1-126 c3-4,13-15,27-10c1,0,2,1,3,1c3,1,7,1,10,1 c22-1,38-19,37-41c-0-10-4-18-11-25c50-33,107-37,131-15l1,0 C797,659,709,668,654,728z"></path></svg>`;
+const crosshair = b `<svg fill="currentcolor" xmlns="http://www.w3.org/2000/svg" height="20" width="20"><path d="M9.333 18.5v-1.458q-2.541-.271-4.323-2.052-1.781-1.782-2.052-4.323H1.5V9.333h1.458Q3.229 6.792 5.01 5.01q1.782-1.781 4.323-2.052V1.5h1.334v1.458q2.541.271 4.323 2.052 1.781 1.782 2.052 4.323H18.5v1.334h-1.458q-.271 2.541-2.052 4.323-1.782 1.781-4.323 2.052V18.5ZM10 15.729q2.396 0 4.062-1.667 1.667-1.666 1.667-4.062 0-2.396-1.667-4.062Q12.396 4.271 10 4.271q-2.396 0-4.062 1.667Q4.271 7.604 4.271 10q0 2.396 1.667 4.062Q7.604 15.729 10 15.729Zm0-2.75q-1.229 0-2.104-.875T7.021 10q0-1.229.875-2.104T10 7.021q1.229 0 2.104.875T12.979 10q0 1.229-.875 2.104T10 12.979Zm0-1.333q.667 0 1.156-.49.49-.489.49-1.156 0-.667-.49-1.156-.489-.49-1.156-.49-.667 0-1.156.49-.49.489-.49 1.156 0 .667.49 1.156.489.49 1.156.49Zm.021-1.667Z"/></svg>`;
 // https://materialdesignicons.com/icon/lightbulb-question
-const lightbulb = w `<svg fill="currentcolor" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" height="20" width="20" style="padding:1px; box-sizing:border-box"><path d="m18.292 8.375-.521-1.187-1.188-.521 1.188-.542.521-1.167.541 1.167L20 6.667l-1.167.521Zm-2.459-3.292-.812-1.729-1.729-.812 1.729-.813L15.833 0l.813 1.729 1.729.813-1.729.812ZM7.5 18.333q-.688 0-1.177-.489-.49-.49-.49-1.177h3.313q0 .687-.479 1.177-.479.489-1.167.489Zm-3.333-2.416v-1.75h6.645v1.75Zm.229-2.5q-1.458-.855-2.302-2.302-.844-1.448-.844-3.157 0-2.646 1.802-4.468Q4.854 1.667 7.5 1.667q2.604 0 4.417 1.823 1.812 1.822 1.812 4.468 0 1.709-.844 3.157-.843 1.447-2.302 2.302Zm.542-1.75h5.124Q11 11 11.49 10.042q.489-.959.489-2.084 0-1.896-1.291-3.218Q9.396 3.417 7.5 3.417q-1.896 0-3.198 1.323Q3 6.062 3 7.958q0 1.125.5 2.084.5.958 1.438 1.625Zm2.562 0Z"/></svg>`;
+const lightbulb = b `<svg fill="currentcolor" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" height="20" width="20" style="padding:1px; box-sizing:border-box"><path d="m18.292 8.375-.521-1.187-1.188-.521 1.188-.542.521-1.167.541 1.167L20 6.667l-1.167.521Zm-2.459-3.292-.812-1.729-1.729-.812 1.729-.813L15.833 0l.813 1.729 1.729.813-1.729.812ZM7.5 18.333q-.688 0-1.177-.489-.49-.49-.49-1.177h3.313q0 .687-.479 1.177-.479.489-1.167.489Zm-3.333-2.416v-1.75h6.645v1.75Zm.229-2.5q-1.458-.855-2.302-2.302-.844-1.448-.844-3.157 0-2.646 1.802-4.468Q4.854 1.667 7.5 1.667q2.604 0 4.417 1.823 1.812 1.822 1.812 4.468 0 1.709-.844 3.157-.843 1.447-2.302 2.302Zm.542-1.75h5.124Q11 11 11.49 10.042q.489-.959.489-2.084 0-1.896-1.291-3.218Q9.396 3.417 7.5 3.417q-1.896 0-3.198 1.323Q3 6.062 3 7.958q0 1.125.5 2.084.5.958 1.438 1.625Zm2.562 0Z"/></svg>`;
 // https://materialdesignicons.com/icon/filter-plus
-const addFilter$1 = w `<svg  fill="currentColor" viewBox="0 0 24 24" height="20px" width="20px" style="padding: 1px; box-sizing:border-box"><path d="M12 12V19.88C12.04 20.18 11.94 20.5 11.71 20.71C11.32 21.1 10.69 21.1 10.3 20.71L8.29 18.7C8.06 18.47 7.96 18.16 8 17.87V12H7.97L2.21 4.62C1.87 4.19 1.95 3.56 2.38 3.22C2.57 3.08 2.78 3 3 3H17C17.22 3 17.43 3.08 17.62 3.22C18.05 3.56 18.13 4.19 17.79 4.62L12.03 12H12M15 17H18V14H20V17H23V19H20V22H18V19H15V17Z" /></svg>`;
+const addFilter$1 = b `<svg  fill="currentColor" viewBox="0 0 24 24" height="20px" width="20px" style="padding: 1px; box-sizing:border-box"><path d="M12 12V19.88C12.04 20.18 11.94 20.5 11.71 20.71C11.32 21.1 10.69 21.1 10.3 20.71L8.29 18.7C8.06 18.47 7.96 18.16 8 17.87V12H7.97L2.21 4.62C1.87 4.19 1.95 3.56 2.38 3.22C2.57 3.08 2.78 3 3 3H17C17.22 3 17.43 3.08 17.62 3.22C18.05 3.56 18.13 4.19 17.79 4.62L12.03 12H12M15 17H18V14H20V17H23V19H20V22H18V19H15V17Z" /></svg>`;
 // https://materialdesignicons.com/icon/pencil
-const edit = w `<svg fill="currentColor" viewBox="0 0 24 24" height="20px" width="20px"><path d="M20.71,7.04C21.1,6.65 21.1,6 20.71,5.63L18.37,3.29C18,2.9 17.35,2.9 16.96,3.29L15.12,5.12L18.87,8.87M3,17.25V21H6.75L17.81,9.93L14.06,6.18L3,17.25Z" /></svg>`;
+const edit = b `<svg fill="currentColor" viewBox="0 0 24 24" height="20px" width="20px"><path d="M20.71,7.04C21.1,6.65 21.1,6 20.71,5.63L18.37,3.29C18,2.9 17.35,2.9 16.96,3.29L15.12,5.12L18.87,8.87M3,17.25V21H6.75L17.81,9.93L14.06,6.18L3,17.25Z" /></svg>`;
 // https://materialdesignicons.com/icon/playlist-edit
-const editList = w `<svg fill="currentColor" viewBox="0 0 24 24" height="20px" width="20px"><path d="M2,6V8H14V6H2M2,10V12H14V10H2M20.04,10.13C19.9,10.13 19.76,10.19 19.65,10.3L18.65,11.3L20.7,13.35L21.7,12.35C21.92,12.14 21.92,11.79 21.7,11.58L20.42,10.3C20.31,10.19 20.18,10.13 20.04,10.13M18.07,11.88L12,17.94V20H14.06L20.12,13.93L18.07,11.88M2,14V16H10V14H2Z" /></svg>`;
+const editList = b `<svg fill="currentColor" viewBox="0 0 24 24" height="20px" width="20px"><path d="M2,6V8H14V6H2M2,10V12H14V10H2M20.04,10.13C19.9,10.13 19.76,10.19 19.65,10.3L18.65,11.3L20.7,13.35L21.7,12.35C21.92,12.14 21.92,11.79 21.7,11.58L20.42,10.3C20.31,10.19 20.18,10.13 20.04,10.13M18.07,11.88L12,17.94V20H14.06L20.12,13.93L18.07,11.88M2,14V16H10V14H2Z" /></svg>`;
 // https://materialdesignicons.com/icon/filter
-const filter = w `<svg fill="currentColor" viewBox="0 0 24 24" height="20px" width="20px"><path d="M14,12V19.88C14.04,20.18 13.94,20.5 13.71,20.71C13.32,21.1 12.69,21.1 12.3,20.71L10.29,18.7C10.06,18.47 9.96,18.16 10,17.87V12H9.97L4.21,4.62C3.87,4.19 3.95,3.56 4.38,3.22C4.57,3.08 4.78,3 5,3V3H19V3C19.22,3 19.43,3.08 19.62,3.22C20.05,3.56 20.13,4.19 19.79,4.62L14.03,12H14Z" /></svg>`;
+const filter = b `<svg fill="currentColor" viewBox="0 0 24 24" height="20px" width="20px"><path d="M14,12V19.88C14.04,20.18 13.94,20.5 13.71,20.71C13.32,21.1 12.69,21.1 12.3,20.71L10.29,18.7C10.06,18.47 9.96,18.16 10,17.87V12H9.97L4.21,4.62C3.87,4.19 3.95,3.56 4.38,3.22C4.57,3.08 4.78,3 5,3V3H19V3C19.22,3 19.43,3.08 19.62,3.22C20.05,3.56 20.13,4.19 19.79,4.62L14.03,12H14Z" /></svg>`;
 // https://materialdesignicons.com/icon/table-column-plus-after
-const tableColumnPlus = w `<svg fill="currentColor" viewBox="0 0 24 24" height="20px" width="20px"><path d="M11,2A2,2 0 0,1 13,4V20A2,2 0 0,1 11,22H2V2H11M4,10V14H11V10H4M4,16V20H11V16H4M4,4V8H11V4H4M15,11H18V8H20V11H23V13H20V16H18V13H15V11Z" /></svg>`;
-const questionMarkDashed = w `<svg fill="currentColor" viewBox="0 0 24 24" height="20px" width="20px"><path d="M13 2.03V4.05C17.39 4.59 20.5 8.58 19.96 12.97C19.5 16.61 16.64 19.5 13 19.93V21.93C18.5 21.38 22.5 16.5 21.95 11C21.5 6.25 17.73 2.5 13 2.03M11 2.06C9.05 2.25 7.19 3 5.67 4.26L7.1 5.74C8.22 4.84 9.57 4.26 11 4.06V2.06M4.26 5.67C3 7.19 2.25 9.04 2.05 11H4.05C4.24 9.58 4.8 8.23 5.69 7.1L4.26 5.67M2.06 13C2.26 14.96 3.03 16.81 4.27 18.33L5.69 16.9C4.81 15.77 4.24 14.42 4.06 13H2.06M7.1 18.37L5.67 19.74C7.18 21 9.04 21.79 11 22V20C9.58 19.82 8.23 19.25 7.1 18.37M20 4H44M13 18H11V16H13V18M13 15H11C11 11.75 14 12 14 10C14 8.9 13.1 8 12 8S10 8.9 10 10H8C8 7.79 9.79 6 12 6S16 7.79 16 10C16 12.5 13 12.75 13 15Z" /></svg>`;
+const tableColumnPlus = b `<svg fill="currentColor" viewBox="0 0 24 24" height="20px" width="20px"><path d="M11,2A2,2 0 0,1 13,4V20A2,2 0 0,1 11,22H2V2H11M4,10V14H11V10H4M4,16V20H11V16H4M4,4V8H11V4H4M15,11H18V8H20V11H23V13H20V16H18V13H15V11Z" /></svg>`;
+const questionMarkDashed = b `<svg fill="currentColor" viewBox="0 0 24 24" height="20px" width="20px"><path d="M13 2.03V4.05C17.39 4.59 20.5 8.58 19.96 12.97C19.5 16.61 16.64 19.5 13 19.93V21.93C18.5 21.38 22.5 16.5 21.95 11C21.5 6.25 17.73 2.5 13 2.03M11 2.06C9.05 2.25 7.19 3 5.67 4.26L7.1 5.74C8.22 4.84 9.57 4.26 11 4.06V2.06M4.26 5.67C3 7.19 2.25 9.04 2.05 11H4.05C4.24 9.58 4.8 8.23 5.69 7.1L4.26 5.67M2.06 13C2.26 14.96 3.03 16.81 4.27 18.33L5.69 16.9C4.81 15.77 4.24 14.42 4.06 13H2.06M7.1 18.37L5.67 19.74C7.18 21 9.04 21.79 11 22V20C9.58 19.82 8.23 19.25 7.1 18.37M20 4H44M13 18H11V16H13V18M13 15H11C11 11.75 14 12 14 10C14 8.9 13.1 8 12 8S10 8.9 10 10H8C8 7.79 9.79 6 12 6S16 7.79 16 10C16 12.5 13 12.75 13 15Z" /></svg>`;
 // https://materialdesignicons.com/icon/content-copy
-const copyContent = w `<svg fill="currentColor" viewBox="0 0 24 24" height="20px" width="20px" style="padding: 1px; box-sizing:border-box"><path d="M19,21H8V7H19M19,5H8A2,2 0 0,0 6,7V21A2,2 0 0,0 8,23H19A2,2 0 0,0 21,21V7A2,2 0 0,0 19,5M16,1H4A2,2 0 0,0 2,3V17H4V3H16V1Z" /></svg>`;
+const copyContent = b `<svg fill="currentColor" viewBox="0 0 24 24" height="20px" width="20px" style="padding: 1px; box-sizing:border-box"><path d="M19,21H8V7H19M19,5H8A2,2 0 0,0 6,7V21A2,2 0 0,0 8,23H19A2,2 0 0,0 21,21V7A2,2 0 0,0 19,5M16,1H4A2,2 0 0,0 2,3V17H4V3H16V1Z" /></svg>`;
 // https://materialdesignicons.com/icon/alpha-s-circle
 //export const sparqlingIcon = svg`<svg fill="currentColor" viewBox="0 0 24 24" height="20px" width="20px"><path d="M11,7A2,2 0 0,0 9,9V11A2,2 0 0,0 11,13H13V15H9V17H13A2,2 0 0,0 15,15V13A2,2 0 0,0 13,11H11V9H15V7H11M12,2A10,10 0 0,1 22,12A10,10 0 0,1 12,22A10,10 0 0,1 2,12A10,10 0 0,1 12,2Z" /></svg>`
 // https://materialdesignicons.com/icon/play-circle-outline
-const playOutlined = w `<svg fill="currentColor" viewBox="0 0 24 24" height="20px" width="20px"><path d="M12,20C7.59,20 4,16.41 4,12C4,7.59 7.59,4 12,4C16.41,4 20,7.59 20,12C20,16.41 16.41,20 12,20M12,2A10,10 0 0,0 2,12A10,10 0 0,0 12,22A10,10 0 0,0 22,12A10,10 0 0,0 12,2M10,16.5L16,12L10,7.5V16.5Z" /></svg>`;
+const playOutlined = b `<svg fill="currentColor" viewBox="0 0 24 24" height="20px" width="20px"><path d="M12,20C7.59,20 4,16.41 4,12C4,7.59 7.59,4 12,4C16.41,4 20,7.59 20,12C20,16.41 16.41,20 12,20M12,2A10,10 0 0,0 2,12A10,10 0 0,0 12,22A10,10 0 0,0 22,12A10,10 0 0,0 12,2M10,16.5L16,12L10,7.5V16.5Z" /></svg>`;
 // https://materialdesignicons.com/icon/refresh
-const refresh = w `<svg fill="currentColor" viewBox="0 0 24 24" height="20px" width="20px"><path d="M17.65,6.35C16.2,4.9 14.21,4 12,4A8,8 0 0,0 4,12A8,8 0 0,0 12,20C15.73,20 18.84,17.45 19.73,14H17.65C16.83,16.33 14.61,18 12,18A6,6 0 0,1 6,12A6,6 0 0,1 12,6C13.66,6 15.14,6.69 16.22,7.78L13,11H20V4L17.65,6.35Z" /></svg>`;
-const dragHandler = w `<svg fill="currentColor" xmlns="http://www.w3.org/2000/svg" height="20" width="20"><path d="M7.5 15.688q-.5 0-.844-.355-.344-.354-.344-.833 0-.5.355-.844.354-.344.833-.344.5 0 .844.355.344.354.344.833 0 .5-.355.844-.354.344-.833.344Zm5 0q-.5 0-.844-.355-.344-.354-.344-.833 0-.5.355-.844.354-.344.833-.344.5 0 .844.355.344.354.344.833 0 .5-.355.844-.354.344-.833.344Zm-5-4.5q-.5 0-.844-.355-.344-.354-.344-.833 0-.5.355-.844.354-.344.833-.344.5 0 .844.355.344.354.344.833 0 .5-.355.844-.354.344-.833.344Zm5 0q-.5 0-.844-.355-.344-.354-.344-.833 0-.5.355-.844.354-.344.833-.344.5 0 .844.355.344.354.344.833 0 .5-.355.844-.354.344-.833.344Zm-5-4.5q-.5 0-.844-.355-.344-.354-.344-.833 0-.5.355-.844.354-.344.833-.344.5 0 .844.355.344.354.344.833 0 .5-.355.844-.354.344-.833.344Zm5 0q-.5 0-.844-.355-.344-.354-.344-.833 0-.5.355-.844.354-.344.833-.344.5 0 .844.355.344.354.344.833 0 .5-.355.844-.354.344-.833.344Z"/></svg>`;
+const refresh = b `<svg fill="currentColor" viewBox="0 0 24 24" height="20px" width="20px"><path d="M17.65,6.35C16.2,4.9 14.21,4 12,4A8,8 0 0,0 4,12A8,8 0 0,0 12,20C15.73,20 18.84,17.45 19.73,14H17.65C16.83,16.33 14.61,18 12,18A6,6 0 0,1 6,12A6,6 0 0,1 12,6C13.66,6 15.14,6.69 16.22,7.78L13,11H20V4L17.65,6.35Z" /></svg>`;
+const dragHandler = b `<svg fill="currentColor" xmlns="http://www.w3.org/2000/svg" height="20" width="20"><path d="M7.5 15.688q-.5 0-.844-.355-.344-.354-.344-.833 0-.5.355-.844.354-.344.833-.344.5 0 .844.355.344.354.344.833 0 .5-.355.844-.354.344-.833.344Zm5 0q-.5 0-.844-.355-.344-.354-.344-.833 0-.5.355-.844.354-.344.833-.344.5 0 .844.355.344.354.344.833 0 .5-.355.844-.354.344-.833.344Zm-5-4.5q-.5 0-.844-.355-.344-.354-.344-.833 0-.5.355-.844.354-.344.833-.344.5 0 .844.355.344.354.344.833 0 .5-.355.844-.354.344-.833.344Zm5 0q-.5 0-.844-.355-.344-.354-.344-.833 0-.5.355-.844.354-.344.833-.344.5 0 .844.355.344.354.344.833 0 .5-.355.844-.354.344-.833.344Zm-5-4.5q-.5 0-.844-.355-.344-.354-.344-.833 0-.5.355-.844.354-.344.833-.344.5 0 .844.355.344.354.344.833 0 .5-.355.844-.354.344-.833.344Zm5 0q-.5 0-.844-.355-.344-.354-.344-.833 0-.5.355-.844.354-.344.833-.344.5 0 .844.355.344.354.344.833 0 .5-.355.844-.354.344-.833.344Z"/></svg>`;
 // https://materialdesignicons.com/icon/function
-const functionIcon = w `<svg fill="currentColor" viewBox="0 0 24 24" height="20px" width="20px"><path d="M15.6,5.29C14.5,5.19 13.53,6 13.43,7.11L13.18,10H16V12H13L12.56,17.07C12.37,19.27 10.43,20.9 8.23,20.7C6.92,20.59 5.82,19.86 5.17,18.83L6.67,17.33C6.91,18.07 7.57,18.64 8.4,18.71C9.5,18.81 10.47,18 10.57,16.89L11,12H8V10H11.17L11.44,6.93C11.63,4.73 13.57,3.1 15.77,3.3C17.08,3.41 18.18,4.14 18.83,5.17L17.33,6.67C17.09,5.93 16.43,5.36 15.6,5.29Z" /></svg>`;
+const functionIcon = b `<svg fill="currentColor" viewBox="0 0 24 24" height="20px" width="20px"><path d="M15.6,5.29C14.5,5.19 13.53,6 13.43,7.11L13.18,10H16V12H13L12.56,17.07C12.37,19.27 10.43,20.9 8.23,20.7C6.92,20.59 5.82,19.86 5.17,18.83L6.67,17.33C6.91,18.07 7.57,18.64 8.4,18.71C9.5,18.81 10.47,18 10.57,16.89L11,12H8V10H11.17L11.44,6.93C11.63,4.73 13.57,3.1 15.77,3.3C17.08,3.41 18.18,4.14 18.83,5.17L17.33,6.67C17.09,5.93 16.43,5.36 15.6,5.29Z" /></svg>`;
 // https://materialdesignicons.com/icon/sort-alphabetical-variant
-const sortIcon = w `<svg fill="currentColor" viewBox="0 0 24 24" height="20px" width="20px"><path d="M9.25,5L12.5,1.75L15.75,5H9.25M15.75,19L12.5,22.25L9.25,19H15.75M8.89,14.3H6L5.28,17H2.91L6,7H9L12.13,17H9.67L8.89,14.3M6.33,12.68H8.56L7.93,10.56L7.67,9.59L7.42,8.63H7.39L7.17,9.6L6.93,10.58L6.33,12.68M13.05,17V15.74L17.8,8.97V8.91H13.5V7H20.73V8.34L16.09,15V15.08H20.8V17H13.05Z" /></svg>`;
+const sortIcon = b `<svg fill="currentColor" viewBox="0 0 24 24" height="20px" width="20px"><path d="M9.25,5L12.5,1.75L15.75,5H9.25M15.75,19L12.5,22.25L9.25,19H15.75M8.89,14.3H6L5.28,17H2.91L6,7H9L12.13,17H9.67L8.89,14.3M6.33,12.68H8.56L7.93,10.56L7.67,9.59L7.42,8.63H7.39L7.17,9.6L6.93,10.58L6.33,12.68M13.05,17V15.74L17.8,8.97V8.91H13.5V7H20.73V8.34L16.09,15V15.08H20.8V17H13.05Z" /></svg>`;
 // https://materialdesignicons.com/icon/sort-alphabetical-ascending
-const sortAscendingIcon = w `<svg fill="currentColor" viewBox="0 0 24 24" height="20px" width="20px"><path d="M19 17H22L18 21L14 17H17V3H19M11 13V15L7.67 19H11V21H5V19L8.33 15H5V13M9 3H7C5.9 3 5 3.9 5 5V11H7V9H9V11H11V5C11 3.9 10.11 3 9 3M9 7H7V5H9Z" /></svg>`;
+const sortAscendingIcon = b `<svg fill="currentColor" viewBox="0 0 24 24" height="20px" width="20px"><path d="M19 17H22L18 21L14 17H17V3H19M11 13V15L7.67 19H11V21H5V19L8.33 15H5V13M9 3H7C5.9 3 5 3.9 5 5V11H7V9H9V11H11V5C11 3.9 10.11 3 9 3M9 7H7V5H9Z" /></svg>`;
 // https://materialdesignicons.com/icon/sort-alphabetical-descending
-const sortDescendingIcon = w `<svg fill="currentColor" viewBox="0 0 24 24" height="20px" width="20px"><path d="M19 7H22L18 3L14 7H17V21H19M11 13V15L7.67 19H11V21H5V19L8.33 15H5V13M9 3H7C5.9 3 5 3.9 5 5V11H7V9H9V11H11V5C11 3.9 10.11 3 9 3M9 7H7V5H9Z" /></svg>`;
+const sortDescendingIcon = b `<svg fill="currentColor" viewBox="0 0 24 24" height="20px" width="20px"><path d="M19 7H22L18 3L14 7H17V21H19M11 13V15L7.67 19H11V21H5V19L8.33 15H5V13M9 3H7C5.9 3 5 3.9 5 5V11H7V9H9V11H11V5C11 3.9 10.11 3 9 3M9 7H7V5H9Z" /></svg>`;
 // https://materialdesignicons.com/icon/sigma
-const sigma = w `<svg fill="currentColor" viewBox="0 0 24 24" height="20px" width="20px"><path d="M18,6H8.83L14.83,12L8.83,18H18V20H6V18L12,12L6,6V4H18V6Z" /></svg>`;
+const sigma = b `<svg fill="currentColor" viewBox="0 0 24 24" height="20px" width="20px"><path d="M18,6H8.83L14.83,12L8.83,18H18V20H6V18L12,12L6,6V4H18V6Z" /></svg>`;
 // https://materialdesignicons.com/icon/gesture-double-tap
-const dbClick = w `<svg fill="currentColor" viewBox="0 0 24 24" height="20px" width="20px"><path d="M10,9A1,1 0 0,1 11,8A1,1 0 0,1 12,9V13.47L13.21,13.6L18.15,15.79C18.68,16.03 19,16.56 19,17.14V21.5C18.97,22.32 18.32,22.97 17.5,23H11C10.62,23 10.26,22.85 10,22.57L5.1,18.37L5.84,17.6C6.03,17.39 6.3,17.28 6.58,17.28H6.8L10,19V9M11,5A4,4 0 0,1 15,9C15,10.5 14.2,11.77 13,12.46V11.24C13.61,10.69 14,9.89 14,9A3,3 0 0,0 11,6A3,3 0 0,0 8,9C8,9.89 8.39,10.69 9,11.24V12.46C7.8,11.77 7,10.5 7,9A4,4 0 0,1 11,5M11,3A6,6 0 0,1 17,9C17,10.7 16.29,12.23 15.16,13.33L14.16,12.88C15.28,11.96 16,10.56 16,9A5,5 0 0,0 11,4A5,5 0 0,0 6,9C6,11.05 7.23,12.81 9,13.58V14.66C6.67,13.83 5,11.61 5,9A6,6 0 0,1 11,3Z" /></svg>`;
+const dbClick = b `<svg fill="currentColor" viewBox="0 0 24 24" height="20px" width="20px"><path d="M10,9A1,1 0 0,1 11,8A1,1 0 0,1 12,9V13.47L13.21,13.6L18.15,15.79C18.68,16.03 19,16.56 19,17.14V21.5C18.97,22.32 18.32,22.97 17.5,23H11C10.62,23 10.26,22.85 10,22.57L5.1,18.37L5.84,17.6C6.03,17.39 6.3,17.28 6.58,17.28H6.8L10,19V9M11,5A4,4 0 0,1 15,9C15,10.5 14.2,11.77 13,12.46V11.24C13.61,10.69 14,9.89 14,9A3,3 0 0,0 11,6A3,3 0 0,0 8,9C8,9.89 8.39,10.69 9,11.24V12.46C7.8,11.77 7,10.5 7,9A4,4 0 0,1 11,5M11,3A6,6 0 0,1 17,9C17,10.7 16.29,12.23 15.16,13.33L14.16,12.88C15.28,11.96 16,10.56 16,9A5,5 0 0,0 11,4A5,5 0 0,0 6,9C6,11.05 7.23,12.81 9,13.58V14.66C6.67,13.83 5,11.61 5,9A6,6 0 0,1 11,3Z" /></svg>`;
 // https://materialdesignicons.com/icon/counter
-const counter = w `<svg fill="currentColor" viewBox="0 0 24 24" height="20px" width="20px"><path d="M4,4H20A2,2 0 0,1 22,6V18A2,2 0 0,1 20,20H4A2,2 0 0,1 2,18V6A2,2 0 0,1 4,4M4,6V18H11V6H4M20,18V6H18.76C19,6.54 18.95,7.07 18.95,7.13C18.88,7.8 18.41,8.5 18.24,8.75L15.91,11.3L19.23,11.28L19.24,12.5L14.04,12.47L14,11.47C14,11.47 17.05,8.24 17.2,7.95C17.34,7.67 17.91,6 16.5,6C15.27,6.05 15.41,7.3 15.41,7.3L13.87,7.31C13.87,7.31 13.88,6.65 14.25,6H13V18H15.58L15.57,17.14L16.54,17.13C16.54,17.13 17.45,16.97 17.46,16.08C17.5,15.08 16.65,15.08 16.5,15.08C16.37,15.08 15.43,15.13 15.43,15.95H13.91C13.91,15.95 13.95,13.89 16.5,13.89C19.1,13.89 18.96,15.91 18.96,15.91C18.96,15.91 19,17.16 17.85,17.63L18.37,18H20M8.92,16H7.42V10.2L5.62,10.76V9.53L8.76,8.41H8.92V16Z" /></svg>`;
+const counter = b `<svg fill="currentColor" viewBox="0 0 24 24" height="20px" width="20px"><path d="M4,4H20A2,2 0 0,1 22,6V18A2,2 0 0,1 20,20H4A2,2 0 0,1 2,18V6A2,2 0 0,1 4,4M4,6V18H11V6H4M20,18V6H18.76C19,6.54 18.95,7.07 18.95,7.13C18.88,7.8 18.41,8.5 18.24,8.75L15.91,11.3L19.23,11.28L19.24,12.5L14.04,12.47L14,11.47C14,11.47 17.05,8.24 17.2,7.95C17.34,7.67 17.91,6 16.5,6C15.27,6.05 15.41,7.3 15.41,7.3L13.87,7.31C13.87,7.31 13.88,6.65 14.25,6H13V18H15.58L15.57,17.14L16.54,17.13C16.54,17.13 17.45,16.97 17.46,16.08C17.5,15.08 16.65,15.08 16.5,15.08C16.37,15.08 15.43,15.13 15.43,15.95H13.91C13.91,15.95 13.95,13.89 16.5,13.89C19.1,13.89 18.96,15.91 18.96,15.91C18.96,15.91 19,17.16 17.85,17.63L18.37,18H20M8.92,16H7.42V10.2L5.62,10.76V9.53L8.76,8.41H8.92V16Z" /></svg>`;
 // https://materialdesignicons.com/icon/progress-close
-const dashedCross = w `<svg fill="currentColor" viewBox="0 0 24 24" height="20px" width="20px"><path d="M13 2.03V4.05C17.39 4.59 20.5 8.58 19.96 12.97C19.5 16.61 16.64 19.5 13 19.93V21.93C18.5 21.38 22.5 16.5 21.95 11C21.5 6.25 17.73 2.5 13 2.03M11 2.06C9.05 2.25 7.19 3 5.67 4.26L7.1 5.74C8.22 4.84 9.57 4.26 11 4.06V2.06M4.26 5.67C3 7.19 2.25 9.04 2.05 11H4.05C4.24 9.58 4.8 8.23 5.69 7.1L4.26 5.67M2.06 13C2.26 14.96 3.03 16.81 4.27 18.33L5.69 16.9C4.81 15.77 4.24 14.42 4.06 13H2.06M7.1 18.37L5.67 19.74C7.18 21 9.04 21.79 11 22V20C9.58 19.82 8.23 19.25 7.1 18.37M14.59 8L12 10.59L9.41 8L8 9.41L10.59 12L8 14.59L9.41 16L12 13.41L14.59 16L16 14.59L13.41 12L16 9.41L14.59 8Z" /></svg>`;
-const kebab = w `<svg fill="currentColor" xmlns="http://www.w3.org/2000/svg" height="20" width="20"><path d="M5.688 11.083q-.459 0-.771-.323-.313-.322-.313-.76 0-.458.323-.771.323-.312.761-.312.458 0 .77.323.313.322.313.76 0 .458-.313.771-.312.312-.77.312Zm4.312 0q-.458 0-.771-.323-.312-.322-.312-.76 0-.458.323-.771.322-.312.76-.312.458 0 .771.323.312.322.312.76 0 .458-.323.771-.322.312-.76.312Zm4.312 0q-.458 0-.77-.323-.313-.322-.313-.76 0-.458.313-.771.312-.312.77-.312.459 0 .771.323.313.322.313.76 0 .458-.323.771-.323.312-.761.312Z"/></svg>`;
-const expandMore = w `<svg fill="currentColor" xmlns="http://www.w3.org/2000/svg" height="20" width="20"><path d="m10 12.792-4.708-4.73.77-.77L10 11.229l3.938-3.937.77.77Z"/></svg>`;
-const expandLess = w `<svg fill="currentColor" xmlns="http://www.w3.org/2000/svg" height="20" width="20"><path d="m6.062 12.729-.77-.791L10 7.229l4.708 4.709-.77.791L10 8.792Z"/></svg>`;
-const error = w `<svg fill="currentColor" xmlns="http://www.w3.org/2000/svg" height="20" width="20"><path d="M10 13.771q.25 0 .417-.167.166-.166.166-.416 0-.25-.166-.417-.167-.167-.417-.167-.25 0-.417.167-.166.167-.166.417 0 .25.166.416.167.167.417.167Zm-.542-2.709h1.084v-5H9.458ZM10 17.583q-1.562 0-2.948-.593-1.385-.594-2.417-1.625-1.031-1.032-1.625-2.417-.593-1.386-.593-2.948 0-1.583.593-2.958.594-1.375 1.625-2.407Q5.667 3.604 7.052 3.01 8.438 2.417 10 2.417q1.583 0 2.958.593 1.375.594 2.407 1.625 1.031 1.032 1.625 2.417.593 1.386.593 2.948t-.593 2.948q-.594 1.385-1.625 2.417-1.032 1.031-2.417 1.625-1.386.593-2.948.593Zm0-1.083q2.708 0 4.604-1.896T16.5 10q0-2.708-1.896-4.604T10 3.5q-2.708 0-4.604 1.896T3.5 10q0 2.708 1.896 4.604T10 16.5Zm0-6.5Z"/></svg>`;
-const ellipsis = w `<svg fill="currentColor" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 16 16" width="16" height="16"><path fill-rule="evenodd" d="M0 5.75C0 4.784.784 4 1.75 4h12.5c.966 0 1.75.784 1.75 1.75v4.5A1.75 1.75 0 0114.25 12H1.75A1.75 1.75 0 010 10.25v-4.5zM4 7a1 1 0 100 2 1 1 0 000-2zm3 1a1 1 0 112 0 1 1 0 01-2 0zm5-1a1 1 0 100 2 1 1 0 000-2z"></path></svg>`;
-const preview = w `<svg fill="currentColor" xmlns="http://www.w3.org/2000/svg" height="20" width="20"><path d="M4.5 17q-.625 0-1.062-.438Q3 16.125 3 15.5v-11q0-.625.438-1.062Q3.875 3 4.5 3h11q.625 0 1.062.438Q17 3.875 17 4.5v11q0 .625-.438 1.062Q16.125 17 15.5 17Zm0-1.5h11V6h-11v9.5Zm5.5-1.75q-1.542 0-2.75-.844T5.5 10.75q.542-1.312 1.75-2.156Q8.458 7.75 10 7.75t2.75.844q1.208.844 1.75 2.156-.542 1.312-1.75 2.156-1.208.844-2.75.844Zm0-1q1.104 0 2-.531.896-.531 1.396-1.469-.5-.938-1.396-1.469-.896-.531-2-.531t-2 .531q-.896.531-1.396 1.469.5.938 1.396 1.469.896.531 2 .531Zm0-.75q-.521 0-.885-.365-.365-.364-.365-.885t.365-.885Q9.479 9.5 10 9.5t.885.365q.365.364.365.885t-.365.885Q10.521 12 10 12Z"/></svg>`;
-const mastroEndpointIcon = w `<svg fill="currentColor" xmlns="http://www.w3.org/2000/svg" height="20" width="20"><path d="M3.542 9.25q-.563 0-.948-.396-.386-.396-.386-.937V5.542q0-.542.396-.938.396-.396.938-.396H11V9.25Zm0-1.083h6.375V5.292H3.542q-.104 0-.177.073t-.073.177v2.375q0 .104.073.177t.177.073Zm0 7.625q-.542 0-.938-.396-.396-.396-.396-.938v-2.375q0-.541.396-.937t.938-.396H12.5v5.042Zm0-1.084h7.875v-2.875H3.542q-.104 0-.177.073t-.073.177v2.375q0 .104.073.177t.177.073ZM14 15.792V9.25h-1.5V4.208h5.188L16.25 7.854h1.438Zm-9.896-2.021h1v-1h-1Zm0-6.542h1v-1h-1Zm-.812.938V5.292v2.875Zm0 6.541v-2.875 2.875Z"/></svg>`;
-const description = w `<svg fill="currentColor" xmlns="http://www.w3.org/2000/svg" height="20" width="20" viewBox="0 0 20 20"><path d="M7 15h6v-1.5H7Zm0-3h6v-1.5H7Zm-1.5 6q-.625 0-1.062-.438Q4 17.125 4 16.5v-13q0-.625.438-1.062Q4.875 2 5.5 2H12l4 4v10.5q0 .625-.438 1.062Q15.125 18 14.5 18ZM11 7V3.5H5.5v13h9V7ZM5.5 3.5v3.938V3.5v13-13Z"/></svg>`;
-const editSquare = w `<svg fill="currentColor" style="position: relative; top: -1px" xmlns="http://www.w3.org/2000/svg" height="20" width="20"><path d="M4.5 19.146q-.625 0-1.062-.438Q3 18.271 3 17.646v-11q0-.625.438-1.063.437-.437 1.062-.437h6.521l-1.5 1.5H4.5v11h11v-4.979l1.5-1.521v6.5q0 .625-.438 1.062-.437.438-1.062.438Zm5.5-7Zm3.625-6.813 1.083 1.084L9.5 11.583v1.063h1.062l5.188-5.167 1.042 1.063-5.604 5.604H8v-3.167Zm3.167 3.209-3.167-3.209 1.771-1.771q.437-.437 1.052-.437.614 0 1.052.437l1.083 1.084q.438.437.438 1.052 0 .614-.438 1.052Z"/></svg>`;
-const toggleCatalog = w `<svg style="padding: 2px; box-sizing: border-box;" viewBox="64 64 896 896" width="20px" height="20px" fill="currentColor" aria-hidden="true"><path d="M408 442h480c4.4 0 8-3.6 8-8v-56c0-4.4-3.6-8-8-8H408c-4.4 0-8 3.6-8 8v56c0 4.4 3.6 8 8 8zm-8 204c0 4.4 3.6 8 8 8h480c4.4 0 8-3.6 8-8v-56c0-4.4-3.6-8-8-8H408c-4.4 0-8 3.6-8 8v56zm504-486H120c-4.4 0-8 3.6-8 8v56c0 4.4 3.6 8 8 8h784c4.4 0 8-3.6 8-8v-56c0-4.4-3.6-8-8-8zm0 632H120c-4.4 0-8 3.6-8 8v56c0 4.4 3.6 8 8 8h784c4.4 0 8-3.6 8-8v-56c0-4.4-3.6-8-8-8zM142.4 642.1L298.7 519a8.84 8.84 0 000-13.9L142.4 381.9c-5.8-4.6-14.4-.5-14.4 6.9v246.3a8.9 8.9 0 0014.4 7z"></path></svg>`;
+const dashedCross = b `<svg fill="currentColor" viewBox="0 0 24 24" height="20px" width="20px"><path d="M13 2.03V4.05C17.39 4.59 20.5 8.58 19.96 12.97C19.5 16.61 16.64 19.5 13 19.93V21.93C18.5 21.38 22.5 16.5 21.95 11C21.5 6.25 17.73 2.5 13 2.03M11 2.06C9.05 2.25 7.19 3 5.67 4.26L7.1 5.74C8.22 4.84 9.57 4.26 11 4.06V2.06M4.26 5.67C3 7.19 2.25 9.04 2.05 11H4.05C4.24 9.58 4.8 8.23 5.69 7.1L4.26 5.67M2.06 13C2.26 14.96 3.03 16.81 4.27 18.33L5.69 16.9C4.81 15.77 4.24 14.42 4.06 13H2.06M7.1 18.37L5.67 19.74C7.18 21 9.04 21.79 11 22V20C9.58 19.82 8.23 19.25 7.1 18.37M14.59 8L12 10.59L9.41 8L8 9.41L10.59 12L8 14.59L9.41 16L12 13.41L14.59 16L16 14.59L13.41 12L16 9.41L14.59 8Z" /></svg>`;
+const kebab = b `<svg fill="currentColor" xmlns="http://www.w3.org/2000/svg" height="20" width="20"><path d="M5.688 11.083q-.459 0-.771-.323-.313-.322-.313-.76 0-.458.323-.771.323-.312.761-.312.458 0 .77.323.313.322.313.76 0 .458-.313.771-.312.312-.77.312Zm4.312 0q-.458 0-.771-.323-.312-.322-.312-.76 0-.458.323-.771.322-.312.76-.312.458 0 .771.323.312.322.312.76 0 .458-.323.771-.322.312-.76.312Zm4.312 0q-.458 0-.77-.323-.313-.322-.313-.76 0-.458.313-.771.312-.312.77-.312.459 0 .771.323.313.322.313.76 0 .458-.323.771-.323.312-.761.312Z"/></svg>`;
+const expandMore = b `<svg fill="currentColor" xmlns="http://www.w3.org/2000/svg" height="20" width="20"><path d="m10 12.792-4.708-4.73.77-.77L10 11.229l3.938-3.937.77.77Z"/></svg>`;
+const expandLess = b `<svg fill="currentColor" xmlns="http://www.w3.org/2000/svg" height="20" width="20"><path d="m6.062 12.729-.77-.791L10 7.229l4.708 4.709-.77.791L10 8.792Z"/></svg>`;
+const error = b `<svg fill="currentColor" xmlns="http://www.w3.org/2000/svg" height="20" width="20"><path d="M10 13.771q.25 0 .417-.167.166-.166.166-.416 0-.25-.166-.417-.167-.167-.417-.167-.25 0-.417.167-.166.167-.166.417 0 .25.166.416.167.167.417.167Zm-.542-2.709h1.084v-5H9.458ZM10 17.583q-1.562 0-2.948-.593-1.385-.594-2.417-1.625-1.031-1.032-1.625-2.417-.593-1.386-.593-2.948 0-1.583.593-2.958.594-1.375 1.625-2.407Q5.667 3.604 7.052 3.01 8.438 2.417 10 2.417q1.583 0 2.958.593 1.375.594 2.407 1.625 1.031 1.032 1.625 2.417.593 1.386.593 2.948t-.593 2.948q-.594 1.385-1.625 2.417-1.032 1.031-2.417 1.625-1.386.593-2.948.593Zm0-1.083q2.708 0 4.604-1.896T16.5 10q0-2.708-1.896-4.604T10 3.5q-2.708 0-4.604 1.896T3.5 10q0 2.708 1.896 4.604T10 16.5Zm0-6.5Z"/></svg>`;
+const ellipsis = b `<svg fill="currentColor" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 16 16" width="16" height="16"><path fill-rule="evenodd" d="M0 5.75C0 4.784.784 4 1.75 4h12.5c.966 0 1.75.784 1.75 1.75v4.5A1.75 1.75 0 0114.25 12H1.75A1.75 1.75 0 010 10.25v-4.5zM4 7a1 1 0 100 2 1 1 0 000-2zm3 1a1 1 0 112 0 1 1 0 01-2 0zm5-1a1 1 0 100 2 1 1 0 000-2z"></path></svg>`;
+const preview = b `<svg fill="currentColor" xmlns="http://www.w3.org/2000/svg" height="20" width="20"><path d="M4.5 17q-.625 0-1.062-.438Q3 16.125 3 15.5v-11q0-.625.438-1.062Q3.875 3 4.5 3h11q.625 0 1.062.438Q17 3.875 17 4.5v11q0 .625-.438 1.062Q16.125 17 15.5 17Zm0-1.5h11V6h-11v9.5Zm5.5-1.75q-1.542 0-2.75-.844T5.5 10.75q.542-1.312 1.75-2.156Q8.458 7.75 10 7.75t2.75.844q1.208.844 1.75 2.156-.542 1.312-1.75 2.156-1.208.844-2.75.844Zm0-1q1.104 0 2-.531.896-.531 1.396-1.469-.5-.938-1.396-1.469-.896-.531-2-.531t-2 .531q-.896.531-1.396 1.469.5.938 1.396 1.469.896.531 2 .531Zm0-.75q-.521 0-.885-.365-.365-.364-.365-.885t.365-.885Q9.479 9.5 10 9.5t.885.365q.365.364.365.885t-.365.885Q10.521 12 10 12Z"/></svg>`;
+const mastroEndpointIcon = b `<svg fill="currentColor" xmlns="http://www.w3.org/2000/svg" height="20" width="20"><path d="M3.542 9.25q-.563 0-.948-.396-.386-.396-.386-.937V5.542q0-.542.396-.938.396-.396.938-.396H11V9.25Zm0-1.083h6.375V5.292H3.542q-.104 0-.177.073t-.073.177v2.375q0 .104.073.177t.177.073Zm0 7.625q-.542 0-.938-.396-.396-.396-.396-.938v-2.375q0-.541.396-.937t.938-.396H12.5v5.042Zm0-1.084h7.875v-2.875H3.542q-.104 0-.177.073t-.073.177v2.375q0 .104.073.177t.177.073ZM14 15.792V9.25h-1.5V4.208h5.188L16.25 7.854h1.438Zm-9.896-2.021h1v-1h-1Zm0-6.542h1v-1h-1Zm-.812.938V5.292v2.875Zm0 6.541v-2.875 2.875Z"/></svg>`;
+const description = b `<svg fill="currentColor" xmlns="http://www.w3.org/2000/svg" height="20" width="20" viewBox="0 0 20 20"><path d="M7 15h6v-1.5H7Zm0-3h6v-1.5H7Zm-1.5 6q-.625 0-1.062-.438Q4 17.125 4 16.5v-13q0-.625.438-1.062Q4.875 2 5.5 2H12l4 4v10.5q0 .625-.438 1.062Q15.125 18 14.5 18ZM11 7V3.5H5.5v13h9V7ZM5.5 3.5v3.938V3.5v13-13Z"/></svg>`;
+const editSquare = b `<svg fill="currentColor" style="position: relative; top: -1px" xmlns="http://www.w3.org/2000/svg" height="20" width="20"><path d="M4.5 19.146q-.625 0-1.062-.438Q3 18.271 3 17.646v-11q0-.625.438-1.063.437-.437 1.062-.437h6.521l-1.5 1.5H4.5v11h11v-4.979l1.5-1.521v6.5q0 .625-.438 1.062-.437.438-1.062.438Zm5.5-7Zm3.625-6.813 1.083 1.084L9.5 11.583v1.063h1.062l5.188-5.167 1.042 1.063-5.604 5.604H8v-3.167Zm3.167 3.209-3.167-3.209 1.771-1.771q.437-.437 1.052-.437.614 0 1.052.437l1.083 1.084q.438.437.438 1.052 0 .614-.438 1.052Z"/></svg>`;
+const toggleCatalog = b `<svg style="padding: 2px; box-sizing: border-box;" viewBox="64 64 896 896" width="20px" height="20px" fill="currentColor" aria-hidden="true"><path d="M408 442h480c4.4 0 8-3.6 8-8v-56c0-4.4-3.6-8-8-8H408c-4.4 0-8 3.6-8 8v56c0 4.4 3.6 8 8 8zm-8 204c0 4.4 3.6 8 8 8h480c4.4 0 8-3.6 8-8v-56c0-4.4-3.6-8-8-8H408c-4.4 0-8 3.6-8 8v56zm504-486H120c-4.4 0-8 3.6-8 8v56c0 4.4 3.6 8 8 8h784c4.4 0 8-3.6 8-8v-56c0-4.4-3.6-8-8-8zm0 632H120c-4.4 0-8 3.6-8 8v56c0 4.4 3.6 8 8 8h784c4.4 0 8-3.6 8-8v-56c0-4.4-3.6-8-8-8zM142.4 642.1L298.7 519a8.84 8.84 0 000-13.9L142.4 381.9c-5.8-4.6-14.4-.5-14.4 6.9v246.3a8.9 8.9 0 0014.4 7z"></path></svg>`;
 
 function getLoadingSpinner() {
-    return y `<div class="lds-ring" title="Sparqling is loading"><div></div><div></div><div></div><div></div></div>`;
+    return x `<div class="lds-ring" title="Sparqling is loading"><div></div><div></div><div></div><div></div></div>`;
 }
 const loadingSpinnerStyle = i$1 `
   .lds-ring {
@@ -2662,19 +2662,19 @@ const loadingSpinnerStyle = i$1 `
 `;
 
 function queryResultTemplate(queryResult) {
-    return y `
+    return x `
     <table id="query-results">
-      <tr>${queryResult.headTerms.map(columnName => y `<th>${columnName}</th>`)}</tr>
+      <tr>${queryResult.headTerms.map(columnName => x `<th>${columnName}</th>`)}</tr>
       ${queryResult.results.map(resultRow => {
-        return y `
+        return x `
           <tr class="actionable" @mousedown=${handleRowClick}>
-            ${resultRow.map(resultItem => y `<td value=${resultItem.value}>${resultItem.value}</td>`)}
+            ${resultRow.map(resultItem => x `<td value=${resultItem.value}>${resultItem.value}</td>`)}
           </tr>
         `;
     })}
     </table>
     ${queryResult.results.length === 0
-        ? y `
+        ? x `
       <div class="blank-slate">
         ${ui.icons.searchOff}
         <div class="header">No results available</div>
@@ -3202,9 +3202,9 @@ function getFormTemplate(formComponent, operators) {
     const dt = formComponent.datatypeFromOntology || VarOrConstantConstantTypeEnum.String;
     // const addInputButton = new UI.GscapeButton(UI.icons.plus, "Add input value")
     // addInputButton.id = "add-input-btn"
-    return y `
+    return x `
     <div class="section">
-      ${formComponent.formTitle ? y `<div class="header">${formComponent.formTitle}</div>` : null}
+      ${formComponent.formTitle ? x `<div class="header">${formComponent.formTitle}</div>` : null}
       <form id="form-dialog" class="form" action="javascript:void(0)" onsubmit="this.handleSubmit">
         <div class="selects-wrapper">
           <div id="select-operator">
@@ -3212,7 +3212,7 @@ function getFormTemplate(formComponent, operators) {
             ${getSelect(op, operators)}
           </div>
           ${formComponent.parametersType === VarOrConstantTypeEnum.Constant
-        ? y `
+        ? x `
               <div id="select-datatype">
                 <label>Datatype</label>
                 ${getSelect(dt, Object.values(VarOrConstantConstantTypeEnum), formComponent.datatypeFromOntology !== undefined)}
@@ -3223,13 +3223,13 @@ function getFormTemplate(formComponent, operators) {
           ${(_a = formComponent.parametersIriOrConstants) === null || _a === void 0 ? void 0 : _a.map((parameter, index) => getInput(index, formComponent.datatypeFromOntology, parameter.value, "Set input value"))}
           ${formComponent.operator === FilterExpressionOperatorEnum.In ||
         formComponent.operator === FilterExpressionOperatorEnum.NotIn
-        ? y `
+        ? x `
               <div>
                 <gscape-button id="add-input-btn" type="subtle" title="Add input value">
                   <span slot="icon">${ui.icons.plus}</span>
                 </gscape-button>
                 ${formComponent.parameters && formComponent.parameters.length > 3 // at least 3 custom inputs to remove one
-            ? y `
+            ? x `
                     <gscape-button id="remove-input-btn" type="subtle" title="Remove input value">
                       <span slot="icon">${ui.icons.minus}</span>
                     </gscape-button>
@@ -3240,7 +3240,7 @@ function getFormTemplate(formComponent, operators) {
         : null}
 
           ${formComponent.acceptExamples
-        ? y `
+        ? x `
               <gscape-button 
                 id="show-examples" 
                 label="Show/Hide Examples"
@@ -3252,7 +3252,7 @@ function getFormTemplate(formComponent, operators) {
         : null}
         </div>
         ${formComponent.operator === FilterExpressionOperatorEnum.Regex
-        ? y `
+        ? x `
               <input type="checkbox" id="case-sensitive" name="flag" value="i">
               <label for="case-sensitive">Case Sensitive</label>
             `
@@ -3260,9 +3260,9 @@ function getFormTemplate(formComponent, operators) {
       </form>
     </div>
     ${formComponent.examples
-        ? y `
+        ? x `
         ${formComponent.parametersType === VarOrConstantTypeEnum.Constant
-            ? y `<input id="search-examples-input" placeholder="Search Examples" type="text" />`
+            ? x `<input id="search-examples-input" placeholder="Search Examples" type="text" />`
             : null} 
         ${queryResultTemplate(formComponent.examples)}
       `
@@ -3283,18 +3283,18 @@ function getInput(index, datatype, value = '', titleText = '') {
     input.setAttribute('index', (index + 1).toString());
     input.required = true;
     input.value = value;
-    return y `${input}`;
+    return x `${input}`;
 }
 function getSelect(defaultOpt, options, disabled = false) {
     const isDefaultAlreadySet = options.includes(defaultOpt);
-    return y `
+    return x `
     <select required ?disabled=${disabled}>
-      ${isDefaultAlreadySet ? null : y `<option value="" hidden selected>${defaultOpt}</option>`}
+      ${isDefaultAlreadySet ? null : x `<option value="" hidden selected>${defaultOpt}</option>`}
       ${options.map(op => {
         if (op === defaultOpt)
-            return y `<option value="${op}" selected>${op}</option>`;
+            return x `<option value="${op}" selected>${op}</option>`;
         else
-            return y `<option value="${op}">${op}</option>`;
+            return x `<option value="${op}">${op}</option>`;
     })}
     </select>
   `;
@@ -3322,7 +3322,7 @@ class FilterDialog extends (_b$1 = SparqlingFormDialog) {
     }
     render() {
         this.title = `${this.modality} filter for ${this.variableName}`;
-        return y `
+        return x `
       <div class="gscape-panel">
         <div class="top-bar">
           <div id="widget-header" class="bold-text">
@@ -3345,7 +3345,7 @@ class FilterDialog extends (_b$1 = SparqlingFormDialog) {
           
           <div class="bottom-buttons">
             ${this.modality === Modality.EDIT
-            ? y `
+            ? x `
                 <gscape-button type="subtle" title="Delete" style="margin-right: auto" id="delete-button" @click=${this.handleDeleteClick}>
                   <span slot="icon">${rubbishBin}</span>
                 </gscape-button>
@@ -3425,7 +3425,7 @@ function getElemWithOperatorStyle() {
 }
 
 function getTrayButtonTemplate(title, icon, alternateIcon, id, clickHandler = (e) => { }, label) {
-    return y `
+    return x `
     <gscape-button
       id=${id}
       size="s"
@@ -3436,14 +3436,14 @@ function getTrayButtonTemplate(title, icon, alternateIcon, id, clickHandler = (e
     >
       <span slot="icon">${icon}</span>
       ${alternateIcon
-        ? y `<span slot="alt-icon">${alternateIcon}</span>`
+        ? x `<span slot="alt-icon">${alternateIcon}</span>`
         : null}
     </gscape-button>
   `;
 }
 
 function getElemWithOperatorList(list, editElemCallback, deleteElemCallback) {
-    return y `
+    return x `
     ${list === null || list === void 0 ? void 0 : list.map((elemWithOperator) => {
         var _a, _b;
         const elem = elemWithOperator.value || elemWithOperator;
@@ -3463,12 +3463,12 @@ function getElemWithOperatorList(list, editElemCallback, deleteElemCallback) {
         //   deleteButton.onClick = () => deleteElemCallback(elemWithOperator.id)
         //   deleteButton.classList.add('danger')
         // }
-        return y `
+        return x `
         <div class="elem-with-operator">
           <div class="chip" title="${operatorFullName}">${operator}</div>
 
           ${parameters
-            ? y `
+            ? x `
               <div class="parameters">
                 ${parameters === null || parameters === void 0 ? void 0 : parameters.map((param, index) => {
                 if (index === 0)
@@ -3481,7 +3481,7 @@ function getElemWithOperatorList(list, editElemCallback, deleteElemCallback) {
                     return null;
                 }
                 else {
-                    return y `<div class="parameter ellipsed">${value}</div>`;
+                    return x `<div class="parameter ellipsed">${value}</div>`;
                 }
             })}
               </div>
@@ -3550,7 +3550,7 @@ class FilterListDialog extends ui.ModalMixin(ui.BaseMixin(s)) {
     }
     render() {
         this.title = `Defined Filters for ${this.variable}`;
-        return y `
+        return x `
       <div class="gscape-panel">
         <div class="top-bar">
           <div id="widget-header" class="bold-text">
@@ -3701,6 +3701,7 @@ class HighlightsList extends ui.DropPanelMixin(ui.BaseMixin(s)) {
         super();
         this.title = 'Suggestions';
         this.loading = false;
+        this.isDefaultClosed = false;
         this._onSuggestionLocalization = (element) => { };
         this._onSuggestionAddToQuery = (entityIri, entityType, relatedClassIri) => { };
         this._onAddLabel = () => { };
@@ -3720,15 +3721,15 @@ class HighlightsList extends ui.DropPanelMixin(ui.BaseMixin(s)) {
                         e.entityViewData.value.getLabels().some(label => isAmatch(label.lexicalForm, searchedText));
                 };
                 if (!this.entityFilters || this.entityFilters.areAllFiltersDisabled ||
-                    this.entityFilters[GrapholTypesEnum.CLASS]) {
+                    this.entityFilters[TypesEnum.CLASS]) {
                     this.shownIRIs.classes = ((_b = (_a = this.allHighlights) === null || _a === void 0 ? void 0 : _a.classes) === null || _b === void 0 ? void 0 : _b.filter(c => checkEntity(c)).map(e => e.entityViewData.value.iri.fullIri)) || [];
                 }
                 if (!this.entityFilters || this.entityFilters.areAllFiltersDisabled ||
-                    this.entityFilters[GrapholTypesEnum.DATA_PROPERTY]) {
+                    this.entityFilters[TypesEnum.DATA_PROPERTY]) {
                     this.shownIRIs.dataProperties = ((_d = (_c = this.allHighlights) === null || _c === void 0 ? void 0 : _c.dataProperties) === null || _d === void 0 ? void 0 : _d.filter(dp => checkEntity(dp)).map(e => e.entityViewData.value.iri.fullIri)) || [];
                 }
                 if (!this.entityFilters || this.entityFilters.areAllFiltersDisabled ||
-                    this.entityFilters[GrapholTypesEnum.OBJECT_PROPERTY]) {
+                    this.entityFilters[TypesEnum.OBJECT_PROPERTY]) {
                     this.shownIRIs.objectProperties = ((_f = (_e = this.allHighlights) === null || _e === void 0 ? void 0 : _e.objectProperties) === null || _f === void 0 ? void 0 : _f.filter(op => checkEntity(op)).map(e => e.entityViewData.value.iri.fullIri)) || [];
                 }
                 this.requestUpdate();
@@ -3743,9 +3744,9 @@ class HighlightsList extends ui.DropPanelMixin(ui.BaseMixin(s)) {
         });
     }
     render() {
-        return y `
+        return x `
       ${this.isPanelClosed()
-            ? y `
+            ? x `
           <div>
             <gscape-button 
               id="toggle-panel-button"
@@ -3757,102 +3758,102 @@ class HighlightsList extends ui.DropPanelMixin(ui.BaseMixin(s)) {
             </gscape-button>
           </div>
         `
-            : y `
-          <div class="gscape-panel" id="drop-panel">
-            <div class="top-bar">
-              <div id="widget-header" class="bold-text">
-                ${lightbulb}
-                <span>${this.title}</span>
-              </div>
+            : null}
 
-              <gscape-button 
-                id="toggle-panel-button"
-                size="s" 
-                type="subtle"
-                @click=${this.togglePanel}
-              > 
-                <span slot="icon">${ui.icons.minus}</span>
-              </gscape-button>
-            </div>
-
-            <gscape-entity-search
-              class=0
-              data-property=0
-              object-property=0
-            ></gscape-entity-search>
-
-            <div class="content-wrapper">
-              <div class="list">
-                ${this.loading
-                ? y `<div style="align-self: center">${ui.getContentSpinner()}</div>`
-                : this.hasAnyHighlights
-                    ? y `
-
-                      <details open="">
-                        <summary class="actionable" style="padding: 8px">Annotations</summary>
-
-                        <gscape-action-list-item
-                          label = 'Label'
-                          @click=${this._onAddLabel}
-                        >
-                          <span slot="icon">${ui.icons.labelIcon}</span>
-                        </gscape-action-list-item>
-
-                        <gscape-action-list-item
-                          label = 'Comment'
-                          @click=${this._onAddComment}
-                        >
-                          <span slot="icon">${ui.icons.commentIcon}</span>
-                        </gscape-action-list-item>
-                      </details>
-
-                      <div class="hr" style="flex-shrink: 0; margin: 8px auto"></div>
-
-                      ${this.dataProperties.map(dp => this.getEntitySuggestionTemplate(dp))}
-                      ${this.objectProperties.map(op => this.getObjectPropertySuggestionTemplate(op))}
-                      ${this.classes.map(c => this.getEntitySuggestionTemplate(c))}
-
-                      ${this.shownIRIs && this.objectProperties.length === 0 && this.dataProperties.length === 0 && this.classes.length === 0
-                        ? ui.emptySearchBlankState
-                        : null}
-                    `
-                    : this.allHighlights === undefined && y `
-                      <div class="blank-slate">
-                        ${ui.icons.searchOff}
-                        <div class="header">No suggestions available</div>
-                        <div class="description">Add elements to the query and we will provide you next steps suggestions</div>
-                      </div>
-                    `}
-              </div>
-            </div>
+      <div class="gscape-panel" id="drop-panel">
+        <div class="top-bar">
+          <div id="widget-header" class="bold-text">
+            ${lightbulb}
+            <span>${this.title}</span>
           </div>
-        `}
+
+          <gscape-button 
+            id="toggle-panel-button"
+            size="s" 
+            type="subtle"
+            @click=${this.togglePanel}
+          > 
+            <span slot="icon">${ui.icons.minus}</span>
+          </gscape-button>
+        </div>
+
+        <gscape-entity-search
+          class=0
+          data-property=0
+          object-property=0
+        ></gscape-entity-search>
+
+        <div class="content-wrapper">
+          <div class="list">
+            ${this.loading
+            ? x `<div style="align-self: center">${ui.getContentSpinner()}</div>`
+            : this.hasAnyHighlights
+                ? x `
+
+                  <details open="">
+                    <summary class="actionable" style="padding: 8px">Annotations</summary>
+
+                    <gscape-action-list-item
+                      label = 'Label'
+                      @click=${this._onAddLabel}
+                    >
+                      <span slot="icon">${ui.icons.labelIcon}</span>
+                    </gscape-action-list-item>
+
+                    <gscape-action-list-item
+                      label = 'Comment'
+                      @click=${this._onAddComment}
+                    >
+                      <span slot="icon">${ui.icons.commentIcon}</span>
+                    </gscape-action-list-item>
+                  </details>
+
+                  <div class="hr" style="flex-shrink: 0; margin: 8px auto"></div>
+
+                  ${this.dataProperties.map(dp => this.getEntitySuggestionTemplate(dp))}
+                  ${this.objectProperties.map(op => this.getObjectPropertySuggestionTemplate(op))}
+                  ${this.classes.map(c => this.getEntitySuggestionTemplate(c))}
+
+                  ${this.shownIRIs && this.objectProperties.length === 0 && this.dataProperties.length === 0 && this.classes.length === 0
+                    ? ui.emptySearchBlankState
+                    : null}
+                `
+                : this.allHighlights === undefined && x `
+                  <div class="blank-slate">
+                    ${ui.icons.searchOff}
+                    <div class="header">No suggestions available</div>
+                    <div class="description">Add elements to the query and we will provide you next steps suggestions</div>
+                  </div>
+                `}
+          </div>
+        </div>
+      </div>
     `;
     }
     getObjectPropertySuggestionTemplate(objectProperty) {
         const disabled = objectProperty.hasUnfolding === false;
-        return y `
+        return x `
       <gscape-entity-list-item
         displayedname=${objectProperty.entityViewData.displayedName}
         iri=${objectProperty.entityViewData.value.iri.fullIri}
-        type=${objectProperty.entityViewData.value.type}
+        .types=${objectProperty.entityViewData.value.types}
         ?asaccordion=${true}
         ?disabled=${disabled}
         direct=${objectProperty.direct}
         title=${objectProperty.hasUnfolding ? objectProperty.entityViewData.displayedName : emptyUnfoldingEntityTooltip()}
       >
         <div slot="accordion-body">
-          ${objectProperty.connectedClasses.map(connectedClass => this.getEntitySuggestionTemplate(connectedClass, (e) => this.handleAddToQueryClick(e, connectedClass.entityViewData.value.iri.fullIri, GrapholTypesEnum.OBJECT_PROPERTY, objectProperty.entityViewData.value.iri.fullIri), disabled))}
+          ${objectProperty.connectedClasses.map(connectedClass => this.getEntitySuggestionTemplate(connectedClass, (e) => this.handleAddToQueryClick(e, connectedClass.entityViewData.value.iri.fullIri, objectProperty.entityViewData.value.types, objectProperty.entityViewData.value.iri.fullIri), disabled))}
         </div>
 
         ${!objectProperty.direct
-            ? y `
+            ? x `
             <span slot="trailing-element" class="chip" style="line-height: 1">Inverse</span>
           `
             : null}
 
         ${!isFullPageActive()
-            ? y `
+            ? x `
             <div slot="trailing-element" class="actions">
               <gscape-button
                   title="Show in graphs"
@@ -3873,17 +3874,25 @@ class HighlightsList extends ui.DropPanelMixin(ui.BaseMixin(s)) {
     }
     getEntitySuggestionTemplate(entity, customCallback, forceDisabled = false) {
         const disabled = forceDisabled || entity.hasUnfolding === false;
-        return y `
+        return x `
       <gscape-entity-list-item
         displayedname=${entity.entityViewData.displayedName}
         iri=${entity.entityViewData.value.iri}
-        type=${entity.entityViewData.value.type}
+        .types=${entity.entityViewData.value.types}
+        actionable
         ?disabled=${disabled}
         title=${entity.hasUnfolding ? entity.entityViewData.displayedName : emptyUnfoldingEntityTooltip()}
+        @click=${(e) => {
+            console.log(e);
+            if (customCallback)
+                customCallback(e);
+            else
+                this.handleAddToQueryClick(e, entity.entityViewData.value.iri.fullIri, entity.entityViewData.value.types);
+        }}
       >
         <div slot="trailing-element" class="actions">
           ${!isFullPageActive()
-            ? y `
+            ? x `
               <gscape-button
                 title="Show in graphs"
                 size="s"
@@ -3896,8 +3905,8 @@ class HighlightsList extends ui.DropPanelMixin(ui.BaseMixin(s)) {
               </gscape-button>
             `
             : null}
-          ${!disabled
-            ? y `
+          <!-- ${!disabled
+            ? x `
               <gscape-button
                 title="Add to query"
                 size="s"
@@ -3906,21 +3915,19 @@ class HighlightsList extends ui.DropPanelMixin(ui.BaseMixin(s)) {
                 if (customCallback)
                     customCallback(e);
                 else
-                    this.handleAddToQueryClick(e, entity.entityViewData.value.iri.fullIri, entity.entityViewData.value.type);
+                    this.handleAddToQueryClick(e, entity.entityViewData.value.iri.fullIri, entity.entityViewData.value.types);
             }}
               >
                 <span slot='icon' class="slotted-icon">${ui.icons.insertInGraph}</span>
               </gscape-button>
             `
-            : null}
+            : null} -->
         </div>
       </gscape-entity-list-item>
     `;
     }
     firstUpdated(_changedProperties) {
         super.firstUpdated(_changedProperties);
-        this.closePanel();
-        this.requestUpdate();
         this.hide();
     }
     handleSuggestionLocalization(e, entityIri) {
@@ -3932,10 +3939,10 @@ class HighlightsList extends ui.DropPanelMixin(ui.BaseMixin(s)) {
     handleAddToQueryClick(e, entityIri, entityType, objectPropertyIri) {
         e.preventDefault();
         if (objectPropertyIri) { // if it's from object property, then the entityIri is the relatedClass iri
-            this._onSuggestionAddToQuery(objectPropertyIri, GrapholTypesEnum.OBJECT_PROPERTY, entityIri);
+            this._onSuggestionAddToQuery(objectPropertyIri, TypesEnum.OBJECT_PROPERTY, entityIri);
         }
         else {
-            this._onSuggestionAddToQuery(entityIri, entityType);
+            this._onSuggestionAddToQuery(entityIri, Array.from(entityType)[0]);
         }
     }
     onSuggestionLocalization(callback) {
@@ -3984,15 +3991,15 @@ class HighlightsList extends ui.DropPanelMixin(ui.BaseMixin(s)) {
         };
         if (this.shownIRIs && this.entityFilters && !this.entityFilters.areAllFiltersDisabled) {
             let count = 0;
-            if (!this.entityFilters[GrapholTypesEnum.CLASS]) {
+            if (!this.entityFilters[TypesEnum.CLASS]) {
                 this.shownIRIs.classes = [];
                 count += 1;
             }
-            if (!this.entityFilters[GrapholTypesEnum.OBJECT_PROPERTY]) {
+            if (!this.entityFilters[TypesEnum.OBJECT_PROPERTY]) {
                 this.shownIRIs.objectProperties = [];
                 count += 1;
             }
-            if (!this.entityFilters[GrapholTypesEnum.DATA_PROPERTY]) {
+            if (!this.entityFilters[TypesEnum.DATA_PROPERTY]) {
                 this.shownIRIs.dataProperties = [];
                 count += 1;
             }
@@ -4121,7 +4128,7 @@ class RelatedClassSelection extends ui.BaseMixin(s) {
     }
     render() {
         var _a;
-        return y `
+        return x `
       <div class="gscape-panel">
         <div class="header">Add Object Property</div>
         <div class="gscape-panel-body">
@@ -4137,7 +4144,7 @@ class RelatedClassSelection extends ui.BaseMixin(s) {
           <div id="right-panel" class="list">
             ${(_a = this.list) === null || _a === void 0 ? void 0 : _a.map((classItem, i) => {
             const hasEmptyUnfolding = hasEntityEmptyUnfolding(classItem, EntityTypeEnum.Class);
-            return y `
+            return x `
                 <span 
                   class="actionable ${hasEmptyUnfolding ? 'disabled' : null}"
                   ?hasEmptyUnfolding=${hasEmptyUnfolding}
@@ -4315,7 +4322,7 @@ class SparqlDialog extends ui.ModalMixin(ui.BaseMixin(s)) {
         this.arePrefixesVisible = false;
     }
     render() {
-        return y `
+        return x `
       <div class="gscape-panel">
         <div class="top-bar">
           <div id="widget-header" class="bold-text">
@@ -4325,7 +4332,7 @@ class SparqlDialog extends ui.ModalMixin(ui.BaseMixin(s)) {
 
           <div id="buttons-tray">
             ${this.text !== emptyQueryMsg() && !isStandalone()
-            ? y `
+            ? x `
                 ${getTrayButtonTemplate('Use query in SPARQL page', editSquare, undefined, // icons
             'advanced-mode-btn', core.redirectToSPARQLPage)}
               `
@@ -4347,10 +4354,10 @@ class SparqlDialog extends ui.ModalMixin(ui.BaseMixin(s)) {
 
         <div class="sparql-code-wrapper" title="Click to copy query" @click=${this.copyQuery}>
           ${this.text === emptyQueryMsg()
-            ? y `<div class="sparql-code">${this.text.trim()}</div>`
-            : y `
+            ? x `<div class="sparql-code">${this.text.trim()}</div>`
+            : x `
               ${this.arePrefixesVisible
-                ? y `
+                ? x `
                   <div class="sparql-code">${this.queryPrefixes}</div>
                 `
                 : null}
@@ -4419,7 +4426,7 @@ SparqlDialog.properties = {
 };
 customElements.define('sparqling-sparql-dialog', SparqlDialog);
 
-var sparqlingIcon = w `
+var sparqlingIcon = b `
 <?xml version="1.0" encoding="UTF-8" standalone="no"?>
 <svg
    version="1.1"
@@ -4456,11 +4463,11 @@ class SparqlingStartRunButtons extends ui.BaseMixin(ui.DropPanelMixin(s)) {
         this._onToggleCatalog = () => { };
     }
     render() {
-        return y `
+        return x `
       <div id="widget-body" class="gscape-panel">
         <div id="widget-header" style="${isStandalone() ? null : 'margin-left: 8px'}">
           ${isStandalone()
-            ? y `
+            ? x `
               <gscape-button
                 @click="${this.handleStartButtonCLick}" 
                 type="subtle"
@@ -4473,9 +4480,9 @@ class SparqlingStartRunButtons extends ui.BaseMixin(ui.DropPanelMixin(s)) {
                 </span>
               </gscape-button>
             `
-            : y `
+            : x `
                 ${this.isLoading
-                ? y `${getLoadingSpinner()}`
+                ? x `${getLoadingSpinner()}`
                 : null}
                 <div class="bold-text">
                   ${this.queryName || 'new_query'}${isQueryDirty() ? '*' : null}
@@ -4485,7 +4492,7 @@ class SparqlingStartRunButtons extends ui.BaseMixin(ui.DropPanelMixin(s)) {
         </div>
 
         ${!isStandalone()
-            ? y `            
+            ? x `            
             <gscape-button
               @click=${this._onToggleCatalog}
               type="subtle"
@@ -4536,7 +4543,7 @@ class SparqlingStartRunButtons extends ui.BaseMixin(ui.DropPanelMixin(s)) {
             </gscape-button>
 
             ${this.showResultsEnabled
-                ? y `
+                ? x `
                 <gscape-button
                   @click="${this._onShowResults}"
                   type="subtle"
@@ -4557,7 +4564,7 @@ class SparqlingStartRunButtons extends ui.BaseMixin(ui.DropPanelMixin(s)) {
         <div class="header">Endpoint Selector</div>
         <div class="content-wrapper">
           ${this.endpoints.map(endpoint => {
-            return y `
+            return x `
               <gscape-action-list-item
                 @click=${this.handleEndpointClick}
                 label="${endpoint.name}"
@@ -4568,7 +4575,7 @@ class SparqlingStartRunButtons extends ui.BaseMixin(ui.DropPanelMixin(s)) {
         })}
 
           ${this.endpoints.length === 0
-            ? y `
+            ? x `
               <div class="blank-slate">
                 ${ui.icons.searchOff}
                 <div class="header">No endpoint available</div>
@@ -4699,7 +4706,7 @@ class FunctionDialog extends SparqlingFormDialog {
     }
     render() {
         this.title = `${this.modality} function for ${this.variableName}`;
-        return y `
+        return x `
       <div class="gscape-panel">
         <div class="top-bar">
           <div id="widget-header" class="bold-text">
@@ -4723,7 +4730,7 @@ class FunctionDialog extends SparqlingFormDialog {
           <div class="bottom-buttons">
             <gscape-button label="Cancel" @click=${this.hide}></gscape-button>
             ${this.canSave
-            ? y `
+            ? x `
                 <gscape-button type="primary" @click=${this.handleSubmit} label="Save Function"></gscape-button>
               `
             : null}
@@ -4816,7 +4823,7 @@ class AggregationDialog extends SparqlingFormDialog {
     }
     render() {
         this.title = `${this.modality} aggregate function for ${this.variableName}`;
-        return y `
+        return x `
       <div class="gscape-panel">
         <div class="top-bar">
           <div id="widget-header" class="bold-text">
@@ -4848,7 +4855,7 @@ class AggregationDialog extends SparqlingFormDialog {
           </div>
           <div class="hr"></div>
           ${!this.definingHaving
-            ? y `
+            ? x `
                 <gscape-button title="Add Having" label="Filter Groups - Having" @click=${this.handleHavingButtonClick}>
                   <span slot="icon">${addFilter$1}</span>
                 </gscape-button>
@@ -4859,7 +4866,7 @@ class AggregationDialog extends SparqlingFormDialog {
           <div class="bottom-buttons">
             <gscape-button label="Cancel" @click=${this.hide}></gscape-button>
             ${this.canSave
-            ? y `
+            ? x `
                 <gscape-button type="primary" @click=${this.handleSubmit} label="Save Function"></gscape-button>
               `
             : null}
@@ -4928,7 +4935,7 @@ class ErrorsDialog extends ui.ModalMixin(ui.BaseMixin(s)) {
         this.errorText = '';
     }
     render() {
-        return y `
+        return x `
       <div class="gscape-panel">
         <div class="top-bar">
           <div id="widget-header" class="bold-text">
@@ -4999,7 +5006,7 @@ class SparqlingQueryResults extends ui.ModalMixin(ui.BaseMixin(s)) {
         this.searchExamplesCallback = () => { };
     }
     render() {
-        return y `
+        return x `
     <div class="gscape-panel">
       <div class="top-bar">
         <div id="widget-header" class="bold-text">
@@ -5019,11 +5026,11 @@ class SparqlingQueryResults extends ui.ModalMixin(ui.BaseMixin(s)) {
       </div>
 
       <div class="dialog-body">
-        ${!this.result && !this.isLoading ? y `<div class="danger">Select Endpoint</div>` : null}
+        ${!this.result && !this.isLoading ? x `<div class="danger">Select Endpoint</div>` : null}
         ${this.result
-            ? y `
+            ? x `
             ${this.allowSearch
-                ? y `
+                ? x `
                 <input id="search-examples-input" placeholder="Search Examples" type="text" value=${this.examplesSearchValue} />
               `
                 : null}
@@ -5105,7 +5112,7 @@ customElements.define('sparqling-preview-dialog', SparqlingQueryResults);
 
 class LoadingDialog extends ui.BaseMixin(s) {
     render() {
-        return y `
+        return x `
       <div class="gscape-panel">
         <div class="header">Sparqling is loading...</div>
         <div class="spinner">${getLoadingSpinner()}</div>
@@ -5208,7 +5215,7 @@ function addClassToEntityOccurrences(entityOccurrences, classToAdd) {
     entityOccurrences.forEach(occurrence => {
         var _a;
         if (occurrence.diagramId === gscape.diagramId) {
-            const cyElem = (_a = gscape.renderer.cy) === null || _a === void 0 ? void 0 : _a.$id(occurrence.elementId);
+            const cyElem = (_a = gscape.renderer.cy) === null || _a === void 0 ? void 0 : _a.$id(occurrence.id);
             cyElem === null || cyElem === void 0 ? void 0 : cyElem.addClass(classToAdd);
             if (classToAdd === HIGHLIGHT_CLASS || classToAdd === SPARQLING_SELECTED)
                 cyElem === null || cyElem === void 0 ? void 0 : cyElem.removeClass(FADED_CLASS);
@@ -5311,23 +5318,20 @@ function onRelatedClassSelection(callback) {
 }
 
 const classSelector = new ui.GscapeEntitySelector();
+classSelector.style.top = '20%';
+classSelector.style.left = '50%';
+classSelector.style.transform = 'translate(-50%)';
+classSelector.style.width = '40%';
+classSelector.style.minWidth = '150px';
+classSelector.style.position = 'absolute';
 classSelector.hide();
 function initClassSelector() {
     classSelector.entityList = ui.createEntitiesList(getGscape(), {
-        [GrapholTypesEnum.CLASS]: 1,
+        [TypesEnum.CLASS]: 1,
         areAllFiltersDisabled: false,
-    });
-    classSelector.updateComplete.then(() => {
-        classSelector.entityList.map(e => e.value.iri).forEach((classIri, i) => {
-            var _a;
-            const classElementInList = (_a = classSelector.shadowRoot) === null || _a === void 0 ? void 0 : _a.querySelector(`gscape-entity-list-item[iri = "${classIri.fullIri}"]`);
-            classElementInList.style.opacity = '1';
-            if (hasEntityEmptyUnfolding(classIri.fullIri, EntityTypeEnum.Class)) {
-                if (classElementInList) {
-                    classElementInList.style.opacity = '0.5';
-                }
-            }
-        });
+    }).map(e => {
+        e.disabled = hasEntityEmptyUnfolding(e.value.iri.fullIri, EntityTypeEnum.Class);
+        return e;
     });
 }
 
@@ -9290,7 +9294,7 @@ function arrange() {
          * to the graph.
          */
         const container = cy.container();
-        if (container) {
+        if (container && container.clientHeight !== 0 && container.clientWidth !== 0) {
             container.style.visibility = 'hidden'; // avoid seeing node moving across the viewport
             setTimeout(() => {
                 cy.fit();
@@ -9579,6 +9583,7 @@ class QueryGraphWidget extends ui.BaseMixin(ui.DropPanelMixin(s)) {
         super();
         this._isBGPEmpty = true;
         this._withoutBGP = false;
+        this.isDefaultClosed = false;
         this.onQueryClear = () => { };
         this.onSparqlButtonClick = () => { };
         this.onFullScreenEnter = () => { };
@@ -9600,9 +9605,9 @@ class QueryGraphWidget extends ui.BaseMixin(ui.DropPanelMixin(s)) {
     }
     render() {
         this.title = getConfig('queryGraphWidgetTitle') || 'Query Graph';
-        return y `
+        return x `
       ${this.isPanelClosed()
-            ? y `
+            ? x `
           <div class="top-bar traslated-down">
             <gscape-button 
               id="toggle-panel-button"
@@ -9635,7 +9640,7 @@ class QueryGraphWidget extends ui.BaseMixin(ui.DropPanelMixin(s)) {
 
           ${this.withoutBGP
             ? null
-            : y `
+            : x `
               <gscape-button 
                 id="toggle-panel-button"
                 size="s"
@@ -9648,9 +9653,9 @@ class QueryGraphWidget extends ui.BaseMixin(ui.DropPanelMixin(s)) {
         </div>
 
         ${!this.withoutBGP
-            ? y `
+            ? x `
             ${this.isBGPEmpty
-                ? y `
+                ? x `
                   <div class="blank-slate sparqling-blank-slate">
                     ${dbClick}
                     <div class="header">${emptyGraphMsg()}</div>
@@ -9878,6 +9883,7 @@ function render$1(graphElem, parent, objectProperty) {
     else {
         (_b = graphElem.children) === null || _b === void 0 ? void 0 : _b.forEach((childGraphElem) => render$1(childGraphElem, graphElem));
     }
+    return cy;
 }
 // // remove elements not in query anymore, asynchronously
 function removeNodesNotInQuery() {
@@ -9905,10 +9911,17 @@ function centerOnElem(graphElem) {
             centerOnElement(cyElem, cyElem.cy().maxZoom());
     }
 }
+function getSelectedGraphElement() {
+    var _a;
+    return getGraphElementByID((_a = getElements().filter('.sparqling-selected')[0]) === null || _a === void 0 ? void 0 : _a.id());
+}
 function setContainer(container) {
     cy.mount(container);
     cy.resize();
     cy.fit();
+}
+function unmount() {
+    cy.unmount();
 }
 // // ******************************* GRAPH INTERACTION CALLBACKS ******************************* //
 function onAddHead(callback) {
@@ -9979,6 +9992,34 @@ function resetHighlight(graphElement) {
         cy.$('.highlight').removeClass('highlight');
     }
 }
+
+var index = /*#__PURE__*/Object.freeze({
+    __proto__: null,
+    widget: widget,
+    selectElement: selectElement,
+    render: render$1,
+    removeNodesNotInQuery: removeNodesNotInQuery,
+    centerOnElem: centerOnElem,
+    getSelectedGraphElement: getSelectedGraphElement,
+    setContainer: setContainer,
+    unmount: unmount,
+    onAddHead: onAddHead,
+    onDelete: onDelete$1,
+    onAddFilter: onAddFilter$1,
+    onSeeFilters: onSeeFilters,
+    onShowExamples: onShowExamples,
+    onJoin: onJoin,
+    onElementClick: onElementClick,
+    isIriInQueryGraph: isIriInQueryGraph$1,
+    highlightNode: highlightNode,
+    resetHighlight: resetHighlight,
+    renderOptionals: renderOptionals,
+    setLanguage: setLanguage,
+    onMakeOptional: onMakeOptional,
+    onRemoveOptional: onRemoveOptional,
+    setDisplayedNameType: setDisplayedNameType,
+    setTheme: setTheme
+});
 
 let sortChangedCallback;
 let dragging;
@@ -10066,7 +10107,7 @@ class HeadElementComponent extends ui.BaseMixin(ui.DropPanelMixin(s)) {
     }
     render() {
         var _a, _b;
-        return y `
+        return x `
       <div>
         <div id="field-head">
           <div id="drag-handler" draggable="true">
@@ -10089,7 +10130,7 @@ class HeadElementComponent extends ui.BaseMixin(ui.DropPanelMixin(s)) {
             ${getTrayButtonTemplate('More actions', kebab, undefined, 'cxt-menu-action', () => this.showCxtMenu())}
           </div>
           ${this.hasAnythingInBody || this.ordering !== 0
-            ? y `
+            ? x `
               <div id="state-tray">
                 ${this.function ? functionIcon : null}
                 ${this.ordering && this.ordering !== 0 ? this.orderIcon : null}
@@ -10099,7 +10140,7 @@ class HeadElementComponent extends ui.BaseMixin(ui.DropPanelMixin(s)) {
             `
             : null}
           ${this.hasAnythingInBody
-            ? y `
+            ? x `
               <div id="toggle-panel">
                 ${getTrayButtonTemplate('Expand', expandMore, expandLess, 'expand-action', this.togglePanel)}
               </div>
@@ -10108,14 +10149,14 @@ class HeadElementComponent extends ui.BaseMixin(ui.DropPanelMixin(s)) {
         </div>
         <div id="drop-panel" class="hide">
           ${this.groupBy
-            ? y `
+            ? x `
               <div class="section">
                 <div class="section-header bold-text">Aggregation</div>
                 <div class="filters-function-list">
                   ${getElemWithOperatorList([this.groupBy])}
                 </div>
                 ${this.having
-                ? y `
+                ? x `
                     <span class="title">Having</span>
                     <div class="filters-function-list">
                       ${getElemWithOperatorList(this.having)}
@@ -10127,7 +10168,7 @@ class HeadElementComponent extends ui.BaseMixin(ui.DropPanelMixin(s)) {
             : null}
 
           ${this.function
-            ? y `
+            ? x `
               <div class="section">
                 <div class="section-header bold-text">Function</div>
                 <div class="filters-function-list">
@@ -10138,7 +10179,7 @@ class HeadElementComponent extends ui.BaseMixin(ui.DropPanelMixin(s)) {
             : null}
           
           ${((_b = this.filters) === null || _b === void 0 ? void 0 : _b.length) > 0
-            ? y `
+            ? x `
               <div class="section">
                 <div class="section-header bold-text">Filters</div>
                 <div class="filters-function-list">
@@ -10405,6 +10446,7 @@ class QueryHeadWidget extends ui.BaseMixin(ui.DropPanelMixin(s)) {
         super(...arguments);
         this.title = 'Query Columns';
         this.headElements = [];
+        this.isDefaultClosed = false;
         this.togglePanel = () => {
             super.togglePanel();
             this.requestUpdate();
@@ -10413,9 +10455,9 @@ class QueryHeadWidget extends ui.BaseMixin(ui.DropPanelMixin(s)) {
     }
     render() {
         this.title = getConfig('queryHeadWidgetTitle') || 'Query Columns';
-        return y `
+        return x `
       ${this.isPanelClosed()
-            ? y `
+            ? x `
           <div class="top-bar traslated-down">
             <gscape-button 
               id="toggle-panel-button"
@@ -10447,21 +10489,21 @@ class QueryHeadWidget extends ui.BaseMixin(ui.DropPanelMixin(s)) {
         </div>
 
       ${isCountStarActive()
-            ? y `
+            ? x `
           <div class="blank-slate sparqling-blank-slate">
             ${counter}
             <div class="header">${countStarMsg()}</div>
           </div>
         `
             : this.headElements.length === 0
-                ? y `
+                ? x `
             <div class="blank-slate sparqling-blank-slate">
               ${asterisk}
               <div class="header">${emptyHeadMsg()}</div>
               <div class="tip description" title="${emptyHeadTipMsg()}">${tipWhy()}</div>
             </div>
           `
-                : y `
+                : x `
             <div id="elems-wrapper" @dragover=${allowDrop} @drop=${allowDrop}>
               ${this.headElements.map(headElement => new HeadElementComponent(headElement))}
             </div>
@@ -10698,7 +10740,7 @@ function performHighlights(iri) {
                             const objPropViewData = util.grapholEntityToEntityViewData(grapholEntity, grapholscape);
                             return {
                                 entityViewData: objPropViewData,
-                                hasUnfolding: !hasEntityEmptyUnfolding(op.objectPropertyIRI, GrapholTypesEnum.OBJECT_PROPERTY),
+                                hasUnfolding: !hasEntityEmptyUnfolding(op.objectPropertyIRI, TypesEnum.OBJECT_PROPERTY),
                                 connectedClasses: ((_a = op.relatedClasses) === null || _a === void 0 ? void 0 : _a.map(rc => _getEntityViewDataUnfolding(rc, grapholscape)).filter(rc => rc !== undefined)) || [],
                                 direct: op.direct,
                             };
@@ -10890,7 +10932,7 @@ const errorsDialog = new ErrorsDialog();
 const previewDialog = new SparqlingQueryResults();
 const loadingDialog = new LoadingDialog();
 // export * from './cxt-menu'
-const cxtMenu = new ui.ContextMenu();
+const cxtMenu = new ui.GscapeContextMenu();
 const exitFullscreenButton = new ui.GscapeButton();
 exitFullscreenButton.innerHTML = `<span slot="icon">${ui.icons.exitFullscreen.strings.join('')}</span>`;
 exitFullscreenButton.style.position = 'absolute';
@@ -11061,17 +11103,17 @@ function updateEntitiesEmptyUnfoldings() {
 function hasEntityEmptyUnfolding(entityIri, entityType) {
     let arrToCheck = [];
     switch (entityType) {
-        case GrapholTypesEnum.CLASS:
+        case TypesEnum.CLASS:
         case EntityTypeEnum.Class: {
             arrToCheck = arrToCheck.concat(...emtpyUnfoldingEntities.emptyUnfoldingClasses);
             break;
         }
-        case GrapholTypesEnum.DATA_PROPERTY:
+        case TypesEnum.DATA_PROPERTY:
         case EntityTypeEnum.DataProperty: {
             arrToCheck = arrToCheck.concat(...emtpyUnfoldingEntities.emptyUnfoldingDataProperties);
             break;
         }
-        case GrapholTypesEnum.OBJECT_PROPERTY:
+        case TypesEnum.OBJECT_PROPERTY:
         case EntityTypeEnum.ObjectProperty:
         case EntityTypeEnum.InverseObjectProperty: {
             arrToCheck = arrToCheck.concat(...emtpyUnfoldingEntities.emptyUnfoldingObjectProperties);
@@ -11819,7 +11861,7 @@ function onChangeDiagramOrRenderer(gscape) {
 function setHandlers(cy) {
     // [diplayed_name] select only nodes with a defined displayed name, 
     // avoid fake nodes (for inverse/nonInverse functional obj properties)
-    const objPropertiesSelector = `[iri][type = "${GrapholTypesEnum.OBJECT_PROPERTY}"]`;
+    const objPropertiesSelector = `[iri][type = "${TypesEnum.OBJECT_PROPERTY}"]`;
     cy.on('mouseover', objPropertiesSelector, e => {
         if (isSparqlingRunning() && !hasEntityEmptyUnfolding(e.target.data().iri))
             showRelatedClassesWidget(e.target.data('iri'), e.renderedPosition);
@@ -11838,8 +11880,14 @@ function setHandlers(cy) {
             hideRelatedClassesWidget();
     });
     cy.on('dblclick', `[iri]`, e => {
-        if (isSparqlingRunning() && getGscape().diagramId !== undefined && !hasEntityEmptyUnfolding(e.target.data().iri))
-            handleEntitySelection(e.target.data().iri, e.target.data().type, { elementId: e.target.id(), diagramId: getGscape().diagramId });
+        const gscape = getGscape();
+        const grapholElment = gscape.ontology.getGrapholElement(e.target.id(), gscape.diagramId, gscape.renderState);
+        if (grapholElment &&
+            isSparqlingRunning() &&
+            gscape.diagramId !== undefined &&
+            !hasEntityEmptyUnfolding(e.target.data().iri)) {
+            handleEntitySelection(e.target.data().iri, e.target.data().type, grapholElment);
+        }
     });
 }
 
@@ -11854,14 +11902,14 @@ function handleEntitySelection(entityIriString, entityType, entityOccurrence) {
             return;
         }
         switch (entityType) {
-            case GrapholTypesEnum.OBJECT_PROPERTY: {
+            case TypesEnum.OBJECT_PROPERTY: {
                 // let result = await handleObjectPropertySelection(cyEntity)
                 // if (result && result.connectedClass) {
                 //   gscape.centerOnNode(result.connectedClass.id(), 1.8)
                 // }
                 break;
             }
-            case GrapholTypesEnum.CLASS: {
+            case TypesEnum.CLASS: {
                 (_a = handleConceptSelection(entityIriString)) === null || _a === void 0 ? void 0 : _a.then(newBody => {
                     var _a;
                     if (!newBody)
@@ -11886,7 +11934,7 @@ function handleEntitySelection(entityIriString, entityType, entityOccurrence) {
                 });
                 break;
             }
-            case GrapholTypesEnum.DATA_PROPERTY: {
+            case TypesEnum.DATA_PROPERTY: {
                 (_b = handleDataPropertySelection(entityIriString)) === null || _b === void 0 ? void 0 : _b.then(newBody => {
                     var _a;
                     if (!newBody)
@@ -11907,11 +11955,11 @@ function handleObjectPropertySelection(branch, relatedClassEntityOccurrence) {
     const gscape = getGscape();
     lastObjProperty = branch;
     if (!isFullPageActive()) {
-        gscape.centerOnElement(relatedClassEntityOccurrence.elementId, relatedClassEntityOccurrence.diagramId);
-        gscape.selectElement(relatedClassEntityOccurrence.elementId);
+        gscape.centerOnElement(relatedClassEntityOccurrence.id, relatedClassEntityOccurrence.diagramId);
+        gscape.selectElement(relatedClassEntityOccurrence.id);
     }
     const relatedClassCyElement = gscape.renderState
-        ? (_b = (_a = gscape.ontology.getDiagram(relatedClassEntityOccurrence.diagramId)) === null || _a === void 0 ? void 0 : _a.representations.get(gscape.renderState)) === null || _b === void 0 ? void 0 : _b.cy.$id(relatedClassEntityOccurrence.elementId)
+        ? (_b = (_a = gscape.ontology.getDiagram(relatedClassEntityOccurrence.diagramId)) === null || _a === void 0 ? void 0 : _a.representations.get(gscape.renderState)) === null || _b === void 0 ? void 0 : _b.cy.$id(relatedClassEntityOccurrence.id)
         : null;
     if (relatedClassCyElement)
         handleEntitySelection(relatedClassCyElement.data().iri, relatedClassCyElement.data().type, relatedClassEntityOccurrence);
@@ -12148,8 +12196,8 @@ onElementClick((graphElement, iri) => {
         // move ontology graph to show origin graphol node or any other iri occurrence
         const originGrapholNodeOccurrence = getOriginGrapholNodes().get(graphElement.id + iri);
         if (originGrapholNodeOccurrence) {
-            gscape.centerOnElement(originGrapholNodeOccurrence.elementId, originGrapholNodeOccurrence.diagramId, 1.5);
-            gscape.selectElement(originGrapholNodeOccurrence.elementId);
+            gscape.centerOnElement(originGrapholNodeOccurrence.id, originGrapholNodeOccurrence.diagramId, 1.5);
+            gscape.selectElement(originGrapholNodeOccurrence.id);
         }
         else {
             gscape.selectEntity(iri);
@@ -12222,13 +12270,7 @@ onShowExamples(graphElement => {
 });
 widget.onSparqlButtonClick = () => sparqlDialog.isVisible ? sparqlDialog.hide() : sparqlDialog.show();
 widget.onQueryClear = () => {
-    var _a;
-    const confirmDialog = new ui.GscapeConfirmDialog();
-    confirmDialog.message = 'Are you sure to reset the query?';
-    confirmDialog.onConfirm = () => clearQuery();
-    confirmDialog.onCancel = () => confirmDialog.remove();
-    (_a = getGscape().container.querySelector('.gscape-ui')) === null || _a === void 0 ? void 0 : _a.appendChild(confirmDialog);
-    confirmDialog.show();
+    ui.showMessage('Are you sure to reset the query?', 'Confirm Action', getGscape().uiContainer).onConfirm(clearQuery);
 };
 widget.onFullScreenEnter = () => {
     bgpContainer.requestFullscreen().then(() => setTimeout(() => cy.fit(), 200));
@@ -12551,7 +12593,7 @@ functionDialog.onSeeExamples((variable) => __awaiter(void 0, void 0, void 0, fun
 
 function addAnnotation(annotationKind) {
     return __awaiter(this, void 0, void 0, function* () {
-        if (annotationKind !== AnnotationsKind.label && annotationKind !== AnnotationsKind.comment) {
+        if (annotationKind !== 'label' && annotationKind !== 'comment') {
             console.warn(`Annotations of kind [${annotationKind}] are not supported yet.`);
             return;
         }
@@ -12572,13 +12614,13 @@ highlightsList.onSuggestionLocalization((entityIri) => {
 highlightsList.onSuggestionAddToQuery((entityIri, entityType, relatedClass) => {
     var _a, _b;
     switch (entityType) {
-        case GrapholTypesEnum.CLASS:
-        case GrapholTypesEnum.DATA_PROPERTY:
+        case TypesEnum.CLASS:
+        case TypesEnum.DATA_PROPERTY:
             const entityOccurrence = getEntityOccurrence(entityIri);
             if (entityOccurrence)
                 handleEntitySelection(entityIri, entityType, entityOccurrence);
             break;
-        case GrapholTypesEnum.OBJECT_PROPERTY:
+        case TypesEnum.OBJECT_PROPERTY:
             if (relatedClass) {
                 const objectPropertyBranch = (_b = (_a = getActualHighlights()) === null || _a === void 0 ? void 0 : _a.objectProperties) === null || _b === void 0 ? void 0 : _b.find((b) => {
                     if (b.objectPropertyIRI)
@@ -12591,10 +12633,10 @@ highlightsList.onSuggestionAddToQuery((entityIri, entityType, relatedClass) => {
             }
     }
 });
-highlightsList.onAddLabel(() => addAnnotation(AnnotationsKind.label));
-highlightsList.onAddComment(() => addAnnotation(AnnotationsKind.comment));
+highlightsList.onAddLabel(() => addAnnotation('label'));
+highlightsList.onAddComment(() => addAnnotation('comment'));
 
-classSelector.onClassSelection((classIri) => __awaiter(void 0, void 0, void 0, function* () {
+classSelector.onClassSelection = (classIri) => __awaiter(void 0, void 0, void 0, function* () {
     if (hasEntityEmptyUnfolding(classIri, EntityTypeEnum.Class))
         return;
     const qgBGPApi = new QueryGraphBGPApi(undefined, getBasePath());
@@ -12616,7 +12658,7 @@ classSelector.onClassSelection((classIri) => __awaiter(void 0, void 0, void 0, f
         performHighlights(classEntity.iri.fullIri);
         selectEntity(classEntity.iri.fullIri);
     }
-}));
+});
 
 function showInitialModeSelector() {
     const modeSelector = new ui.GscapeFullPageSelector();
@@ -12636,6 +12678,7 @@ function showInitialModeSelector() {
         },
     ];
     modeSelector.onOptionSelection = (optionId) => {
+        var _a;
         if (optionId === 'full-page') {
             start().then(_ => {
                 startFullpage();
@@ -12645,7 +12688,8 @@ function showInitialModeSelector() {
         else {
             if (isFullPageActive())
                 stopFullpage();
-            getGscape().widgets.get(ui.WidgetEnum.INITIAL_RENDERER_SELECTOR).show();
+            (_a = getGscape().widgets.get(ui.WidgetEnum.INITIAL_RENDERER_SELECTOR)) === null || _a === void 0 ? void 0 : _a.show();
+            console.log(getGscape().widgets);
         }
     };
     getGscape().container.appendChild(modeSelector);
@@ -12686,17 +12730,22 @@ function sparqling(gscape, file, requestOptions, useOntologyGraph = true, config
                     stopFullpage();
                 }
                 // show grapholscape renderer selector
+                if (!gscape.widgets.get(ui.WidgetEnum.INITIAL_RENDERER_SELECTOR)) {
+                    ui.initInitialRendererSelector(gscape);
+                }
                 const grapholscapeRendererSelector = gscape.widgets.get(ui.WidgetEnum.INITIAL_RENDERER_SELECTOR);
-                grapholscapeRendererSelector.show();
-                const onOptionSelection = grapholscapeRendererSelector.onOptionSelection;
-                grapholscapeRendererSelector.onOptionSelection = (optionId) => {
-                    onOptionSelection(optionId); // call original callback
-                    if (core.onToggleCatalog) {
-                        core.onToggleCatalog();
-                    }
-                    performHighlightsEmptyUnfolding();
-                    grapholscapeRendererSelector.onOptionSelection = onOptionSelection; // restore original callback
-                };
+                const onOptionSelection = grapholscapeRendererSelector === null || grapholscapeRendererSelector === void 0 ? void 0 : grapholscapeRendererSelector.onOptionSelection;
+                if (onOptionSelection) {
+                    grapholscapeRendererSelector.onOptionSelection = (optionId) => {
+                        onOptionSelection(optionId); // call original callback
+                        if (core.onToggleCatalog) {
+                            core.onToggleCatalog();
+                        }
+                        performHighlightsEmptyUnfolding();
+                        grapholscapeRendererSelector.onOptionSelection = onOptionSelection; // restore original callback
+                    };
+                    grapholscapeRendererSelector === null || grapholscapeRendererSelector === void 0 ? void 0 : grapholscapeRendererSelector.enable();
+                }
             }
             else {
                 if (isSparqlingRunning()) {
@@ -12747,4 +12796,4 @@ function getCore(gscape, file) {
     }
 }
 
-export { sparqling, sparqlingStandalone };
+export { index as queryGraph, sparqling, sparqlingStandalone };
