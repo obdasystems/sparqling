@@ -477,7 +477,7 @@ export const OntologyGraphApiAxiosParamCreator = function (configuration?: Confi
          * This route is used to highlight the negihbours of the selected class. The neighbours can be classes (brother classes or child classes), object properties (the class or one of his father partecipate or are typed to domain/range) or data properties (the class or one of its fathers partecipates or is typed to its domain).
          * @summary Get the IRIs of the ontology entities \"related\" to the clicked and selected.
          * @param {string} clickedClassIRI The IRI of the class just clicked on the GRAPHOLscape ontology graph
-         * @param {Array<string>} [params] 
+         * @param {Array<string>} [params] Possible value: &#x60;subClassOnly&#x60; in order to get only the subclasses of the clicked class
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
@@ -520,10 +520,11 @@ export const OntologyGraphApiAxiosParamCreator = function (configuration?: Confi
          * @summary Find paths between selected class and clicked class.
          * @param {string} lastSelectedIRI The IRI of the entity clicked on the GRAPHOLscape ontology graph
          * @param {string} clickedIRI The IRI of the entity clicked on the GRAPHOLscape ontology graph
+         * @param {boolean} [kShortest] Use the k-shortest algorithm to return the shortestpaths
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
-        highligthsPaths: async (lastSelectedIRI: string, clickedIRI: string, options: AxiosRequestConfig = {}): Promise<RequestArgs> => {
+        highligthsPaths: async (lastSelectedIRI: string, clickedIRI: string, kShortest?: boolean, options: AxiosRequestConfig = {}): Promise<RequestArgs> => {
             // verify required parameter 'lastSelectedIRI' is not null or undefined
             assertParamExists('highligthsPaths', 'lastSelectedIRI', lastSelectedIRI)
             // verify required parameter 'clickedIRI' is not null or undefined
@@ -546,6 +547,10 @@ export const OntologyGraphApiAxiosParamCreator = function (configuration?: Confi
 
             if (clickedIRI !== undefined) {
                 localVarQueryParameter['clickedIRI'] = clickedIRI;
+            }
+
+            if (kShortest !== undefined) {
+                localVarQueryParameter['kShortest'] = kShortest;
             }
 
 
@@ -573,7 +578,7 @@ export const OntologyGraphApiFp = function(configuration?: Configuration) {
          * This route is used to highlight the negihbours of the selected class. The neighbours can be classes (brother classes or child classes), object properties (the class or one of his father partecipate or are typed to domain/range) or data properties (the class or one of its fathers partecipates or is typed to its domain).
          * @summary Get the IRIs of the ontology entities \"related\" to the clicked and selected.
          * @param {string} clickedClassIRI The IRI of the class just clicked on the GRAPHOLscape ontology graph
-         * @param {Array<string>} [params] 
+         * @param {Array<string>} [params] Possible value: &#x60;subClassOnly&#x60; in order to get only the subclasses of the clicked class
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
@@ -586,11 +591,12 @@ export const OntologyGraphApiFp = function(configuration?: Configuration) {
          * @summary Find paths between selected class and clicked class.
          * @param {string} lastSelectedIRI The IRI of the entity clicked on the GRAPHOLscape ontology graph
          * @param {string} clickedIRI The IRI of the entity clicked on the GRAPHOLscape ontology graph
+         * @param {boolean} [kShortest] Use the k-shortest algorithm to return the shortestpaths
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
-        async highligthsPaths(lastSelectedIRI: string, clickedIRI: string, options?: AxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<Array<OntologyPath>>> {
-            const localVarAxiosArgs = await localVarAxiosParamCreator.highligthsPaths(lastSelectedIRI, clickedIRI, options);
+        async highligthsPaths(lastSelectedIRI: string, clickedIRI: string, kShortest?: boolean, options?: AxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<Array<OntologyPath>>> {
+            const localVarAxiosArgs = await localVarAxiosParamCreator.highligthsPaths(lastSelectedIRI, clickedIRI, kShortest, options);
             return createRequestFunction(localVarAxiosArgs, globalAxios, BASE_PATH, configuration);
         },
     }
@@ -607,7 +613,7 @@ export const OntologyGraphApiFactory = function (configuration?: Configuration, 
          * This route is used to highlight the negihbours of the selected class. The neighbours can be classes (brother classes or child classes), object properties (the class or one of his father partecipate or are typed to domain/range) or data properties (the class or one of its fathers partecipates or is typed to its domain).
          * @summary Get the IRIs of the ontology entities \"related\" to the clicked and selected.
          * @param {string} clickedClassIRI The IRI of the class just clicked on the GRAPHOLscape ontology graph
-         * @param {Array<string>} [params] 
+         * @param {Array<string>} [params] Possible value: &#x60;subClassOnly&#x60; in order to get only the subclasses of the clicked class
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
@@ -619,11 +625,12 @@ export const OntologyGraphApiFactory = function (configuration?: Configuration, 
          * @summary Find paths between selected class and clicked class.
          * @param {string} lastSelectedIRI The IRI of the entity clicked on the GRAPHOLscape ontology graph
          * @param {string} clickedIRI The IRI of the entity clicked on the GRAPHOLscape ontology graph
+         * @param {boolean} [kShortest] Use the k-shortest algorithm to return the shortestpaths
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
-        highligthsPaths(lastSelectedIRI: string, clickedIRI: string, options?: any): AxiosPromise<Array<OntologyPath>> {
-            return localVarFp.highligthsPaths(lastSelectedIRI, clickedIRI, options).then((request) => request(axios, basePath));
+        highligthsPaths(lastSelectedIRI: string, clickedIRI: string, kShortest?: boolean, options?: any): AxiosPromise<Array<OntologyPath>> {
+            return localVarFp.highligthsPaths(lastSelectedIRI, clickedIRI, kShortest, options).then((request) => request(axios, basePath));
         },
     };
 };
@@ -639,7 +646,7 @@ export class OntologyGraphApi extends BaseAPI {
      * This route is used to highlight the negihbours of the selected class. The neighbours can be classes (brother classes or child classes), object properties (the class or one of his father partecipate or are typed to domain/range) or data properties (the class or one of its fathers partecipates or is typed to its domain).
      * @summary Get the IRIs of the ontology entities \"related\" to the clicked and selected.
      * @param {string} clickedClassIRI The IRI of the class just clicked on the GRAPHOLscape ontology graph
-     * @param {Array<string>} [params] 
+     * @param {Array<string>} [params] Possible value: &#x60;subClassOnly&#x60; in order to get only the subclasses of the clicked class
      * @param {*} [options] Override http request option.
      * @throws {RequiredError}
      * @memberof OntologyGraphApi
@@ -653,12 +660,13 @@ export class OntologyGraphApi extends BaseAPI {
      * @summary Find paths between selected class and clicked class.
      * @param {string} lastSelectedIRI The IRI of the entity clicked on the GRAPHOLscape ontology graph
      * @param {string} clickedIRI The IRI of the entity clicked on the GRAPHOLscape ontology graph
+     * @param {boolean} [kShortest] Use the k-shortest algorithm to return the shortestpaths
      * @param {*} [options] Override http request option.
      * @throws {RequiredError}
      * @memberof OntologyGraphApi
      */
-    public highligthsPaths(lastSelectedIRI: string, clickedIRI: string, options?: AxiosRequestConfig) {
-        return OntologyGraphApiFp(this.configuration).highligthsPaths(lastSelectedIRI, clickedIRI, options).then((request) => request(this.axios, this.basePath));
+    public highligthsPaths(lastSelectedIRI: string, clickedIRI: string, kShortest?: boolean, options?: AxiosRequestConfig) {
+        return OntologyGraphApiFp(this.configuration).highligthsPaths(lastSelectedIRI, clickedIRI, kShortest, options).then((request) => request(this.axios, this.basePath));
     }
 }
 
@@ -672,17 +680,21 @@ export const QueryGraphBGPApiAxiosParamCreator = function (configuration?: Confi
         /**
          * This path should be used to build the query graph using the path interaction. As a result there will be added to the query several triple pattern (depending on the length of the path) as a sequence of classes and object properties. Data properties never appear in paths, in order to add them use the simple PUT route.
          * @summary Get the query graph that will be rendered by Sparqling, the query head, the sparql code based on the chosen path.
-         * @param {string} path Serialization of Path object.
+         * @param {string} graphElementId The id of the node of the selected class in the query graph.
+         * @param {string} path JSON serialization of \&#39;#/components/schemas/OntologyPath\&#39;.
          * @param {QueryGraph} queryGraph 
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
-        addPathToQueryGraph: async (path: string, queryGraph: QueryGraph, options: AxiosRequestConfig = {}): Promise<RequestArgs> => {
+        addPathToQueryGraph: async (graphElementId: string, path: string, queryGraph: QueryGraph, options: AxiosRequestConfig = {}): Promise<RequestArgs> => {
+            // verify required parameter 'graphElementId' is not null or undefined
+            assertParamExists('addPathToQueryGraph', 'graphElementId', graphElementId)
             // verify required parameter 'path' is not null or undefined
             assertParamExists('addPathToQueryGraph', 'path', path)
             // verify required parameter 'queryGraph' is not null or undefined
             assertParamExists('addPathToQueryGraph', 'queryGraph', queryGraph)
-            const localVarPath = `/queryGraph/path`;
+            const localVarPath = `/queryGraph/path/{graphElementId}`
+                .replace(`{${"graphElementId"}}`, encodeURIComponent(String(graphElementId)));
             // use dummy base URL string because the URL constructor only accepts absolute URLs.
             const localVarUrlObj = new URL(localVarPath, DUMMY_BASE_URL);
             let baseOptions;
@@ -1123,13 +1135,14 @@ export const QueryGraphBGPApiFp = function(configuration?: Configuration) {
         /**
          * This path should be used to build the query graph using the path interaction. As a result there will be added to the query several triple pattern (depending on the length of the path) as a sequence of classes and object properties. Data properties never appear in paths, in order to add them use the simple PUT route.
          * @summary Get the query graph that will be rendered by Sparqling, the query head, the sparql code based on the chosen path.
-         * @param {string} path Serialization of Path object.
+         * @param {string} graphElementId The id of the node of the selected class in the query graph.
+         * @param {string} path JSON serialization of \&#39;#/components/schemas/OntologyPath\&#39;.
          * @param {QueryGraph} queryGraph 
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
-        async addPathToQueryGraph(path: string, queryGraph: QueryGraph, options?: AxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<QueryGraph>> {
-            const localVarAxiosArgs = await localVarAxiosParamCreator.addPathToQueryGraph(path, queryGraph, options);
+        async addPathToQueryGraph(graphElementId: string, path: string, queryGraph: QueryGraph, options?: AxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<QueryGraph>> {
+            const localVarAxiosArgs = await localVarAxiosParamCreator.addPathToQueryGraph(graphElementId, path, queryGraph, options);
             return createRequestFunction(localVarAxiosArgs, globalAxios, BASE_PATH, configuration);
         },
         /**
@@ -1252,13 +1265,14 @@ export const QueryGraphBGPApiFactory = function (configuration?: Configuration, 
         /**
          * This path should be used to build the query graph using the path interaction. As a result there will be added to the query several triple pattern (depending on the length of the path) as a sequence of classes and object properties. Data properties never appear in paths, in order to add them use the simple PUT route.
          * @summary Get the query graph that will be rendered by Sparqling, the query head, the sparql code based on the chosen path.
-         * @param {string} path Serialization of Path object.
+         * @param {string} graphElementId The id of the node of the selected class in the query graph.
+         * @param {string} path JSON serialization of \&#39;#/components/schemas/OntologyPath\&#39;.
          * @param {QueryGraph} queryGraph 
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
-        addPathToQueryGraph(path: string, queryGraph: QueryGraph, options?: any): AxiosPromise<QueryGraph> {
-            return localVarFp.addPathToQueryGraph(path, queryGraph, options).then((request) => request(axios, basePath));
+        addPathToQueryGraph(graphElementId: string, path: string, queryGraph: QueryGraph, options?: any): AxiosPromise<QueryGraph> {
+            return localVarFp.addPathToQueryGraph(graphElementId, path, queryGraph, options).then((request) => request(axios, basePath));
         },
         /**
          * This route is used when the user wants to delete a node from the query graph. All the children of this node will be deleted as well as we do not want to create query with completly separated branches. All the variables that are going to be deleted should also be deleted from the head of the query. **WARNING**, if the node has multiple occurrences (due to join operations) every node should be deleted.
@@ -1372,14 +1386,15 @@ export class QueryGraphBGPApi extends BaseAPI {
     /**
      * This path should be used to build the query graph using the path interaction. As a result there will be added to the query several triple pattern (depending on the length of the path) as a sequence of classes and object properties. Data properties never appear in paths, in order to add them use the simple PUT route.
      * @summary Get the query graph that will be rendered by Sparqling, the query head, the sparql code based on the chosen path.
-     * @param {string} path Serialization of Path object.
+     * @param {string} graphElementId The id of the node of the selected class in the query graph.
+     * @param {string} path JSON serialization of \&#39;#/components/schemas/OntologyPath\&#39;.
      * @param {QueryGraph} queryGraph 
      * @param {*} [options] Override http request option.
      * @throws {RequiredError}
      * @memberof QueryGraphBGPApi
      */
-    public addPathToQueryGraph(path: string, queryGraph: QueryGraph, options?: AxiosRequestConfig) {
-        return QueryGraphBGPApiFp(this.configuration).addPathToQueryGraph(path, queryGraph, options).then((request) => request(this.axios, this.basePath));
+    public addPathToQueryGraph(graphElementId: string, path: string, queryGraph: QueryGraph, options?: AxiosRequestConfig) {
+        return QueryGraphBGPApiFp(this.configuration).addPathToQueryGraph(graphElementId, path, queryGraph, options).then((request) => request(this.axios, this.basePath));
     }
 
     /**
@@ -3173,6 +3188,137 @@ export class StandaloneApi extends BaseAPI {
      */
     public standaloneOntologyUploadPost(file?: any, options?: AxiosRequestConfig) {
         return StandaloneApiFp(this.configuration).standaloneOntologyUploadPost(file, options).then((request) => request(this.axios, this.basePath));
+    }
+}
+
+
+/**
+ * VKGApi - axios parameter creator
+ * @export
+ */
+export const VKGApiAxiosParamCreator = function (configuration?: Configuration) {
+    return {
+        /**
+         * 
+         * @summary Return the CONSTRUCT query based on the shortest path between an instance and another instance or class
+         * @param {OntologyPath} ontologyPath 
+         * @param {string} [sourceInstanceIRI] 
+         * @param {string} [targetInstanceIRI] 
+         * @param {boolean} [labels] 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        instanceShortestPathPost: async (ontologyPath: OntologyPath, sourceInstanceIRI?: string, targetInstanceIRI?: string, labels?: boolean, options: AxiosRequestConfig = {}): Promise<RequestArgs> => {
+            // verify required parameter 'ontologyPath' is not null or undefined
+            assertParamExists('instanceShortestPathPost', 'ontologyPath', ontologyPath)
+            const localVarPath = `/instanceShortestPath`;
+            // use dummy base URL string because the URL constructor only accepts absolute URLs.
+            const localVarUrlObj = new URL(localVarPath, DUMMY_BASE_URL);
+            let baseOptions;
+            if (configuration) {
+                baseOptions = configuration.baseOptions;
+            }
+
+            const localVarRequestOptions = { method: 'POST', ...baseOptions, ...options};
+            const localVarHeaderParameter = {} as any;
+            const localVarQueryParameter = {} as any;
+
+            if (sourceInstanceIRI !== undefined) {
+                localVarQueryParameter['sourceInstanceIRI'] = sourceInstanceIRI;
+            }
+
+            if (targetInstanceIRI !== undefined) {
+                localVarQueryParameter['targetInstanceIRI'] = targetInstanceIRI;
+            }
+
+            if (labels !== undefined) {
+                localVarQueryParameter['labels'] = labels;
+            }
+
+
+    
+            localVarHeaderParameter['Content-Type'] = 'application/json';
+
+            setSearchParams(localVarUrlObj, localVarQueryParameter);
+            let headersFromBaseOptions = baseOptions && baseOptions.headers ? baseOptions.headers : {};
+            localVarRequestOptions.headers = {...localVarHeaderParameter, ...headersFromBaseOptions, ...options.headers};
+            localVarRequestOptions.data = serializeDataIfNeeded(ontologyPath, localVarRequestOptions, configuration)
+
+            return {
+                url: toPathString(localVarUrlObj),
+                options: localVarRequestOptions,
+            };
+        },
+    }
+};
+
+/**
+ * VKGApi - functional programming interface
+ * @export
+ */
+export const VKGApiFp = function(configuration?: Configuration) {
+    const localVarAxiosParamCreator = VKGApiAxiosParamCreator(configuration)
+    return {
+        /**
+         * 
+         * @summary Return the CONSTRUCT query based on the shortest path between an instance and another instance or class
+         * @param {OntologyPath} ontologyPath 
+         * @param {string} [sourceInstanceIRI] 
+         * @param {string} [targetInstanceIRI] 
+         * @param {boolean} [labels] 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        async instanceShortestPathPost(ontologyPath: OntologyPath, sourceInstanceIRI?: string, targetInstanceIRI?: string, labels?: boolean, options?: AxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<string>> {
+            const localVarAxiosArgs = await localVarAxiosParamCreator.instanceShortestPathPost(ontologyPath, sourceInstanceIRI, targetInstanceIRI, labels, options);
+            return createRequestFunction(localVarAxiosArgs, globalAxios, BASE_PATH, configuration);
+        },
+    }
+};
+
+/**
+ * VKGApi - factory interface
+ * @export
+ */
+export const VKGApiFactory = function (configuration?: Configuration, basePath?: string, axios?: AxiosInstance) {
+    const localVarFp = VKGApiFp(configuration)
+    return {
+        /**
+         * 
+         * @summary Return the CONSTRUCT query based on the shortest path between an instance and another instance or class
+         * @param {OntologyPath} ontologyPath 
+         * @param {string} [sourceInstanceIRI] 
+         * @param {string} [targetInstanceIRI] 
+         * @param {boolean} [labels] 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        instanceShortestPathPost(ontologyPath: OntologyPath, sourceInstanceIRI?: string, targetInstanceIRI?: string, labels?: boolean, options?: any): AxiosPromise<string> {
+            return localVarFp.instanceShortestPathPost(ontologyPath, sourceInstanceIRI, targetInstanceIRI, labels, options).then((request) => request(axios, basePath));
+        },
+    };
+};
+
+/**
+ * VKGApi - object-oriented interface
+ * @export
+ * @class VKGApi
+ * @extends {BaseAPI}
+ */
+export class VKGApi extends BaseAPI {
+    /**
+     * 
+     * @summary Return the CONSTRUCT query based on the shortest path between an instance and another instance or class
+     * @param {OntologyPath} ontologyPath 
+     * @param {string} [sourceInstanceIRI] 
+     * @param {string} [targetInstanceIRI] 
+     * @param {boolean} [labels] 
+     * @param {*} [options] Override http request option.
+     * @throws {RequiredError}
+     * @memberof VKGApi
+     */
+    public instanceShortestPathPost(ontologyPath: OntologyPath, sourceInstanceIRI?: string, targetInstanceIRI?: string, labels?: boolean, options?: AxiosRequestConfig) {
+        return VKGApiFp(this.configuration).instanceShortestPathPost(ontologyPath, sourceInstanceIRI, targetInstanceIRI, labels, options).then((request) => request(this.axios, this.basePath));
     }
 }
 
