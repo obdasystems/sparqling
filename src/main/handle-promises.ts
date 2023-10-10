@@ -2,6 +2,8 @@ import { AxiosResponse } from "axios"
 import { Highlights, QueryGraph } from "../api/swagger"
 import { setLoading, increaseLoadingProcesses, decreaseLoadingProcesses, getNumberLoadingProcesses, isLoading, EmptyUnfoldingEntities } from "../model"
 import { errorsDialog, loadingDialog, startRunButtons } from "../widgets"
+import { ui } from "grapholscape"
+import { getGscape } from "../ontology-graph"
 
 function isResponseError(response) {
   return !response || response?.code === 1 || response?.type === 'error'
@@ -34,16 +36,17 @@ export function handlePromise(promise: Promise<AxiosResponse<unknown, unknown>>,
       .catch(error => {
         console.error(error)
         if (showError) {
-          errorsDialog.errorText = `${error.name}: ${error.message}`
+          let errorText = `${error.name}: ${error.message}`
           if (error.response) {
             if (error.response.status === 401) {
               const lo = document.getElementById("logout")
               lo?.click()
             } else if (error.response.data) {
-              errorsDialog.errorText += `\n\nServer message: ${error.response.data}`
+              errorText += `\n\nServer message: ${error.response.data}`
             }
           }
-          errorsDialog.show()
+
+          ui.showMessage(errorText, 'Error', getGscape().uiContainer, 'error')
         }
       })
       .finally(() => stopLoading())
