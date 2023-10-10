@@ -7,7 +7,8 @@ import { getGscape, selectEntity } from "../ontology-graph";
 import { selectElement } from "../query-graph";
 import { classSelector } from "../widgets";
 
-classSelector.onClassSelection = async (classIri) => {
+classSelector.addEventListener('class-selection', (async (event: CustomEvent<string>) => {
+  const classIri = event.detail
   if (hasEntityEmptyUnfolding(classIri, EntityTypeEnum.Class))
     return
 
@@ -34,4 +35,9 @@ classSelector.onClassSelection = async (classIri) => {
     performHighlights(classEntity.iri.fullIri)
     selectEntity(classEntity.iri.fullIri)
   }
-}
+}) as unknown as EventListener)
+
+
+classSelector.addEventListener('confirm-shortest-path', (async (event: CustomEvent) => {
+  console.log(event.detail)
+}) as unknown as EventListener)
