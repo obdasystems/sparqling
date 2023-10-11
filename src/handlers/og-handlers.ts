@@ -1,16 +1,14 @@
 import { CollectionReturnValue } from "cytoscape"
-import { TypesEnum, Iri, GrapholElement } from "grapholscape"
+import { GrapholElement, Iri, TypesEnum } from "grapholscape"
 import { Branch, GraphElement, QueryGraph, QueryGraphBGPApi, QueryGraphExtraApi } from "../api/swagger"
-import { performHighlights } from "../main"
 import { handlePromise } from "../main/handle-promises"
 import onNewBody from "../main/on-new-body"
 import * as model from "../model"
 import { isIriHighlighted } from "../model"
 import * as ontologyGraph from "../ontology-graph"
-import { selectEntity } from "../ontology-graph"
 import getGscape from "../ontology-graph/get-gscape"
 import * as queryGraph from "../query-graph"
-import { getdiffNew, getIris, graphElementHasIri, isClass } from "../util/graph-element-utility"
+import { getdiffNew, graphElementHasIri, isClass } from "../util/graph-element-utility"
 
 
 let lastObjProperty: Branch | null
@@ -35,26 +33,8 @@ export async function handleEntitySelection(entityIriString: string, entityType:
     case TypesEnum.CLASS: {
       handleConceptSelection(entityIriString)?.then(newBody => {
         if (!newBody) return
-
-        // Get nodes not present in the old graph
-        const newGraphElements = getdiffNew(model.getQueryBody()?.graph, newBody.graph)
-        const newSelectedGraphElement = setOriginNode(entityOccurrence, newGraphElements, entityIriString)
-        // performHighlights(entityIriString)
         onNewBody(newBody)
-
-        // after onNewBody because we need to select the element after rendering phase
-        if (newSelectedGraphElement && newSelectedGraphElement.id) {
-          // The node to select is the one having the clickedIri among the new nodes
-          queryGraph.selectElement(newSelectedGraphElement.id)
-          model.setActiveElement({
-            graphElement: newSelectedGraphElement,
-            iri: entityIri,
-          })
-
-          const selectedClassesIris = getIris(newSelectedGraphElement)
-          performHighlights(selectedClassesIris)
-          selectedClassesIris.forEach(iri => selectEntity(iri))
-        }
+        model.getOriginGrapholNodes().set(newBody.activeGraphElementId + entityIriString, entityOccurrence)
       })
       break
     }
