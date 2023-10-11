@@ -228,6 +228,7 @@ export default class QueryGraphWidget extends ui.BaseMixin(ui.DropPanelMixin(Lit
          * (i.e. user click)
          */ 
         (cy as any).updateStyle()
+        cy.fit()
       }
     }
   }
