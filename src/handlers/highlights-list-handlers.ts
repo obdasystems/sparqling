@@ -1,14 +1,16 @@
-import { TypesEnum, gscapeColourMap, ui } from "grapholscape"
-import { Branch, GraphElement, OntologyGraphApi, OntologyPath, QueryGraphBGPApi } from "../api/swagger"
-import * as model from "../model"
-import { getEntityOccurrence, getGscape } from '../ontology-graph'
-import getPrefixedIri from "../util/get-prefixed-iri"
-import { highlightsList } from "../widgets"
-import { handleEntitySelection, handleObjectPropertySelection } from "./og-handlers"
-import addAnnotation from "./annotations-handlers"
-import getClassesList from "../util/get-classes-list"
+import { Iri, TypesEnum, ui } from "grapholscape"
+import { Branch, OntologyGraphApi, OntologyPath, QueryGraphBGPApi } from "../api/swagger"
+import { performHighlights } from "../main"
 import { handlePromise } from "../main/handle-promises"
 import onNewBody from "../main/on-new-body"
+import * as model from "../model"
+import { getEntityOccurrence, getGscape, selectEntity } from '../ontology-graph'
+import { selectElement } from "../query-graph"
+import getClassesList from "../util/get-classes-list"
+import getPrefixedIri from "../util/get-prefixed-iri"
+import { highlightsList } from "../widgets"
+import addAnnotation from "./annotations-handlers"
+import { handleEntitySelection, handleObjectPropertySelection } from "./og-handlers"
 
 highlightsList.onSuggestionLocalization((entityIri) => {
   if (!model.isFullPageActive())
@@ -64,7 +66,7 @@ function handlePathRequest(kShortest: boolean) {
     
     handlePromise(pathPromise).then((paths: OntologyPath[]) => {
       if (paths.length === 1) {
-        addPath(paths[0])
+        addPath(paths[0], activeGraphElement)
       } else {
         const pathSelector = new ui.PathSelector(gscape.theme)
         pathSelector.paths = paths
@@ -100,6 +102,26 @@ function addPath(path: OntologyPath, activeGraphElement?: model.ActiveElement) {
       model.getRequestOptions()
     )
 
-    handlePromise(addPathPromise).then(newBody => onNewBody(newBody))
+    handlePromise(addPathPromise).then(newBody => {
+      onNewBody(newBody)
+      if (path.entities) {
+        const lastClassInPath = path.entities[path.entities.length - 1]
+        if (lastClassInPath.iri) {          
+          performHighlights(lastClassInPath.iri)
+          if (!model.isFullPageActive()) {
+            selectEntity(lastClassInPath.iri)
+            getGscape().selectEntity(lastClassInPath.iri)
+          }
+
+          const activeGraphElement = selectElement(lastClassInPath.iri)
+          if (activeGraphElement) {
+            model.setActiveElement({
+              graphElement: activeGraphElement,
+              iri: new Iri(lastClassInPath.iri, getGscape().ontology.namespaces),
+            })
+          }
+        }
+      }
+    })
   }
 }
