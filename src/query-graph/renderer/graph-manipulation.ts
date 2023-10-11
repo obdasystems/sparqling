@@ -231,5 +231,5 @@ function getDisplayedName(data: Entity) {
   else if (displayedNameType === EntityNameType.FULL_IRI)
     return data.iri
   else
-    return data[EntityNameType.PREFIXED_IRI] || data.iri
+    return data.prefixedIri || data.iri
 }
