@@ -1,6 +1,6 @@
 import { Iri, ui } from 'grapholscape'
 import { QueryGraph, QueryGraphBGPApiFactory, QueryGraphHeadApiFactory, QueryGraphOptionalApiFactory } from '../api/swagger'
-import { clearHighlights, clearQuery, performHighlights, showExamplesInDialog } from '../main'
+import { clearQuery, performHighlights, showExamplesInDialog } from '../main'
 import { handlePromise } from '../main/handle-promises'
 import onNewBody from '../main/on-new-body'
 import * as model from '../model'
@@ -33,7 +33,6 @@ queryGraph.onDelete((graphElement, iri) => {
   const qgApi = QueryGraphBGPApiFactory(undefined, model.getBasePath())
   const body = model.getQueryBody()
   const oldSelectedGraphElement = model.getActiveElement()?.graphElement
-  const gscape = getGscape()
 
   if (!iri) {
     handlePromise(qgApi.deleteGraphElementId(graphElement.id, body, model.getRequestOptions())).then(newBody => {
@@ -45,29 +44,7 @@ queryGraph.onDelete((graphElement, iri) => {
               return true
           }) || false
         })
-
-        let newSelectedGEIri: string | undefined
-        if (newSelectedGE) {
-          newSelectedGEIri = GEUtility.getIri(newSelectedGE)
-          if (newSelectedGEIri) {
-            model.setActiveElement({
-              graphElement: newSelectedGE,
-              iri: new Iri(newSelectedGEIri, gscape.ontology.namespaces)
-            })
-          }
-        }
-
-        if (!model.isFullPageActive()) {
-          gscape.unselect()
-
-          if (newSelectedGEIri) {
-            gscape.centerOnEntity(newSelectedGEIri)
-          }
-        }
-
-        if (newSelectedGE?.id) {
-          queryGraph.selectElement(newSelectedGE.id) // force selecting a new class
-        }
+        newBody.activeGraphElementId = newSelectedGE?.id
       }
 
       finalizeDelete(newBody)
@@ -82,20 +59,6 @@ queryGraph.onDelete((graphElement, iri) => {
     if (graphElement.id) {
       model.getOriginGrapholNodes().delete(graphElement.id)
       onNewBody(newBody)
-
-      const activeElement = model.getActiveElement()
-      const updatedActiveElement = GEUtility.findGraphElement(newBody.graph, ge => ge.id === activeElement?.graphElement.id)
-      if (activeElement) {
-        if (updatedActiveElement)
-          activeElement.graphElement = updatedActiveElement
-
-
-        if (iri || oldSelectedGraphElement !== activeElement) {
-          clearHighlights()
-          performHighlights(GEUtility.getIris(activeElement.graphElement))
-          GEUtility.getIris(activeElement.graphElement).forEach(iri => selectEntity(iri))
-        }
-      }
     }
   }
 })
@@ -106,15 +69,7 @@ queryGraph.onJoin(async (ge1, ge2) => {
     const body = model.getQueryBody()
 
     handlePromise(qgApi.putQueryGraphJoin(ge1.id, ge2.id, body, model.getRequestOptions())).then(newBody => {
-      const ge1Iri = GEUtility.getIri(ge1)
-
-      if (ge1Iri) {
-        model.setActiveElement({
-          graphElement: ge1,
-          iri: new Iri(ge1Iri, getGscape().ontology.namespaces)
-        })
-        onNewBody(newBody)
-      }
+      onNewBody(newBody)
     })
   }
 })

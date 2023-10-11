@@ -396,6 +396,12 @@ export interface QueryGraph {
     'graph': GraphElement;
     /**
      * 
+     * @type {string}
+     * @memberof QueryGraph
+     */
+    'activeGraphElementId'?: string;
+    /**
+     * 
      * @type {Array<Filter>}
      * @memberof QueryGraph
      */

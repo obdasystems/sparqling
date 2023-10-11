@@ -1,3 +1,4 @@
+import { Iri } from "grapholscape"
 import { HeadElement, QueryGraph } from "../api/swagger"
 import core from "../core"
 import * as model from "../model"
@@ -5,10 +6,11 @@ import * as ontologyGraph from "../ontology-graph"
 import getGscape from "../ontology-graph/get-gscape"
 import * as queryGraph from "../query-graph"
 import * as queryHead from "../query-head"
+import { getGraphElementByID, getIri, getIris } from "../util/graph-element-utility"
 import { getHeadElementWithDatatype } from "../util/head-element-utility"
 import { classSelector, countStarToggle, distinctToggle, filterListDialog, limitInput, offsetInput, sparqlDialog, startRunButtons } from "../widgets"
 import { emptyQueryMsg } from "../widgets/assets/texts"
-import { clearHighlights } from "./highlights"
+import { clearHighlights, performHighlights } from "./highlights"
 
 export default function onNewBody(newBody: QueryGraph) {
   // empty query
@@ -56,6 +58,24 @@ export default function onNewBody(newBody: QueryGraph) {
 
   if (!countStarToggle.disabled)
     countStarToggle.classList.add('actionable')
+
+  if (newBody.activeGraphElementId) {
+    const activeGraphElement = getGraphElementByID(newBody.activeGraphElementId)
+    if (activeGraphElement) {
+      const iri = getIri(activeGraphElement)
+      if (iri) {
+        model.setActiveElement({
+          graphElement: activeGraphElement,
+          iri: new Iri(iri, getGscape().ontology.namespaces)
+        })
+
+        queryGraph.selectElement(newBody.activeGraphElementId)
+        clearHighlights()
+        performHighlights(getIris(activeGraphElement))
+        getIris(activeGraphElement).forEach(iri => ontologyGraph.selectEntity(iri))
+      }
+    }
+  }
 
   model.setQueryDirtyState(true)
 }
