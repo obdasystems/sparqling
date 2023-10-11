@@ -243,7 +243,7 @@ const OntologyGraphApiAxiosParamCreator = function (configuration) {
          * This route is used to highlight the negihbours of the selected class. The neighbours can be classes (brother classes or child classes), object properties (the class or one of his father partecipate or are typed to domain/range) or data properties (the class or one of its fathers partecipates or is typed to its domain).
          * @summary Get the IRIs of the ontology entities \"related\" to the clicked and selected.
          * @param {string} clickedClassIRI The IRI of the class just clicked on the GRAPHOLscape ontology graph
-         * @param {Array<string>} [params]
+         * @param {Array<string>} [params] Possible value: &#x60;subClassOnly&#x60; in order to get only the subclasses of the clicked class
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
@@ -279,10 +279,11 @@ const OntologyGraphApiAxiosParamCreator = function (configuration) {
          * @summary Find paths between selected class and clicked class.
          * @param {string} lastSelectedIRI The IRI of the entity clicked on the GRAPHOLscape ontology graph
          * @param {string} clickedIRI The IRI of the entity clicked on the GRAPHOLscape ontology graph
+         * @param {boolean} [kShortest] Use the k-shortest algorithm to return the shortestpaths
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
-        highligthsPaths: (lastSelectedIRI, clickedIRI, options = {}) => __awaiter(this, void 0, void 0, function* () {
+        highligthsPaths: (lastSelectedIRI, clickedIRI, kShortest, options = {}) => __awaiter(this, void 0, void 0, function* () {
             // verify required parameter 'lastSelectedIRI' is not null or undefined
             assertParamExists('highligthsPaths', 'lastSelectedIRI', lastSelectedIRI);
             // verify required parameter 'clickedIRI' is not null or undefined
@@ -302,6 +303,9 @@ const OntologyGraphApiAxiosParamCreator = function (configuration) {
             }
             if (clickedIRI !== undefined) {
                 localVarQueryParameter['clickedIRI'] = clickedIRI;
+            }
+            if (kShortest !== undefined) {
+                localVarQueryParameter['kShortest'] = kShortest;
             }
             setSearchParams(localVarUrlObj, localVarQueryParameter);
             let headersFromBaseOptions = baseOptions && baseOptions.headers ? baseOptions.headers : {};
@@ -324,7 +328,7 @@ const OntologyGraphApiFp = function (configuration) {
          * This route is used to highlight the negihbours of the selected class. The neighbours can be classes (brother classes or child classes), object properties (the class or one of his father partecipate or are typed to domain/range) or data properties (the class or one of its fathers partecipates or is typed to its domain).
          * @summary Get the IRIs of the ontology entities \"related\" to the clicked and selected.
          * @param {string} clickedClassIRI The IRI of the class just clicked on the GRAPHOLscape ontology graph
-         * @param {Array<string>} [params]
+         * @param {Array<string>} [params] Possible value: &#x60;subClassOnly&#x60; in order to get only the subclasses of the clicked class
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
@@ -339,12 +343,13 @@ const OntologyGraphApiFp = function (configuration) {
          * @summary Find paths between selected class and clicked class.
          * @param {string} lastSelectedIRI The IRI of the entity clicked on the GRAPHOLscape ontology graph
          * @param {string} clickedIRI The IRI of the entity clicked on the GRAPHOLscape ontology graph
+         * @param {boolean} [kShortest] Use the k-shortest algorithm to return the shortestpaths
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
-        highligthsPaths(lastSelectedIRI, clickedIRI, options) {
+        highligthsPaths(lastSelectedIRI, clickedIRI, kShortest, options) {
             return __awaiter(this, void 0, void 0, function* () {
-                const localVarAxiosArgs = yield localVarAxiosParamCreator.highligthsPaths(lastSelectedIRI, clickedIRI, options);
+                const localVarAxiosArgs = yield localVarAxiosParamCreator.highligthsPaths(lastSelectedIRI, clickedIRI, kShortest, options);
                 return createRequestFunction(localVarAxiosArgs, globalAxios, BASE_PATH, configuration);
             });
         },
@@ -361,7 +366,7 @@ class OntologyGraphApi extends BaseAPI {
      * This route is used to highlight the negihbours of the selected class. The neighbours can be classes (brother classes or child classes), object properties (the class or one of his father partecipate or are typed to domain/range) or data properties (the class or one of its fathers partecipates or is typed to its domain).
      * @summary Get the IRIs of the ontology entities \"related\" to the clicked and selected.
      * @param {string} clickedClassIRI The IRI of the class just clicked on the GRAPHOLscape ontology graph
-     * @param {Array<string>} [params]
+     * @param {Array<string>} [params] Possible value: &#x60;subClassOnly&#x60; in order to get only the subclasses of the clicked class
      * @param {*} [options] Override http request option.
      * @throws {RequiredError}
      * @memberof OntologyGraphApi
@@ -374,12 +379,13 @@ class OntologyGraphApi extends BaseAPI {
      * @summary Find paths between selected class and clicked class.
      * @param {string} lastSelectedIRI The IRI of the entity clicked on the GRAPHOLscape ontology graph
      * @param {string} clickedIRI The IRI of the entity clicked on the GRAPHOLscape ontology graph
+     * @param {boolean} [kShortest] Use the k-shortest algorithm to return the shortestpaths
      * @param {*} [options] Override http request option.
      * @throws {RequiredError}
      * @memberof OntologyGraphApi
      */
-    highligthsPaths(lastSelectedIRI, clickedIRI, options) {
-        return OntologyGraphApiFp(this.configuration).highligthsPaths(lastSelectedIRI, clickedIRI, options).then((request) => request(this.axios, this.basePath));
+    highligthsPaths(lastSelectedIRI, clickedIRI, kShortest, options) {
+        return OntologyGraphApiFp(this.configuration).highligthsPaths(lastSelectedIRI, clickedIRI, kShortest, options).then((request) => request(this.axios, this.basePath));
     }
 }
 /**
@@ -391,17 +397,21 @@ const QueryGraphBGPApiAxiosParamCreator = function (configuration) {
         /**
          * This path should be used to build the query graph using the path interaction. As a result there will be added to the query several triple pattern (depending on the length of the path) as a sequence of classes and object properties. Data properties never appear in paths, in order to add them use the simple PUT route.
          * @summary Get the query graph that will be rendered by Sparqling, the query head, the sparql code based on the chosen path.
-         * @param {string} path Serialization of Path object.
+         * @param {string} graphElementId The id of the node of the selected class in the query graph.
+         * @param {string} path JSON serialization of \&#39;#/components/schemas/OntologyPath\&#39;.
          * @param {QueryGraph} queryGraph
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
-        addPathToQueryGraph: (path, queryGraph, options = {}) => __awaiter(this, void 0, void 0, function* () {
+        addPathToQueryGraph: (graphElementId, path, queryGraph, options = {}) => __awaiter(this, void 0, void 0, function* () {
+            // verify required parameter 'graphElementId' is not null or undefined
+            assertParamExists('addPathToQueryGraph', 'graphElementId', graphElementId);
             // verify required parameter 'path' is not null or undefined
             assertParamExists('addPathToQueryGraph', 'path', path);
             // verify required parameter 'queryGraph' is not null or undefined
             assertParamExists('addPathToQueryGraph', 'queryGraph', queryGraph);
-            const localVarPath = `/queryGraph/path`;
+            const localVarPath = `/queryGraph/path/{graphElementId}`
+                .replace(`{${"graphElementId"}}`, encodeURIComponent(String(graphElementId)));
             // use dummy base URL string because the URL constructor only accepts absolute URLs.
             const localVarUrlObj = new URL(localVarPath, DUMMY_BASE_URL);
             let baseOptions;
@@ -775,14 +785,15 @@ const QueryGraphBGPApiFp = function (configuration) {
         /**
          * This path should be used to build the query graph using the path interaction. As a result there will be added to the query several triple pattern (depending on the length of the path) as a sequence of classes and object properties. Data properties never appear in paths, in order to add them use the simple PUT route.
          * @summary Get the query graph that will be rendered by Sparqling, the query head, the sparql code based on the chosen path.
-         * @param {string} path Serialization of Path object.
+         * @param {string} graphElementId The id of the node of the selected class in the query graph.
+         * @param {string} path JSON serialization of \&#39;#/components/schemas/OntologyPath\&#39;.
          * @param {QueryGraph} queryGraph
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
-        addPathToQueryGraph(path, queryGraph, options) {
+        addPathToQueryGraph(graphElementId, path, queryGraph, options) {
             return __awaiter(this, void 0, void 0, function* () {
-                const localVarAxiosArgs = yield localVarAxiosParamCreator.addPathToQueryGraph(path, queryGraph, options);
+                const localVarAxiosArgs = yield localVarAxiosParamCreator.addPathToQueryGraph(graphElementId, path, queryGraph, options);
                 return createRequestFunction(localVarAxiosArgs, globalAxios, BASE_PATH, configuration);
             });
         },
@@ -921,13 +932,14 @@ const QueryGraphBGPApiFactory = function (configuration, basePath, axios) {
         /**
          * This path should be used to build the query graph using the path interaction. As a result there will be added to the query several triple pattern (depending on the length of the path) as a sequence of classes and object properties. Data properties never appear in paths, in order to add them use the simple PUT route.
          * @summary Get the query graph that will be rendered by Sparqling, the query head, the sparql code based on the chosen path.
-         * @param {string} path Serialization of Path object.
+         * @param {string} graphElementId The id of the node of the selected class in the query graph.
+         * @param {string} path JSON serialization of \&#39;#/components/schemas/OntologyPath\&#39;.
          * @param {QueryGraph} queryGraph
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
-        addPathToQueryGraph(path, queryGraph, options) {
-            return localVarFp.addPathToQueryGraph(path, queryGraph, options).then((request) => request(axios, basePath));
+        addPathToQueryGraph(graphElementId, path, queryGraph, options) {
+            return localVarFp.addPathToQueryGraph(graphElementId, path, queryGraph, options).then((request) => request(axios, basePath));
         },
         /**
          * This route is used when the user wants to delete a node from the query graph. All the children of this node will be deleted as well as we do not want to create query with completly separated branches. All the variables that are going to be deleted should also be deleted from the head of the query. **WARNING**, if the node has multiple occurrences (due to join operations) every node should be deleted.
@@ -1040,14 +1052,15 @@ class QueryGraphBGPApi extends BaseAPI {
     /**
      * This path should be used to build the query graph using the path interaction. As a result there will be added to the query several triple pattern (depending on the length of the path) as a sequence of classes and object properties. Data properties never appear in paths, in order to add them use the simple PUT route.
      * @summary Get the query graph that will be rendered by Sparqling, the query head, the sparql code based on the chosen path.
-     * @param {string} path Serialization of Path object.
+     * @param {string} graphElementId The id of the node of the selected class in the query graph.
+     * @param {string} path JSON serialization of \&#39;#/components/schemas/OntologyPath\&#39;.
      * @param {QueryGraph} queryGraph
      * @param {*} [options] Override http request option.
      * @throws {RequiredError}
      * @memberof QueryGraphBGPApi
      */
-    addPathToQueryGraph(path, queryGraph, options) {
-        return QueryGraphBGPApiFp(this.configuration).addPathToQueryGraph(path, queryGraph, options).then((request) => request(this.axios, this.basePath));
+    addPathToQueryGraph(graphElementId, path, queryGraph, options) {
+        return QueryGraphBGPApiFp(this.configuration).addPathToQueryGraph(graphElementId, path, queryGraph, options).then((request) => request(this.axios, this.basePath));
     }
     /**
      * This route is used when the user wants to delete a node from the query graph. All the children of this node will be deleted as well as we do not want to create query with completly separated branches. All the variables that are going to be deleted should also be deleted from the head of the query. **WARNING**, if the node has multiple occurrences (due to join operations) every node should be deleted.
@@ -3424,12 +3437,13 @@ function getElemWithOperatorStyle() {
   `;
 }
 
-function getTrayButtonTemplate(title, icon, alternateIcon, id, clickHandler = (e) => { }, label) {
+function getTrayButtonTemplate(title, icon, alternateIcon, id, clickHandler = (e) => { }, label, disabled) {
     return x `
     <gscape-button
       id=${id}
       size="s"
       type="subtle"
+      ?disabled=${disabled}
       title=${title}
       label=${label}
       @click=${clickHandler}
@@ -3706,6 +3720,8 @@ class HighlightsList extends ui.DropPanelMixin(ui.BaseMixin(s)) {
         this._onSuggestionAddToQuery = (entityIri, entityType, relatedClassIri) => { };
         this._onAddLabel = () => { };
         this._onAddComment = () => { };
+        this._onShortestPathClick = () => { };
+        this._onFindPathsClick = () => { };
         this.togglePanel = () => {
             super.togglePanel();
             this.requestUpdate();
@@ -3807,6 +3823,29 @@ class HighlightsList extends ui.DropPanelMixin(ui.BaseMixin(s)) {
                       <span slot="icon">${ui.icons.commentIcon}</span>
                     </gscape-action-list-item>
                   </details>
+
+                  <div class="find-paths" style="margin: 4px auto">
+                    <gscape-button 
+                      size="s"
+                      label="Find a path"
+                      title="Get paths suggestions to reach a class of interest from your current state"
+                      @click=${this._onFindPathsClick}
+                    >
+                      ${ui.getIconSlot('icon', ui.icons.pathIcon)}
+                    </gscape-button>
+
+                    <gscape-button 
+                      size="s"
+                      type="primary"
+                      label="Shortest Path"
+                      title="Get the shortest path to reach a class of interest from your current state"
+                      @click=${this._onShortestPathClick}
+                    >
+                      ${ui.getIconSlot('icon', ui.icons.pathIcon)}
+                    </gscape-button>
+
+                    
+                  </div>
 
                   <div class="hr" style="flex-shrink: 0; margin: 8px auto"></div>
 
@@ -3956,6 +3995,12 @@ class HighlightsList extends ui.DropPanelMixin(ui.BaseMixin(s)) {
     }
     onAddComment(callback) {
         this._onAddComment = callback;
+    }
+    onShortestPathClick(callback) {
+        this._onShortestPathClick = callback;
+    }
+    onFindPathsClick(callback) {
+        this._onFindPathsClick = callback;
     }
     get objectProperties() {
         var _a, _b;
@@ -5317,22 +5362,20 @@ function onRelatedClassSelection(callback) {
     _onRelatedClassSelection = callback;
 }
 
-const classSelector = new ui.GscapeEntitySelector();
-classSelector.style.top = '20%';
-classSelector.style.left = '50%';
-classSelector.style.transform = 'translate(-50%)';
-classSelector.style.width = '40%';
-classSelector.style.minWidth = '150px';
-classSelector.style.position = 'absolute';
-classSelector.hide();
-function initClassSelector() {
-    classSelector.entityList = ui.createEntitiesList(getGscape(), {
+function getClassesList(grapholscape) {
+    return ui.createEntitiesList(grapholscape, {
         [TypesEnum.CLASS]: 1,
         areAllFiltersDisabled: false,
     }).map(e => {
         e.disabled = hasEntityEmptyUnfolding(e.value.iri.fullIri, EntityTypeEnum.Class);
         return e;
     });
+}
+
+const classSelector = new ui.IncrementalInitialMenu();
+classSelector.hide();
+function initClassSelector() {
+    classSelector.classes = getClassesList(getGscape());
 }
 
 function centerOnElement (elem, zoom) {
@@ -10962,17 +11005,17 @@ function handlePromise(promise, showError = true) {
             .catch(error => {
             console.error(error);
             if (showError) {
-                errorsDialog.errorText = `${error.name}: ${error.message}`;
+                let errorText = `${error.name}: ${error.message}`;
                 if (error.response) {
                     if (error.response.status === 401) {
                         const lo = document.getElementById("logout");
                         lo === null || lo === void 0 ? void 0 : lo.click();
                     }
                     else if (error.response.data) {
-                        errorsDialog.errorText += `\n\nServer message: ${error.response.data}`;
+                        errorText += `\n\nServer message: ${error.response.data}`;
                     }
                 }
-                errorsDialog.show();
+                ui.showMessage(errorText, 'Error', getGscape().uiContainer, 'error');
             }
         })
             .finally(() => stopLoading());
@@ -12635,8 +12678,56 @@ highlightsList.onSuggestionAddToQuery((entityIri, entityType, relatedClass) => {
 });
 highlightsList.onAddLabel(() => addAnnotation('label'));
 highlightsList.onAddComment(() => addAnnotation('comment'));
+highlightsList.onShortestPathClick(() => handlePathRequest(false));
+highlightsList.onFindPathsClick(() => handlePathRequest(true));
+function handlePathRequest(kShortest) {
+    var _a;
+    const gscape = getGscape();
+    const shortestPathDialog = new ui.ShortestPathDialog();
+    shortestPathDialog.classes = getClassesList(gscape);
+    const activeGraphElement = getActiveElement();
+    if (activeGraphElement === null || activeGraphElement === void 0 ? void 0 : activeGraphElement.iri) {
+        shortestPathDialog.class1EditEnabled = false;
+        shortestPathDialog.class1 = activeGraphElement.iri.fullIri;
+    }
+    shortestPathDialog.onConfirm((sourceClassIri, targetClassIri) => {
+        const ogApi = new OntologyGraphApi(undefined, getBasePath());
+        const pathPromise = ogApi.highligthsPaths(sourceClassIri, targetClassIri, kShortest, getRequestOptions());
+        handlePromise(pathPromise).then((paths) => {
+            var _a;
+            if (paths.length === 1) {
+                addPath(paths[0]);
+            }
+            else {
+                const pathSelector = new ui.PathSelector(gscape.theme);
+                pathSelector.paths = paths;
+                pathSelector.addEventListener('path-selection', ((evt) => {
+                    addPath(evt.detail, activeGraphElement);
+                }));
+                pathSelector.getDisplayedName = (entity) => {
+                    if (!entity.iri)
+                        return;
+                    const grapholEntity = gscape.ontology.getEntity(entity.iri);
+                    return grapholEntity === null || grapholEntity === void 0 ? void 0 : grapholEntity.getDisplayedName(gscape.entityNameType, gscape.language);
+                };
+                (_a = gscape.uiContainer) === null || _a === void 0 ? void 0 : _a.appendChild(pathSelector);
+                pathSelector.show();
+            }
+        });
+    });
+    (_a = gscape.uiContainer) === null || _a === void 0 ? void 0 : _a.appendChild(shortestPathDialog);
+    shortestPathDialog.show();
+}
+function addPath(path, activeGraphElement) {
+    if (activeGraphElement && activeGraphElement.graphElement.id !== undefined) {
+        const qgApi = new QueryGraphBGPApi(undefined, getBasePath());
+        const addPathPromise = qgApi.addPathToQueryGraph(activeGraphElement.graphElement.id, JSON.stringify(path), getQueryBody(), getRequestOptions());
+        handlePromise(addPathPromise).then(newBody => onNewBody(newBody));
+    }
+}
 
-classSelector.onClassSelection = (classIri) => __awaiter(void 0, void 0, void 0, function* () {
+classSelector.addEventListener('class-selection', ((event) => __awaiter(void 0, void 0, void 0, function* () {
+    const classIri = event.detail;
     if (hasEntityEmptyUnfolding(classIri, EntityTypeEnum.Class))
         return;
     const qgBGPApi = new QueryGraphBGPApi(undefined, getBasePath());
@@ -12658,7 +12749,10 @@ classSelector.onClassSelection = (classIri) => __awaiter(void 0, void 0, void 0,
         performHighlights(classEntity.iri.fullIri);
         selectEntity(classEntity.iri.fullIri);
     }
-});
+})));
+classSelector.addEventListener('confirm-shortest-path', ((event) => __awaiter(void 0, void 0, void 0, function* () {
+    console.log(event.detail);
+})));
 
 function showInitialModeSelector() {
     const modeSelector = new ui.GscapeFullPageSelector();
