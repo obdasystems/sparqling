@@ -9,7 +9,7 @@ startRunButtons.onSparqlingStart(() => {
   try {
     start()
   } catch(error) {
-    console.log(error)
+    console.error(error)
     return
   }
   core.onStart()

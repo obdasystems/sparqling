@@ -24,8 +24,3 @@ classSelector.addEventListener('class-selection', (async (event: CustomEvent<str
     classSelector.hide()
   }
 }) as unknown as EventListener)
-
-
-classSelector.addEventListener('confirm-shortest-path', (async (event: CustomEvent) => {
-  console.log(event.detail)
-}) as unknown as EventListener)

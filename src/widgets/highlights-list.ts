@@ -351,7 +351,6 @@ export default class HighlightsList extends ui.DropPanelMixin(ui.BaseMixin(LitEl
         ?disabled=${disabled}
         title=${entity.hasUnfolding ? entity.entityViewData.displayedName : emptyUnfoldingEntityTooltip()}
         @click=${(e: MouseEvent) => {
-          console.log(e)
           if (customCallback)
             customCallback(e)
           else
