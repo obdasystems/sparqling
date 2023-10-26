@@ -408,7 +408,7 @@ export default class HighlightsList extends ui.DropPanelMixin(ui.BaseMixin(LitEl
       this._onSuggestionLocalization(entityIri)
   }
 
-  private handleAddToQueryClick(e: MouseEvent, entityIri: string, entityType: Set<TypesEnum>, objectPropertyIri?: string) {
+  private handleAddToQueryClick(e: MouseEvent, entityIri: string, entityType: TypesEnum[], objectPropertyIri?: string) {
     e.preventDefault()
     if (objectPropertyIri) { // if it's from object property, then the entityIri is the relatedClass iri
       this._onSuggestionAddToQuery(objectPropertyIri, TypesEnum.OBJECT_PROPERTY, entityIri)
