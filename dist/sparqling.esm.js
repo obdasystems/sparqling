@@ -3922,7 +3922,6 @@ class HighlightsList extends ui.DropPanelMixin(ui.BaseMixin(s)) {
         ?disabled=${disabled}
         title=${entity.hasUnfolding ? entity.entityViewData.displayedName : emptyUnfoldingEntityTooltip()}
         @click=${(e) => {
-            console.log(e);
             if (customCallback)
                 customCallback(e);
             else
@@ -9413,7 +9412,7 @@ function getDisplayedName(data) {
     else if (displayedNameType === EntityNameType.FULL_IRI)
         return data.iri;
     else
-        return data[EntityNameType.PREFIXED_IRI] || data.iri;
+        return data.prefixedIri || data.iri;
 }
 
 const { DataProperty, Class, ObjectProperty, InverseObjectProperty, Annotation } = EntityTypeEnum;
@@ -9771,6 +9770,7 @@ class QueryGraphWidget extends ui.BaseMixin(ui.DropPanelMixin(s)) {
                  * (i.e. user click)
                  */
                 cy.updateStyle();
+                cy.fit();
             }
         }
     }
@@ -10868,6 +10868,22 @@ function onNewBody(newBody) {
         distinctToggle.classList.add('actionable');
     if (!countStarToggle$1.disabled)
         countStarToggle$1.classList.add('actionable');
+    if (newBody.activeGraphElementId) {
+        const activeGraphElement = getGraphElementByID(newBody.activeGraphElementId);
+        if (activeGraphElement) {
+            const iri = getIri(activeGraphElement);
+            if (iri) {
+                setActiveElement({
+                    graphElement: activeGraphElement,
+                    iri: new Iri(iri, getGscape().ontology.namespaces)
+                });
+                selectElement(newBody.activeGraphElementId);
+                clearHighlights$1();
+                performHighlights(getIris(activeGraphElement));
+                getIris(activeGraphElement).forEach(iri => selectEntity(iri));
+            }
+        }
+    }
     setQueryDirtyState(true);
 }
 
@@ -11052,6 +11068,7 @@ function setRequestOptions(requestOptions) {
 function getBasePath() { return _requestOptions.basePath; }
 function getVersion() { return _requestOptions.version; }
 function getName() { return _requestOptions.name; }
+function getHeaders() { return _requestOptions.headers; }
 function getRequestOptions() {
     // { params: { version: 'version' }, headers: { "x-monolith-session-id": '0de2de0a-af44-4046-a91b-46b10394f068', 'Access-Control-Allow-Origin': '*', } }
     return {
@@ -11465,7 +11482,6 @@ function clearQuery () {
 }
 
 function loadQuery (queryBody, queryName) {
-    var _a;
     return __awaiter(this, void 0, void 0, function* () {
         yield clearQuery();
         // Hide selectors
@@ -11481,19 +11497,6 @@ function loadQuery (queryBody, queryName) {
          * without this edges might not be visible.
          */
         setTheme(grapholscape.theme);
-        const activeElementIri = getIri(queryBody.graph);
-        if (activeElementIri) {
-            const iri = (_a = grapholscape.ontology.getEntity(activeElementIri)) === null || _a === void 0 ? void 0 : _a.iri;
-            if (iri) {
-                setActiveElement({
-                    graphElement: queryBody.graph,
-                    iri: iri
-                });
-                selectElement(activeElementIri);
-                performHighlights(getIris(queryBody.graph));
-                selectEntity(activeElementIri);
-            }
-        }
         countStarToggle$1.checked = isCountStarActive();
         distinctToggle.checked = isDistinctActive();
         if (queryBody.limit && queryBody.limit > 0)
@@ -11528,6 +11531,135 @@ var core = {
     },
     setQueryName: (queryName) => startRunButtons.queryName = queryName
 };
+
+let lastObjProperty;
+function handleEntitySelection(entityIriString, entityType, entityOccurrence) {
+    var _a, _b;
+    return __awaiter(this, void 0, void 0, function* () {
+        const gscape = getGscape();
+        new Iri(entityIriString, gscape.ontology.namespaces);
+        const activeElement = getActiveElement();
+        if (activeElement && graphElementHasIri(activeElement.graphElement, entityIriString) && !lastObjProperty) {
+            return;
+        }
+        switch (entityType) {
+            case TypesEnum.OBJECT_PROPERTY: {
+                // let result = await handleObjectPropertySelection(cyEntity)
+                // if (result && result.connectedClass) {
+                //   gscape.centerOnNode(result.connectedClass.id(), 1.8)
+                // }
+                break;
+            }
+            case TypesEnum.CLASS: {
+                (_a = handleConceptSelection(entityIriString)) === null || _a === void 0 ? void 0 : _a.then(newBody => {
+                    if (!newBody)
+                        return;
+                    onNewBody(newBody);
+                    getOriginGrapholNodes().set(newBody.activeGraphElementId + entityIriString, entityOccurrence);
+                });
+                break;
+            }
+            case TypesEnum.DATA_PROPERTY: {
+                (_b = handleDataPropertySelection(entityIriString)) === null || _b === void 0 ? void 0 : _b.then(newBody => {
+                    var _a;
+                    if (!newBody)
+                        return;
+                    const newGraphElements = getdiffNew((_a = getQueryBody()) === null || _a === void 0 ? void 0 : _a.graph, newBody.graph);
+                    setOriginNode(entityOccurrence, newGraphElements, entityIriString);
+                    onNewBody(newBody);
+                });
+                break;
+            }
+        }
+        gscape.unselect();
+    });
+}
+onRelatedClassSelection(handleObjectPropertySelection);
+function handleObjectPropertySelection(branch, relatedClassEntityOccurrence) {
+    var _a, _b;
+    const gscape = getGscape();
+    lastObjProperty = branch;
+    if (!isFullPageActive()) {
+        gscape.centerOnElement(relatedClassEntityOccurrence.id, relatedClassEntityOccurrence.diagramId);
+        gscape.selectElement(relatedClassEntityOccurrence.id);
+    }
+    const relatedClassCyElement = gscape.renderState
+        ? (_b = (_a = gscape.ontology.getDiagram(relatedClassEntityOccurrence.diagramId)) === null || _a === void 0 ? void 0 : _a.representations.get(gscape.renderState)) === null || _b === void 0 ? void 0 : _b.cy.$id(relatedClassEntityOccurrence.id)
+        : null;
+    if (relatedClassCyElement)
+        handleEntitySelection(relatedClassCyElement.data().iri, relatedClassCyElement.data().type, relatedClassEntityOccurrence);
+}
+function handleConceptSelection(cyEntity) {
+    var _a, _b, _c;
+    return __awaiter(this, void 0, void 0, function* () {
+        const qgBGPApi = new QueryGraphBGPApi(undefined, getBasePath());
+        const clickedIRI = typeof cyEntity === 'string' ? cyEntity : cyEntity.data().iri;
+        let newQueryGraph = new Promise((resolve) => { resolve(null); });
+        let actualBody = getQueryBody();
+        /**
+         * if it's not the first click,
+         * the class is not highlighted,
+         * it's not connected to a objectProperty
+         * and it's not already in the queryGraph, then skip this click
+         */
+        if (((_a = actualBody.graph) === null || _a === void 0 ? void 0 : _a.id) && !isIriHighlighted(clickedIRI) && !lastObjProperty && !isIriInQueryGraph(clickedIRI)) {
+            //cyEntity.unselect()
+            console.warn('selection ignored for class ' + clickedIRI);
+            return newQueryGraph; // empty promise
+        }
+        let activeElement = getActiveElement();
+        if (lastObjProperty && lastObjProperty.objectPropertyIRI && (activeElement === null || activeElement === void 0 ? void 0 : activeElement.graphElement.id)) {
+            // this comes after a selection of a object property
+            newQueryGraph = handlePromise(qgBGPApi.putQueryGraphObjectProperty(activeElement.graphElement.id, "", lastObjProperty.objectPropertyIRI, clickedIRI, lastObjProperty.direct || false, actualBody, getRequestOptions()));
+        }
+        else if (((_b = actualBody.graph) === null || _b === void 0 ? void 0 : _b.id) && isIriHighlighted(clickedIRI) && (activeElement === null || activeElement === void 0 ? void 0 : activeElement.graphElement.id)) {
+            newQueryGraph = handlePromise(qgBGPApi.putQueryGraphClass(activeElement.graphElement.id, '', clickedIRI, actualBody, getRequestOptions()));
+        }
+        else if (!((_c = actualBody.graph) === null || _c === void 0 ? void 0 : _c.id)) {
+            // initial selection
+            const tempNewQueryGraph = yield handlePromise(qgBGPApi.getQueryGraph(clickedIRI, getRequestOptions()));
+            const qgExtraApi = new QueryGraphExtraApi(undefined, getBasePath());
+            newQueryGraph = handlePromise(qgExtraApi.distinctQueryGraph(true, tempNewQueryGraph, getRequestOptions()));
+        }
+        lastObjProperty = null;
+        return newQueryGraph;
+    });
+}
+function handleDataPropertySelection(cyEntity) {
+    return __awaiter(this, void 0, void 0, function* () {
+        const clickedIRI = typeof cyEntity === 'string' ? cyEntity : cyEntity.data().iri;
+        let newQueryGraph = new Promise((resolve) => { resolve(null); });
+        if (!isIriHighlighted(clickedIRI)) {
+            // cyEntity.unselect()
+            return newQueryGraph; // empty promise
+        }
+        const actualBody = getQueryBody();
+        const activeElement = getActiveElement();
+        if (!(activeElement === null || activeElement === void 0 ? void 0 : activeElement.graphElement.id)) {
+            return newQueryGraph; // empty promise
+        }
+        if (isClass(activeElement.graphElement)) {
+            const qgBGPApi = new QueryGraphBGPApi(undefined, getBasePath());
+            newQueryGraph = handlePromise(qgBGPApi.putQueryGraphDataProperty(activeElement.graphElement.id, '', clickedIRI, actualBody, getRequestOptions()));
+        }
+        lastObjProperty = null;
+        return newQueryGraph;
+    });
+}
+/**
+ * Find the GraphElement corresponding to the clicked entity and set entity as its origin Graphol node
+ * @param entityOccurrence The clicked entity occurrence
+ * @param graphElements Array of newly added graphElements
+ * @returns The GraphElement corresponding to the clicked entity
+ */
+function setOriginNode(entityOccurrence, graphElements, clickedIri) {
+    let graphElement = graphElements === null || graphElements === void 0 ? void 0 : graphElements.find(ge => graphElementHasIri(ge, clickedIri));
+    if (graphElement) {
+        getOriginGrapholNodes().set(graphElement.id + clickedIri, entityOccurrence);
+    }
+    return graphElement;
+}
+function isIriInQueryGraph(iri) { return isIriInQueryGraph$1(iri); }
 
 function handleEndpointSelection (callback) {
     return __awaiter(this, void 0, void 0, function* () {
@@ -11611,7 +11743,7 @@ class QueryPoller {
             url: localStorage.getItem('mastroUrl') + '/endpoint/' + this.endpoint.name + '/query/' + this.executionID + '/results',
             method: 'get',
             params: { pagesize: 10, pagenumber: 1 },
-            headers: JSON.parse(localStorage.getItem('headers') || ''),
+            headers: getHeaders(),
         };
         return queryResultsRequestOptions;
     }
@@ -11651,15 +11783,21 @@ function showExamplesInForm(graphElementId, formDialog) {
     });
 }
 function getNewQueryRequestOptions(endpoint, queryString) {
+    const params = new URLSearchParams({
+        useReplaceForUrlEncoding: 'true',
+        querySemantics: 'auto',
+        reasoning: 'true',
+        expandSparqlTables: 'true'
+    });
     const startNewQueryRequestOptions = {
         method: 'post',
-        url: localStorage.getItem('mastroUrl') + '/endpoint/' + endpoint.name + '/query/start',
+        url: new URL(`${localStorage.getItem('mastroUrl')}/endpoint/${endpoint.name}/query/start?${params.toString()}`).toString(),
         data: {
             queryID: Math.random(),
             queryDescription: '',
-            queryCode: queryString
+            queryCode: queryString,
         },
-        headers: JSON.parse(localStorage.getItem('headers') || '')
+        headers: getHeaders()
     };
     return startNewQueryRequestOptions;
 }
@@ -11707,7 +11845,7 @@ function getExamplesQueryString(graphElement, endpoint, searchValue) {
         const prefixes = yield handlePromise(globalAxios.request({
             method: 'get',
             url: localStorage.getItem('mastroUrl') + '/endpoint/' + endpoint.name + '/prefixes',
-            headers: JSON.parse(localStorage.getItem('headers') || '')
+            headers: getHeaders()
         }));
         let queryString = prefixes.map((p) => `PREFIX ${p.name} <${p.namespace}>`).join('\n');
         let iris = getIris(graphElement);
@@ -11934,151 +12072,6 @@ function setHandlers(cy) {
     });
 }
 
-let lastObjProperty;
-function handleEntitySelection(entityIriString, entityType, entityOccurrence) {
-    var _a, _b;
-    return __awaiter(this, void 0, void 0, function* () {
-        const gscape = getGscape();
-        const entityIri = new Iri(entityIriString, gscape.ontology.namespaces);
-        const activeElement = getActiveElement();
-        if (activeElement && graphElementHasIri(activeElement.graphElement, entityIriString) && !lastObjProperty) {
-            return;
-        }
-        switch (entityType) {
-            case TypesEnum.OBJECT_PROPERTY: {
-                // let result = await handleObjectPropertySelection(cyEntity)
-                // if (result && result.connectedClass) {
-                //   gscape.centerOnNode(result.connectedClass.id(), 1.8)
-                // }
-                break;
-            }
-            case TypesEnum.CLASS: {
-                (_a = handleConceptSelection(entityIriString)) === null || _a === void 0 ? void 0 : _a.then(newBody => {
-                    var _a;
-                    if (!newBody)
-                        return;
-                    // Get nodes not present in the old graph
-                    const newGraphElements = getdiffNew((_a = getQueryBody()) === null || _a === void 0 ? void 0 : _a.graph, newBody.graph);
-                    const newSelectedGraphElement = setOriginNode(entityOccurrence, newGraphElements, entityIriString);
-                    // performHighlights(entityIriString)
-                    onNewBody(newBody);
-                    // after onNewBody because we need to select the element after rendering phase
-                    if (newSelectedGraphElement && newSelectedGraphElement.id) {
-                        // The node to select is the one having the clickedIri among the new nodes
-                        selectElement(newSelectedGraphElement.id);
-                        setActiveElement({
-                            graphElement: newSelectedGraphElement,
-                            iri: entityIri,
-                        });
-                        const selectedClassesIris = getIris(newSelectedGraphElement);
-                        performHighlights(selectedClassesIris);
-                        selectedClassesIris.forEach(iri => selectEntity(iri));
-                    }
-                });
-                break;
-            }
-            case TypesEnum.DATA_PROPERTY: {
-                (_b = handleDataPropertySelection(entityIriString)) === null || _b === void 0 ? void 0 : _b.then(newBody => {
-                    var _a;
-                    if (!newBody)
-                        return;
-                    const newGraphElements = getdiffNew((_a = getQueryBody()) === null || _a === void 0 ? void 0 : _a.graph, newBody.graph);
-                    setOriginNode(entityOccurrence, newGraphElements, entityIriString);
-                    onNewBody(newBody);
-                });
-                break;
-            }
-        }
-        gscape.unselect();
-    });
-}
-onRelatedClassSelection(handleObjectPropertySelection);
-function handleObjectPropertySelection(branch, relatedClassEntityOccurrence) {
-    var _a, _b;
-    const gscape = getGscape();
-    lastObjProperty = branch;
-    if (!isFullPageActive()) {
-        gscape.centerOnElement(relatedClassEntityOccurrence.id, relatedClassEntityOccurrence.diagramId);
-        gscape.selectElement(relatedClassEntityOccurrence.id);
-    }
-    const relatedClassCyElement = gscape.renderState
-        ? (_b = (_a = gscape.ontology.getDiagram(relatedClassEntityOccurrence.diagramId)) === null || _a === void 0 ? void 0 : _a.representations.get(gscape.renderState)) === null || _b === void 0 ? void 0 : _b.cy.$id(relatedClassEntityOccurrence.id)
-        : null;
-    if (relatedClassCyElement)
-        handleEntitySelection(relatedClassCyElement.data().iri, relatedClassCyElement.data().type, relatedClassEntityOccurrence);
-}
-function handleConceptSelection(cyEntity) {
-    var _a, _b, _c;
-    return __awaiter(this, void 0, void 0, function* () {
-        const qgBGPApi = new QueryGraphBGPApi(undefined, getBasePath());
-        const clickedIRI = typeof cyEntity === 'string' ? cyEntity : cyEntity.data().iri;
-        let newQueryGraph = new Promise((resolve) => { resolve(null); });
-        let actualBody = getQueryBody();
-        /**
-         * if it's not the first click,
-         * the class is not highlighted,
-         * it's not connected to a objectProperty
-         * and it's not already in the queryGraph, then skip this click
-         */
-        if (((_a = actualBody.graph) === null || _a === void 0 ? void 0 : _a.id) && !isIriHighlighted(clickedIRI) && !lastObjProperty && !isIriInQueryGraph(clickedIRI)) {
-            //cyEntity.unselect()
-            console.warn('selection ignored for class ' + clickedIRI);
-            return newQueryGraph; // empty promise
-        }
-        let activeElement = getActiveElement();
-        if (lastObjProperty && lastObjProperty.objectPropertyIRI && (activeElement === null || activeElement === void 0 ? void 0 : activeElement.graphElement.id)) {
-            // this comes after a selection of a object property
-            newQueryGraph = handlePromise(qgBGPApi.putQueryGraphObjectProperty(activeElement.graphElement.id, "", lastObjProperty.objectPropertyIRI, clickedIRI, lastObjProperty.direct || false, actualBody, getRequestOptions()));
-        }
-        else if (((_b = actualBody.graph) === null || _b === void 0 ? void 0 : _b.id) && isIriHighlighted(clickedIRI) && (activeElement === null || activeElement === void 0 ? void 0 : activeElement.graphElement.id)) {
-            newQueryGraph = handlePromise(qgBGPApi.putQueryGraphClass(activeElement.graphElement.id, '', clickedIRI, actualBody, getRequestOptions()));
-        }
-        else if (!((_c = actualBody.graph) === null || _c === void 0 ? void 0 : _c.id)) {
-            // initial selection
-            const tempNewQueryGraph = yield handlePromise(qgBGPApi.getQueryGraph(clickedIRI, getRequestOptions()));
-            const qgExtraApi = new QueryGraphExtraApi(undefined, getBasePath());
-            newQueryGraph = handlePromise(qgExtraApi.distinctQueryGraph(true, tempNewQueryGraph, getRequestOptions()));
-        }
-        lastObjProperty = null;
-        return newQueryGraph;
-    });
-}
-function handleDataPropertySelection(cyEntity) {
-    return __awaiter(this, void 0, void 0, function* () {
-        const clickedIRI = typeof cyEntity === 'string' ? cyEntity : cyEntity.data().iri;
-        let newQueryGraph = new Promise((resolve) => { resolve(null); });
-        if (!isIriHighlighted(clickedIRI)) {
-            // cyEntity.unselect()
-            return newQueryGraph; // empty promise
-        }
-        const actualBody = getQueryBody();
-        const activeElement = getActiveElement();
-        if (!(activeElement === null || activeElement === void 0 ? void 0 : activeElement.graphElement.id)) {
-            return newQueryGraph; // empty promise
-        }
-        if (isClass(activeElement.graphElement)) {
-            const qgBGPApi = new QueryGraphBGPApi(undefined, getBasePath());
-            newQueryGraph = handlePromise(qgBGPApi.putQueryGraphDataProperty(activeElement.graphElement.id, '', clickedIRI, actualBody, getRequestOptions()));
-        }
-        lastObjProperty = null;
-        return newQueryGraph;
-    });
-}
-/**
- * Find the GraphElement corresponding to the clicked entity and set entity as its origin Graphol node
- * @param entityOccurrence The clicked entity occurrence
- * @param graphElements Array of newly added graphElements
- * @returns The GraphElement corresponding to the clicked entity
- */
-function setOriginNode(entityOccurrence, graphElements, clickedIri) {
-    let graphElement = graphElements === null || graphElements === void 0 ? void 0 : graphElements.find(ge => graphElementHasIri(ge, clickedIri));
-    if (graphElement) {
-        getOriginGrapholNodes().set(graphElement.id + clickedIri, entityOccurrence);
-    }
-    return graphElement;
-}
-function isIriInQueryGraph(iri) { return isIriInQueryGraph$1(iri); }
-
 function showFormDialog (element, formDialog) {
     var _a;
     let graphElement;
@@ -12157,7 +12150,6 @@ onDelete$1((graphElement, iri) => {
     const qgApi = QueryGraphBGPApiFactory(undefined, getBasePath());
     const body = getQueryBody();
     const oldSelectedGraphElement = (_a = getActiveElement()) === null || _a === void 0 ? void 0 : _a.graphElement;
-    const gscape = getGscape();
     if (!iri) {
         handlePromise(qgApi.deleteGraphElementId(graphElement.id, body, getRequestOptions())).then(newBody => {
             if (newBody.graph && !findGraphElement(newBody.graph, ge => ge.id === (oldSelectedGraphElement === null || oldSelectedGraphElement === void 0 ? void 0 : oldSelectedGraphElement.id))) {
@@ -12170,25 +12162,7 @@ onDelete$1((graphElement, iri) => {
                             return true;
                     })) || false;
                 });
-                let newSelectedGEIri;
-                if (newSelectedGE) {
-                    newSelectedGEIri = getIri(newSelectedGE);
-                    if (newSelectedGEIri) {
-                        setActiveElement({
-                            graphElement: newSelectedGE,
-                            iri: new Iri(newSelectedGEIri, gscape.ontology.namespaces)
-                        });
-                    }
-                }
-                if (!isFullPageActive()) {
-                    gscape.unselect();
-                    if (newSelectedGEIri) {
-                        gscape.centerOnEntity(newSelectedGEIri);
-                    }
-                }
-                if (newSelectedGE === null || newSelectedGE === void 0 ? void 0 : newSelectedGE.id) {
-                    selectElement(newSelectedGE.id); // force selecting a new class
-                }
+                newBody.activeGraphElementId = newSelectedGE === null || newSelectedGE === void 0 ? void 0 : newSelectedGE.id;
             }
             finalizeDelete(newBody);
         });
@@ -12202,17 +12176,6 @@ onDelete$1((graphElement, iri) => {
         if (graphElement.id) {
             getOriginGrapholNodes().delete(graphElement.id);
             onNewBody(newBody);
-            const activeElement = getActiveElement();
-            const updatedActiveElement = findGraphElement(newBody.graph, ge => ge.id === (activeElement === null || activeElement === void 0 ? void 0 : activeElement.graphElement.id));
-            if (activeElement) {
-                if (updatedActiveElement)
-                    activeElement.graphElement = updatedActiveElement;
-                if (iri || oldSelectedGraphElement !== activeElement) {
-                    clearHighlights$1();
-                    performHighlights(getIris(activeElement.graphElement));
-                    getIris(activeElement.graphElement).forEach(iri => selectEntity(iri));
-                }
-            }
         }
     }
 });
@@ -12221,14 +12184,7 @@ onJoin((ge1, ge2) => __awaiter(void 0, void 0, void 0, function* () {
         const qgApi = QueryGraphBGPApiFactory(undefined, getBasePath());
         const body = getQueryBody();
         handlePromise(qgApi.putQueryGraphJoin(ge1.id, ge2.id, body, getRequestOptions())).then(newBody => {
-            const ge1Iri = getIri(ge1);
-            if (ge1Iri) {
-                setActiveElement({
-                    graphElement: ge1,
-                    iri: new Iri(ge1Iri, getGscape().ontology.namespaces)
-                });
-                onNewBody(newBody);
-            }
+            onNewBody(newBody);
         });
     }
 }));
@@ -12523,7 +12479,7 @@ startRunButtons.onSparqlingStart(() => {
         start();
     }
     catch (error) {
-        console.log(error);
+        console.error(error);
         return;
     }
     core.onStart();
@@ -12696,7 +12652,7 @@ function handlePathRequest(kShortest) {
         handlePromise(pathPromise).then((paths) => {
             var _a;
             if (paths.length === 1) {
-                addPath(paths[0]);
+                addPath(paths[0], activeGraphElement);
             }
             else {
                 const pathSelector = new ui.PathSelector(gscape.theme);
@@ -12722,7 +12678,9 @@ function addPath(path, activeGraphElement) {
     if (activeGraphElement && activeGraphElement.graphElement.id !== undefined) {
         const qgApi = new QueryGraphBGPApi(undefined, getBasePath());
         const addPathPromise = qgApi.addPathToQueryGraph(activeGraphElement.graphElement.id, JSON.stringify(path), getQueryBody(), getRequestOptions());
-        handlePromise(addPathPromise).then(newBody => onNewBody(newBody));
+        handlePromise(addPathPromise).then(newBody => {
+            onNewBody(newBody);
+        });
     }
 }
 
@@ -12738,20 +12696,9 @@ classSelector.addEventListener('class-selection', ((event) => __awaiter(void 0, 
     const tempNewQueryBody = yield handlePromise(qgBGPApi.getQueryGraph(classEntity.iri.fullIri, getRequestOptions()));
     const newQueryBody = yield handlePromise(qgExtraApi.distinctQueryGraph(true, tempNewQueryBody, getRequestOptions()));
     if (newQueryBody) {
-        setActiveElement({
-            graphElement: newQueryBody.graph,
-            iri: classEntity.iri
-        });
         onNewBody(newQueryBody);
         classSelector.hide();
-        if (newQueryBody.graph.id)
-            selectElement(newQueryBody.graph.id);
-        performHighlights(classEntity.iri.fullIri);
-        selectEntity(classEntity.iri.fullIri);
     }
-})));
-classSelector.addEventListener('confirm-shortest-path', ((event) => __awaiter(void 0, void 0, void 0, function* () {
-    console.log(event.detail);
 })));
 
 function showInitialModeSelector() {
@@ -12783,7 +12730,6 @@ function showInitialModeSelector() {
             if (isFullPageActive())
                 stopFullpage();
             (_a = getGscape().widgets.get(ui.WidgetEnum.INITIAL_RENDERER_SELECTOR)) === null || _a === void 0 ? void 0 : _a.show();
-            console.log(getGscape().widgets);
         }
     };
     getGscape().container.appendChild(modeSelector);
