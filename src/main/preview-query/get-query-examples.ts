@@ -1,13 +1,13 @@
 import axios from "axios"
+import { GraphElement } from "../../api/swagger"
 import * as model from "../../model"
 import { getQueryBody, MastroEndpoint } from "../../model"
-import { findGraphElement, getGraphElementByID, getGraphElementByIRI, getIri, getIris, graphElementHasIri, isAnnotation, isClass, isDataProperty } from "../../util/graph-element-utility"
+import { findGraphElement, getGraphElementByID, getIri, getIris, isAnnotation, isClass, isDataProperty } from "../../util/graph-element-utility"
 import { previewDialog } from "../../widgets"
 import SparqlingFormDialog from "../../widgets/forms/base-form-dialog"
 import { handlePromise } from "../handle-promises"
 import handleEndpointSelection from "./handle-endpoint-selection"
 import QueryPoller, { QueryPollerStatus } from "./query-poller"
-import { GraphElement } from "../../api/swagger"
 
 export async function showExamplesInForm(graphElementId: string, formDialog: SparqlingFormDialog) {
   handleEndpointSelection((async endpoint => {
@@ -45,15 +45,21 @@ export async function showExamplesInForm(graphElementId: string, formDialog: Spa
 }
 
 export function getNewQueryRequestOptions(endpoint: model.MastroEndpoint, queryString: string) {
+  const params = new URLSearchParams({
+    useReplaceForUrlEncoding: 'true',
+    querySemantics: 'auto',
+    reasoning: 'true',
+    expandSparqlTables: 'true'
+  })
   const startNewQueryRequestOptions = {
     method: 'post',
-    url: localStorage.getItem('mastroUrl') + '/endpoint/' + endpoint.name + '/query/start',
+    url: new URL(`${localStorage.getItem('mastroUrl')}/endpoint/${endpoint.name}/query/start?${params.toString()}`).toString(),
     data: {
       queryID: Math.random(),
       queryDescription: '',
-      queryCode: queryString
+      queryCode: queryString,
     },
-    headers: JSON.parse(localStorage.getItem('headers') || '')
+    headers: model.getHeaders()
   }
 
   return startNewQueryRequestOptions
@@ -110,7 +116,7 @@ async function getExamplesQueryString(graphElement: GraphElement, endpoint: Mast
   const prefixes = await handlePromise(axios.request<any>({
     method: 'get',
     url: localStorage.getItem('mastroUrl') + '/endpoint/' + endpoint.name + '/prefixes',
-    headers: JSON.parse(localStorage.getItem('headers') || '')
+    headers: model.getHeaders()
   }))
 
   let queryString: string = prefixes.map((p: { name: any; namespace: any }) => `PREFIX ${p.name} <${p.namespace}>`).join('\n')

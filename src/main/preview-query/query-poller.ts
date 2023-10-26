@@ -1,5 +1,5 @@
 import axios from "axios";
-import { MastroEndpoint } from "../../model";
+import { MastroEndpoint, getHeaders } from "../../model";
 import { handlePromise } from "../handle-promises";
 
 export type QueryResult = {
@@ -92,7 +92,7 @@ export default class QueryPoller {
       url: localStorage.getItem('mastroUrl') + '/endpoint/' + this.endpoint.name + '/query/' + this.executionID + '/results',
       method: 'get',
       params: { pagesize: 10, pagenumber: 1 },
-      headers: JSON.parse(localStorage.getItem('headers') || ''),
+      headers: getHeaders(),
     }
 
     return queryResultsRequestOptions
