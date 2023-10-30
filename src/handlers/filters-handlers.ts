@@ -84,6 +84,7 @@ export function showFilterDialogEditingMode(filterId: number) {
     filterDialog.modality = Modality.EDIT
     filterDialog._id = filterId
     filterDialog.operator = filter.expression?.operator
+    filterDialog.variableName = filter.expression?.parameters && filter.expression?.parameters[0]?.value
 
     let parameters = filter.expression?.parameters
 
