@@ -85,7 +85,7 @@ export function showFilterDialogEditingMode(filterId: number) {
     filterDialog._id = filterId
     filterDialog.operator = filter.expression?.operator
 
-    let parameters: VarOrConstant[] | undefined
+    let parameters = filter.expression?.parameters
 
     // in case of regex, last parameter is about flags, add them but not as parameter
     // leave them in filter object => copy parameters with JSON.parse(JSON.stringify(...))
