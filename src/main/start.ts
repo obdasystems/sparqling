@@ -9,6 +9,7 @@ import { hideUI, showUI } from '../util/show-hide-ui'
 import { startRunButtons } from '../widgets'
 import { handlePromise } from './handle-promises'
 import { performHighlights } from './highlights'
+import { leftColumnContainer } from '../util/get-container'
 
 export default async function () {
   let loadingPromise: Promise<any> = Promise.resolve()
@@ -39,6 +40,24 @@ export default async function () {
     owlVisualizer.disable()
     const settingsWidget = (getGscape().widgets.get(ui.WidgetEnum.SETTINGS) as any);
     delete settingsWidget.widgetStates[ui.WidgetEnum.OWL_VISUALIZER]
+
+    /**
+     * Close color legend and move left column container up on colors activations
+     */
+    const entityColorButton = (getGscape().widgets.get(ui.WidgetEnum.COLOR_BUTTON) as ui.GscapeButton);
+    const entityColorLegend = (getGscape().widgets.get(ui.WidgetEnum.ENTITY_COLOR_LEGEND) as ui.GscapeEntityColorLegend);
+    if (entityColorButton) {
+      const previousCallback = entityColorButton.onclick as any
+
+      entityColorButton.onclick = (e) => {
+        if (previousCallback)
+          previousCallback(e)
+
+        leftColumnContainer.style.bottom = entityColorButton.active ? '40px' : '0'
+        leftColumnContainer.style.height = entityColorButton.active ? 'calc(100% - 80px)' : 'calc(100% - 40px)'
+        entityColorLegend?.closePanel()
+      } 
+    }
 
     hideUI()
     showUI()

@@ -46,7 +46,6 @@ export default class HighlightsList extends ui.DropPanelMixin(ui.BaseMixin(LitEl
       :host {
         position:initial;
         pointer-events:initial;
-        margin-top: 60px;
         max-height: 55%;
       }
 

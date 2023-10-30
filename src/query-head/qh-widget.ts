@@ -37,7 +37,6 @@ export default class QueryHeadWidget extends ui.BaseMixin(ui.DropPanelMixin(LitE
       :host {
         position:initial;
         min-height: 30%;
-        margin-bottom: 10px;
         background: transparent;
         box-shadow: none;
         pointer-events: none;
@@ -68,6 +67,8 @@ export default class QueryHeadWidget extends ui.BaseMixin(ui.DropPanelMixin(LitE
 
       .top-bar.traslated-down {
         bottom: 10px;
+        left: 0;
+        transform: initial;
       }
 
       .gscape-panel {

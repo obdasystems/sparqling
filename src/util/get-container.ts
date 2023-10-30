@@ -32,11 +32,12 @@ function getLeftColumnContainer(): HTMLDivElement {
   container.style.flexDirection = 'column-reverse'
   container.style.justifyContent = 'space-between'
   container.style.gap = '30px'
-  container.style.height = '100%'
+  container.style.height = 'calc(100% - 40px)'
   container.style.boxSizing = 'border-box'
   container.style.marginTop = '70px'
   container.style.pointerEvents = 'none'
   container.style.width = '20%'
+  container.style.padding = '10px 0'
 
   return container
 }
