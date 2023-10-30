@@ -22,6 +22,7 @@ export function setQueryBody(newBody: QueryGraph) {
 
 export function setActiveElement(newActiveElement: ActiveElement | undefined) {
   activeElement = newActiveElement
+  body.activeGraphElementId = newActiveElement?.graphElement.id
 }
 
 export function getActiveElement() { return activeElement }
