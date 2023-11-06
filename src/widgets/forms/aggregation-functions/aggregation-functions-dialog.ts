@@ -1,7 +1,7 @@
 import { ui } from "grapholscape"
 import { html, PropertyValueMap } from 'lit'
 import { FilterExpressionOperatorEnum, GroupByElementAggregateFunctionEnum, VarOrConstant, VarOrConstantConstantTypeEnum } from "../../../api/swagger"
-import { FormID } from "../../../util/filter-function-interface"
+import { FormID, FormOperator } from "../../../util/filter-function-interface"
 import { addFilter, sigma } from "../../assets/icons"
 import SparqlingFormDialog from "../base-form-dialog"
 import { getFormTemplate, getSelect } from "../form-template"
@@ -95,7 +95,7 @@ export default class AggregationDialog extends SparqlingFormDialog {
 
   protected onValidSubmit(): void {
     if (this._id && this.aggregateOperator && this.parameters)
-      this.submitCallback(this._id, this.aggregateOperator, this.distinct, undefined, this.parameters)
+      this.submitCallback(this._id, this.aggregateOperator, this.distinct, this.operator, this.parameters)
   }
 
   onSubmit(callback: { (headElementId: FormID, aggregateOperator: GroupByElementAggregateFunctionEnum, distinct: boolean, havingOperator: FilterExpressionOperatorEnum, havingParameters: VarOrConstant[]): void }) {
@@ -105,6 +105,10 @@ export default class AggregationDialog extends SparqlingFormDialog {
   setAsCorrect(customText?: string): void {
     super.setAsCorrect(customText)
     this.canSave = false
+  }
+
+  protected get operators(): FormOperator[] {
+    return Object.values(FilterExpressionOperatorEnum)
   }
 
   protected firstUpdated(_changedProperties: PropertyValueMap<any> | Map<PropertyKey, unknown>): void {
