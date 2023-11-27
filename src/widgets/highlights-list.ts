@@ -29,7 +29,6 @@ export default class HighlightsList extends ui.DropPanelMixin(ui.BaseMixin(LitEl
   private _onSuggestionAddToQuery = (entityIri: string, entityType: TypesEnum, relatedClassIri?: string) => { }
   private _onAddLabel = () => { }
   private _onAddComment = () => { }
-  private _onShortestPathClick = () => { }
   private _onFindPathsClick = () => { }
 
   static properties = {
@@ -241,23 +240,11 @@ export default class HighlightsList extends ui.DropPanelMixin(ui.BaseMixin(LitEl
                     <gscape-button 
                       size="s"
                       label="Find a path"
-                      title="Get paths suggestions to reach a class of interest from your current state"
+                      title="Get shortest paths suggestions to reach a class of interest from your current state"
                       @click=${this._onFindPathsClick}
                     >
                       ${ui.getIconSlot('icon', ui.icons.pathIcon)}
                     </gscape-button>
-
-                    <gscape-button 
-                      size="s"
-                      type="primary"
-                      label="Shortest Path"
-                      title="Get the shortest path to reach a class of interest from your current state"
-                      @click=${this._onShortestPathClick}
-                    >
-                      ${ui.getIconSlot('icon', ui.icons.pathIcon)}
-                    </gscape-button>
-
-                    
                   </div>
 
                   <div class="hr" style="flex-shrink: 0; margin: 8px auto"></div>
@@ -436,10 +423,6 @@ export default class HighlightsList extends ui.DropPanelMixin(ui.BaseMixin(LitEl
 
   onAddComment(callback: () => void) {
     this._onAddComment = callback
-  }
-
-  onShortestPathClick(callback: () => void) {
-    this._onShortestPathClick = callback
   }
 
   onFindPathsClick(callback: () => void) {

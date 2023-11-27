@@ -42,8 +42,6 @@ highlightsList.onSuggestionAddToQuery((entityIri, entityType, relatedClass) => {
 highlightsList.onAddLabel(() => addAnnotation('label'))
 highlightsList.onAddComment(() => addAnnotation('comment'))
 
-highlightsList.onShortestPathClick(() => handlePathRequest(false))
-
 highlightsList.onFindPathsClick(() => handlePathRequest(true))
 
 
