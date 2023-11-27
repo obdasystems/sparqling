@@ -3720,7 +3720,6 @@ class HighlightsList extends ui.DropPanelMixin(ui.BaseMixin(s)) {
         this._onSuggestionAddToQuery = (entityIri, entityType, relatedClassIri) => { };
         this._onAddLabel = () => { };
         this._onAddComment = () => { };
-        this._onShortestPathClick = () => { };
         this._onFindPathsClick = () => { };
         this.togglePanel = () => {
             super.togglePanel();
@@ -3828,23 +3827,11 @@ class HighlightsList extends ui.DropPanelMixin(ui.BaseMixin(s)) {
                     <gscape-button 
                       size="s"
                       label="Find a path"
-                      title="Get paths suggestions to reach a class of interest from your current state"
+                      title="Get shortest paths suggestions to reach a class of interest from your current state"
                       @click=${this._onFindPathsClick}
                     >
                       ${ui.getIconSlot('icon', ui.icons.pathIcon)}
                     </gscape-button>
-
-                    <gscape-button 
-                      size="s"
-                      type="primary"
-                      label="Shortest Path"
-                      title="Get the shortest path to reach a class of interest from your current state"
-                      @click=${this._onShortestPathClick}
-                    >
-                      ${ui.getIconSlot('icon', ui.icons.pathIcon)}
-                    </gscape-button>
-
-                    
                   </div>
 
                   <div class="hr" style="flex-shrink: 0; margin: 8px auto"></div>
@@ -3995,9 +3982,6 @@ class HighlightsList extends ui.DropPanelMixin(ui.BaseMixin(s)) {
     onAddComment(callback) {
         this._onAddComment = callback;
     }
-    onShortestPathClick(callback) {
-        this._onShortestPathClick = callback;
-    }
     onFindPathsClick(callback) {
         this._onFindPathsClick = callback;
     }
@@ -4086,7 +4070,6 @@ HighlightsList.styles = [
       :host {
         position:initial;
         pointer-events:initial;
-        margin-top: 60px;
         max-height: 55%;
       }
 
@@ -4932,7 +4915,7 @@ class AggregationDialog extends SparqlingFormDialog {
     }
     onValidSubmit() {
         if (this._id && this.aggregateOperator && this.parameters)
-            this.submitCallback(this._id, this.aggregateOperator, this.distinct, undefined, this.parameters);
+            this.submitCallback(this._id, this.aggregateOperator, this.distinct, this.operator, this.parameters);
     }
     onSubmit(callback) {
         this.submitCallback = callback;
@@ -4940,6 +4923,9 @@ class AggregationDialog extends SparqlingFormDialog {
     setAsCorrect(customText) {
         super.setAsCorrect(customText);
         this.canSave = false;
+    }
+    get operators() {
+        return Object.values(FilterExpressionOperatorEnum);
     }
     firstUpdated(_changedProperties) {
         super.firstUpdated(_changedProperties);
@@ -5417,11 +5403,12 @@ function getLeftColumnContainer() {
     container.style.flexDirection = 'column-reverse';
     container.style.justifyContent = 'space-between';
     container.style.gap = '30px';
-    container.style.height = '100%';
+    container.style.height = 'calc(100% - 40px)';
     container.style.boxSizing = 'border-box';
     container.style.marginTop = '70px';
     container.style.pointerEvents = 'none';
     container.style.width = '20%';
+    container.style.padding = '10px 0';
     return container;
 }
 function getTippyContainer() {
@@ -10648,7 +10635,6 @@ QueryHeadWidget.styles = [
       :host {
         position:initial;
         min-height: 30%;
-        margin-bottom: 10px;
         background: transparent;
         box-shadow: none;
         pointer-events: none;
@@ -10679,6 +10665,8 @@ QueryHeadWidget.styles = [
 
       .top-bar.traslated-down {
         bottom: 10px;
+        left: 0;
+        transform: initial;
       }
 
       .gscape-panel {
@@ -11241,6 +11229,7 @@ function setQueryBody(newBody) {
 }
 function setActiveElement(newActiveElement) {
     activeElement = newActiveElement;
+    body.activeGraphElementId = newActiveElement === null || newActiveElement === void 0 ? void 0 : newActiveElement.graphElement.id;
 }
 function getActiveElement() { return activeElement; }
 function getQueryBody() { return body; }
@@ -11434,6 +11423,21 @@ function start () {
             owlVisualizer.disable();
             const settingsWidget = getGscape().widgets.get(ui.WidgetEnum.SETTINGS);
             delete settingsWidget.widgetStates[ui.WidgetEnum.OWL_VISUALIZER];
+            /**
+             * Close color legend and move left column container up on colors activations
+             */
+            const entityColorButton = getGscape().widgets.get(ui.WidgetEnum.COLOR_BUTTON);
+            const entityColorLegend = getGscape().widgets.get(ui.WidgetEnum.ENTITY_COLOR_LEGEND);
+            if (entityColorButton) {
+                const previousCallback = entityColorButton.onclick;
+                entityColorButton.onclick = (e) => {
+                    if (previousCallback)
+                        previousCallback(e);
+                    leftColumnContainer.style.bottom = entityColorButton.active ? '40px' : '0';
+                    leftColumnContainer.style.height = entityColorButton.active ? 'calc(100% - 80px)' : 'calc(100% - 40px)';
+                    entityColorLegend === null || entityColorLegend === void 0 ? void 0 : entityColorLegend.closePanel();
+                };
+            }
             hideUI();
             showUI();
             setSparqlingRunning(true);
@@ -12346,18 +12350,19 @@ function deleteFilter(filterId) {
     });
 }
 function showFilterDialogEditingMode(filterId) {
-    var _a, _b, _c, _d;
+    var _a, _b, _c, _d, _e, _f, _g, _h;
     const filter = getFilterById(filterId);
     if (filter) {
         filterDialog.modality = Modality.EDIT;
         filterDialog._id = filterId;
         filterDialog.operator = (_a = filter.expression) === null || _a === void 0 ? void 0 : _a.operator;
-        let parameters;
+        filterDialog.variableName = ((_b = filter.expression) === null || _b === void 0 ? void 0 : _b.parameters) && ((_d = (_c = filter.expression) === null || _c === void 0 ? void 0 : _c.parameters[0]) === null || _d === void 0 ? void 0 : _d.value);
+        let parameters = (_e = filter.expression) === null || _e === void 0 ? void 0 : _e.parameters;
         // in case of regex, last parameter is about flags, add them but not as parameter
         // leave them in filter object => copy parameters with JSON.parse(JSON.stringify(...))
         // from this copy remove last parameter so it won't be shown as value in the form
-        if (((_b = filter.expression) === null || _b === void 0 ? void 0 : _b.parameters) && filter.expression.operator === FilterExpressionOperatorEnum.Regex) {
-            parameters = JSON.parse(JSON.stringify((_c = filter.expression) === null || _c === void 0 ? void 0 : _c.parameters));
+        if (((_f = filter.expression) === null || _f === void 0 ? void 0 : _f.parameters) && filter.expression.operator === FilterExpressionOperatorEnum.Regex) {
+            parameters = JSON.parse(JSON.stringify((_g = filter.expression) === null || _g === void 0 ? void 0 : _g.parameters));
             if (parameters && parameters[2]) {
                 if (filterDialog.caseSensitiveCheckbox)
                     filterDialog.caseSensitiveCheckbox.checked = parameters[2].value !== "i";
@@ -12365,7 +12370,7 @@ function showFilterDialogEditingMode(filterId) {
             }
         }
         filterDialog.parameters = parameters;
-        filterDialog.parametersType = ((_d = filter.expression) === null || _d === void 0 ? void 0 : _d.parameters) ? filter.expression.parameters[1].type : undefined;
+        filterDialog.parametersType = ((_h = filter.expression) === null || _h === void 0 ? void 0 : _h.parameters) ? filter.expression.parameters[1].type : undefined;
         filterDialog.show();
         filterListDialog.hide();
     }
@@ -12634,7 +12639,6 @@ highlightsList.onSuggestionAddToQuery((entityIri, entityType, relatedClass) => {
 });
 highlightsList.onAddLabel(() => addAnnotation('label'));
 highlightsList.onAddComment(() => addAnnotation('comment'));
-highlightsList.onShortestPathClick(() => handlePathRequest(false));
 highlightsList.onFindPathsClick(() => handlePathRequest(true));
 function handlePathRequest(kShortest) {
     var _a;
