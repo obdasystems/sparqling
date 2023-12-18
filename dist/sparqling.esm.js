@@ -11876,8 +11876,11 @@ function getExamplesQueryString(graphElement, endpoint, searchValue) {
                 else if (propertyIri) {
                     queryString += `\nSELECT DISTINCT ?Examples WHERE { ?x  <${propertyIri}> ?Examples;`;
                 }
-                if (searchValue)
-                    queryString += `\nFILTER (regex(?Examples, "${searchValue}", 'i'))`;
+                if (searchValue) {
+                    queryString += localStorage.getItem('instances-search-function') === 'contains'
+                        ? `\nFILTER (contains(?Examples, "${searchValue}"))`
+                        : `\nFILTER (regex(?Examples, "${searchValue}", 'i'))`;
+                }
                 queryString += ` }`;
             }
             queryString += `\nLIMIT 10`;
