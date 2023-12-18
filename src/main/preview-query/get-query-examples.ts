@@ -18,7 +18,7 @@ export async function showExamplesInForm(graphElementId: string, formDialog: Spa
       setTimeout(() => formDialog.resetMessages(), 3000)
       return
     }
-    
+
     const graphElement = getGraphElementByID(graphElementId)
     if (graphElement) {
       const queryString = await getExamplesQueryString(graphElement, endpoint, formDialog.examplesSearchValue)
@@ -141,13 +141,16 @@ async function getExamplesQueryString(graphElement: GraphElement, endpoint: Mast
       } else if (propertyIri) {
         queryString += `\nSELECT DISTINCT ?Examples WHERE { ?x  <${propertyIri}> ?Examples;`
       }
-  
-      if (searchValue)
-        queryString += `\nFILTER (regex(?Examples, "${searchValue}", 'i'))`
-  
+
+      if (searchValue) {
+        queryString += localStorage.getItem('instances-search-function') === 'contains'
+          ? `\nFILTER (contains(?Examples, "${searchValue}"))`
+          : `\nFILTER (regex(?Examples, "${searchValue}", 'i'))`
+      }
+
       queryString += ` }`
     }
-  
+
     queryString += `\nLIMIT 10`
     return queryString
   }
