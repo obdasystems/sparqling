@@ -13,6 +13,7 @@ export default class SparqlDialog extends ui.ModalMixin(ui.BaseMixin(LitElement)
   title = 'SPARQL'
 
   private arePrefixesVisible: Boolean = false
+  private queryCopied = false
 
   static styles = [
     ui.baseStyle,
@@ -43,12 +44,19 @@ export default class SparqlDialog extends ui.ModalMixin(ui.BaseMixin(LitElement)
       .sparql-code {
         white-space: pre;
       }
+
+      #query-copied-msg {
+        color: var(--gscape-color-success);
+        text-align: center;
+        padding: 4px;
+      }
     `
   ]
 
   static properties = {
     text: { type: String, attribute: false },
     arePrefixesVisible: { type: Boolean, state: true },
+    queryCopied: { type: Boolean, state: true },
   }
 
   render() {
@@ -87,6 +95,10 @@ export default class SparqlDialog extends ui.ModalMixin(ui.BaseMixin(LitElement)
           </gscape-button>
         </div>
 
+        ${this.queryCopied
+          ? html`<div id="query-copied-msg">&check; Query copied successfully</div>`
+          : null
+        }
         <div class="sparql-code-wrapper" title="Click to copy query" @click=${this.copyQuery}>
           ${this.text === emptyQueryMsg()
             ? html`<div class="sparql-code">${this.text.trim()}</div>`
@@ -102,7 +114,7 @@ export default class SparqlDialog extends ui.ModalMixin(ui.BaseMixin(LitElement)
               </gscape-button>
               <div class="sparql-code">${this.queryText}</div>
             `
-      }
+          }
         </div>
       </div>
     `
@@ -114,9 +126,25 @@ export default class SparqlDialog extends ui.ModalMixin(ui.BaseMixin(LitElement)
 
 
   copyQuery() {
-    navigator.clipboard.writeText(this.text).then(_ => {
-      console.log('query copied successfully')
-    })
+    this.queryCopied = false
+    if (navigator.clipboard) {
+      navigator.clipboard.writeText(this.text).then(_ => {
+        this.queryCopied = true
+        setTimeout(() => { this.queryCopied = false }, 1000)
+      })
+    } else {
+      const el = document.createElement('textarea');
+      el.value = this.text;
+      el.setAttribute('readonly', '');
+      el.style.position = 'absolute';
+      el.style.left = '-9999px';
+      document.body.appendChild(el);
+      el.select();
+      document.execCommand('copy');
+      document.body.removeChild(el);
+      this.queryCopied = true
+      setTimeout(() => { this.queryCopied = false }, 1000)
+    }
   }
 
   protected firstUpdated(_changedProperties: PropertyValueMap<any> | Map<PropertyKey, unknown>) {
