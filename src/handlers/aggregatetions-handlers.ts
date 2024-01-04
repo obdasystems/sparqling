@@ -3,7 +3,6 @@ import { showExamplesInForm } from "../main";
 import { handlePromise } from "../main/handle-promises";
 import onNewBody from "../main/on-new-body";
 import * as model from "../model";
-import { getGraphElementByID, getIri } from "../util/graph-element-utility";
 import { aggregationDialog } from "../widgets";
 
 aggregationDialog.onSubmit((headElementId, aggregateOperator, distinct, havingOperator, havingParameters) => {
@@ -17,7 +16,7 @@ aggregationDialog.onSubmit((headElementId, aggregateOperator, distinct, havingOp
       aggregateFunction: aggregateOperator
     }
 
-    if (havingOperator && havingParameters) {
+    if (aggregationDialog.definingHaving && havingOperator && havingParameters) {
       headElement.having = [{
         expression: {
           operator: havingOperator,
