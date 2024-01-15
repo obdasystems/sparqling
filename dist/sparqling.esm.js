@@ -4347,6 +4347,7 @@ class SparqlDialog extends ui.ModalMixin(ui.BaseMixin(s)) {
         //copyButton = new UI.GscapeButton(copyContent, "Copy Query")
         this.title = 'SPARQL';
         this.arePrefixesVisible = false;
+        this.queryCopied = false;
     }
     render() {
         return x `
@@ -4379,6 +4380,9 @@ class SparqlDialog extends ui.ModalMixin(ui.BaseMixin(s)) {
           </gscape-button>
         </div>
 
+        ${this.queryCopied
+            ? x `<div id="query-copied-msg">&check; Query copied successfully</div>`
+            : null}
         <div class="sparql-code-wrapper" title="Click to copy query" @click=${this.copyQuery}>
           ${this.text === emptyQueryMsg()
             ? x `<div class="sparql-code">${this.text.trim()}</div>`
@@ -4401,9 +4405,26 @@ class SparqlDialog extends ui.ModalMixin(ui.BaseMixin(s)) {
         this.arePrefixesVisible = !this.arePrefixesVisible;
     }
     copyQuery() {
-        navigator.clipboard.writeText(this.text).then(_ => {
-            console.log('query copied successfully');
-        });
+        this.queryCopied = false;
+        if (navigator.clipboard) {
+            navigator.clipboard.writeText(this.text).then(_ => {
+                this.queryCopied = true;
+                setTimeout(() => { this.queryCopied = false; }, 1000);
+            });
+        }
+        else {
+            const el = document.createElement('textarea');
+            el.value = this.text;
+            el.setAttribute('readonly', '');
+            el.style.position = 'absolute';
+            el.style.left = '-9999px';
+            document.body.appendChild(el);
+            el.select();
+            document.execCommand('copy');
+            document.body.removeChild(el);
+            this.queryCopied = true;
+            setTimeout(() => { this.queryCopied = false; }, 1000);
+        }
     }
     firstUpdated(_changedProperties) {
         super.firstUpdated(_changedProperties);
@@ -4445,11 +4466,18 @@ SparqlDialog.styles = [
       .sparql-code {
         white-space: pre;
       }
+
+      #query-copied-msg {
+        color: var(--gscape-color-success);
+        text-align: center;
+        padding: 4px;
+      }
     `
 ];
 SparqlDialog.properties = {
     text: { type: String, attribute: false },
     arePrefixesVisible: { type: Boolean, state: true },
+    queryCopied: { type: Boolean, state: true },
 };
 customElements.define('sparqling-sparql-dialog', SparqlDialog);
 
@@ -12551,7 +12579,7 @@ aggregationDialog.onSubmit((headElementId, aggregateOperator, distinct, havingOp
             distinct: distinct,
             aggregateFunction: aggregateOperator
         };
-        if (havingOperator && havingParameters) {
+        if (aggregationDialog.definingHaving && havingOperator && havingParameters) {
             headElement.having = [{
                     expression: {
                         operator: havingOperator,
