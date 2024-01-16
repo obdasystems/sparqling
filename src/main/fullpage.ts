@@ -7,7 +7,7 @@ import { cy } from "../query-graph/renderer";
 import { bgpContainer } from "../util/get-container";
 import { classSelector, highlightsList, initClassSelector } from "../widgets";
 
-let widgetStates: { [key in ui.WidgetEnum]?: boolean }
+let widgetStates: { [key in ui.WidgetEnum]?: boolean } = {}
 
 export function stopFullpage() {
   const grapholscape = ontologyGraph.getGscape()
@@ -63,33 +63,31 @@ export function startFullpage() {
 }
 
 function disableWidgetsForFullpage(grapholscape: Grapholscape) {
-  const settingsWidget = grapholscape.widgets.get(ui.WidgetEnum.SETTINGS) as any
-  widgetStates = JSON.parse(JSON.stringify(settingsWidget.widgetStates));
-  (grapholscape.widgets.get(ui.WidgetEnum.DIAGRAM_SELECTOR) as unknown as ui.IBaseMixin).disable();
-  (grapholscape.widgets.get(ui.WidgetEnum.RENDERER_SELECTOR) as unknown as ui.IBaseMixin).disable();
-  (grapholscape.widgets.get(ui.WidgetEnum.FILTERS) as unknown as ui.IBaseMixin).disable();
-  (grapholscape.widgets.get(ui.WidgetEnum.ONTOLOGY_EXPLORER) as unknown as ui.IBaseMixin).disable();
-  (grapholscape.widgets.get(ui.WidgetEnum.OWL_VISUALIZER) as unknown as ui.IBaseMixin).disable();
-
-  const actualWidgetStates: { [key in ui.WidgetEnum]?: boolean } = settingsWidget.widgetStates
-  delete actualWidgetStates[ui.WidgetEnum.DIAGRAM_SELECTOR]
-  delete actualWidgetStates[ui.WidgetEnum.RENDERER_SELECTOR]
-  delete actualWidgetStates[ui.WidgetEnum.FILTERS]
-  delete actualWidgetStates[ui.WidgetEnum.ONTOLOGY_EXPLORER]
-  delete actualWidgetStates[ui.WidgetEnum.LAYOUT_SETTINGS]
-  delete actualWidgetStates[ui.WidgetEnum.OWL_VISUALIZER]
-
-  settingsWidget.requestUpdate()
+  let widget: ui.IBaseMixin
+  grapholscape.widgets.forEach((w, widgetKey) => {
+    widget = w as unknown as ui.IBaseMixin
+    widgetStates[widgetKey] = widget.enabled
+    switch (widgetKey) {
+      case ui.WidgetEnum.DIAGRAM_SELECTOR:
+      case ui.WidgetEnum.RENDERER_SELECTOR:
+      case ui.WidgetEnum.FILTERS:
+      case ui.WidgetEnum.ONTOLOGY_EXPLORER:
+      case ui.WidgetEnum.OWL_VISUALIZER:
+        widget.disable()
+    }
+  })
+  // const settingsWidget = grapholscape.widgets.get(ui.WidgetEnum.SETTINGS) as any
+  // widgetStates = JSON.parse(JSON.stringify(settingsWidget.widgetStates));
+  // (grapholscape.widgets.get(ui.WidgetEnum.DIAGRAM_SELECTOR) as unknown as ui.IBaseMixin).disable();
+  // (grapholscape.widgets.get(ui.WidgetEnum.RENDERER_SELECTOR) as unknown as ui.IBaseMixin).disable();
+  // (grapholscape.widgets.get(ui.WidgetEnum.FILTERS) as unknown as ui.IBaseMixin).disable();
+  // (grapholscape.widgets.get(ui.WidgetEnum.ONTOLOGY_EXPLORER) as unknown as ui.IBaseMixin).disable();
+  // (grapholscape.widgets.get(ui.WidgetEnum.OWL_VISUALIZER) as unknown as ui.IBaseMixin).disable();
 }
 
 function enableWidgetsForFullpage(grapholscape: Grapholscape) {
-  const settingsWidget = grapholscape.widgets.get(ui.WidgetEnum.SETTINGS) as any
-  settingsWidget.widgetStates = widgetStates
-
   Object.entries(widgetStates).forEach(([key, widgetState]) => {
     if (widgetState)
       (grapholscape.widgets.get(key as ui.WidgetEnum) as unknown as ui.IBaseMixin).enable()
   })
-
-  settingsWidget.requestUpdate()
 }

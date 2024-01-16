@@ -38,8 +38,6 @@ export default async function () {
     const owlVisualizer = (getGscape().widgets.get(ui.WidgetEnum.OWL_VISUALIZER) as unknown as ui.IBaseMixin);
     model.setPreviousOwlVisualizerState(owlVisualizer.enabled)
     owlVisualizer.disable()
-    const settingsWidget = (getGscape().widgets.get(ui.WidgetEnum.SETTINGS) as any);
-    delete settingsWidget.widgetStates[ui.WidgetEnum.OWL_VISUALIZER]
 
     /**
      * Close color legend and move left column container up on colors activations
