@@ -3,6 +3,8 @@ import { GrapholElement, RendererStatesEnum } from "grapholscape"
 import * as model from "../model"
 import { hasEntityEmptyUnfolding } from "../model"
 import getGscape from "./get-gscape"
+import { GraphElement } from "../api/swagger"
+import { getIris } from "../util/graph-element-utility"
 
 export function highlightIRI(iri: string) {
   if (hasEntityEmptyUnfolding(iri))
@@ -35,6 +37,20 @@ export function fadeEntitiesNotHighlighted() {
 
 export function selectEntity(iri: string) {
   addClassToEntity(iri, model.SPARQLING_SELECTED)
+}
+
+export function selectEntitiesOfGraphElement(graphElement: GraphElement, iri: string) {
+  const gscape = getGscape()
+  // move ontology graph to show origin graphol node or any other iri occurrence
+  const originGrapholNodeOccurrence = model.getOriginGrapholNodes().get(graphElement.id + iri)
+  if (originGrapholNodeOccurrence) {
+    gscape.centerOnElement(originGrapholNodeOccurrence.id, originGrapholNodeOccurrence.diagramId, 1.5)
+    gscape.selectElement(originGrapholNodeOccurrence.id)
+  } else {
+    gscape.selectEntity(iri)
+  }
+
+  getIris(graphElement).forEach(iri => selectEntity(iri))
 }
 
 function addClassToEntity(iri: string, classToAdd: string) {

@@ -31,9 +31,10 @@ highlightsList.onSuggestionAddToQuery((entityIri, entityType, relatedClass) => {
           if (b.objectPropertyIRI)
             return b.objectPropertyIRI === entityIri || getPrefixedIri(b.objectPropertyIRI) === entityIri
         })
+        const relatedClassEntity = getGscape().ontology.getEntity(relatedClass)
         const relatedClassOccurrence = getEntityOccurrence(relatedClass)
-        if (objectPropertyBranch && relatedClassOccurrence) {
-          handleObjectPropertySelection(objectPropertyBranch, relatedClassOccurrence)
+        if (relatedClassEntity && objectPropertyBranch) {
+          handleObjectPropertySelection(objectPropertyBranch, relatedClassEntity.iri.fullIri, relatedClassOccurrence)
         }
       }
   }
@@ -59,7 +60,7 @@ function handlePathRequest(kShortest: boolean) {
   shortestPathDialog.onConfirm((sourceClassIri, targetClassIri) => {
     const ogApi = new OntologyGraphApi(undefined, model.getBasePath())
     const pathPromise = ogApi.highligthsPaths(sourceClassIri, targetClassIri, kShortest, model.getRequestOptions())
-    
+
     handlePromise(pathPromise).then((paths: OntologyPath[]) => {
       if (paths.length === 1) {
         addPath(paths[0], activeGraphElement)
@@ -73,7 +74,7 @@ function handlePathRequest(kShortest: boolean) {
         pathSelector.getDisplayedName = (entity) => {
           if (!entity.iri)
             return
-      
+
           const grapholEntity = gscape.ontology.getEntity(entity.iri)
           return grapholEntity?.getDisplayedName(gscape.entityNameType, gscape.language)
         }
@@ -83,7 +84,7 @@ function handlePathRequest(kShortest: boolean) {
       }
     })
   })
-  
+
   gscape.uiContainer?.appendChild(shortestPathDialog)
   shortestPathDialog.show()
 }

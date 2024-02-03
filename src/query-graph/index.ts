@@ -89,6 +89,7 @@ export function getSelectedGraphElement() {
 }
 
 export function setContainer(container: HTMLElement) {
+  bgp.cy.unmount()
   bgp.cy.mount(container)
   bgp.cy.resize()
   bgp.cy.fit()
@@ -161,7 +162,7 @@ export function isIriInQueryGraph(iri: string): boolean {
 }
 
 export function highlightNode(graphElement: GraphElement | string) {
-  const _graphElement = typeof(graphElement) === 'string' ? GEUtility.getGraphElementByID(graphElement) : graphElement
+  const _graphElement = typeof (graphElement) === 'string' ? GEUtility.getGraphElementByID(graphElement) : graphElement
 
   if (_graphElement?.id) {
     bgp.cy.$id(_graphElement.id).addClass('highlight')
@@ -169,7 +170,7 @@ export function highlightNode(graphElement: GraphElement | string) {
 }
 
 export function resetHighlight(graphElement?: GraphElement | string) {
-  const _graphElement = typeof(graphElement) === 'string' ? GEUtility.getGraphElementByID(graphElement) : graphElement
+  const _graphElement = typeof (graphElement) === 'string' ? GEUtility.getGraphElementByID(graphElement) : graphElement
 
   if (_graphElement?.id) {
     bgp.cy.$id(_graphElement.id).removeClass('highlight')

@@ -12,13 +12,11 @@ export function getEntityOccurrence(entityIri: string): GrapholElement | undefin
   // Prefer instance in actual diagram, first one as fallback
   const selectedClassEntity = gscape.ontology.getEntity(entityIri)
 
-  if (selectedClassEntity && gscape.renderState) {
-    let selectedClassOccurrences = selectedClassEntity.occurrences.get(gscape.renderState)
-
-    // If the actual representation has no occurrences, then take the original ones
-    if (!selectedClassOccurrences) {
-      selectedClassOccurrences = selectedClassEntity.occurrences.get(RendererStatesEnum.GRAPHOL)
-    }
+  if (selectedClassEntity) {
+    // If the current representation has no occurrences, then take the original ones
+    let selectedClassOccurrences =
+      selectedClassEntity.occurrences.get(gscape.renderState || RendererStatesEnum.GRAPHOL) ||
+      selectedClassEntity.occurrences.get(RendererStatesEnum.GRAPHOL)
 
     if (selectedClassOccurrences) {
       return selectedClassOccurrences?.find(occurrence => occurrence.diagramId === gscape.diagramId) ||

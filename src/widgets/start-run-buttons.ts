@@ -5,6 +5,7 @@ import { MastroEndpoint } from '../model'
 import { description, mastroEndpointIcon, playOutlined, toggleCatalog } from './assets/icons'
 import sparqlingIcon from './assets/sparqling-icon'
 import { getLoadingSpinner, loadingSpinnerStyle } from './loading-spinner'
+import { startFullPage, stopFullPage } from '../main/fullpage'
 
 export default class SparqlingStartRunButtons extends ui.BaseMixin(ui.DropPanelMixin(LitElement)) {
   id = 'sparqling-start-run-widget'
@@ -17,6 +18,7 @@ export default class SparqlingStartRunButtons extends ui.BaseMixin(ui.DropPanelM
   public selectedEndpointName?: string
   public queryName?: string
   public showResultsEnabled = false
+  public ontologyGraphEnabled = false
 
   private _onSparqlingStartCallback = () => { }
   private _onSparqlingStopCallback = () => { }
@@ -34,6 +36,7 @@ export default class SparqlingStartRunButtons extends ui.BaseMixin(ui.DropPanelM
     selectedEndpointName: { type: String, attribute: false },
     queryName: { type: String, attribute: false },
     showResultsEnabled: { type: Boolean, attribute: false },
+    ontologyGraphEnabled: { type: Boolean },
   }
 
   static styles = [
@@ -171,11 +174,21 @@ export default class SparqlingStartRunButtons extends ui.BaseMixin(ui.DropPanelM
                   label="Stored Results"
                 >
                 </gscape-button>
-
-                <div class="hr"></div>
               `
               : null
             }
+
+            <div class="hr"></div>
+
+            <gscape-toggle
+              class="actionable"
+              label="Ontology Graph"
+              ?checked=${this.ontologyGraphEnabled}
+              @click=${(e) => {
+                e.preventDefault()
+                model.isFullPageActive() ? stopFullPage() : startFullPage()
+              }}
+            ></gscape-toggle>
           `
           : null
         }

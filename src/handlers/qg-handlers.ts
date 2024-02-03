@@ -4,7 +4,6 @@ import { clearQuery, performHighlights, showExamplesInDialog } from '../main'
 import { handlePromise } from '../main/handle-promises'
 import onNewBody from '../main/on-new-body'
 import * as model from '../model'
-import { selectEntity } from '../ontology-graph'
 import getGscape from '../ontology-graph/get-gscape'
 import * as queryGraph from '../query-graph'
 import { cy } from '../query-graph/renderer'
@@ -74,36 +73,29 @@ queryGraph.onJoin(async (ge1, ge2) => {
   }
 })
 
-queryGraph.onElementClick((graphElement, iri) => {
+queryGraph.onElementClick((graphElement, clickedIri) => {
   const gscape = getGscape()
-
-  if (!model.isFullPageActive()) {
-    // move ontology graph to show origin graphol node or any other iri occurrence
-    const originGrapholNodeOccurrence = model.getOriginGrapholNodes().get(graphElement.id + iri)
-    if (originGrapholNodeOccurrence) {
-      gscape.centerOnElement(originGrapholNodeOccurrence.id, originGrapholNodeOccurrence.diagramId, 1.5)
-      gscape.selectElement(originGrapholNodeOccurrence.id)
-    } else {
-      gscape.selectEntity(iri)
-    }
-  }
 
   if (GEUtility.isClass(graphElement)) {
     // if the new graphElement is different from the current selected one the select it
     if (model.getActiveElement()?.graphElement !== graphElement) {
       model.setActiveElement({
         graphElement: graphElement,
-        iri: new Iri(iri, gscape.ontology.namespaces)
+        iri: new Iri(clickedIri, gscape.ontology.namespaces)
       })
 
-      if (graphElement.entities)
-        performHighlights(GEUtility.getIris(graphElement))
-      else
-        performHighlights(iri)
+      performHighlights(GEUtility.getIris(graphElement))
     }
-
-    GEUtility.getIris(graphElement).forEach(iri => selectEntity(iri))
   }
+
+  if (!model.isFullPageActive()) {
+    gscape.selectEntity(clickedIri)
+  }
+
+  const entityDetails = gscape.widgets.get(ui.WidgetEnum.ENTITY_DETAILS) as any
+  console.log(gscape.ontology.getEntity(clickedIri))
+  entityDetails.setGrapholEntity(gscape.ontology.getEntity(clickedIri))
+  entityDetails.show()
 
   // keep focus on selected class
   const activeElement = model.getActiveElement()

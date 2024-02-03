@@ -3,7 +3,7 @@ import core from './core'
 import * as handlers from './handlers'
 import { initGrapholscapeHandlers, performHighlightsEmptyUnfolding, start } from './main'
 import clearQuery from './main/clear-query'
-import { startFullpage, stopFullpage } from './main/fullpage'
+import { startFullPage, stopFullPage } from './main/fullpage'
 import onNewBody from './main/on-new-body'
 import showInitialModeSelector from './main/show-initial-mode-selector'
 import * as model from './model'
@@ -27,7 +27,7 @@ export function sparqlingStandalone(gscape: Grapholscape, file: string | Blob) {
   return sparqlingCore
 }
 
-export async function sparqling(gscape: Grapholscape, file: string | Blob, requestOptions: SparqlingRequestOptions, useOntologyGraph = true, config?: model.SparqlingConfig) {
+export async function sparqling(gscape: Grapholscape, file: string | Blob, requestOptions: SparqlingRequestOptions, config?: model.SparqlingConfig) {
   model.clear()
   model.setConfig(config)
   if (gscape.renderState === RendererStatesEnum.INCREMENTAL) {
@@ -48,35 +48,24 @@ export async function sparqling(gscape: Grapholscape, file: string | Blob, reque
     widgets.startRunButtons.endpoints = model.getEndpoints()
     widgets.startRunButtons.selectedEndpointName = model.getSelectedEndpoint()?.name
 
-    if (useOntologyGraph) {
-      if (model.isFullPageActive()) {
-        stopFullpage()
+    const grapholscapeRendererSelector = gscape.widgets.get(ui.WidgetEnum.INITIAL_RENDERER_SELECTOR) as any
+    const onOptionSelection = grapholscapeRendererSelector?.onOptionSelection
+    if (onOptionSelection) {
+      grapholscapeRendererSelector.onOptionSelection = (optionId) => {
+        onOptionSelection(optionId) // call original callback
+        performHighlightsEmptyUnfolding()
+        grapholscapeRendererSelector.onOptionSelection = onOptionSelection // restore original callback
       }
-      // show grapholscape renderer selector
-      if (!gscape.widgets.get(ui.WidgetEnum.INITIAL_RENDERER_SELECTOR)) {
-        ui.initInitialRendererSelector(gscape)
-      }
+      grapholscapeRendererSelector?.enable()
+    }
 
-      const grapholscapeRendererSelector = gscape.widgets.get(ui.WidgetEnum.INITIAL_RENDERER_SELECTOR) as any
-      const onOptionSelection = grapholscapeRendererSelector?.onOptionSelection
-      if (onOptionSelection) {
-        grapholscapeRendererSelector.onOptionSelection = (optionId) => {
-          onOptionSelection(optionId) // call original callback
-          if (core.onToggleCatalog) {
-            core.onToggleCatalog()
-          }
-  
-          performHighlightsEmptyUnfolding()
-          grapholscapeRendererSelector.onOptionSelection = onOptionSelection // restore original callback
-        }
-        grapholscapeRendererSelector?.enable()
-      }
+    const useOntologyGraph = localStorage.getItem('obda-systems.sparqling-ontologyGraph')
+    if (useOntologyGraph === 'true') {
+      model.isSparqlingRunning() ? stopFullPage() : start().then(stopFullPage)
+    } else if (useOntologyGraph === 'false') {
+      model.isSparqlingRunning() ? startFullPage() : start().then(startFullPage)
     } else {
-      if (model.isSparqlingRunning()) {
-        startFullpage()
-      } else {
-        start().then(_ => startFullpage())
-      }
+      showInitialModeSelector()
     }
   }
   return sparqlingCore

@@ -13,7 +13,7 @@ import { getdiffNew, graphElementHasIri, isClass } from "../util/graph-element-u
 
 let lastObjProperty: Branch | null
 
-export async function handleEntitySelection(entityIriString: string, entityType: TypesEnum, entityOccurrence: GrapholElement) {
+export async function handleEntitySelection(entityIriString: string, entityType: TypesEnum, entityOccurrence?: GrapholElement) {
   const gscape = getGscape()
   const entityIri = new Iri(entityIriString, gscape.ontology.namespaces)
   const activeElement = model.getActiveElement()
@@ -34,7 +34,8 @@ export async function handleEntitySelection(entityIriString: string, entityType:
       handleConceptSelection(entityIriString)?.then(newBody => {
         if (!newBody) return
         onNewBody(newBody)
-        model.getOriginGrapholNodes().set(newBody.activeGraphElementId + entityIriString, entityOccurrence)
+        if (entityOccurrence)
+          model.getOriginGrapholNodes().set(newBody.activeGraphElementId + entityIriString, entityOccurrence)
       })
       break
     }
@@ -43,7 +44,8 @@ export async function handleEntitySelection(entityIriString: string, entityType:
         if (!newBody) return
 
         const newGraphElements = getdiffNew(model.getQueryBody()?.graph, newBody.graph)
-        setOriginNode(entityOccurrence, newGraphElements, entityIriString)
+        if (entityOccurrence)
+          setOriginNode(entityOccurrence, newGraphElements, entityIriString)
         onNewBody(newBody)
       })
       break
@@ -55,23 +57,16 @@ export async function handleEntitySelection(entityIriString: string, entityType:
 
 ontologyGraph.onRelatedClassSelection(handleObjectPropertySelection)
 
-export function handleObjectPropertySelection(branch: Branch, relatedClassEntityOccurrence: GrapholElement) {
+export function handleObjectPropertySelection(branch: Branch, relatedClassIri: string, relatedClassEntityOccurrence?: GrapholElement) {
   const gscape = getGscape()
   lastObjProperty = branch
 
-  if (!model.isFullPageActive()) {
+  if (!model.isFullPageActive() && relatedClassEntityOccurrence) {
     gscape.centerOnElement(relatedClassEntityOccurrence.id, relatedClassEntityOccurrence.diagramId)
     gscape.selectElement(relatedClassEntityOccurrence.id)
   }
 
-  const relatedClassCyElement = gscape.renderState
-    ? gscape.ontology.getDiagram(relatedClassEntityOccurrence.diagramId)
-      ?.representations.get(gscape.renderState)
-      ?.cy.$id(relatedClassEntityOccurrence.id)
-    : null
-
-  if (relatedClassCyElement)
-    handleEntitySelection(relatedClassCyElement.data().iri, relatedClassCyElement.data().type, relatedClassEntityOccurrence)
+  handleEntitySelection(relatedClassIri, TypesEnum.CLASS, relatedClassEntityOccurrence)
 }
 
 export async function handleConceptSelection(cyEntity: CollectionReturnValue | string): Promise<QueryGraph | null> {

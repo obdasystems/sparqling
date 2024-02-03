@@ -1,32 +1,48 @@
-import { Grapholscape, ui } from "grapholscape";
+import { Grapholscape, loadConfig, ui } from "grapholscape";
 import { getQueryBody, setFullPage } from "../model";
 import * as ontologyGraph from '../ontology-graph';
 import sparqlingStyle from '../ontology-graph/style';
 import * as queryGraph from '../query-graph';
 import { cy } from "../query-graph/renderer";
 import { bgpContainer } from "../util/get-container";
-import { classSelector, highlightsList, initClassSelector } from "../widgets";
+import { classSelector, highlightsList, initClassSelector, startRunButtons } from "../widgets";
+import { moveUIForColorLegend } from "../widgets/move-ui-for-color-legend";
+import { refreshHighlights } from "./highlights";
 
 let widgetStates: { [key in ui.WidgetEnum]?: boolean } = {}
 
-export function stopFullpage() {
+export function stopFullPage() {
   const grapholscape = ontologyGraph.getGscape()
   setFullPage(false)
   queryGraph.widget.withoutBGP = false
   queryGraph.setContainer(bgpContainer)
   setTimeout(() => cy.fit(), 500)
-  grapholscape.renderer.mount();
-  // (grapholscape.widgets.get(ui.WidgetEnum.DIAGRAM_SELECTOR) as unknown as ui.IBaseMixin).enable()
+
+  if (!grapholscape.renderState || (!loadConfig().selectedRenderer && grapholscape.renderers.length > 1)) {
+    (grapholscape.widgets.get(ui.WidgetEnum.INITIAL_RENDERER_SELECTOR) as any)?.show()
+    grapholscape.showDiagram(0)
+  } else {
+    if (grapholscape.diagramId === undefined || !grapholscape.renderer.diagram) {
+      grapholscape.showDiagram(0)
+    } else {
+      grapholscape.renderer.cy = grapholscape.renderer.diagram.representations.get(grapholscape.renderState)?.cy
+      grapholscape.renderer.mount()
+    }
+  }
+
   enableWidgetsForFullpage(grapholscape)
   classSelector.hide()
   if (grapholscape.renderer.cy)
     ontologyGraph.addStylesheet(grapholscape.renderer.cy, sparqlingStyle(grapholscape.theme))
+
+  queryGraph.setTheme(grapholscape.theme)
   highlightsList.style.marginTop = '60px'
+  refreshHighlights()
+  startRunButtons.ontologyGraphEnabled = true
+  localStorage.setItem('obda-systems.sparqling-ontologyGraph', 'true')
 }
 
-export function startFullpage() {
-  // if (isFullPageActive()) return
-
+export function startFullPage() {
   const grapholscape = ontologyGraph.getGscape()
   setFullPage(true)
 
@@ -47,19 +63,9 @@ export function startFullpage() {
   }
 
   highlightsList.style.marginTop = '10px'
-
-  // const rendererSelector = grapholscape.widgets.get(ui.WidgetEnum.RENDERER_SELECTOR) as unknown as any
-  // const rendererStates: RendererStatesEnum[] = rendererSelector.rendererStates.map(rs => rs.id)
-  // if (rendererStates.includes(RendererStatesEnum.INCREMENTAL)) {
-  //   hadIncremental = true
-  //   incrementalIndex = rendererStates.indexOf(RendererStatesEnum.INCREMENTAL)
-
-  //   incrementalViewRendererState = rendererSelector.rendererStates.splice(
-  //     incrementalIndex,
-  //     1
-  //   )[0]
-  //   rendererSelector.requestUpdate()
-  // }
+  moveUIForColorLegend((grapholscape.widgets.get(ui.WidgetEnum.COLOR_BUTTON) as any).active)
+  startRunButtons.ontologyGraphEnabled = false
+  localStorage.setItem('obda-systems.sparqling-ontologyGraph', 'false')
 }
 
 function disableWidgetsForFullpage(grapholscape: Grapholscape) {
@@ -73,7 +79,13 @@ function disableWidgetsForFullpage(grapholscape: Grapholscape) {
       case ui.WidgetEnum.FILTERS:
       case ui.WidgetEnum.ONTOLOGY_EXPLORER:
       case ui.WidgetEnum.OWL_VISUALIZER:
+      case ui.WidgetEnum.COLOR_BUTTON:
+      case ui.WidgetEnum.ENTITY_COLOR_LEGEND:
         widget.disable()
+        break
+
+      case ui.WidgetEnum.ENTITY_DETAILS:
+        (widget as any).showOccurrences = false
     }
   })
   // const settingsWidget = grapholscape.widgets.get(ui.WidgetEnum.SETTINGS) as any
@@ -86,8 +98,20 @@ function disableWidgetsForFullpage(grapholscape: Grapholscape) {
 }
 
 function enableWidgetsForFullpage(grapholscape: Grapholscape) {
+  let widget: ui.IBaseMixin
   Object.entries(widgetStates).forEach(([key, widgetState]) => {
-    if (widgetState)
-      (grapholscape.widgets.get(key as ui.WidgetEnum) as unknown as ui.IBaseMixin).enable()
+    if (widgetState) {
+      widget = (grapholscape.widgets.get(key as ui.WidgetEnum) as unknown as ui.IBaseMixin)
+      widget.enable()
+      if (key === ui.WidgetEnum.ENTITY_COLOR_LEGEND) {
+        if (!(grapholscape.widgets.get(ui.WidgetEnum.COLOR_BUTTON) as any).active) {
+          widget.hide() // keep color legend hidden if not active
+        }
+      }
+
+      if (key === ui.WidgetEnum.ENTITY_DETAILS) {
+        (widget as any).showOccurrences = true
+      }
+    }
   })
 }

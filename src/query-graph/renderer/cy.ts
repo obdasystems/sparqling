@@ -5,11 +5,13 @@ import klay from 'cytoscape-klay'
 import popper from 'cytoscape-popper'
 import automove from 'cytoscape-automove'
 import svg from 'cytoscape-svg'
-import { EntityNameType } from "grapholscape"
+import { EntityNameType, ui } from "grapholscape"
 import { bgpContainer, tippyContainer } from "../../util/get-container"
 import { getCommandsForElement } from "./cxt-menu-commands"
 import { EntityTypeEnum } from "../../api/swagger"
 import { cxtMenu } from "../../widgets"
+import { isFullPageActive } from "../../model"
+import { getGscape } from "../../ontology-graph"
 
 cytoscape.use(klay)
 cytoscape.use(compoundDragAndDrop)
@@ -41,7 +43,7 @@ cy.on('resize', () => {
 cy.on('render', () => {
   try {
     (cy as any).renderer().hoverData.capture = true
-  } catch {}
+  } catch { }
 })
 
 cy.on('mouseover', '[iri], [?isSuggestion]', () => {
@@ -58,6 +60,12 @@ cy.on('mouseout', () => {
 
 cy.on('cxttap', `[iri][!isSuggestion]`, e => {
   cxtMenu.attachTo(e.target.popperRef(), getCommandsForElement(e.target))
+})
+
+cy.on('tap', e => {
+  if (e.target === cy && isFullPageActive()) {
+    (getGscape().widgets.get(ui.WidgetEnum.ENTITY_DETAILS) as any).hide()
+  }
 });
 
 (cy as any).automove({

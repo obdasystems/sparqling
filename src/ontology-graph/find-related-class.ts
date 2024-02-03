@@ -6,7 +6,7 @@ import { GrapholElement, Iri } from "grapholscape"
 import { getEntityOccurrence } from "./util"
 import { getActiveElement, getActualHighlights, isIriHighlighted } from "../model"
 
-let _onRelatedClassSelection = (objectProperty: Branch, relatedClass: GrapholElement) => { }
+let _onRelatedClassSelection = (objectProperty: Branch, relatedClassIri: string, relatedClass: GrapholElement) => { }
 
 export function showRelatedClassesWidget(objPropertyIri: string, position: EventPosition) {
   const actualHighlights = getActualHighlights()
@@ -44,8 +44,8 @@ export function showRelatedClassesWidget(objPropertyIri: string, position: Event
         if (objPropertyFromApi) {
           const relatedClassOccurrence = getEntityOccurrence(selectedClassIri)
 
-          if (relatedClassOccurrence)
-            _onRelatedClassSelection(objPropertyFromApi, relatedClassOccurrence)
+          if (relatedClassOccurrence?.iri) // selectedClassIri is prefixed, on occurence get the full iri
+            _onRelatedClassSelection(objPropertyFromApi, relatedClassOccurrence.iri, relatedClassOccurrence)
         }
       } catch (e) { console.error(e) }
     }
@@ -57,6 +57,6 @@ export function hideRelatedClassesWidget() {
   relatedClassDialog.hide()
 }
 
-export function onRelatedClassSelection(callback: (objectProperty: Branch, relatedClass: GrapholElement) => void) {
+export function onRelatedClassSelection(callback: (objectProperty: Branch, relatedClassIri: string, relatedClass: GrapholElement) => void) {
   _onRelatedClassSelection = callback
 }

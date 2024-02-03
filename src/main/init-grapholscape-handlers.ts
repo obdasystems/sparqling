@@ -10,8 +10,9 @@ import * as queryGraph from '../query-graph'
 import { getIris } from "../util/graph-element-utility"
 import { cxtMenu, highlightsList } from "../widgets"
 import { emptyUnfoldingEntityTooltip } from "../widgets/assets/texts"
-import { stopFullpage } from "./fullpage"
+import { stopFullPage } from "./fullpage"
 import { performHighlightsEmptyUnfolding, refreshHighlights } from "./highlights"
+import { cy } from "../query-graph/renderer"
 
 export default function init() {
   const gscape = getGscape()
@@ -34,7 +35,7 @@ export default function init() {
 
   gscape.on(LifecycleEvent.ThemeChange, (newTheme: GrapholscapeTheme) => {
     queryGraph.setTheme(newTheme)
-    if (gscape.renderer.cy)
+    if (gscape.renderer.cy && gscape.renderer.cy !== cy)
       ontologyGraph.addStylesheet(gscape.renderer.cy, sparqlingStyle(newTheme))
   })
 
@@ -60,7 +61,7 @@ export default function init() {
 
 function onChangeDiagramOrRenderer(gscape: Grapholscape) {
   if (model.isFullPageActive()) {
-    stopFullpage()
+    stopFullPage()
   }
 
   if (gscape.renderer.cy && gscape.renderState !== RendererStatesEnum.INCREMENTAL) {

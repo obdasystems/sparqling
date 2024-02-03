@@ -48,8 +48,10 @@ export function performHighlights(iri: string | string[]) {
         const activeElement = model.getActiveElement()
         let activeElementIris: string[] = []
 
-        if (activeElement)
+        if (activeElement) {
+          ontologyGraph.selectEntitiesOfGraphElement(activeElement.graphElement, activeElement.iri.fullIri)
           activeElementIris = getIris(activeElement?.graphElement)
+        }
 
         highlights?.classes?.forEach((iri: string) => {
           if (!activeElement || !activeElementIris.includes(iri))

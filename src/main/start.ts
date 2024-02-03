@@ -2,14 +2,13 @@ import { ui } from 'grapholscape'
 import { StandaloneApi } from '../api/swagger'
 import core from '../core'
 import * as model from '../model'
-import { selectEntity } from '../ontology-graph'
 import getGscape from '../ontology-graph/get-gscape'
-import { getIri, getIris } from '../util/graph-element-utility'
+import { getIris } from '../util/graph-element-utility'
 import { hideUI, showUI } from '../util/show-hide-ui'
 import { startRunButtons } from '../widgets'
+import { moveUIForColorLegend } from '../widgets/move-ui-for-color-legend'
 import { handlePromise } from './handle-promises'
 import { performHighlights } from './highlights'
-import { leftColumnContainer } from '../util/get-container'
 
 export default async function () {
   let loadingPromise: Promise<any> = Promise.resolve()
@@ -51,10 +50,11 @@ export default async function () {
         if (previousCallback)
           previousCallback(e)
 
-        leftColumnContainer.style.bottom = entityColorButton.active ? '40px' : '0'
-        leftColumnContainer.style.height = entityColorButton.active ? 'calc(100% - 80px)' : 'calc(100% - 40px)'
-        entityColorLegend?.closePanel()
-      } 
+        moveUIForColorLegend(entityColorButton.active)
+      }
+
+      moveUIForColorLegend(entityColorButton.active)
+      entityColorLegend?.closePanel()
     }
 
     hideUI()
@@ -68,7 +68,6 @@ export default async function () {
     const selectedGraphElement = model.getActiveElement()?.graphElement
     if (selectedGraphElement) {
       performHighlights(getIris(selectedGraphElement))
-      selectEntity(getIri(selectedGraphElement) || '')
     }
     core.onStart()
   }
