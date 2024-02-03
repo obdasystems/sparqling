@@ -93,7 +93,6 @@ queryGraph.onElementClick((graphElement, clickedIri) => {
   }
 
   const entityDetails = gscape.widgets.get(ui.WidgetEnum.ENTITY_DETAILS) as any
-  console.log(gscape.ontology.getEntity(clickedIri))
   entityDetails.setGrapholEntity(gscape.ontology.getEntity(clickedIri))
   entityDetails.show()
 
