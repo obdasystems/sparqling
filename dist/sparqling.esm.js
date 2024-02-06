@@ -22,7 +22,7 @@
  * SOFTWARE.
  */
 
-import { ui, TypesEnum, RendererStatesEnum, Iri, EntityNameType, ColoursNames, DefaultThemesEnum, toPNG, toSVG, util, GrapholRendererState, Shape, LifecycleEvent } from 'grapholscape';
+import { ui, TypesEnum, RendererStatesEnum, Iri, ColoursNames, Shape, util, EntityNameType, DefaultThemesEnum, toPNG, toSVG, loadConfig, GrapholRendererState, LifecycleEvent } from 'grapholscape';
 import globalAxios from 'axios';
 import cytoscape from 'cytoscape';
 import cola from 'cytoscape-cola';
@@ -4500,718 +4500,6 @@ var sparqlingIcon = b `
 </svg>
 `;
 
-class SparqlingStartRunButtons extends ui.BaseMixin(ui.DropPanelMixin(s)) {
-    constructor() {
-        super(...arguments);
-        this.id = 'sparqling-start-run-widget';
-        this.isLoading = false;
-        this.canQueryRun = false;
-        this.endpoints = [];
-        this.showResultsEnabled = false;
-        this._onSparqlingStartCallback = () => { };
-        this._onSparqlingStopCallback = () => { };
-        this._onQueryRunCallback = () => { };
-        this._onQuerySaveCallback = () => { };
-        this._onShowSettingsCallback = () => { };
-        this._onEndpointChangeCallback = (newEndpointName) => { };
-        this._onShowResults = () => { };
-        this._onToggleCatalog = () => { };
-    }
-    render() {
-        return x `
-      <div id="widget-body" class="gscape-panel">
-        <div id="widget-header" style="${isStandalone() ? null : 'margin-left: 8px'}">
-          ${isStandalone()
-            ? x `
-              <gscape-button
-                @click="${this.handleStartButtonCLick}" 
-                type="subtle"
-                title="Start/Stop Sparqling"
-                ?active=${isSparqlingRunning()}
-                label="Sparqling"
-              >
-                <span slot="icon">
-                  ${this.isLoading ? getLoadingSpinner() : sparqlingIcon}
-                </span>
-              </gscape-button>
-            `
-            : x `
-                ${this.isLoading
-                ? x `${getLoadingSpinner()}`
-                : null}
-                <div class="bold-text">
-                  ${this.queryName || 'new_query'}${isQueryDirty() ? '*' : null}
-                </div>
-                <div class="hr"></div>
-            `}
-        </div>
-
-        ${!isStandalone()
-            ? x `            
-            <gscape-button
-              @click=${this._onToggleCatalog}
-              type="subtle"
-              title="Toggle query catalog"
-            >
-              <span slot="icon">${toggleCatalog}</span>
-            </gscape-button>
-
-            <div class="hr"></div>
-
-            <gscape-button
-              @click="${this._onQuerySaveCallback}"
-              type="subtle"
-              title="Save query in catalog"
-            >
-              <span slot="icon">${ui.icons.save}</span>
-            </gscape-button>
-
-            <div class="hr"></div>   
-
-            <gscape-button
-              @click="${this._onShowSettingsCallback}"
-              type="subtle"
-              title="Edit query metadata"
-            >
-              <span slot="icon">${description}</span>
-            </gscape-button>
-
-            <div class="hr"></div>
-
-            <gscape-button
-              @click=${this.togglePanel}
-              type="subtle"
-              title="Select Mastro endpoint"
-            >
-              <span slot="icon">${mastroEndpointIcon}</span>
-            </gscape-button>
-
-            <div class="hr"></div>
-
-            <gscape-button
-              @click="${this._onQueryRunCallback}"
-              type="subtle"
-              title="Run query"
-              ?disabled=${!this.canQueryRun}
-            >
-              <span slot="icon">${playOutlined}</span>
-            </gscape-button>
-
-            ${this.showResultsEnabled
-                ? x `
-                <gscape-button
-                  @click="${this._onShowResults}"
-                  type="subtle"
-                  size="s"
-                  title="Show results drawer"
-                  label="Stored Results"
-                >
-                </gscape-button>
-
-                <div class="hr"></div>
-              `
-                : null}
-          `
-            : null}
-      </div>
-
-      <div class="gscape-panel drop-down hide" id="drop-panel">
-        <div class="header">Endpoint Selector</div>
-        <div class="content-wrapper">
-          ${this.endpoints.map(endpoint => {
-            return x `
-              <gscape-action-list-item
-                @click=${this.handleEndpointClick}
-                label="${endpoint.name}"
-                ?selected = "${this.selectedEndpointName === endpoint.name}"
-              >
-              </gscape-action-list-item>
-            `;
-        })}
-
-          ${this.endpoints.length === 0
-            ? x `
-              <div class="blank-slate">
-                ${ui.icons.searchOff}
-                <div class="header">No endpoint available</div>
-              </div>
-            `
-            : null}
-        </div>
-      </div>
-    `;
-    }
-    onSparqlingStart(callback) {
-        this._onSparqlingStartCallback = callback;
-    }
-    onSparqlingStop(callback) {
-        this._onSparqlingStopCallback = callback;
-    }
-    onQueryRun(callback) {
-        this._onQueryRunCallback = callback;
-    }
-    onQuerySave(callback) {
-        this._onQuerySaveCallback = callback;
-    }
-    onShowSettings(callback) {
-        this._onShowSettingsCallback = callback;
-    }
-    onEndpointChange(callback) {
-        this._onEndpointChangeCallback = callback;
-    }
-    onShowResults(callback) {
-        this._onShowResults = callback;
-    }
-    onToggleCatalog(callback) {
-        this._onToggleCatalog = callback;
-    }
-    requestEndpointSelection() {
-        return new Promise((resolve, reject) => {
-            const oldEndpointChangeCallback = this._onEndpointChangeCallback;
-            this.openPanel();
-            // change callback to fulfill the request's promise with the new endpoint
-            this.onEndpointChange((newEndpointName) => {
-                const endpoint = this.endpoints.find(e => e.name === newEndpointName);
-                if (endpoint) {
-                    resolve(endpoint);
-                }
-                else {
-                    reject();
-                }
-                oldEndpointChangeCallback(newEndpointName);
-                this._onEndpointChangeCallback = oldEndpointChangeCallback; // reset callback to previous one
-            });
-        });
-    }
-    handleEndpointClick(e) {
-        if (e.currentTarget.label && e.currentTarget.label !== this.selectedEndpointName)
-            this._onEndpointChangeCallback(e.currentTarget.label);
-    }
-    handleStartButtonCLick() {
-        if (isFullPageActive())
-            return;
-        isSparqlingRunning() ? this._onSparqlingStopCallback() : this._onSparqlingStartCallback();
-    }
-    startLoadingAnimation() {
-        this.isLoading = true;
-    }
-    stopLoadingAnimation() {
-        this.isLoading = false;
-    }
-    get startButton() {
-        var _a;
-        return (_a = this.shadowRoot) === null || _a === void 0 ? void 0 : _a.querySelector('');
-    }
-}
-SparqlingStartRunButtons.properties = {
-    canQueryRun: { type: Boolean, attribute: false },
-    isLoading: { type: Boolean, attribute: false },
-    endpoints: { type: Object, attribute: false },
-    selectedEndpointName: { type: String, attribute: false },
-    queryName: { type: String, attribute: false },
-    showResultsEnabled: { type: Boolean, attribute: false },
-};
-SparqlingStartRunButtons.styles = [
-    ui.GscapeButtonStyle,
-    ui.baseStyle,
-    loadingSpinnerStyle,
-    i$1 `
-      :host {
-        position: absolute;
-        top: 10px;
-        left: 50%;
-        transform: translate(-50%);
-      }
-
-      #widget-body, #widget-header {
-        display: flex;
-        align-items: center;
-        padding: 0;
-        min-width: unset;
-      }
-
-      #widget-header {
-        gap: 8px;
-      }
-
-      #drop-panel {
-        margin: 4px auto 0;
-      }
-
-      .header {
-        text-align: center;
-      }
-
-      .hr {
-        background-color: var(--gscape-color-border-subtle);
-        width: 1px;
-        height: 1.7em;
-      }
-
-      .gscape-panel {
-        max-width: unset;
-      }
-    `,
-];
-customElements.define('sparqling-start-run-buttons', SparqlingStartRunButtons);
-
-class FunctionDialog extends SparqlingFormDialog {
-    constructor() {
-        super();
-    }
-    render() {
-        this.title = `${this.modality} function for ${this.variableName}`;
-        return x `
-      <div class="gscape-panel">
-        <div class="top-bar">
-          <div id="widget-header" class="bold-text">
-            ${functionIcon}
-            <span>${this.title}</span>
-          </div>
-
-          <gscape-button 
-            id="toggle-panel-button"
-            size="s" 
-            type="subtle"
-            @click=${this.hide}
-          > 
-            <span slot="icon">${ui.icons.close}</span>
-          </gscape-button>
-        </div>
-
-        <div class="dialog-body">
-          ${getFormTemplate(this, this.operators)}
-          
-          <div class="bottom-buttons">
-            <gscape-button label="Cancel" @click=${this.hide}></gscape-button>
-            ${this.canSave
-            ? x `
-                <gscape-button type="primary" @click=${this.handleSubmit} label="Save Function"></gscape-button>
-              `
-            : null}
-          </div>
-        </div>
-      </div>
-    `;
-    }
-    onSubmit(callback) {
-        this.submitCallback = callback;
-    }
-    setAsCorrect(customText) {
-        super.setAsCorrect(customText);
-        this.canSave = false;
-    }
-    get operators() {
-        switch (this.datatypeFromOntology) {
-            case VarOrConstantConstantTypeEnum.String:
-                return this.operatorsOnString;
-            case VarOrConstantConstantTypeEnum.Decimal:
-            case 'xsd:int':
-            case 'xsd:float':
-            case 'xsd:long':
-            case 'xsd:double':
-            case 'xsd:integer':
-            case 'xsd:short':
-            case 'xsd:unsignedInt':
-            case 'xsd:unsignedLong':
-            case 'xsd:unsignedShort':
-                return this.operatorsOnNumber;
-            case VarOrConstantConstantTypeEnum.DateTime:
-                return this.operatorsOnDate;
-            default:
-                return Object.values(FunctionNameEnum);
-        }
-    }
-    get operatorsOnString() {
-        return [
-            FunctionNameEnum.Concat,
-            FunctionNameEnum.Contains,
-            FunctionNameEnum.Lcase,
-            FunctionNameEnum.Substr,
-            FunctionNameEnum.Ucase,
-            FunctionNameEnum.Strlen,
-            FunctionNameEnum.Strstarts,
-            FunctionNameEnum.Strends,
-            FunctionNameEnum.Strbefore,
-            FunctionNameEnum.Strafter,
-        ];
-    }
-    get operatorsOnNumber() {
-        return [
-            FunctionNameEnum.Add,
-            FunctionNameEnum.Subctract,
-            FunctionNameEnum.Multiply,
-            FunctionNameEnum.Divide,
-            FunctionNameEnum.Round,
-            FunctionNameEnum.Ceil,
-            FunctionNameEnum.Floor
-        ];
-    }
-    get operatorsOnDate() {
-        return [
-            FunctionNameEnum.Year,
-            FunctionNameEnum.Month,
-            FunctionNameEnum.Day,
-            FunctionNameEnum.Hours,
-            FunctionNameEnum.Minutes,
-            FunctionNameEnum.Seconds,
-        ];
-    }
-}
-customElements.define('sparqling-function-dialog', FunctionDialog);
-
-class AggregationDialog extends SparqlingFormDialog {
-    constructor() {
-        super(...arguments);
-        // private showHavingFormButton = new UI.GscapeButton(addFilter, "Add Having")
-        this.definingHaving = false;
-        this.distinct = false;
-        this.formTitle = 'Having';
-    }
-    static get properties() {
-        const props = super.properties;
-        const newProps = {
-            definingHaving: { type: Boolean, state: true },
-            distinct: { type: Boolean, state: true },
-        };
-        return Object.assign(props, newProps);
-    }
-    render() {
-        this.title = `${this.modality} aggregate function for ${this.variableName}`;
-        return x `
-      <div class="gscape-panel">
-        <div class="top-bar">
-          <div id="widget-header" class="bold-text">
-            ${sigma}
-            <span>${this.title}</span>
-          </div>
-
-          <gscape-button 
-            id="toggle-panel-button"
-            size="s" 
-            type="subtle"
-            @click=${this.hide}
-          > 
-            <span slot="icon">${ui.icons.close}</span>
-          </gscape-button>
-        </div>
-
-        <div class="dialog-body">
-          <div style="text-align: center;">
-            <div id="select-aggregate-function">
-              ${getSelect(this.aggregateOperator || "Aggregate Function", Object.values(GroupByElementAggregateFunctionEnum))}
-            </div>
-            <div style="margin: 10px 0">
-              <label>
-                <input id="distinct-checkbox" type="checkbox" @click="${this.onDistinctChange}" ?checked=${this.distinct}>
-                Only distinct values
-              </label>
-            </div>
-          </div>
-          <div class="hr"></div>
-          ${!this.definingHaving
-            ? x `
-                <gscape-button title="Add Having" label="Filter Groups - Having" @click=${this.handleHavingButtonClick}>
-                  <span slot="icon">${addFilter$1}</span>
-                </gscape-button>
-                <div id="message-tray"></div>
-              `
-            : getFormTemplate(this, Object.values(FilterExpressionOperatorEnum))}
-          
-          <div class="bottom-buttons">
-            <gscape-button label="Cancel" @click=${this.hide}></gscape-button>
-            ${this.canSave
-            ? x `
-                <gscape-button type="primary" @click=${this.handleSubmit} label="Save Function"></gscape-button>
-              `
-            : null}
-          </div>
-        </div>
-      </div>
-    `;
-    }
-    handleHavingButtonClick() {
-        this.definingHaving = true;
-    }
-    handleSubmit() {
-        if (validateSelectElement(this.selectAggregateOperatorElem)) {
-            if (this.definingHaving)
-                super.handleSubmit(); // this evaluate validity of the having too
-            else
-                this.onValidSubmit();
-        }
-    }
-    onValidSubmit() {
-        if (this._id && this.aggregateOperator && this.parameters)
-            this.submitCallback(this._id, this.aggregateOperator, this.distinct, this.operator, this.parameters);
-    }
-    onSubmit(callback) {
-        this.submitCallback = callback;
-    }
-    setAsCorrect(customText) {
-        super.setAsCorrect(customText);
-        this.canSave = false;
-    }
-    get operators() {
-        return Object.values(FilterExpressionOperatorEnum);
-    }
-    firstUpdated(_changedProperties) {
-        super.firstUpdated(_changedProperties);
-        if (this.selectAggregateOperatorElem) {
-            this.selectAggregateOperatorElem.onchange = () => this.onAggregateOperatorChange(this.selectAggregateOperatorElem.value);
-        }
-    }
-    onAggregateOperatorChange(value) {
-        this.aggregateOperator = value;
-    }
-    onDistinctChange(e) {
-        this.distinct = e.target.checked;
-    }
-    get isAggregateOperatorValid() {
-        return this.aggregateOperator && Object.values(GroupByElementAggregateFunctionEnum).includes(this.aggregateOperator);
-    }
-    get selectAggregateOperatorElem() {
-        var _a;
-        return (_a = this.shadowRoot) === null || _a === void 0 ? void 0 : _a.querySelector('#select-aggregate-function > select');
-    }
-    get distinctCheckboxElem() {
-        var _a;
-        return (_a = this.shadowRoot) === null || _a === void 0 ? void 0 : _a.querySelector('#distinct-checkbox');
-    }
-    get datatype() {
-        return super.datatype;
-    }
-    set datatype(value) {
-        super.datatype = value;
-    }
-}
-customElements.define('sparqling-aggregation-dialog', AggregationDialog);
-
-class ErrorsDialog extends ui.ModalMixin(ui.BaseMixin(s)) {
-    constructor() {
-        super(...arguments);
-        this.errorText = '';
-    }
-    render() {
-        return x `
-      <div class="gscape-panel">
-        <div class="top-bar">
-          <div id="widget-header" class="bold-text">
-            ${error}
-            <span>Error</span>
-          </div>
-
-          <gscape-button 
-            id="toggle-panel-button"
-            size="s" 
-            type="subtle"
-            @click=${this.hide}
-          > 
-            <span slot="icon">${ui.icons.close}</span>
-          </gscape-button>
-        </div>
-
-        <div class="dialog-body">${this.errorText}</div>
-      </div>
-    `;
-    }
-    firstUpdated(_changedProperties) {
-        super.firstUpdated(_changedProperties);
-        this.hide();
-    }
-}
-ErrorsDialog.properties = {
-    errorText: { attribute: false, type: String }
-};
-ErrorsDialog.styles = [
-    ui.baseStyle,
-    sparqlingWidgetStyle,
-    i$1 `
-      .gscape-panel {
-        position: absolute;
-        top: 100px;
-        left: 50%;
-        transform: translate(-50%, 0);
-        height: unset;
-      }
-
-      .dialog-body {
-        display: flex;
-        flex-direction: column;
-        gap: 30px;
-        align-items: center;
-        min-width: 350px;
-        max-width: 450px;
-        padding: 16px 8px;
-        background: var(--gscape-color-danger-subtle);
-        white-space: pre-line;
-        border-bottom-right-radius: inherit;
-        border-bottom-left-radius: inherit;
-      }
-
-      .dialog-body, #widget-header {
-        color: var(--gscape-color-danger);
-      }
-    `
-];
-customElements.define('error-dialog', ErrorsDialog);
-
-class SparqlingQueryResults extends ui.ModalMixin(ui.BaseMixin(s)) {
-    constructor() {
-        super(...arguments);
-        this.isLoading = false;
-        this.title = 'Query Results Preview';
-        this.searchExamplesCallback = () => { };
-    }
-    render() {
-        return x `
-    <div class="gscape-panel">
-      <div class="top-bar">
-        <div id="widget-header" class="bold-text">
-          ${preview}
-          <span>${this.title}</span>
-        </div>
-
-        <gscape-button 
-          id="toggle-panel-button"
-          size="s" 
-          type="subtle"
-          @click=${this.hide}
-          title="Close"
-        > 
-          <span slot="icon">${ui.icons.close}</span>
-        </gscape-button>
-      </div>
-
-      <div class="dialog-body">
-        ${!this.result && !this.isLoading ? x `<div class="danger">Select Endpoint</div>` : null}
-        ${this.result
-            ? x `
-            ${this.allowSearch
-                ? x `
-                <input id="search-examples-input" placeholder="Search Examples" type="text" value=${this.examplesSearchValue} />
-              `
-                : null}
-            ${queryResultTemplate(this.result)}
-          `
-            : null}
-        ${this.isLoading ? getLoadingSpinner() : null}
-      </div>
-    </div>
-    `;
-    }
-    onSearchExamples(callback) {
-        this.searchExamplesCallback = callback;
-    }
-    firstUpdated(_changedProperties) {
-        super.firstUpdated(_changedProperties);
-        this.hide();
-    }
-    updated(_changedProperties) {
-        if (this.allowSearch && this.searchExamplesInput) {
-            this.searchExamplesInput.onchange = () => {
-                this.examplesSearchValue = this.searchExamplesInput.value;
-            };
-            this.searchExamplesInput.onkeyup = (e) => {
-                if (e.key === 'Enter')
-                    this.searchExamplesCallback();
-            };
-        }
-    }
-    get searchExamplesInput() {
-        var _a;
-        return (_a = this.shadowRoot) === null || _a === void 0 ? void 0 : _a.querySelector('#search-examples-input');
-    }
-}
-SparqlingQueryResults.properties = {
-    result: { attribute: false },
-    isLoading: { attribute: false, type: Boolean },
-    allowSearch: { type: Boolean },
-    exampleSearchValue: { type: String }
-};
-SparqlingQueryResults.styles = [
-    ui.baseStyle,
-    loadingSpinnerStyle,
-    sparqlingWidgetStyle,
-    queryResultTemplateStyle,
-    i$1 `
-      .gscape-panel {
-        position: absolute;
-        top: 100px;
-        left: 50%;
-        transform: translate(-50%, 0);
-        min-width: 200px;
-        max-width: 800px;
-        height: unset;
-      }
-
-      .dialog-body {
-        display: flex;
-        flex-direction: column;
-        gap: 10px;
-        align-items: center;
-        padding: 8px;
-        max-height: 400px;
-        overflow: scroll;
-        scrollbar-width: inherit;
-      }
-
-      .gscape-panel {
-        max-height: 450px;
-      }
-
-      .danger {
-        color: var(--gscape-color-danger);
-        padding: 8px;
-      }
-    `
-];
-customElements.define('sparqling-preview-dialog', SparqlingQueryResults);
-
-class LoadingDialog extends ui.BaseMixin(s) {
-    render() {
-        return x `
-      <div class="gscape-panel">
-        <div class="header">Sparqling is loading...</div>
-        <div class="spinner">${getLoadingSpinner()}</div>
-      </div>
-    `;
-    }
-    firstUpdated(_changedProperties) {
-        this.hide();
-    }
-}
-LoadingDialog.styles = [
-    loadingSpinnerStyle,
-    ui.baseStyle,
-    i$1 `
-      :host {
-        position: absolute;
-        top: 50%;
-        left: 50%;
-        transform: translate(-50%, -50%);
-        z-index: 100;
-      }
-
-      .lds-ring {
-        width: 30px;
-        height: 30px;
-      }
-
-      .lds-ring div {
-        width: 26px;
-        height: 26px;
-      }
-
-      .spinner {
-        display: flex;
-        padding: 8px;
-        justify-content: center;
-      }
-    `
-];
-customElements.define('sparqling-loading-dialog', LoadingDialog);
-
 let gscape;
 var getGscape = () => gscape;
 function setGrapholscapeInstance(grapholscape) {
@@ -5223,225 +4511,6 @@ function clearSelected() {
             diagramRepresentation.cy.elements().unselect();
         }
     }
-}
-
-function highlightIRI(iri) {
-    if (hasEntityEmptyUnfolding(iri))
-        return;
-    addClassToEntity(iri, HIGHLIGHT_CLASS);
-}
-function resetHighlights() {
-    const gscape = getGscape();
-    gscape.ontology.diagrams.forEach(diagram => {
-        for (let [_, diagramRepresentation] of diagram.representations) {
-            diagramRepresentation.cy.$(`.${SPARQLING_SELECTED}`).removeClass(SPARQLING_SELECTED);
-            diagramRepresentation.cy.$(`.${HIGHLIGHT_CLASS}`).removeClass(HIGHLIGHT_CLASS);
-            diagramRepresentation.cy.$(`.${FADED_CLASS}`).removeClass(FADED_CLASS);
-        }
-    });
-}
-function fadeEntitiesNotHighlighted() {
-    var _a, _b;
-    const gscape = getGscape();
-    if (!gscape.renderState)
-        return;
-    const highlightedElems = ((_a = gscape.renderer.cy) === null || _a === void 0 ? void 0 : _a.$('.highlighted, .sparqling-selected')) || cytoscape().collection();
-    const fadedElems = (_b = gscape.renderer.cy) === null || _b === void 0 ? void 0 : _b.elements().difference(highlightedElems);
-    fadedElems === null || fadedElems === void 0 ? void 0 : fadedElems.addClass(FADED_CLASS);
-}
-function selectEntity(iri) {
-    addClassToEntity(iri, SPARQLING_SELECTED);
-}
-function addClassToEntity(iri, classToAdd) {
-    var _a;
-    const gscape = getGscape();
-    if (!gscape.renderState)
-        return;
-    (_a = gscape.renderer.cy) === null || _a === void 0 ? void 0 : _a.batch(() => {
-        const iriOccurrences = gscape.ontology.getEntityOccurrences(iri, gscape.diagramId);
-        if (iriOccurrences) {
-            // select all nodes having iri = clickedIRI
-            addClassToEntityOccurrences(iriOccurrences.get(RendererStatesEnum.GRAPHOL) || [], classToAdd);
-            if (gscape.renderState && gscape.renderState !== RendererStatesEnum.GRAPHOL) {
-                addClassToEntityOccurrences(iriOccurrences.get(gscape.renderState) || [], classToAdd);
-            }
-        }
-    });
-}
-function addClassToEntityOccurrences(entityOccurrences, classToAdd) {
-    const gscape = getGscape();
-    entityOccurrences.forEach(occurrence => {
-        var _a;
-        if (occurrence.diagramId === gscape.diagramId) {
-            const cyElem = (_a = gscape.renderer.cy) === null || _a === void 0 ? void 0 : _a.$id(occurrence.id);
-            cyElem === null || cyElem === void 0 ? void 0 : cyElem.addClass(classToAdd);
-            if (classToAdd === HIGHLIGHT_CLASS || classToAdd === SPARQLING_SELECTED)
-                cyElem === null || cyElem === void 0 ? void 0 : cyElem.removeClass(FADED_CLASS);
-        }
-    });
-}
-function fadeEntity(iri) {
-    var _a, _b;
-    const gscape = getGscape();
-    if (!gscape.renderState)
-        return;
-    let iriOccurrences = (_a = gscape.ontology.getEntityOccurrences(iri)) === null || _a === void 0 ? void 0 : _a.get(RendererStatesEnum.GRAPHOL);
-    if (iriOccurrences) {
-        addClassToEntityOccurrences(iriOccurrences, FADED_CLASS);
-    }
-    if (gscape.renderState !== RendererStatesEnum.GRAPHOL) {
-        const occurrencesInActualRendererState = (_b = gscape.ontology.getEntityOccurrences(iri)) === null || _b === void 0 ? void 0 : _b.get(gscape.renderState);
-        if (occurrencesInActualRendererState) {
-            addClassToEntityOccurrences(occurrencesInActualRendererState, FADED_CLASS);
-        }
-    }
-}
-
-/**
- * Get the entity occurrence (elementId, diagramId).
- * Prefer instance in actual diagram, pick first one in the list as fallback
- * @param entityIri the entity's IRI to look for
- */
-function getEntityOccurrence(entityIri) {
-    const gscape = getGscape();
-    // Prefer instance in actual diagram, first one as fallback
-    const selectedClassEntity = gscape.ontology.getEntity(entityIri);
-    if (selectedClassEntity && gscape.renderState) {
-        let selectedClassOccurrences = selectedClassEntity.occurrences.get(gscape.renderState);
-        // If the actual representation has no occurrences, then take the original ones
-        if (!selectedClassOccurrences) {
-            selectedClassOccurrences = selectedClassEntity.occurrences.get(RendererStatesEnum.GRAPHOL);
-        }
-        if (selectedClassOccurrences) {
-            return (selectedClassOccurrences === null || selectedClassOccurrences === void 0 ? void 0 : selectedClassOccurrences.find(occurrence => occurrence.diagramId === gscape.diagramId)) ||
-                selectedClassOccurrences[0];
-        }
-    }
-}
-function addStylesheet(cy, stylesheet) {
-    stylesheet.forEach(styleObj => {
-        cy.style().selector(styleObj.selector).style(styleObj.style);
-    });
-}
-
-let _onRelatedClassSelection = (objectProperty, relatedClass) => { };
-function showRelatedClassesWidget(objPropertyIri, position) {
-    var _a;
-    const actualHighlights = getActualHighlights();
-    if (!actualHighlights || !isIriHighlighted(objPropertyIri))
-        return;
-    const gscape = getGscape();
-    const objPropertyEntity = gscape.ontology.getEntity(objPropertyIri);
-    if (!objPropertyEntity)
-        return;
-    let objPropertyFromApi = (_a = actualHighlights.objectProperties) === null || _a === void 0 ? void 0 : _a.find((o) => {
-        if (o === null || o === void 0 ? void 0 : o.objectPropertyIRI)
-            return objPropertyEntity.iri.equals(o.objectPropertyIRI);
-    });
-    if (!objPropertyFromApi || !objPropertyFromApi.relatedClasses || objPropertyFromApi.relatedClasses.length <= 0) {
-        return;
-    }
-    //listSelectionDialog.title = classSelectDialogTitle()
-    // Use prefixed iri if possible, full iri as fallback
-    relatedClassDialog.list = objPropertyFromApi.relatedClasses.map((iriValue) => {
-        const iri = new Iri(iriValue, gscape.ontology.namespaces);
-        return iri.prefixed;
-    });
-    const activeElement = getActiveElement();
-    if (activeElement) {
-        relatedClassDialog.class = activeElement.iri.prefixed || activeElement.iri.fullIri;
-        relatedClassDialog.objProperty = objPropertyEntity.iri.prefixed;
-        relatedClassDialog.reverseArrow = !objPropertyFromApi.direct;
-        relatedClassDialog.showInPosition(position);
-        relatedClassDialog.onSelection = (selectedClassIri) => {
-            try {
-                if (objPropertyFromApi) {
-                    const relatedClassOccurrence = getEntityOccurrence(selectedClassIri);
-                    if (relatedClassOccurrence)
-                        _onRelatedClassSelection(objPropertyFromApi, relatedClassOccurrence);
-                }
-            }
-            catch (e) {
-                console.error(e);
-            }
-        };
-    }
-}
-function hideRelatedClassesWidget() {
-    relatedClassDialog.list = [];
-    relatedClassDialog.hide();
-}
-function onRelatedClassSelection(callback) {
-    _onRelatedClassSelection = callback;
-}
-
-function getClassesList(grapholscape) {
-    return ui.createEntitiesList(grapholscape, {
-        [TypesEnum.CLASS]: 1,
-        areAllFiltersDisabled: false,
-    }).map(e => {
-        e.disabled = hasEntityEmptyUnfolding(e.value.iri.fullIri, EntityTypeEnum.Class);
-        return e;
-    });
-}
-
-const classSelector = new ui.IncrementalInitialMenu();
-classSelector.hide();
-function initClassSelector() {
-    classSelector.classes = getClassesList(getGscape());
-}
-
-function centerOnElement (elem, zoom) {
-    let cy = elem.cy();
-    if (zoom)
-        cy.zoom(zoom);
-    let pos = elem.renderedPosition();
-    let center = { x: cy.width() / 2, y: cy.height() / 2 };
-    cy.panBy({ x: -(pos.x - center.x), y: -(pos.y - center.y) });
-}
-
-getGrapholscapeContainer();
-const bgpContainer = getBGPContainer();
-const leftColumnContainer = getLeftColumnContainer();
-const tippyContainer = getTippyContainer();
-function getGrapholscapeContainer() {
-    let container = document.createElement('div');
-    container.setAttribute('id', 'grapholscape');
-    container.style.position = 'relative';
-    container.style.height = '100%';
-    return container;
-}
-function getBGPContainer() {
-    let container = document.createElement('div');
-    container.setAttribute('id', 'sparqling-query-graph');
-    container.style.position = 'relative';
-    container.style.height = '100%';
-    container.style.width = '100%';
-    container.style.borderBottomRightRadius =
-        container.style.borderBottomLeftRadius = 'var(--gscape-border-radius)';
-    return container;
-}
-function getLeftColumnContainer() {
-    let container = document.createElement('div');
-    container.setAttribute('id', 'sparqling-left-column');
-    container.style.position = 'absolute';
-    container.style.left = '10px';
-    container.style.bottom = '0';
-    container.style.display = 'flex';
-    container.style.flexDirection = 'column-reverse';
-    container.style.justifyContent = 'space-between';
-    container.style.gap = '30px';
-    container.style.height = 'calc(100% - 40px)';
-    container.style.boxSizing = 'border-box';
-    container.style.marginTop = '70px';
-    container.style.pointerEvents = 'none';
-    container.style.width = '20%';
-    container.style.padding = '10px 0';
-    return container;
-}
-function getTippyContainer() {
-    let container = document.createElement('div');
-    return container;
 }
 
 function getGraphElementByID(id) {
@@ -5564,6 +4633,1145 @@ function getIris(ge) {
     return ((_a = ge.entities) === null || _a === void 0 ? void 0 : _a.map(e => e.iri || '').filter(iri => !!iri)) || [];
 }
 
+function highlightIRI(iri) {
+    if (hasEntityEmptyUnfolding(iri))
+        return;
+    addClassToEntity(iri, HIGHLIGHT_CLASS);
+}
+function resetHighlights() {
+    const gscape = getGscape();
+    gscape.ontology.diagrams.forEach(diagram => {
+        for (let [_, diagramRepresentation] of diagram.representations) {
+            diagramRepresentation.cy.$(`.${SPARQLING_SELECTED}`).removeClass(SPARQLING_SELECTED);
+            diagramRepresentation.cy.$(`.${HIGHLIGHT_CLASS}`).removeClass(HIGHLIGHT_CLASS);
+            diagramRepresentation.cy.$(`.${FADED_CLASS}`).removeClass(FADED_CLASS);
+        }
+    });
+}
+function fadeEntitiesNotHighlighted() {
+    var _a, _b;
+    const gscape = getGscape();
+    if (!gscape.renderState)
+        return;
+    const highlightedElems = ((_a = gscape.renderer.cy) === null || _a === void 0 ? void 0 : _a.$('.highlighted, .sparqling-selected')) || cytoscape().collection();
+    const fadedElems = (_b = gscape.renderer.cy) === null || _b === void 0 ? void 0 : _b.elements().difference(highlightedElems);
+    fadedElems === null || fadedElems === void 0 ? void 0 : fadedElems.addClass(FADED_CLASS);
+}
+function selectEntity(iri) {
+    addClassToEntity(iri, SPARQLING_SELECTED);
+}
+function centerOnGraphElement(graphElement, iri) {
+    const gscape = getGscape();
+    const iriToFocus = iri || getIri(graphElement);
+    if (iriToFocus) {
+        // move ontology graph to show origin graphol node or any other iri occurrence
+        const originGrapholNodeOccurrence = getOriginGrapholNodes().get(graphElement.id + iriToFocus);
+        if (originGrapholNodeOccurrence) {
+            gscape.centerOnElement(originGrapholNodeOccurrence.id, originGrapholNodeOccurrence.diagramId, 1.5);
+            gscape.selectElement(originGrapholNodeOccurrence.id);
+        }
+        else {
+            gscape.selectEntity(iriToFocus, undefined, 1.5);
+        }
+    }
+}
+function addClassToEntity(iri, classToAdd) {
+    var _a;
+    const gscape = getGscape();
+    if (!gscape.renderState)
+        return;
+    (_a = gscape.renderer.cy) === null || _a === void 0 ? void 0 : _a.batch(() => {
+        const iriOccurrences = gscape.ontology.getEntityOccurrences(iri, gscape.diagramId);
+        if (iriOccurrences) {
+            // select all nodes having iri = clickedIRI
+            addClassToEntityOccurrences(iriOccurrences.get(RendererStatesEnum.GRAPHOL) || [], classToAdd);
+            if (gscape.renderState && gscape.renderState !== RendererStatesEnum.GRAPHOL) {
+                addClassToEntityOccurrences(iriOccurrences.get(gscape.renderState) || [], classToAdd);
+            }
+        }
+    });
+}
+function addClassToEntityOccurrences(entityOccurrences, classToAdd) {
+    const gscape = getGscape();
+    entityOccurrences.forEach(occurrence => {
+        var _a;
+        if (occurrence.diagramId === gscape.diagramId) {
+            const cyElem = (_a = gscape.renderer.cy) === null || _a === void 0 ? void 0 : _a.$id(occurrence.id);
+            cyElem === null || cyElem === void 0 ? void 0 : cyElem.addClass(classToAdd);
+            if (classToAdd === HIGHLIGHT_CLASS || classToAdd === SPARQLING_SELECTED)
+                cyElem === null || cyElem === void 0 ? void 0 : cyElem.removeClass(FADED_CLASS);
+        }
+    });
+}
+function fadeEntity(iri) {
+    var _a, _b;
+    const gscape = getGscape();
+    if (!gscape.renderState)
+        return;
+    let iriOccurrences = (_a = gscape.ontology.getEntityOccurrences(iri)) === null || _a === void 0 ? void 0 : _a.get(RendererStatesEnum.GRAPHOL);
+    if (iriOccurrences) {
+        addClassToEntityOccurrences(iriOccurrences, FADED_CLASS);
+    }
+    if (gscape.renderState !== RendererStatesEnum.GRAPHOL) {
+        const occurrencesInActualRendererState = (_b = gscape.ontology.getEntityOccurrences(iri)) === null || _b === void 0 ? void 0 : _b.get(gscape.renderState);
+        if (occurrencesInActualRendererState) {
+            addClassToEntityOccurrences(occurrencesInActualRendererState, FADED_CLASS);
+        }
+    }
+}
+
+/**
+ * Get the entity occurrence (elementId, diagramId).
+ * Prefer instance in actual diagram, pick first one in the list as fallback
+ * @param entityIri the entity's IRI to look for
+ */
+function getEntityOccurrence(entityIri) {
+    const gscape = getGscape();
+    // Prefer instance in actual diagram, first one as fallback
+    const selectedClassEntity = gscape.ontology.getEntity(entityIri);
+    if (selectedClassEntity) {
+        // If the current representation has no occurrences, then take the original ones
+        let selectedClassOccurrences = selectedClassEntity.occurrences.get(gscape.renderState || RendererStatesEnum.GRAPHOL) ||
+            selectedClassEntity.occurrences.get(RendererStatesEnum.GRAPHOL);
+        if (selectedClassOccurrences) {
+            return (selectedClassOccurrences === null || selectedClassOccurrences === void 0 ? void 0 : selectedClassOccurrences.find(occurrence => occurrence.diagramId === gscape.diagramId)) ||
+                selectedClassOccurrences[0];
+        }
+    }
+}
+function addStylesheet(cy, stylesheet) {
+    stylesheet.forEach(styleObj => {
+        cy.style().selector(styleObj.selector).style(styleObj.style);
+    });
+}
+
+let _onRelatedClassSelection = (objectProperty, relatedClassIri, relatedClass) => { };
+function showRelatedClassesWidget(objPropertyIri, position) {
+    var _a;
+    const actualHighlights = getActualHighlights();
+    if (!actualHighlights || !isIriHighlighted(objPropertyIri))
+        return;
+    const gscape = getGscape();
+    const objPropertyEntity = gscape.ontology.getEntity(objPropertyIri);
+    if (!objPropertyEntity)
+        return;
+    let objPropertyFromApi = (_a = actualHighlights.objectProperties) === null || _a === void 0 ? void 0 : _a.find((o) => {
+        if (o === null || o === void 0 ? void 0 : o.objectPropertyIRI)
+            return objPropertyEntity.iri.equals(o.objectPropertyIRI);
+    });
+    if (!objPropertyFromApi || !objPropertyFromApi.relatedClasses || objPropertyFromApi.relatedClasses.length <= 0) {
+        return;
+    }
+    //listSelectionDialog.title = classSelectDialogTitle()
+    // Use prefixed iri if possible, full iri as fallback
+    relatedClassDialog.list = objPropertyFromApi.relatedClasses.map((iriValue) => {
+        const iri = new Iri(iriValue, gscape.ontology.namespaces);
+        return iri.prefixed;
+    });
+    const activeElement = getActiveElement();
+    if (activeElement) {
+        relatedClassDialog.class = activeElement.iri.prefixed || activeElement.iri.fullIri;
+        relatedClassDialog.objProperty = objPropertyEntity.iri.prefixed;
+        relatedClassDialog.reverseArrow = !objPropertyFromApi.direct;
+        relatedClassDialog.showInPosition(position);
+        relatedClassDialog.onSelection = (selectedClassIri) => {
+            try {
+                if (objPropertyFromApi) {
+                    const relatedClassOccurrence = getEntityOccurrence(selectedClassIri);
+                    if (relatedClassOccurrence === null || relatedClassOccurrence === void 0 ? void 0 : relatedClassOccurrence.iri) // selectedClassIri is prefixed, on occurence get the full iri
+                        _onRelatedClassSelection(objPropertyFromApi, relatedClassOccurrence.iri, relatedClassOccurrence);
+                }
+            }
+            catch (e) {
+                console.error(e);
+            }
+        };
+    }
+}
+function hideRelatedClassesWidget() {
+    relatedClassDialog.list = [];
+    relatedClassDialog.hide();
+}
+function onRelatedClassSelection(callback) {
+    _onRelatedClassSelection = callback;
+}
+
+var sparqlingStyle = (theme) => [
+    {
+        selector: 'node[shape = "ellipse"], .bubble',
+        style: { 'underlay-shape': 'ellipse' }
+    },
+    {
+        selector: `.${HIGHLIGHT_CLASS}`,
+        style: {
+            'underlay-color': theme.colours["sparqling-highlight"] || theme.getColour(ColoursNames.success_muted),
+            'underlay-padding': '8px',
+            'underlay-opacity': 1,
+            'underlay-shape': (node) => node.style('shape') === Shape.ELLIPSE ? Shape.ELLIPSE : Shape.ROUND_RECTANGLE,
+            'border-opacity': 1,
+        }
+    },
+    {
+        selector: `.${SPARQLING_SELECTED}`,
+        style: {
+            "border-color": theme.getColour(ColoursNames.accent),
+            "border-width": 8,
+            padding: 4,
+        }
+    },
+    {
+        selector: '.faded',
+        style: {
+            'opacity': 0.25,
+        }
+    }
+];
+
+function centerOnElement (elem, zoom) {
+    let cy = elem.cy();
+    if (zoom)
+        cy.zoom(zoom);
+    let pos = elem.renderedPosition();
+    let center = { x: cy.width() / 2, y: cy.height() / 2 };
+    cy.panBy({ x: -(pos.x - center.x), y: -(pos.y - center.y) });
+}
+
+getGrapholscapeContainer();
+const bgpContainer = getBGPContainer();
+const leftColumnContainer = getLeftColumnContainer();
+const tippyContainer = getTippyContainer();
+function getGrapholscapeContainer() {
+    let container = document.createElement('div');
+    container.setAttribute('id', 'grapholscape');
+    container.style.position = 'relative';
+    container.style.height = '100%';
+    return container;
+}
+function getBGPContainer() {
+    let container = document.createElement('div');
+    container.setAttribute('id', 'sparqling-query-graph');
+    container.style.position = 'relative';
+    container.style.height = '100%';
+    container.style.width = '100%';
+    container.style.borderBottomRightRadius =
+        container.style.borderBottomLeftRadius = 'var(--gscape-border-radius)';
+    return container;
+}
+function getLeftColumnContainer() {
+    let container = document.createElement('div');
+    container.setAttribute('id', 'sparqling-left-column');
+    container.style.position = 'absolute';
+    container.style.left = '10px';
+    container.style.bottom = '0';
+    container.style.display = 'flex';
+    container.style.flexDirection = 'column-reverse';
+    container.style.justifyContent = 'space-between';
+    container.style.gap = '30px';
+    container.style.height = 'calc(100% - 40px)';
+    container.style.boxSizing = 'border-box';
+    container.style.marginTop = '70px';
+    container.style.pointerEvents = 'none';
+    container.style.width = '20%';
+    container.style.padding = '10px 0';
+    return container;
+}
+function getTippyContainer() {
+    let container = document.createElement('div');
+    return container;
+}
+
+let sortChangedCallback;
+let dragging;
+const dropIndicator = document.createElement('hr');
+dropIndicator.style.width = '90%';
+dropIndicator.style.opacity = '0.5';
+function onDragStart(event) {
+    var _a;
+    dragging = getDraggedComponent(event.target);
+    dragging.classList.add('dragged');
+    (_a = event.dataTransfer) === null || _a === void 0 ? void 0 : _a.setData('text/plain', '');
+}
+function onDragOver(event) {
+    event.preventDefault();
+    let target = getDraggedComponent(event.target);
+    const bounding = target.getBoundingClientRect();
+    const offset = bounding.y + (bounding.height / 2);
+    if (event.clientY - offset > 0) {
+        target.parentNode.insertBefore(dropIndicator, target.nextSibling);
+    }
+    else {
+        target.parentNode.insertBefore(dropIndicator, target);
+    }
+}
+function onDragEnd(event) {
+    event.preventDefault();
+    document.ondrop = null;
+    const elemsWrapper = dropIndicator.parentNode;
+    if (elemsWrapper) {
+        elemsWrapper.replaceChild(dragging, dropIndicator);
+        setTimeout(() => dragging.classList.remove('dragged'), 100);
+        const draggedElemNewIndex = getDraggedElemNewIndex();
+        if (draggedElemNewIndex || draggedElemNewIndex === 0)
+            sortChangedCallback(dragging._id, draggedElemNewIndex);
+    }
+    else {
+        dropIndicator.remove();
+    }
+}
+function allowDrop(event) {
+    event.preventDefault();
+}
+function onElementSortChange(callback) {
+    sortChangedCallback = callback;
+}
+function getDraggedComponent(originalTarget) {
+    while (originalTarget.nodeName !== 'HEAD-ELEMENT' && originalTarget.nodeName !== 'body') {
+        originalTarget = originalTarget.parentNode;
+    }
+    return originalTarget.nodeName === 'HEAD-ELEMENT' ? originalTarget : null;
+}
+function getDraggedElemNewIndex() {
+    const elemsWrapper = dragging.parentNode;
+    if (elemsWrapper) {
+        let count = 0;
+        for (const child of elemsWrapper.children) {
+            if (child === dragging) {
+                return count;
+            }
+            count += 1;
+        }
+    }
+    return null;
+}
+
+const ALIAS_INPUT_ID = 'alias';
+class HeadElementComponent extends ui.BaseMixin(ui.DropPanelMixin(s)) {
+    constructor(headElement) {
+        super();
+        this.showCxtMenu = () => { };
+        this.onDelete = () => { };
+        this.onRename = () => { };
+        this.onLocalize = () => { };
+        this.onOrderBy = () => { };
+        this.addFilterCallback = (headElementId) => { };
+        this.editFilterCallback = (filterId) => { };
+        this.deleteFilterCallback = (filterId) => { };
+        this.addFunctionCallback = (headElementId) => { };
+        this.addAggregationCallback = (headElementId) => { };
+        this.headElement = headElement;
+        this.ondragstart = (evt) => onDragStart(evt);
+        this.ondragover = (evt) => onDragOver(evt);
+        this.ondragend = (evt) => onDragEnd(evt);
+        this.ondrop = (evt) => evt.preventDefault();
+    }
+    render() {
+        var _a, _b;
+        return x `
+      <div>
+        <div id="field-head">
+          <div id="drag-handler" draggable="true">
+            ${dragHandler}
+          </div>
+          <div id="alias-input">
+            <input
+              id="${ALIAS_INPUT_ID}"
+              @focusout="${this.handleInputChange}"
+              @keyup=${this.checkAliasValidity}
+              placeholder="${this.alias || this.graphElementId}"
+              value="${this.alias || this.graphElementId}"
+              title="Rename Field"
+              pattern="^[A-Za-z][A-Za-z0-9_]*$"
+            />
+          </div>
+          <div id="actions">
+            ${getTrayButtonTemplate('Show in graphs', crosshair, undefined, 'localize-action', () => this.onLocalize(this._id))}
+            ${getTrayButtonTemplate('Order results ascending/descending', this.orderIcon, undefined, 'sort-action', () => this.onOrderBy(this._id))}
+            ${getTrayButtonTemplate('More actions', kebab, undefined, 'cxt-menu-action', () => this.showCxtMenu())}
+          </div>
+          ${this.hasAnythingInBody || this.ordering !== 0
+            ? x `
+              <div id="state-tray">
+                ${this.function ? functionIcon : null}
+                ${this.ordering && this.ordering !== 0 ? this.orderIcon : null}
+                ${((_a = this.filters) === null || _a === void 0 ? void 0 : _a.length) > 0 ? filter : null}
+                ${this.groupBy ? sigma : null}
+              </div>
+            `
+            : null}
+          ${this.hasAnythingInBody
+            ? x `
+              <div id="toggle-panel">
+                ${getTrayButtonTemplate('Expand', expandMore, expandLess, 'expand-action', this.togglePanel)}
+              </div>
+            `
+            : null}
+        </div>
+        <div id="drop-panel" class="hide">
+          ${this.groupBy
+            ? x `
+              <div class="section">
+                <div class="section-header bold-text">Aggregation</div>
+                <div class="filters-function-list">
+                  ${getElemWithOperatorList([this.groupBy])}
+                </div>
+                ${this.having
+                ? x `
+                    <span class="title">Having</span>
+                    <div class="filters-function-list">
+                      ${getElemWithOperatorList(this.having)}
+                    </div>
+                  `
+                : null}
+              </div>
+            `
+            : null}
+
+          ${this.function
+            ? x `
+              <div class="section">
+                <div class="section-header bold-text">Function</div>
+                <div class="filters-function-list">
+                  ${getElemWithOperatorList([this.function])}
+                </div>
+              </div>
+            `
+            : null}
+          
+          ${((_b = this.filters) === null || _b === void 0 ? void 0 : _b.length) > 0
+            ? x `
+              <div class="section">
+                <div class="section-header bold-text">Filters</div>
+                <div class="filters-function-list">
+                  ${getElemWithOperatorList(this.filters, this.editFilterCallback, this.deleteFilterCallback)}
+                </div>
+              </div>
+            `
+            : null}
+        </div>
+      </div>
+    `;
+    }
+    set headElement(newElement) {
+        if (this._id === newElement.id)
+            return;
+        if (newElement.id)
+            this._id = newElement.id;
+        if (newElement.alias)
+            this.alias = newElement.alias;
+        if (newElement.graphElementId)
+            this.graphElementId = newElement.graphElementId;
+        this.entityType = newElement['entityType'];
+        this.dataType = newElement['dataType'] || 'Type';
+        if (newElement.function)
+            this.function = newElement.function;
+        if (newElement.ordering)
+            this.ordering = newElement.ordering;
+        if (newElement.groupBy)
+            this.groupBy = newElement.groupBy;
+        if (newElement.having)
+            this.having = newElement.having;
+        if (this.entityType === EntityTypeEnum.Annotation) {
+            this.style.borderColor = '#DC8D00';
+        }
+        else {
+            let types = {
+                'class': 'class',
+                'objectProperty': 'object-property',
+                'dataProperty': 'data-property',
+            };
+            this.style.borderColor = `var(--gscape-color-${types[this.entityType]}-contrast)`;
+        }
+        if (newElement.graphElementId) {
+            const filtersOnVariable = getFiltersOnVariable(newElement.graphElementId);
+            if (filtersOnVariable)
+                this.filters = filtersOnVariable;
+        }
+    }
+    handleInputChange(evt) {
+        let target = evt.currentTarget;
+        if (!target.checkValidity()) {
+            target.reportValidity();
+            return;
+        }
+        if (this.alias && target.value === this.graphElementId) {
+            target.setCustomValidity('Please use an alias different from variable name');
+            target.reportValidity();
+            return;
+        }
+        if (this.alias !== target.value && target.value.length > 0 && target.value !== this.graphElementId) {
+            this.onRename(this._id, target.value);
+        }
+        else {
+            target.value = this.alias || this.graphElementId;
+        }
+    }
+    checkAliasValidity(evt) {
+        const target = evt.currentTarget;
+        target.setCustomValidity('');
+        if (!target.checkValidity()) {
+            target.setCustomValidity('Only letters, numbers and underscore');
+            //target.value = target.value.substring(0, target.value.length - 1)
+            target.reportValidity();
+            return;
+        }
+        else if (evt.key === "Enter" || evt.key === "Escape") {
+            target.blur();
+        }
+    }
+    onFunctionSet(callback) { }
+    onAddFilter(callback) {
+        this.addFilterCallback = callback;
+    }
+    onEditFilter(callback) {
+        this.editFilterCallback = callback;
+    }
+    onDeleteFilter(callback) {
+        this.deleteFilterCallback = callback;
+    }
+    onAddFunction(callback) {
+        this.addFunctionCallback = callback;
+    }
+    onAddAggregation(callback) {
+        this.addAggregationCallback = callback;
+    }
+    get dragHandler() {
+        return this.shadowRoot.querySelector('#drag-handler');
+    }
+    get hasAnythingInBody() {
+        var _a;
+        return ((_a = this.filters) === null || _a === void 0 ? void 0 : _a.length) > 0 || this.function || this.groupBy;
+    }
+    get orderIcon() {
+        if (this.ordering > 0) {
+            return sortAscendingIcon;
+        }
+        else if (this.ordering < 0) {
+            return sortDescendingIcon;
+        }
+        else {
+            return sortIcon;
+        }
+    }
+    get moreActionsButton() {
+        var _a;
+        return (_a = this.shadowRoot) === null || _a === void 0 ? void 0 : _a.querySelector('#cxt-menu-action');
+    }
+    get cxtMenuCommands() {
+        const result = [];
+        if (isConfigEnabled('filter'))
+            result.push({
+                content: 'Add Filter',
+                icon: addFilter$1,
+                select: () => this.addFilterCallback(this._id)
+            });
+        if (isConfigEnabled('function') && !this.function) {
+            result.push({
+                content: 'Add Function',
+                icon: functionIcon,
+                select: () => this.addFunctionCallback(this._id)
+            });
+        }
+        if (isConfigEnabled('aggregation') && !this.groupBy) {
+            result.push({
+                content: 'Add Aggregation Function',
+                icon: sigma,
+                select: () => this.addAggregationCallback(this._id)
+            });
+        }
+        result.push({
+            content: 'Delete Field',
+            icon: rubbishBin,
+            select: () => this.onDelete(this._id)
+        });
+        return result;
+    }
+}
+HeadElementComponent.properties = {
+    alias: { attribute: false },
+    graphElementId: { attribute: false },
+    function: { attribute: false },
+    _entityType: { type: String },
+};
+HeadElementComponent.styles = [
+    ui.baseStyle,
+    getElemWithOperatorStyle(),
+    sparqlingWidgetStyle,
+    i$1 `
+      :host {
+        display:block;
+        height: fit-content;
+        margin:5px 0;
+        position: relative;
+        opacity:1;
+        border: none;
+        transition: all 0.5s;
+        border-left: solid 2px;
+      }
+
+      :host(.dragged) {
+        opacity: 0.2;
+        border: solid 2px var(--gscape-color-accent);
+      }
+
+      #alias-input {
+        flex-grow: 2;
+      }
+
+      #alias-input > input {
+        width: 100%;
+      }
+
+      #field-head{
+        display: flex;
+        align-items: center;
+        gap: 2px;
+        padding-left: 20px;
+      }
+
+      #drag-handler {
+        cursor: grab;
+        display: none;
+        line-height: 0;
+        position: absolute;
+        left: 0;
+      }
+
+      :host(:hover) #drag-handler {
+        display: inline-block;
+      }
+
+      #field-head:hover > #actions {
+        display: flex;
+      }
+
+      #field-head:hover > #state-tray {
+        display: none;
+      }
+
+      #field-head-input-action-wrapper:hover > #state-tray {
+        display: none;
+      }
+      #field-head-input-action-wrapper > input:focus {
+        background-color: blue;
+      }
+
+      #actions {
+        align-items: center;
+        display: none;
+      }
+
+      #actions > * {
+        line-height: 0;
+      }
+
+      .danger:hover {
+        color: var(--gscape-color-error);
+      }
+
+      .filters-function-list {
+        display:flex;
+        flex-direction: column;
+        gap: 20px;
+      }
+
+      #state-tray {
+        color: var(--gscape-color-accent);
+        line-height: 0;
+      }
+
+      #state-tray > svg {
+        height: 15px;
+        width: 15px;
+      }
+
+      summary {
+        list-style: none
+      }
+
+      #drop-panel {
+        padding: 8px;
+        padding-right: 0;
+      }
+
+      .section {
+        margin: 8px 0;
+      }
+    `,
+];
+customElements.define('head-element', HeadElementComponent);
+
+class QueryHeadWidget extends ui.BaseMixin(ui.DropPanelMixin(s)) {
+    constructor() {
+        super(...arguments);
+        this.title = 'Query Columns';
+        this.headElements = [];
+        this.isDefaultClosed = false;
+        this.togglePanel = () => {
+            super.togglePanel();
+            this.requestUpdate();
+        };
+        //createRenderRoot() { return this as any }
+    }
+    render() {
+        this.title = getConfig('queryHeadWidgetTitle') || 'Query Columns';
+        return x `
+      ${this.isPanelClosed()
+            ? x `
+          <div class="top-bar traslated-down">
+            <gscape-button 
+              id="toggle-panel-button"
+              @click=${this.togglePanel}
+              label=${this.title}
+            > 
+              <span slot="icon">${tableEye}</span>
+              <span slot="trailing-icon">${ui.icons.plus}</span>
+            </gscape-button>
+          </div>
+        `
+            : null}
+
+      <div class="gscape-panel" id="drop-panel" style="width: 100%; overflow-y:clip">
+        <div class="top-bar">
+          <div id="widget-header" class="bold-text">
+            ${tableEye}
+            <span>${this.title}</span>
+          </div>
+
+          <gscape-button 
+            id="toggle-panel-button"
+            size="s" 
+            type="subtle"
+            @click=${this.togglePanel}
+          > 
+            <span slot="icon">${ui.icons.minus}</span>
+          </gscape-button>
+        </div>
+
+      ${isCountStarActive()
+            ? x `
+          <div class="blank-slate sparqling-blank-slate">
+            ${counter}
+            <div class="header">${countStarMsg()}</div>
+          </div>
+        `
+            : this.headElements.length === 0
+                ? x `
+            <div class="blank-slate sparqling-blank-slate">
+              ${asterisk}
+              <div class="header">${emptyHeadMsg()}</div>
+              <div class="tip description" title="${emptyHeadTipMsg()}">${tipWhy()}</div>
+            </div>
+          `
+                : x `
+            <div id="elems-wrapper" @dragover=${allowDrop} @drop=${allowDrop}>
+              ${this.headElements.map(headElement => new HeadElementComponent(headElement))}
+            </div>
+          `}
+      </div>
+    `;
+    }
+    updated() {
+        var _a;
+        // register callbacks for all head elements
+        (_a = this.shadowRoot) === null || _a === void 0 ? void 0 : _a.querySelectorAll('head-element').forEach((element) => {
+            const headElementComponent = element;
+            headElementComponent.onDelete = this.deleteElementCallback;
+            headElementComponent.onRename = this.renameElementCallback;
+            headElementComponent.onLocalize = this.localizeElementCallback;
+            headElementComponent.onAddFilter(this.addFilterCallback);
+            headElementComponent.onEditFilter(this.editFilterCallback);
+            headElementComponent.onDeleteFilter(this.deleteFilterCallback);
+            headElementComponent.onAddFunction(this.addFunctionCallback);
+            headElementComponent.onOrderBy = this.orderByChangeCallback;
+            headElementComponent.onAddAggregation(this.addAggregationCallback);
+            headElementComponent.showCxtMenu = () => {
+                if (headElementComponent.moreActionsButton) {
+                    cxtMenu.attachTo(headElementComponent.moreActionsButton, headElementComponent.cxtMenuCommands);
+                    // attachCxtMenuTo(headElementComponent.moreActionsButton, headElementComponent.cxtMenuCommands)
+                }
+            };
+            headElementComponent.onmouseover = () => this.highlightVariableCallback(headElementComponent._id);
+            headElementComponent.onmouseout = () => this.resetHighlightCallback(headElementComponent._id);
+        });
+    }
+    /**
+     * Register callback to execute on delete of a HeadElement
+     * @param callback callback receiving the ID of the HeadElement to delete
+     */
+    onDelete(callback) {
+        this.deleteElementCallback = callback;
+    }
+    /**
+     * Register callback to execute on rename of a HeadElement (Set alias)
+     * @param callback callback receiving the ID of the headElement to rename
+     */
+    onRename(callback) {
+        this.renameElementCallback = callback;
+    }
+    /**
+     * Register callback to execute on localization of a HeadElement
+     * @param callback callback receiving the ID of the HeadElement to localize
+     */
+    onLocalize(callback) {
+        this.localizeElementCallback = callback;
+    }
+    onAddFilter(callback) {
+        this.addFilterCallback = callback;
+    }
+    onEditFilter(callback) {
+        this.editFilterCallback = callback;
+    }
+    onDeleteFilter(callback) {
+        this.deleteFilterCallback = callback;
+    }
+    onAddFunction(callback) {
+        this.addFunctionCallback = callback;
+    }
+    onOrderByChange(callback) {
+        this.orderByChangeCallback = callback;
+    }
+    onAddAggregation(callback) {
+        this.addAggregationCallback = callback;
+    }
+    onHighlightVariable(callback) {
+        this.highlightVariableCallback = callback;
+    }
+    onResetHighlightOnVariable(callback) {
+        this.resetHighlightCallback = callback;
+    }
+    blur() {
+        var _a;
+        // do not call super.blur() cause it will collapse query-head body.
+        // This because each click on cytoscape background calls document.activeElement.blur(), 
+        // so if any input field has focus, query-head will be the activeElement and will be
+        // blurred at each tap. this way we only blur the input elements.
+        (_a = this.shadowRoot) === null || _a === void 0 ? void 0 : _a.querySelectorAll('head-element').forEach(headElementComponent => {
+            var _a;
+            (_a = headElementComponent.shadowRoot) === null || _a === void 0 ? void 0 : _a.querySelectorAll('input').forEach(inputElement => inputElement.blur());
+        });
+    }
+    firstUpdated() {
+        this.hide();
+    }
+}
+QueryHeadWidget.properties = {
+    headElements: { type: Object, attribute: false },
+};
+QueryHeadWidget.styles = [
+    ui.baseStyle,
+    sparqlingWidgetStyle,
+    i$1 `
+      :host {
+        position:initial;
+        min-height: 30%;
+        background: transparent;
+        box-shadow: none;
+        pointer-events: none;
+      }
+
+      #elems-wrapper {
+        display: flex;
+        height:inherit;
+        flex-direction: column;
+        overflow: hidden scroll;
+        scrollbar-width: inherit;
+        padding: 4px 8px;
+      }
+
+      .blank-slate {
+        max-width: unset;
+      }
+
+      .tip {
+        font-size: 90%;
+        border-bottom: dotted 2px;
+        cursor: help;
+      }
+
+      .tip: hover {
+        color:inherit;
+      }
+
+      .top-bar.traslated-down {
+        bottom: 10px;
+        left: 0;
+        transform: initial;
+      }
+
+      .gscape-panel {
+        max-height: unset;
+      }
+    `
+];
+customElements.define('query-head', QueryHeadWidget);
+
+const qhWidget = new QueryHeadWidget();
+function onDelete$2(callback) {
+    qhWidget.onDelete(headElementId => {
+        const headElement = getHeadElementByID(headElementId);
+        if (headElement)
+            callback(headElement);
+    });
+}
+function onRename(callback) {
+    qhWidget.onRename((headElementId, alias) => {
+        callback(headElementId, alias);
+    });
+}
+function onLocalize(callback) {
+    qhWidget.onLocalize(headElementId => {
+        const headElement = getHeadElementByID(headElementId);
+        if (headElement)
+            callback(headElement);
+    });
+}
+function render$2(newHead) {
+    if (!newHead)
+        return;
+    qhWidget.headElements = newHead;
+}
+function onAddFilter$2(callback) {
+    qhWidget.onAddFilter((headElementId) => {
+        callback(headElementId);
+    });
+}
+function onEditFilter(callback) {
+    qhWidget.onEditFilter(filterId => callback(filterId));
+}
+function onDeleteFilter(callback) {
+    qhWidget.onDeleteFilter(filterId => callback(filterId));
+}
+function onAddFunction(callback) {
+    qhWidget.onAddFunction(headElementId => callback(headElementId));
+}
+function onOrderByChange(callback) {
+    qhWidget.onOrderByChange(headElementId => callback(headElementId));
+}
+function onAddAggregation(callback) {
+    qhWidget.onAddAggregation(headElementId => callback(headElementId));
+}
+function onHighlightVariable(callback) {
+    qhWidget.onHighlightVariable(headElementId => callback(headElementId));
+}
+function onResetHighlightOnVariable(callback) {
+    qhWidget.onResetHighlightOnVariable(headElemenId => callback(headElemenId));
+}
+
+function getHeadElementWithDatatype(headElement) {
+    const headElementCopy = JSON.parse(JSON.stringify(headElement));
+    if (headElementCopy.graphElementId) {
+        let relatedGraphElem = getGraphElementByID(headElementCopy.graphElementId);
+        if (relatedGraphElem) {
+            const relatedGraphElemIri = getIri(relatedGraphElem);
+            if (relatedGraphElemIri) {
+                const grapholEntity = getGscape().ontology.getEntity(relatedGraphElemIri);
+                headElementCopy['entityType'] = getEntityType(relatedGraphElem);
+                headElementCopy['dataType'] = headElementCopy['entityType'] === EntityTypeEnum.DataProperty
+                    ? grapholEntity === null || grapholEntity === void 0 ? void 0 : grapholEntity.datatype
+                    : null;
+                return headElementCopy;
+            }
+        }
+    }
+    return headElementCopy;
+}
+
+function performHighlights(iri) {
+    const _iris = typeof iri === 'string' ? [iri] : iri;
+    // Highlight suggestions for the actual clicked iri (might be a child node)
+    clearHighlights$1();
+    highlightsList.loading = true;
+    for (let iri of _iris) {
+        const grapholscape = getGscape();
+        computeHighlights(iri).then(highlights => {
+            var _a, _b, _c, _d, _e, _f;
+            highlightsList.allHighlights = {
+                classes: ((_a = highlights.classes) === null || _a === void 0 ? void 0 : _a.map(iri => {
+                    return _getEntityViewDataUnfolding(iri, grapholscape);
+                }).filter(e => e !== undefined)) || [],
+                dataProperties: ((_b = highlights.dataProperties) === null || _b === void 0 ? void 0 : _b.map(iri => {
+                    return _getEntityViewDataUnfolding(iri, grapholscape);
+                }).filter(e => e !== undefined)) || [],
+                objectProperties: ((_c = highlights.objectProperties) === null || _c === void 0 ? void 0 : _c.map(op => {
+                    var _a;
+                    if (op.objectPropertyIRI) {
+                        const grapholEntity = grapholscape.ontology.getEntity(op.objectPropertyIRI);
+                        if (grapholEntity) {
+                            const objPropViewData = util.grapholEntityToEntityViewData(grapholEntity, grapholscape);
+                            return {
+                                entityViewData: objPropViewData,
+                                hasUnfolding: !hasEntityEmptyUnfolding(op.objectPropertyIRI, TypesEnum.OBJECT_PROPERTY),
+                                connectedClasses: ((_a = op.relatedClasses) === null || _a === void 0 ? void 0 : _a.map(rc => _getEntityViewDataUnfolding(rc, grapholscape)).filter(rc => rc !== undefined)) || [],
+                                direct: op.direct,
+                            };
+                        }
+                    }
+                }).filter(e => e !== undefined)) || [],
+            };
+            highlightsList.loading = false;
+            if (!isFullPageActive()) {
+                const activeElement = getActiveElement();
+                let activeElementIris = [];
+                if (activeElement) {
+                    activeElementIris = getIris(activeElement === null || activeElement === void 0 ? void 0 : activeElement.graphElement);
+                    activeElementIris.forEach(iri => selectEntity(iri));
+                }
+                (_d = highlights === null || highlights === void 0 ? void 0 : highlights.classes) === null || _d === void 0 ? void 0 : _d.forEach((iri) => {
+                    if (!activeElement || !activeElementIris.includes(iri))
+                        highlightIRI(iri);
+                });
+                (_e = highlights === null || highlights === void 0 ? void 0 : highlights.dataProperties) === null || _e === void 0 ? void 0 : _e.forEach((iri) => highlightIRI(iri));
+                (_f = highlights === null || highlights === void 0 ? void 0 : highlights.objectProperties) === null || _f === void 0 ? void 0 : _f.forEach((o) => highlightIRI(o.objectPropertyIRI));
+                fadeEntitiesNotHighlighted();
+            }
+        });
+    }
+}
+function clearHighlights$1() {
+    clearHighlights();
+    if (!isFullPageActive())
+        resetHighlights();
+    highlightsList.allHighlights = undefined;
+    performHighlightsEmptyUnfolding();
+}
+function refreshHighlights() {
+    let activeElement = getActiveElement();
+    if (activeElement === null || activeElement === void 0 ? void 0 : activeElement.graphElement) {
+        performHighlights(getIris(activeElement.graphElement));
+    }
+}
+function performHighlightsEmptyUnfolding() {
+    for (const mwsEntity of getEmptyUnfoldingEntities()) {
+        fadeEntity(mwsEntity.entityIRI);
+    }
+}
+function _getEntityViewDataUnfolding(entityIri, grapholscape) {
+    const grapholEntity = grapholscape.ontology.getEntity(entityIri);
+    if (grapholEntity)
+        return util.getEntityViewDataUnfolding(grapholEntity, grapholscape, (iri, type) => !hasEntityEmptyUnfolding(iri, type));
+}
+
+function onNewBody(newBody) {
+    var _a, _b;
+    // empty query
+    if (!newBody.graph) {
+        setActiveElement(undefined);
+        getOriginGrapholNodes().clear();
+        clearHighlights$1();
+        getGscape().unselect();
+        distinctToggle.checked = true;
+        countStarToggle$1.checked = false;
+        startRunButtons.queryName = undefined;
+        limitInput.value = '';
+        offsetInput.value = '';
+        if (isFullPageActive()) {
+            classSelector.show();
+        }
+    }
+    startRunButtons.canQueryRun = ((_a = newBody.graph) === null || _a === void 0 ? void 0 : _a.id) !== undefined && !isStandalone() && core.onQueryRun !== undefined;
+    let body = setQueryBody(newBody);
+    widget.isBGPEmpty = body.graph === null || body.graph === undefined;
+    render(body.graph);
+    const deletedNodeIds = removeNodesNotInQuery();
+    deletedNodeIds.forEach(id => getOriginGrapholNodes().delete(id));
+    renderOptionals(body.optionals);
+    render$2((_b = body.head) === null || _b === void 0 ? void 0 : _b.map((headElem) => getHeadElementWithDatatype(headElem)));
+    filterListDialog.filterList = getFiltersOnVariable(filterListDialog.variable);
+    sparqlDialog.text = (body === null || body === void 0 ? void 0 : body.sparql) ? body.sparql : emptyQueryMsg();
+    distinctToggle.disabled =
+        countStarToggle$1.disabled =
+            limitInput.disabled =
+                offsetInput.disabled =
+                    (newBody === null || newBody === void 0 ? void 0 : newBody.graph) ? false : true;
+    if (!distinctToggle.disabled)
+        distinctToggle.classList.add('actionable');
+    if (!countStarToggle$1.disabled)
+        countStarToggle$1.classList.add('actionable');
+    if (newBody.activeGraphElementId) {
+        const activeGraphElement = getGraphElementByID(newBody.activeGraphElementId);
+        if (activeGraphElement) {
+            const iri = getIri(activeGraphElement);
+            if (iri) {
+                setActiveElement({
+                    graphElement: activeGraphElement,
+                    iri: new Iri(iri, getGscape().ontology.namespaces)
+                });
+                selectElement(newBody.activeGraphElementId);
+                clearHighlights$1();
+                performHighlights(getIris(activeGraphElement));
+            }
+        }
+    }
+    setQueryDirtyState(true);
+}
+
+function handleDistinctChange() {
+    const qExtraApi = new QueryGraphExtraApi(undefined, getBasePath());
+    handlePromise(qExtraApi.distinctQueryGraph(!isDistinctActive(), getQueryBody(), getRequestOptions())).then(newBody => {
+        onNewBody(newBody);
+    });
+}
+function handleCountStarChange() {
+    const qExtraApi = new QueryGraphExtraApi(undefined, getBasePath());
+    handlePromise(qExtraApi.countStarQueryGraph(!isCountStarActive(), getQueryBody(), getRequestOptions())).then(newBody => {
+        onNewBody(newBody);
+    });
+}
+function handleOffsetChange(evt) {
+    const queryBody = getQueryBody();
+    if (!(queryBody === null || queryBody === void 0 ? void 0 : queryBody.graph))
+        return;
+    const input = evt.currentTarget;
+    if (input) {
+        let value = input.valueAsNumber;
+        const qExtraApi = new QueryGraphExtraApi(undefined, getBasePath());
+        if (validateInputElement(input) && value !== queryBody.offset) {
+            // if NaN but valid, then th field is empty, pass -1 to remove the offset
+            if (isNaN(value)) {
+                value = -1;
+                if (value === queryBody.offset || !queryBody.offset) {
+                    //if offset is not set, no need to remove it, return
+                    return;
+                }
+            }
+            handlePromise(qExtraApi.offsetQueryGraph(value, queryBody, getRequestOptions())).then(newBody => {
+                onNewBody(newBody);
+            });
+        }
+        else {
+            input.value = queryBody.offset && queryBody.offset > 0
+                ? queryBody.offset.toString()
+                : '';
+        }
+    }
+}
+function handleLimitChange(evt) {
+    const queryBody = getQueryBody();
+    if (!(queryBody === null || queryBody === void 0 ? void 0 : queryBody.graph))
+        return;
+    const input = evt.currentTarget;
+    if (input) {
+        let value = input.valueAsNumber;
+        const qExtraApi = new QueryGraphExtraApi(undefined, getBasePath());
+        if (validateInputElement(input) && value !== queryBody.limit) {
+            // if NaN but valid, then th field is empty, pass -1 to remove the limit
+            if (isNaN(value)) {
+                value = -1;
+                if (value === queryBody.limit || !queryBody.limit) {
+                    //if limit is not set, no need to remove it, return
+                    return;
+                }
+            }
+            handlePromise(qExtraApi.limitQueryGraph(value, queryBody, getRequestOptions())).then(newBody => {
+                onNewBody(newBody);
+            });
+        }
+        else {
+            input.value = queryBody.limit && queryBody.limit > 0 ? queryBody.limit.toString() : '';
+        }
+    }
+}
+
 const distinctToggle = new ui.GscapeToggle();
 distinctToggle.label = 'Distinct';
 distinctToggle.labelPosition = ui.GscapeToggle.ToggleLabelPosition.LEFT;
@@ -5577,6 +5785,16 @@ distinctToggle.onclick = (evt) => {
         handleDistinctChange();
     }
 };
+
+const limitInput = document.createElement('input');
+limitInput.placeholder = 'Num. of results';
+limitInput.type = 'number';
+limitInput.id = 'limit-input';
+limitInput.min = '1';
+limitInput.disabled = true;
+limitInput.onchange = handleLimitChange;
+limitInput.addEventListener('focusout', handleLimitChange);
+limitInput.onsubmit = handleLimitChange;
 
 const offsetInput = document.createElement('input');
 offsetInput.placeholder = 'Offset';
@@ -5677,10 +5895,10 @@ const showExamples = {
 function onAddHead$1(callback) {
     addHeadCallback = callback;
 }
-function onDelete$2(callback) {
+function onDelete$1(callback) {
     deleteCallback = callback;
 }
-function onAddFilter$2(callback) {
+function onAddFilter$1(callback) {
     addFilterCallback = callback;
 }
 function onSeeFilters$1(callback) {
@@ -5740,6 +5958,11 @@ cy.on('mouseout', () => {
 });
 cy.on('cxttap', `[iri][!isSuggestion]`, e => {
     cxtMenu.attachTo(e.target.popperRef(), getCommandsForElement(e.target));
+});
+cy.on('tap', e => {
+    if (e.target === cy && isFullPageActive()) {
+        getGscape().widgets.get(ui.WidgetEnum.ENTITY_DETAILS).hide();
+    }
 });
 cy.automove({
     nodesMatching: (node) => cy.$(':grabbed')
@@ -7992,7 +8215,7 @@ function getChildren(popper) {
     })
   };
 }
-function render$2(instance) {
+function render$1(instance) {
   var popper = div();
   var box = div();
   box.className = BOX_CLASS;
@@ -8061,7 +8284,7 @@ function render$2(instance) {
 } // Runtime check to identify if the render function is the default one; this
 // way we can apply default CSS transitions logic and it can be tree-shaken away
 
-render$2.$$tippy = true;
+render$1.$$tippy = true;
 
 var idCounter = 1;
 var mouseMoveListeners = []; // Used by `hideAll()`
@@ -9128,7 +9351,7 @@ function areRectsDifferent(rectA, rectB) {
 }
 
 tippy.setDefaultProps({
-  render: render$2
+  render: render$1
 });
 
 const hasFilterIcon = `
@@ -9820,7 +10043,7 @@ class QueryGraphWidget extends ui.BaseMixin(ui.DropPanelMixin(s)) {
     get cxtMenuElements() {
         const elems = [];
         if (isConfigEnabled('limit')) {
-            elems.push(limitInput$1);
+            elems.push(limitInput);
         }
         if (isConfigEnabled('offset')) {
             elems.push(offsetInput);
@@ -9923,7 +10146,7 @@ function selectElement(nodeIDorIRI) {
     }
     return graphElem;
 }
-function render$1(graphElem, parent, objectProperty) {
+function render(graphElem, parent, objectProperty) {
     var _a, _b;
     if (!graphElem)
         return;
@@ -9936,10 +10159,10 @@ function render$1(graphElem, parent, objectProperty) {
     // if the actual elem was an object property, it will be added at next step as edge
     // between this elem and its children
     if (isObjectProperty(graphElem)) {
-        (_a = graphElem.children) === null || _a === void 0 ? void 0 : _a.forEach((childGraphElem) => render$1(childGraphElem, parent, graphElem));
+        (_a = graphElem.children) === null || _a === void 0 ? void 0 : _a.forEach((childGraphElem) => render(childGraphElem, parent, graphElem));
     }
     else {
-        (_b = graphElem.children) === null || _b === void 0 ? void 0 : _b.forEach((childGraphElem) => render$1(childGraphElem, graphElem));
+        (_b = graphElem.children) === null || _b === void 0 ? void 0 : _b.forEach((childGraphElem) => render(childGraphElem, graphElem));
     }
     return cy;
 }
@@ -9974,6 +10197,7 @@ function getSelectedGraphElement() {
     return getGraphElementByID((_a = getElements().filter('.sparqling-selected')[0]) === null || _a === void 0 ? void 0 : _a.id());
 }
 function setContainer(container) {
+    cy.unmount();
     cy.mount(container);
     cy.resize();
     cy.fit();
@@ -9989,15 +10213,15 @@ function onAddHead(callback) {
             callback(graphElement);
     });
 }
-function onDelete$1(callback) {
-    onDelete$2((id, iri) => {
+function onDelete(callback) {
+    onDelete$1((id, iri) => {
         const graphElement = getGraphElementByID(id) || getParentFromChildId(id);
         if (graphElement)
             callback(graphElement, iri);
     });
 }
-function onAddFilter$1(callback) {
-    onAddFilter$2(id => {
+function onAddFilter(callback) {
+    onAddFilter$1(id => {
         const graphElement = getGraphElementByID(id);
         if (graphElement)
             callback(graphElement);
@@ -10055,15 +10279,15 @@ var index = /*#__PURE__*/Object.freeze({
     __proto__: null,
     widget: widget,
     selectElement: selectElement,
-    render: render$1,
+    render: render,
     removeNodesNotInQuery: removeNodesNotInQuery,
     centerOnElem: centerOnElem,
     getSelectedGraphElement: getSelectedGraphElement,
     setContainer: setContainer,
     unmount: unmount,
     onAddHead: onAddHead,
-    onDelete: onDelete$1,
-    onAddFilter: onAddFilter$1,
+    onDelete: onDelete,
+    onAddFilter: onAddFilter,
     onSeeFilters: onSeeFilters,
     onShowExamples: onShowExamples,
     onJoin: onJoin,
@@ -10079,170 +10303,246 @@ var index = /*#__PURE__*/Object.freeze({
     setTheme: setTheme
 });
 
-let sortChangedCallback;
-let dragging;
-const dropIndicator = document.createElement('hr');
-dropIndicator.style.width = '90%';
-dropIndicator.style.opacity = '0.5';
-function onDragStart(event) {
-    var _a;
-    dragging = getDraggedComponent(event.target);
-    dragging.classList.add('dragged');
-    (_a = event.dataTransfer) === null || _a === void 0 ? void 0 : _a.setData('text/plain', '');
+function moveUIForColorLegend(isActive) {
+    leftColumnContainer.style.bottom = isActive ? '40px' : '0';
+    leftColumnContainer.style.height = isActive ? 'calc(100% - 80px)' : 'calc(100% - 40px)';
 }
-function onDragOver(event) {
-    event.preventDefault();
-    let target = getDraggedComponent(event.target);
-    const bounding = target.getBoundingClientRect();
-    const offset = bounding.y + (bounding.height / 2);
-    if (event.clientY - offset > 0) {
-        target.parentNode.insertBefore(dropIndicator, target.nextSibling);
+
+let widgetStates = {};
+function stopFullPage() {
+    var _a, _b;
+    const grapholscape = getGscape();
+    setFullPage(false);
+    widget.withoutBGP = false;
+    setContainer(bgpContainer);
+    setTimeout(() => cy.fit(), 500);
+    if (!grapholscape.renderState || (!loadConfig().selectedRenderer && grapholscape.renderers.length > 1)) {
+        (_a = grapholscape.widgets.get(ui.WidgetEnum.INITIAL_RENDERER_SELECTOR)) === null || _a === void 0 ? void 0 : _a.show();
+        grapholscape.showDiagram(0);
     }
     else {
-        target.parentNode.insertBefore(dropIndicator, target);
-    }
-}
-function onDragEnd(event) {
-    event.preventDefault();
-    document.ondrop = null;
-    const elemsWrapper = dropIndicator.parentNode;
-    if (elemsWrapper) {
-        elemsWrapper.replaceChild(dragging, dropIndicator);
-        setTimeout(() => dragging.classList.remove('dragged'), 100);
-        const draggedElemNewIndex = getDraggedElemNewIndex();
-        if (draggedElemNewIndex || draggedElemNewIndex === 0)
-            sortChangedCallback(dragging._id, draggedElemNewIndex);
-    }
-    else {
-        dropIndicator.remove();
-    }
-}
-function allowDrop(event) {
-    event.preventDefault();
-}
-function onElementSortChange(callback) {
-    sortChangedCallback = callback;
-}
-function getDraggedComponent(originalTarget) {
-    while (originalTarget.nodeName !== 'HEAD-ELEMENT' && originalTarget.nodeName !== 'body') {
-        originalTarget = originalTarget.parentNode;
-    }
-    return originalTarget.nodeName === 'HEAD-ELEMENT' ? originalTarget : null;
-}
-function getDraggedElemNewIndex() {
-    const elemsWrapper = dragging.parentNode;
-    if (elemsWrapper) {
-        let count = 0;
-        for (const child of elemsWrapper.children) {
-            if (child === dragging) {
-                return count;
-            }
-            count += 1;
+        if (grapholscape.diagramId === undefined || !grapholscape.renderer.diagram) {
+            grapholscape.showDiagram(0);
+        }
+        else {
+            grapholscape.renderer.cy = (_b = grapholscape.renderer.diagram.representations.get(grapholscape.renderState)) === null || _b === void 0 ? void 0 : _b.cy;
+            grapholscape.renderer.mount();
         }
     }
-    return null;
+    enableWidgetsForFullpage(grapholscape);
+    classSelector.hide();
+    if (grapholscape.renderer.cy)
+        addStylesheet(grapholscape.renderer.cy, sparqlingStyle(grapholscape.theme));
+    setTheme(grapholscape.theme);
+    highlightsList.style.marginTop = '60px';
+    refreshHighlights();
+    startRunButtons.ontologyGraphEnabled = true;
+    localStorage.setItem('obda-systems.sparqling-ontologyGraph', 'true');
+}
+function startFullPage() {
+    const grapholscape = getGscape();
+    setFullPage(true);
+    grapholscape.renderer.stopRendering();
+    disableWidgetsForFullpage(grapholscape);
+    // move query graph inside grapholscape main container
+    setContainer(grapholscape.renderer.container);
+    widget.withoutBGP = true;
+    grapholscape.renderer.cy = cy;
+    const queryBody = getQueryBody();
+    if (!queryBody || !queryBody.graph || !queryBody.graph.id) {
+        // show class selector
+        initClassSelector();
+        classSelector.show();
+    }
+    highlightsList.style.marginTop = '10px';
+    moveUIForColorLegend(grapholscape.widgets.get(ui.WidgetEnum.COLOR_BUTTON).active);
+    startRunButtons.ontologyGraphEnabled = false;
+    localStorage.setItem('obda-systems.sparqling-ontologyGraph', 'false');
+}
+function disableWidgetsForFullpage(grapholscape) {
+    let widget;
+    grapholscape.widgets.forEach((w, widgetKey) => {
+        widget = w;
+        widgetStates[widgetKey] = { enabled: widget.enabled, visible: widget.isVisible };
+        switch (widgetKey) {
+            case ui.WidgetEnum.DIAGRAM_SELECTOR:
+            case ui.WidgetEnum.RENDERER_SELECTOR:
+            case ui.WidgetEnum.FILTERS:
+            case ui.WidgetEnum.ONTOLOGY_EXPLORER:
+            case ui.WidgetEnum.OWL_VISUALIZER:
+            case ui.WidgetEnum.COLOR_BUTTON:
+            case ui.WidgetEnum.ENTITY_COLOR_LEGEND:
+                widget.disable();
+                break;
+            case ui.WidgetEnum.ENTITY_DETAILS:
+                widget.showOccurrences = false;
+        }
+    });
+}
+function enableWidgetsForFullpage(grapholscape) {
+    let widget;
+    Object.entries(widgetStates).forEach(([key, widgetState]) => {
+        if (widgetState.enabled && key !== ui.WidgetEnum.OWL_VISUALIZER) {
+            widget = grapholscape.widgets.get(key);
+            widget.enable();
+            if (!widgetState.visible) {
+                widget.hide(); // keep it enabled but hidden if it was hidden before
+            }
+            if (key === ui.WidgetEnum.ENTITY_DETAILS) {
+                widget.showOccurrences = true;
+            }
+        }
+    });
 }
 
-const ALIAS_INPUT_ID = 'alias';
-class HeadElementComponent extends ui.BaseMixin(ui.DropPanelMixin(s)) {
-    constructor(headElement) {
-        super();
-        this.showCxtMenu = () => { };
-        this.onDelete = () => { };
-        this.onRename = () => { };
-        this.onLocalize = () => { };
-        this.onOrderBy = () => { };
-        this.addFilterCallback = (headElementId) => { };
-        this.editFilterCallback = (filterId) => { };
-        this.deleteFilterCallback = (filterId) => { };
-        this.addFunctionCallback = (headElementId) => { };
-        this.addAggregationCallback = (headElementId) => { };
-        this.headElement = headElement;
-        this.ondragstart = (evt) => onDragStart(evt);
-        this.ondragover = (evt) => onDragOver(evt);
-        this.ondragend = (evt) => onDragEnd(evt);
-        this.ondrop = (evt) => evt.preventDefault();
+class SparqlingStartRunButtons extends ui.BaseMixin(ui.DropPanelMixin(s)) {
+    constructor() {
+        super(...arguments);
+        this.id = 'sparqling-start-run-widget';
+        this.isLoading = false;
+        this.canQueryRun = false;
+        this.endpoints = [];
+        this.showResultsEnabled = false;
+        this.allowOntologyGraph = true;
+        this.ontologyGraphEnabled = false;
+        this._onSparqlingStartCallback = () => { };
+        this._onSparqlingStopCallback = () => { };
+        this._onQueryRunCallback = () => { };
+        this._onQuerySaveCallback = () => { };
+        this._onShowSettingsCallback = () => { };
+        this._onEndpointChangeCallback = (newEndpointName) => { };
+        this._onShowResults = () => { };
+        this._onToggleCatalog = () => { };
     }
     render() {
-        var _a, _b;
         return x `
-      <div>
-        <div id="field-head">
-          <div id="drag-handler" draggable="true">
-            ${dragHandler}
-          </div>
-          <div id="alias-input">
-            <input
-              id="${ALIAS_INPUT_ID}"
-              @focusout="${this.handleInputChange}"
-              @keyup=${this.checkAliasValidity}
-              placeholder="${this.alias || this.graphElementId}"
-              value="${this.alias || this.graphElementId}"
-              title="Rename Field"
-              pattern="^[A-Za-z][A-Za-z0-9_]*$"
-            />
-          </div>
-          <div id="actions">
-            ${getTrayButtonTemplate('Show in graphs', crosshair, undefined, 'localize-action', () => this.onLocalize(this._id))}
-            ${getTrayButtonTemplate('Order results ascending/descending', this.orderIcon, undefined, 'sort-action', () => this.onOrderBy(this._id))}
-            ${getTrayButtonTemplate('More actions', kebab, undefined, 'cxt-menu-action', () => this.showCxtMenu())}
-          </div>
-          ${this.hasAnythingInBody || this.ordering !== 0
+      <div id="widget-body" class="gscape-panel">
+        <div id="widget-header" style="${isStandalone() ? null : 'margin-left: 8px'}">
+          ${isStandalone()
             ? x `
-              <div id="state-tray">
-                ${this.function ? functionIcon : null}
-                ${this.ordering && this.ordering !== 0 ? this.orderIcon : null}
-                ${((_a = this.filters) === null || _a === void 0 ? void 0 : _a.length) > 0 ? filter : null}
-                ${this.groupBy ? sigma : null}
-              </div>
+              <gscape-button
+                @click="${this.handleStartButtonCLick}" 
+                type="subtle"
+                title="Start/Stop Sparqling"
+                ?active=${isSparqlingRunning()}
+                label="Sparqling"
+              >
+                <span slot="icon">
+                  ${this.isLoading ? getLoadingSpinner() : sparqlingIcon}
+                </span>
+              </gscape-button>
             `
-            : null}
-          ${this.hasAnythingInBody
-            ? x `
-              <div id="toggle-panel">
-                ${getTrayButtonTemplate('Expand', expandMore, expandLess, 'expand-action', this.togglePanel)}
-              </div>
-            `
-            : null}
-        </div>
-        <div id="drop-panel" class="hide">
-          ${this.groupBy
-            ? x `
-              <div class="section">
-                <div class="section-header bold-text">Aggregation</div>
-                <div class="filters-function-list">
-                  ${getElemWithOperatorList([this.groupBy])}
-                </div>
-                ${this.having
-                ? x `
-                    <span class="title">Having</span>
-                    <div class="filters-function-list">
-                      ${getElemWithOperatorList(this.having)}
-                    </div>
-                  `
+            : x `
+                ${this.isLoading
+                ? x `${getLoadingSpinner()}`
                 : null}
-              </div>
-            `
-            : null}
+                <div class="bold-text">
+                  ${this.queryName || 'new_query'}${isQueryDirty() ? '*' : null}
+                </div>
+                <div class="hr"></div>
+            `}
+        </div>
 
-          ${this.function
-            ? x `
-              <div class="section">
-                <div class="section-header bold-text">Function</div>
-                <div class="filters-function-list">
-                  ${getElemWithOperatorList([this.function])}
-                </div>
-              </div>
-            `
+        ${!isStandalone()
+            ? x `            
+            <gscape-button
+              @click=${this._onToggleCatalog}
+              type="subtle"
+              title="Toggle query catalog"
+            >
+              <span slot="icon">${toggleCatalog}</span>
+            </gscape-button>
+
+            <div class="hr"></div>
+
+            <gscape-button
+              @click="${this._onQuerySaveCallback}"
+              type="subtle"
+              title="Save query in catalog"
+            >
+              <span slot="icon">${ui.icons.save}</span>
+            </gscape-button>
+
+            <div class="hr"></div>   
+
+            <gscape-button
+              @click="${this._onShowSettingsCallback}"
+              type="subtle"
+              title="Edit query metadata"
+            >
+              <span slot="icon">${description}</span>
+            </gscape-button>
+
+            <div class="hr"></div>
+
+            <gscape-button
+              @click=${this.togglePanel}
+              type="subtle"
+              title="Select Mastro endpoint"
+            >
+              <span slot="icon">${mastroEndpointIcon}</span>
+            </gscape-button>
+
+            <div class="hr"></div>
+
+            <gscape-button
+              @click="${this._onQueryRunCallback}"
+              type="subtle"
+              title="Run query"
+              ?disabled=${!this.canQueryRun}
+            >
+              <span slot="icon">${playOutlined}</span>
+            </gscape-button>
+
+            ${this.showResultsEnabled
+                ? x `
+                <gscape-button
+                  @click="${this._onShowResults}"
+                  type="subtle"
+                  size="s"
+                  title="Show results drawer"
+                  label="Stored Results"
+                >
+                </gscape-button>
+              `
+                : null}
+
+            <div class="hr"></div>
+
+            ${this.allowOntologyGraph
+                ? x `<gscape-toggle
+                class="actionable"
+                label="Ontology Graph"
+                ?checked=${this.ontologyGraphEnabled}
+                @click=${(e) => {
+                    e.preventDefault();
+                    isFullPageActive() ? stopFullPage() : startFullPage();
+                }}
+              ></gscape-toggle>`
+                : undefined}
+          `
             : null}
-          
-          ${((_b = this.filters) === null || _b === void 0 ? void 0 : _b.length) > 0
+      </div>
+
+      <div class="gscape-panel drop-down hide" id="drop-panel">
+        <div class="header">Endpoint Selector</div>
+        <div class="content-wrapper">
+          ${this.endpoints.map(endpoint => {
+            return x `
+              <gscape-action-list-item
+                @click=${this.handleEndpointClick}
+                label="${endpoint.name}"
+                ?selected = "${this.selectedEndpointName === endpoint.name}"
+              >
+              </gscape-action-list-item>
+            `;
+        })}
+
+          ${this.endpoints.length === 0
             ? x `
-              <div class="section">
-                <div class="section-header bold-text">Filters</div>
-                <div class="filters-function-list">
-                  ${getElemWithOperatorList(this.filters, this.editFilterCallback, this.deleteFilterCallback)}
-                </div>
+              <div class="blank-slate">
+                ${ui.icons.searchOff}
+                <div class="header">No endpoint available</div>
               </div>
             `
             : null}
@@ -10250,289 +10550,133 @@ class HeadElementComponent extends ui.BaseMixin(ui.DropPanelMixin(s)) {
       </div>
     `;
     }
-    set headElement(newElement) {
-        if (this._id === newElement.id)
-            return;
-        if (newElement.id)
-            this._id = newElement.id;
-        if (newElement.alias)
-            this.alias = newElement.alias;
-        if (newElement.graphElementId)
-            this.graphElementId = newElement.graphElementId;
-        this.entityType = newElement['entityType'];
-        this.dataType = newElement['dataType'] || 'Type';
-        if (newElement.function)
-            this.function = newElement.function;
-        if (newElement.ordering)
-            this.ordering = newElement.ordering;
-        if (newElement.groupBy)
-            this.groupBy = newElement.groupBy;
-        if (newElement.having)
-            this.having = newElement.having;
-        if (this.entityType === EntityTypeEnum.Annotation) {
-            this.style.borderColor = '#DC8D00';
-        }
-        else {
-            let types = {
-                'class': 'class',
-                'objectProperty': 'object-property',
-                'dataProperty': 'data-property',
-            };
-            this.style.borderColor = `var(--gscape-color-${types[this.entityType]}-contrast)`;
-        }
-        if (newElement.graphElementId) {
-            const filtersOnVariable = getFiltersOnVariable(newElement.graphElementId);
-            if (filtersOnVariable)
-                this.filters = filtersOnVariable;
-        }
+    onSparqlingStart(callback) {
+        this._onSparqlingStartCallback = callback;
     }
-    handleInputChange(evt) {
-        let target = evt.currentTarget;
-        if (!target.checkValidity()) {
-            target.reportValidity();
-            return;
-        }
-        if (this.alias && target.value === this.graphElementId) {
-            target.setCustomValidity('Please use an alias different from variable name');
-            target.reportValidity();
-            return;
-        }
-        if (this.alias !== target.value && target.value.length > 0 && target.value !== this.graphElementId) {
-            this.onRename(this._id, target.value);
-        }
-        else {
-            target.value = this.alias || this.graphElementId;
-        }
+    onSparqlingStop(callback) {
+        this._onSparqlingStopCallback = callback;
     }
-    checkAliasValidity(evt) {
-        const target = evt.currentTarget;
-        target.setCustomValidity('');
-        if (!target.checkValidity()) {
-            target.setCustomValidity('Only letters, numbers and underscore');
-            //target.value = target.value.substring(0, target.value.length - 1)
-            target.reportValidity();
-            return;
-        }
-        else if (evt.key === "Enter" || evt.key === "Escape") {
-            target.blur();
-        }
+    onQueryRun(callback) {
+        this._onQueryRunCallback = callback;
     }
-    onFunctionSet(callback) { }
-    onAddFilter(callback) {
-        this.addFilterCallback = callback;
+    onQuerySave(callback) {
+        this._onQuerySaveCallback = callback;
     }
-    onEditFilter(callback) {
-        this.editFilterCallback = callback;
+    onShowSettings(callback) {
+        this._onShowSettingsCallback = callback;
     }
-    onDeleteFilter(callback) {
-        this.deleteFilterCallback = callback;
+    onEndpointChange(callback) {
+        this._onEndpointChangeCallback = callback;
     }
-    onAddFunction(callback) {
-        this.addFunctionCallback = callback;
+    onShowResults(callback) {
+        this._onShowResults = callback;
     }
-    onAddAggregation(callback) {
-        this.addAggregationCallback = callback;
+    onToggleCatalog(callback) {
+        this._onToggleCatalog = callback;
     }
-    get dragHandler() {
-        return this.shadowRoot.querySelector('#drag-handler');
-    }
-    get hasAnythingInBody() {
-        var _a;
-        return ((_a = this.filters) === null || _a === void 0 ? void 0 : _a.length) > 0 || this.function || this.groupBy;
-    }
-    get orderIcon() {
-        if (this.ordering > 0) {
-            return sortAscendingIcon;
-        }
-        else if (this.ordering < 0) {
-            return sortDescendingIcon;
-        }
-        else {
-            return sortIcon;
-        }
-    }
-    get moreActionsButton() {
-        var _a;
-        return (_a = this.shadowRoot) === null || _a === void 0 ? void 0 : _a.querySelector('#cxt-menu-action');
-    }
-    get cxtMenuCommands() {
-        const result = [];
-        if (isConfigEnabled('filter'))
-            result.push({
-                content: 'Add Filter',
-                icon: addFilter$1,
-                select: () => this.addFilterCallback(this._id)
+    requestEndpointSelection() {
+        return new Promise((resolve, reject) => {
+            const oldEndpointChangeCallback = this._onEndpointChangeCallback;
+            this.openPanel();
+            // change callback to fulfill the request's promise with the new endpoint
+            this.onEndpointChange((newEndpointName) => {
+                const endpoint = this.endpoints.find(e => e.name === newEndpointName);
+                if (endpoint) {
+                    resolve(endpoint);
+                }
+                else {
+                    reject();
+                }
+                oldEndpointChangeCallback(newEndpointName);
+                this._onEndpointChangeCallback = oldEndpointChangeCallback; // reset callback to previous one
             });
-        if (isConfigEnabled('function') && !this.function) {
-            result.push({
-                content: 'Add Function',
-                icon: functionIcon,
-                select: () => this.addFunctionCallback(this._id)
-            });
-        }
-        if (isConfigEnabled('aggregation') && !this.groupBy) {
-            result.push({
-                content: 'Add Aggregation Function',
-                icon: sigma,
-                select: () => this.addAggregationCallback(this._id)
-            });
-        }
-        result.push({
-            content: 'Delete Field',
-            icon: rubbishBin,
-            select: () => this.onDelete(this._id)
         });
-        return result;
+    }
+    handleEndpointClick(e) {
+        if (e.currentTarget.label && e.currentTarget.label !== this.selectedEndpointName)
+            this._onEndpointChangeCallback(e.currentTarget.label);
+    }
+    handleStartButtonCLick() {
+        if (isFullPageActive())
+            return;
+        isSparqlingRunning() ? this._onSparqlingStopCallback() : this._onSparqlingStartCallback();
+    }
+    startLoadingAnimation() {
+        this.isLoading = true;
+    }
+    stopLoadingAnimation() {
+        this.isLoading = false;
+    }
+    get startButton() {
+        var _a;
+        return (_a = this.shadowRoot) === null || _a === void 0 ? void 0 : _a.querySelector('');
     }
 }
-HeadElementComponent.properties = {
-    alias: { attribute: false },
-    graphElementId: { attribute: false },
-    function: { attribute: false },
-    _entityType: { type: String },
+SparqlingStartRunButtons.properties = {
+    canQueryRun: { type: Boolean, attribute: false },
+    isLoading: { type: Boolean, attribute: false },
+    endpoints: { type: Object, attribute: false },
+    selectedEndpointName: { type: String, attribute: false },
+    queryName: { type: String, attribute: false },
+    showResultsEnabled: { type: Boolean, attribute: false },
+    ontologyGraphEnabled: { type: Boolean },
+    allowOntologyGraph: { type: Boolean },
 };
-HeadElementComponent.styles = [
+SparqlingStartRunButtons.styles = [
+    ui.GscapeButtonStyle,
     ui.baseStyle,
-    getElemWithOperatorStyle(),
-    sparqlingWidgetStyle,
+    loadingSpinnerStyle,
     i$1 `
       :host {
-        display:block;
-        height: fit-content;
-        margin:5px 0;
-        position: relative;
-        opacity:1;
-        border: none;
-        transition: all 0.5s;
-        border-left: solid 2px;
-      }
-
-      :host(.dragged) {
-        opacity: 0.2;
-        border: solid 2px var(--gscape-color-accent);
-      }
-
-      #alias-input {
-        flex-grow: 2;
-      }
-
-      #alias-input > input {
-        width: 100%;
-      }
-
-      #field-head{
-        display: flex;
-        align-items: center;
-        gap: 2px;
-        padding-left: 20px;
-      }
-
-      #drag-handler {
-        cursor: grab;
-        display: none;
-        line-height: 0;
         position: absolute;
-        left: 0;
+        top: 10px;
+        left: 50%;
+        transform: translate(-50%);
       }
 
-      :host(:hover) #drag-handler {
-        display: inline-block;
-      }
-
-      #field-head:hover > #actions {
+      #widget-body, #widget-header {
         display: flex;
-      }
-
-      #field-head:hover > #state-tray {
-        display: none;
-      }
-
-      #field-head-input-action-wrapper:hover > #state-tray {
-        display: none;
-      }
-      #field-head-input-action-wrapper > input:focus {
-        background-color: blue;
-      }
-
-      #actions {
         align-items: center;
-        display: none;
+        padding: 0;
+        min-width: unset;
       }
 
-      #actions > * {
-        line-height: 0;
-      }
-
-      .danger:hover {
-        color: var(--gscape-color-error);
-      }
-
-      .filters-function-list {
-        display:flex;
-        flex-direction: column;
-        gap: 20px;
-      }
-
-      #state-tray {
-        color: var(--gscape-color-accent);
-        line-height: 0;
-      }
-
-      #state-tray > svg {
-        height: 15px;
-        width: 15px;
-      }
-
-      summary {
-        list-style: none
+      #widget-header {
+        gap: 8px;
       }
 
       #drop-panel {
-        padding: 8px;
-        padding-right: 0;
+        margin: 4px auto 0;
       }
 
-      .section {
-        margin: 8px 0;
+      .header {
+        text-align: center;
+      }
+
+      .hr {
+        background-color: var(--gscape-color-border-subtle);
+        width: 1px;
+        height: 1.7em;
+      }
+
+      .gscape-panel {
+        max-width: unset;
       }
     `,
 ];
-customElements.define('head-element', HeadElementComponent);
+customElements.define('sparqling-start-run-buttons', SparqlingStartRunButtons);
 
-class QueryHeadWidget extends ui.BaseMixin(ui.DropPanelMixin(s)) {
+class FunctionDialog extends SparqlingFormDialog {
     constructor() {
-        super(...arguments);
-        this.title = 'Query Columns';
-        this.headElements = [];
-        this.isDefaultClosed = false;
-        this.togglePanel = () => {
-            super.togglePanel();
-            this.requestUpdate();
-        };
-        //createRenderRoot() { return this as any }
+        super();
     }
     render() {
-        this.title = getConfig('queryHeadWidgetTitle') || 'Query Columns';
+        this.title = `${this.modality} function for ${this.variableName}`;
         return x `
-      ${this.isPanelClosed()
-            ? x `
-          <div class="top-bar traslated-down">
-            <gscape-button 
-              id="toggle-panel-button"
-              @click=${this.togglePanel}
-              label=${this.title}
-            > 
-              <span slot="icon">${tableEye}</span>
-              <span slot="trailing-icon">${ui.icons.plus}</span>
-            </gscape-button>
-          </div>
-        `
-            : null}
-
-      <div class="gscape-panel" id="drop-panel" style="width: 100%; overflow-y:clip">
+      <div class="gscape-panel">
         <div class="top-bar">
           <div id="widget-header" class="bold-text">
-            ${tableEye}
+            ${functionIcon}
             <span>${this.title}</span>
           </div>
 
@@ -10540,446 +10684,460 @@ class QueryHeadWidget extends ui.BaseMixin(ui.DropPanelMixin(s)) {
             id="toggle-panel-button"
             size="s" 
             type="subtle"
-            @click=${this.togglePanel}
+            @click=${this.hide}
           > 
-            <span slot="icon">${ui.icons.minus}</span>
+            <span slot="icon">${ui.icons.close}</span>
           </gscape-button>
         </div>
 
-      ${isCountStarActive()
+        <div class="dialog-body">
+          ${getFormTemplate(this, this.operators)}
+          
+          <div class="bottom-buttons">
+            <gscape-button label="Cancel" @click=${this.hide}></gscape-button>
+            ${this.canSave
             ? x `
-          <div class="blank-slate sparqling-blank-slate">
-            ${counter}
-            <div class="header">${countStarMsg()}</div>
+                <gscape-button type="primary" @click=${this.handleSubmit} label="Save Function"></gscape-button>
+              `
+            : null}
           </div>
-        `
-            : this.headElements.length === 0
-                ? x `
-            <div class="blank-slate sparqling-blank-slate">
-              ${asterisk}
-              <div class="header">${emptyHeadMsg()}</div>
-              <div class="tip description" title="${emptyHeadTipMsg()}">${tipWhy()}</div>
-            </div>
-          `
-                : x `
-            <div id="elems-wrapper" @dragover=${allowDrop} @drop=${allowDrop}>
-              ${this.headElements.map(headElement => new HeadElementComponent(headElement))}
-            </div>
-          `}
+        </div>
       </div>
     `;
     }
-    updated() {
+    onSubmit(callback) {
+        this.submitCallback = callback;
+    }
+    setAsCorrect(customText) {
+        super.setAsCorrect(customText);
+        this.canSave = false;
+    }
+    get operators() {
+        switch (this.datatypeFromOntology) {
+            case VarOrConstantConstantTypeEnum.String:
+                return this.operatorsOnString;
+            case VarOrConstantConstantTypeEnum.Decimal:
+            case 'xsd:int':
+            case 'xsd:float':
+            case 'xsd:long':
+            case 'xsd:double':
+            case 'xsd:integer':
+            case 'xsd:short':
+            case 'xsd:unsignedInt':
+            case 'xsd:unsignedLong':
+            case 'xsd:unsignedShort':
+                return this.operatorsOnNumber;
+            case VarOrConstantConstantTypeEnum.DateTime:
+                return this.operatorsOnDate;
+            default:
+                return Object.values(FunctionNameEnum);
+        }
+    }
+    get operatorsOnString() {
+        return [
+            FunctionNameEnum.Concat,
+            FunctionNameEnum.Contains,
+            FunctionNameEnum.Lcase,
+            FunctionNameEnum.Substr,
+            FunctionNameEnum.Ucase,
+            FunctionNameEnum.Strlen,
+            FunctionNameEnum.Strstarts,
+            FunctionNameEnum.Strends,
+            FunctionNameEnum.Strbefore,
+            FunctionNameEnum.Strafter,
+        ];
+    }
+    get operatorsOnNumber() {
+        return [
+            FunctionNameEnum.Add,
+            FunctionNameEnum.Subctract,
+            FunctionNameEnum.Multiply,
+            FunctionNameEnum.Divide,
+            FunctionNameEnum.Round,
+            FunctionNameEnum.Ceil,
+            FunctionNameEnum.Floor
+        ];
+    }
+    get operatorsOnDate() {
+        return [
+            FunctionNameEnum.Year,
+            FunctionNameEnum.Month,
+            FunctionNameEnum.Day,
+            FunctionNameEnum.Hours,
+            FunctionNameEnum.Minutes,
+            FunctionNameEnum.Seconds,
+        ];
+    }
+}
+customElements.define('sparqling-function-dialog', FunctionDialog);
+
+class AggregationDialog extends SparqlingFormDialog {
+    constructor() {
+        super(...arguments);
+        // private showHavingFormButton = new UI.GscapeButton(addFilter, "Add Having")
+        this.definingHaving = false;
+        this.distinct = false;
+        this.formTitle = 'Having';
+    }
+    static get properties() {
+        const props = super.properties;
+        const newProps = {
+            definingHaving: { type: Boolean, state: true },
+            distinct: { type: Boolean, state: true },
+        };
+        return Object.assign(props, newProps);
+    }
+    render() {
+        this.title = `${this.modality} aggregate function for ${this.variableName}`;
+        return x `
+      <div class="gscape-panel">
+        <div class="top-bar">
+          <div id="widget-header" class="bold-text">
+            ${sigma}
+            <span>${this.title}</span>
+          </div>
+
+          <gscape-button 
+            id="toggle-panel-button"
+            size="s" 
+            type="subtle"
+            @click=${this.hide}
+          > 
+            <span slot="icon">${ui.icons.close}</span>
+          </gscape-button>
+        </div>
+
+        <div class="dialog-body">
+          <div style="text-align: center;">
+            <div id="select-aggregate-function">
+              ${getSelect(this.aggregateOperator || "Aggregate Function", Object.values(GroupByElementAggregateFunctionEnum))}
+            </div>
+            <div style="margin: 10px 0">
+              <label>
+                <input id="distinct-checkbox" type="checkbox" @click="${this.onDistinctChange}" ?checked=${this.distinct}>
+                Only distinct values
+              </label>
+            </div>
+          </div>
+          <div class="hr"></div>
+          ${!this.definingHaving
+            ? x `
+                <gscape-button title="Add Having" label="Filter Groups - Having" @click=${this.handleHavingButtonClick}>
+                  <span slot="icon">${addFilter$1}</span>
+                </gscape-button>
+                <div id="message-tray"></div>
+              `
+            : getFormTemplate(this, Object.values(FilterExpressionOperatorEnum))}
+          
+          <div class="bottom-buttons">
+            <gscape-button label="Cancel" @click=${this.hide}></gscape-button>
+            ${this.canSave
+            ? x `
+                <gscape-button type="primary" @click=${this.handleSubmit} label="Save Function"></gscape-button>
+              `
+            : null}
+          </div>
+        </div>
+      </div>
+    `;
+    }
+    handleHavingButtonClick() {
+        this.definingHaving = true;
+    }
+    handleSubmit() {
+        if (validateSelectElement(this.selectAggregateOperatorElem)) {
+            if (this.definingHaving)
+                super.handleSubmit(); // this evaluate validity of the having too
+            else
+                this.onValidSubmit();
+        }
+    }
+    onValidSubmit() {
+        if (this._id && this.aggregateOperator && this.parameters)
+            this.submitCallback(this._id, this.aggregateOperator, this.distinct, this.operator, this.parameters);
+    }
+    onSubmit(callback) {
+        this.submitCallback = callback;
+    }
+    setAsCorrect(customText) {
+        super.setAsCorrect(customText);
+        this.canSave = false;
+    }
+    get operators() {
+        return Object.values(FilterExpressionOperatorEnum);
+    }
+    firstUpdated(_changedProperties) {
+        super.firstUpdated(_changedProperties);
+        if (this.selectAggregateOperatorElem) {
+            this.selectAggregateOperatorElem.onchange = () => this.onAggregateOperatorChange(this.selectAggregateOperatorElem.value);
+        }
+    }
+    onAggregateOperatorChange(value) {
+        this.aggregateOperator = value;
+    }
+    onDistinctChange(e) {
+        this.distinct = e.target.checked;
+    }
+    get isAggregateOperatorValid() {
+        return this.aggregateOperator && Object.values(GroupByElementAggregateFunctionEnum).includes(this.aggregateOperator);
+    }
+    get selectAggregateOperatorElem() {
         var _a;
-        // register callbacks for all head elements
-        (_a = this.shadowRoot) === null || _a === void 0 ? void 0 : _a.querySelectorAll('head-element').forEach((element) => {
-            const headElementComponent = element;
-            headElementComponent.onDelete = this.deleteElementCallback;
-            headElementComponent.onRename = this.renameElementCallback;
-            headElementComponent.onLocalize = this.localizeElementCallback;
-            headElementComponent.onAddFilter(this.addFilterCallback);
-            headElementComponent.onEditFilter(this.editFilterCallback);
-            headElementComponent.onDeleteFilter(this.deleteFilterCallback);
-            headElementComponent.onAddFunction(this.addFunctionCallback);
-            headElementComponent.onOrderBy = this.orderByChangeCallback;
-            headElementComponent.onAddAggregation(this.addAggregationCallback);
-            headElementComponent.showCxtMenu = () => {
-                if (headElementComponent.moreActionsButton) {
-                    cxtMenu.attachTo(headElementComponent.moreActionsButton, headElementComponent.cxtMenuCommands);
-                    // attachCxtMenuTo(headElementComponent.moreActionsButton, headElementComponent.cxtMenuCommands)
-                }
-            };
-            headElementComponent.onmouseover = () => this.highlightVariableCallback(headElementComponent._id);
-            headElementComponent.onmouseout = () => this.resetHighlightCallback(headElementComponent._id);
-        });
+        return (_a = this.shadowRoot) === null || _a === void 0 ? void 0 : _a.querySelector('#select-aggregate-function > select');
     }
-    /**
-     * Register callback to execute on delete of a HeadElement
-     * @param callback callback receiving the ID of the HeadElement to delete
-     */
-    onDelete(callback) {
-        this.deleteElementCallback = callback;
-    }
-    /**
-     * Register callback to execute on rename of a HeadElement (Set alias)
-     * @param callback callback receiving the ID of the headElement to rename
-     */
-    onRename(callback) {
-        this.renameElementCallback = callback;
-    }
-    /**
-     * Register callback to execute on localization of a HeadElement
-     * @param callback callback receiving the ID of the HeadElement to localize
-     */
-    onLocalize(callback) {
-        this.localizeElementCallback = callback;
-    }
-    onAddFilter(callback) {
-        this.addFilterCallback = callback;
-    }
-    onEditFilter(callback) {
-        this.editFilterCallback = callback;
-    }
-    onDeleteFilter(callback) {
-        this.deleteFilterCallback = callback;
-    }
-    onAddFunction(callback) {
-        this.addFunctionCallback = callback;
-    }
-    onOrderByChange(callback) {
-        this.orderByChangeCallback = callback;
-    }
-    onAddAggregation(callback) {
-        this.addAggregationCallback = callback;
-    }
-    onHighlightVariable(callback) {
-        this.highlightVariableCallback = callback;
-    }
-    onResetHighlightOnVariable(callback) {
-        this.resetHighlightCallback = callback;
-    }
-    blur() {
+    get distinctCheckboxElem() {
         var _a;
-        // do not call super.blur() cause it will collapse query-head body.
-        // This because each click on cytoscape background calls document.activeElement.blur(), 
-        // so if any input field has focus, query-head will be the activeElement and will be
-        // blurred at each tap. this way we only blur the input elements.
-        (_a = this.shadowRoot) === null || _a === void 0 ? void 0 : _a.querySelectorAll('head-element').forEach(headElementComponent => {
-            var _a;
-            (_a = headElementComponent.shadowRoot) === null || _a === void 0 ? void 0 : _a.querySelectorAll('input').forEach(inputElement => inputElement.blur());
-        });
+        return (_a = this.shadowRoot) === null || _a === void 0 ? void 0 : _a.querySelector('#distinct-checkbox');
     }
-    firstUpdated() {
+    get datatype() {
+        return super.datatype;
+    }
+    set datatype(value) {
+        super.datatype = value;
+    }
+}
+customElements.define('sparqling-aggregation-dialog', AggregationDialog);
+
+class ErrorsDialog extends ui.ModalMixin(ui.BaseMixin(s)) {
+    constructor() {
+        super(...arguments);
+        this.errorText = '';
+    }
+    render() {
+        return x `
+      <div class="gscape-panel">
+        <div class="top-bar">
+          <div id="widget-header" class="bold-text">
+            ${error}
+            <span>Error</span>
+          </div>
+
+          <gscape-button 
+            id="toggle-panel-button"
+            size="s" 
+            type="subtle"
+            @click=${this.hide}
+          > 
+            <span slot="icon">${ui.icons.close}</span>
+          </gscape-button>
+        </div>
+
+        <div class="dialog-body">${this.errorText}</div>
+      </div>
+    `;
+    }
+    firstUpdated(_changedProperties) {
+        super.firstUpdated(_changedProperties);
         this.hide();
     }
 }
-QueryHeadWidget.properties = {
-    headElements: { type: Object, attribute: false },
+ErrorsDialog.properties = {
+    errorText: { attribute: false, type: String }
 };
-QueryHeadWidget.styles = [
+ErrorsDialog.styles = [
     ui.baseStyle,
     sparqlingWidgetStyle,
     i$1 `
-      :host {
-        position:initial;
-        min-height: 30%;
-        background: transparent;
-        box-shadow: none;
-        pointer-events: none;
-      }
-
-      #elems-wrapper {
-        display: flex;
-        height:inherit;
-        flex-direction: column;
-        overflow: hidden scroll;
-        scrollbar-width: inherit;
-        padding: 4px 8px;
-      }
-
-      .blank-slate {
-        max-width: unset;
-      }
-
-      .tip {
-        font-size: 90%;
-        border-bottom: dotted 2px;
-        cursor: help;
-      }
-
-      .tip: hover {
-        color:inherit;
-      }
-
-      .top-bar.traslated-down {
-        bottom: 10px;
-        left: 0;
-        transform: initial;
-      }
-
       .gscape-panel {
-        max-height: unset;
+        position: absolute;
+        top: 100px;
+        left: 50%;
+        transform: translate(-50%, 0);
+        height: unset;
+      }
+
+      .dialog-body {
+        display: flex;
+        flex-direction: column;
+        gap: 30px;
+        align-items: center;
+        min-width: 350px;
+        max-width: 450px;
+        padding: 16px 8px;
+        background: var(--gscape-color-danger-subtle);
+        white-space: pre-line;
+        border-bottom-right-radius: inherit;
+        border-bottom-left-radius: inherit;
+      }
+
+      .dialog-body, #widget-header {
+        color: var(--gscape-color-danger);
       }
     `
 ];
-customElements.define('query-head', QueryHeadWidget);
+customElements.define('error-dialog', ErrorsDialog);
 
-const qhWidget = new QueryHeadWidget();
-function onDelete(callback) {
-    qhWidget.onDelete(headElementId => {
-        const headElement = getHeadElementByID(headElementId);
-        if (headElement)
-            callback(headElement);
-    });
-}
-function onRename(callback) {
-    qhWidget.onRename((headElementId, alias) => {
-        callback(headElementId, alias);
-    });
-}
-function onLocalize(callback) {
-    qhWidget.onLocalize(headElementId => {
-        const headElement = getHeadElementByID(headElementId);
-        if (headElement)
-            callback(headElement);
-    });
-}
-function render(newHead) {
-    if (!newHead)
-        return;
-    qhWidget.headElements = newHead;
-}
-function onAddFilter(callback) {
-    qhWidget.onAddFilter((headElementId) => {
-        callback(headElementId);
-    });
-}
-function onEditFilter(callback) {
-    qhWidget.onEditFilter(filterId => callback(filterId));
-}
-function onDeleteFilter(callback) {
-    qhWidget.onDeleteFilter(filterId => callback(filterId));
-}
-function onAddFunction(callback) {
-    qhWidget.onAddFunction(headElementId => callback(headElementId));
-}
-function onOrderByChange(callback) {
-    qhWidget.onOrderByChange(headElementId => callback(headElementId));
-}
-function onAddAggregation(callback) {
-    qhWidget.onAddAggregation(headElementId => callback(headElementId));
-}
-function onHighlightVariable(callback) {
-    qhWidget.onHighlightVariable(headElementId => callback(headElementId));
-}
-function onResetHighlightOnVariable(callback) {
-    qhWidget.onResetHighlightOnVariable(headElemenId => callback(headElemenId));
-}
-
-function getHeadElementWithDatatype(headElement) {
-    const headElementCopy = JSON.parse(JSON.stringify(headElement));
-    if (headElementCopy.graphElementId) {
-        let relatedGraphElem = getGraphElementByID(headElementCopy.graphElementId);
-        if (relatedGraphElem) {
-            const relatedGraphElemIri = getIri(relatedGraphElem);
-            if (relatedGraphElemIri) {
-                const grapholEntity = getGscape().ontology.getEntity(relatedGraphElemIri);
-                headElementCopy['entityType'] = getEntityType(relatedGraphElem);
-                headElementCopy['dataType'] = headElementCopy['entityType'] === EntityTypeEnum.DataProperty
-                    ? grapholEntity === null || grapholEntity === void 0 ? void 0 : grapholEntity.datatype
-                    : null;
-                return headElementCopy;
-            }
-        }
+class SparqlingQueryResults extends ui.ModalMixin(ui.BaseMixin(s)) {
+    constructor() {
+        super(...arguments);
+        this.isLoading = false;
+        this.title = 'Query Results Preview';
+        this.searchExamplesCallback = () => { };
     }
-    return headElementCopy;
-}
+    render() {
+        return x `
+    <div class="gscape-panel">
+      <div class="top-bar">
+        <div id="widget-header" class="bold-text">
+          ${preview}
+          <span>${this.title}</span>
+        </div>
 
-function performHighlights(iri) {
-    const _iris = typeof iri === 'string' ? [iri] : iri;
-    // Highlight suggestions for the actual clicked iri (might be a child node)
-    clearHighlights$1();
-    highlightsList.loading = true;
-    for (let iri of _iris) {
-        const grapholscape = getGscape();
-        computeHighlights(iri).then(highlights => {
-            var _a, _b, _c, _d, _e, _f;
-            highlightsList.allHighlights = {
-                classes: ((_a = highlights.classes) === null || _a === void 0 ? void 0 : _a.map(iri => {
-                    return _getEntityViewDataUnfolding(iri, grapholscape);
-                }).filter(e => e !== undefined)) || [],
-                dataProperties: ((_b = highlights.dataProperties) === null || _b === void 0 ? void 0 : _b.map(iri => {
-                    return _getEntityViewDataUnfolding(iri, grapholscape);
-                }).filter(e => e !== undefined)) || [],
-                objectProperties: ((_c = highlights.objectProperties) === null || _c === void 0 ? void 0 : _c.map(op => {
-                    var _a;
-                    if (op.objectPropertyIRI) {
-                        const grapholEntity = grapholscape.ontology.getEntity(op.objectPropertyIRI);
-                        if (grapholEntity) {
-                            const objPropViewData = util.grapholEntityToEntityViewData(grapholEntity, grapholscape);
-                            return {
-                                entityViewData: objPropViewData,
-                                hasUnfolding: !hasEntityEmptyUnfolding(op.objectPropertyIRI, TypesEnum.OBJECT_PROPERTY),
-                                connectedClasses: ((_a = op.relatedClasses) === null || _a === void 0 ? void 0 : _a.map(rc => _getEntityViewDataUnfolding(rc, grapholscape)).filter(rc => rc !== undefined)) || [],
-                                direct: op.direct,
-                            };
-                        }
-                    }
-                }).filter(e => e !== undefined)) || [],
+        <gscape-button 
+          id="toggle-panel-button"
+          size="s" 
+          type="subtle"
+          @click=${this.hide}
+          title="Close"
+        > 
+          <span slot="icon">${ui.icons.close}</span>
+        </gscape-button>
+      </div>
+
+      <div class="dialog-body">
+        ${!this.result && !this.isLoading ? x `<div class="danger">Select Endpoint</div>` : null}
+        ${this.result
+            ? x `
+            ${this.allowSearch
+                ? x `
+                <input id="search-examples-input" placeholder="Search Examples" type="text" value=${this.examplesSearchValue} />
+              `
+                : null}
+            ${queryResultTemplate(this.result)}
+          `
+            : null}
+        ${this.isLoading ? getLoadingSpinner() : null}
+      </div>
+    </div>
+    `;
+    }
+    onSearchExamples(callback) {
+        this.searchExamplesCallback = callback;
+    }
+    firstUpdated(_changedProperties) {
+        super.firstUpdated(_changedProperties);
+        this.hide();
+    }
+    updated(_changedProperties) {
+        if (this.allowSearch && this.searchExamplesInput) {
+            this.searchExamplesInput.onchange = () => {
+                this.examplesSearchValue = this.searchExamplesInput.value;
             };
-            highlightsList.loading = false;
-            if (!isFullPageActive()) {
-                const activeElement = getActiveElement();
-                let activeElementIris = [];
-                if (activeElement)
-                    activeElementIris = getIris(activeElement === null || activeElement === void 0 ? void 0 : activeElement.graphElement);
-                (_d = highlights === null || highlights === void 0 ? void 0 : highlights.classes) === null || _d === void 0 ? void 0 : _d.forEach((iri) => {
-                    if (!activeElement || !activeElementIris.includes(iri))
-                        highlightIRI(iri);
-                });
-                (_e = highlights === null || highlights === void 0 ? void 0 : highlights.dataProperties) === null || _e === void 0 ? void 0 : _e.forEach((iri) => highlightIRI(iri));
-                (_f = highlights === null || highlights === void 0 ? void 0 : highlights.objectProperties) === null || _f === void 0 ? void 0 : _f.forEach((o) => highlightIRI(o.objectPropertyIRI));
-                fadeEntitiesNotHighlighted();
-            }
-        });
-    }
-}
-function clearHighlights$1() {
-    clearHighlights();
-    if (!isFullPageActive())
-        resetHighlights();
-    highlightsList.allHighlights = undefined;
-    performHighlightsEmptyUnfolding();
-}
-function refreshHighlights() {
-    let activeElement = getActiveElement();
-    if (activeElement === null || activeElement === void 0 ? void 0 : activeElement.graphElement) {
-        performHighlights(getIris(activeElement.graphElement));
-    }
-}
-function performHighlightsEmptyUnfolding() {
-    for (const mwsEntity of getEmptyUnfoldingEntities()) {
-        fadeEntity(mwsEntity.entityIRI);
-    }
-}
-function _getEntityViewDataUnfolding(entityIri, grapholscape) {
-    const grapholEntity = grapholscape.ontology.getEntity(entityIri);
-    if (grapholEntity)
-        return util.getEntityViewDataUnfolding(grapholEntity, grapholscape, (iri, type) => !hasEntityEmptyUnfolding(iri, type));
-}
-
-function onNewBody(newBody) {
-    var _a, _b;
-    // empty query
-    if (!newBody.graph) {
-        setActiveElement(undefined);
-        getOriginGrapholNodes().clear();
-        clearHighlights$1();
-        getGscape().unselect();
-        distinctToggle.checked = true;
-        countStarToggle$1.checked = false;
-        startRunButtons.queryName = undefined;
-        limitInput$1.value = '';
-        offsetInput.value = '';
-        if (isFullPageActive()) {
-            classSelector.show();
+            this.searchExamplesInput.onkeyup = (e) => {
+                if (e.key === 'Enter')
+                    this.searchExamplesCallback();
+            };
         }
     }
-    startRunButtons.canQueryRun = ((_a = newBody.graph) === null || _a === void 0 ? void 0 : _a.id) !== undefined && !isStandalone() && core.onQueryRun !== undefined;
-    let body = setQueryBody(newBody);
-    widget.isBGPEmpty = body.graph === null || body.graph === undefined;
-    render$1(body.graph);
-    const deletedNodeIds = removeNodesNotInQuery();
-    deletedNodeIds.forEach(id => getOriginGrapholNodes().delete(id));
-    renderOptionals(body.optionals);
-    render((_b = body.head) === null || _b === void 0 ? void 0 : _b.map((headElem) => getHeadElementWithDatatype(headElem)));
-    filterListDialog.filterList = getFiltersOnVariable(filterListDialog.variable);
-    sparqlDialog.text = (body === null || body === void 0 ? void 0 : body.sparql) ? body.sparql : emptyQueryMsg();
-    distinctToggle.disabled =
-        countStarToggle$1.disabled =
-            limitInput$1.disabled =
-                offsetInput.disabled =
-                    (newBody === null || newBody === void 0 ? void 0 : newBody.graph) ? false : true;
-    if (!distinctToggle.disabled)
-        distinctToggle.classList.add('actionable');
-    if (!countStarToggle$1.disabled)
-        countStarToggle$1.classList.add('actionable');
-    if (newBody.activeGraphElementId) {
-        const activeGraphElement = getGraphElementByID(newBody.activeGraphElementId);
-        if (activeGraphElement) {
-            const iri = getIri(activeGraphElement);
-            if (iri) {
-                setActiveElement({
-                    graphElement: activeGraphElement,
-                    iri: new Iri(iri, getGscape().ontology.namespaces)
-                });
-                selectElement(newBody.activeGraphElementId);
-                clearHighlights$1();
-                performHighlights(getIris(activeGraphElement));
-                getIris(activeGraphElement).forEach(iri => selectEntity(iri));
-            }
-        }
+    get searchExamplesInput() {
+        var _a;
+        return (_a = this.shadowRoot) === null || _a === void 0 ? void 0 : _a.querySelector('#search-examples-input');
     }
-    setQueryDirtyState(true);
 }
+SparqlingQueryResults.properties = {
+    result: { attribute: false },
+    isLoading: { attribute: false, type: Boolean },
+    allowSearch: { type: Boolean },
+    exampleSearchValue: { type: String }
+};
+SparqlingQueryResults.styles = [
+    ui.baseStyle,
+    loadingSpinnerStyle,
+    sparqlingWidgetStyle,
+    queryResultTemplateStyle,
+    i$1 `
+      .gscape-panel {
+        position: absolute;
+        top: 100px;
+        left: 50%;
+        transform: translate(-50%, 0);
+        min-width: 200px;
+        max-width: 800px;
+        height: unset;
+      }
 
-function handleDistinctChange() {
-    const qExtraApi = new QueryGraphExtraApi(undefined, getBasePath());
-    handlePromise(qExtraApi.distinctQueryGraph(!isDistinctActive(), getQueryBody(), getRequestOptions())).then(newBody => {
-        onNewBody(newBody);
+      .dialog-body {
+        display: flex;
+        flex-direction: column;
+        gap: 10px;
+        align-items: center;
+        padding: 8px;
+        max-height: 400px;
+        overflow: scroll;
+        scrollbar-width: inherit;
+      }
+
+      .gscape-panel {
+        max-height: 450px;
+      }
+
+      .danger {
+        color: var(--gscape-color-danger);
+        padding: 8px;
+      }
+    `
+];
+customElements.define('sparqling-preview-dialog', SparqlingQueryResults);
+
+class LoadingDialog extends ui.BaseMixin(s) {
+    render() {
+        return x `
+      <div class="gscape-panel">
+        <div class="header">Sparqling is loading...</div>
+        <div class="spinner">${getLoadingSpinner()}</div>
+      </div>
+    `;
+    }
+    firstUpdated(_changedProperties) {
+        this.hide();
+    }
+}
+LoadingDialog.styles = [
+    loadingSpinnerStyle,
+    ui.baseStyle,
+    i$1 `
+      :host {
+        position: absolute;
+        top: 50%;
+        left: 50%;
+        transform: translate(-50%, -50%);
+        z-index: 100;
+      }
+
+      .lds-ring {
+        width: 30px;
+        height: 30px;
+      }
+
+      .lds-ring div {
+        width: 26px;
+        height: 26px;
+      }
+
+      .spinner {
+        display: flex;
+        padding: 8px;
+        justify-content: center;
+      }
+    `
+];
+customElements.define('sparqling-loading-dialog', LoadingDialog);
+
+function getClassesList(grapholscape) {
+    return ui.createEntitiesList(grapholscape, {
+        [TypesEnum.CLASS]: 1,
+        areAllFiltersDisabled: false,
+    }).map(e => {
+        e.disabled = hasEntityEmptyUnfolding(e.value.iri.fullIri, EntityTypeEnum.Class);
+        return e;
     });
 }
-function handleCountStarChange() {
-    const qExtraApi = new QueryGraphExtraApi(undefined, getBasePath());
-    handlePromise(qExtraApi.countStarQueryGraph(!isCountStarActive(), getQueryBody(), getRequestOptions())).then(newBody => {
-        onNewBody(newBody);
-    });
-}
-function handleOffsetChange(evt) {
-    const queryBody = getQueryBody();
-    if (!(queryBody === null || queryBody === void 0 ? void 0 : queryBody.graph))
-        return;
-    const input = evt.currentTarget;
-    if (input) {
-        let value = input.valueAsNumber;
-        const qExtraApi = new QueryGraphExtraApi(undefined, getBasePath());
-        if (validateInputElement(input) && value !== queryBody.offset) {
-            // if NaN but valid, then th field is empty, pass -1 to remove the offset
-            if (isNaN(value)) {
-                value = -1;
-                if (value === queryBody.offset || !queryBody.offset) {
-                    //if offset is not set, no need to remove it, return
-                    return;
-                }
-            }
-            handlePromise(qExtraApi.offsetQueryGraph(value, queryBody, getRequestOptions())).then(newBody => {
-                onNewBody(newBody);
-            });
-        }
-        else {
-            input.value = queryBody.offset && queryBody.offset > 0
-                ? queryBody.offset.toString()
-                : '';
-        }
-    }
-}
-function handleLimitChange(evt) {
-    const queryBody = getQueryBody();
-    if (!(queryBody === null || queryBody === void 0 ? void 0 : queryBody.graph))
-        return;
-    const input = evt.currentTarget;
-    if (input) {
-        let value = input.valueAsNumber;
-        const qExtraApi = new QueryGraphExtraApi(undefined, getBasePath());
-        if (validateInputElement(input) && value !== queryBody.limit) {
-            // if NaN but valid, then th field is empty, pass -1 to remove the limit
-            if (isNaN(value)) {
-                value = -1;
-                if (value === queryBody.limit || !queryBody.limit) {
-                    //if limit is not set, no need to remove it, return
-                    return;
-                }
-            }
-            handlePromise(qExtraApi.limitQueryGraph(value, queryBody, getRequestOptions())).then(newBody => {
-                onNewBody(newBody);
-            });
-        }
-        else {
-            input.value = queryBody.limit && queryBody.limit > 0 ? queryBody.limit.toString() : '';
-        }
-    }
-}
 
-const limitInput = document.createElement('input');
-limitInput.placeholder = 'Num. of results';
-limitInput.type = 'number';
-limitInput.id = 'limit-input';
-limitInput.min = '1';
-limitInput.disabled = true;
-limitInput.onchange = handleLimitChange;
-limitInput.addEventListener('focusout', handleLimitChange);
-limitInput.onsubmit = handleLimitChange;
-var limitInput$1 = limitInput;
+const classSelector = new ui.IncrementalInitialMenu();
+classSelector.hide();
+function initClassSelector() {
+    classSelector.classes = getClassesList(getGscape());
+}
 
 const countStarToggle = new ui.GscapeToggle();
 countStarToggle.label = 'Count Results';
@@ -11449,8 +11607,6 @@ function start () {
             const owlVisualizer = getGscape().widgets.get(ui.WidgetEnum.OWL_VISUALIZER);
             setPreviousOwlVisualizerState(owlVisualizer.enabled);
             owlVisualizer.disable();
-            const settingsWidget = getGscape().widgets.get(ui.WidgetEnum.SETTINGS);
-            delete settingsWidget.widgetStates[ui.WidgetEnum.OWL_VISUALIZER];
             /**
              * Close color legend and move left column container up on colors activations
              */
@@ -11461,10 +11617,10 @@ function start () {
                 entityColorButton.onclick = (e) => {
                     if (previousCallback)
                         previousCallback(e);
-                    leftColumnContainer.style.bottom = entityColorButton.active ? '40px' : '0';
-                    leftColumnContainer.style.height = entityColorButton.active ? 'calc(100% - 80px)' : 'calc(100% - 40px)';
-                    entityColorLegend === null || entityColorLegend === void 0 ? void 0 : entityColorLegend.closePanel();
+                    moveUIForColorLegend(entityColorButton.active);
                 };
+                moveUIForColorLegend(entityColorButton.active);
+                entityColorLegend === null || entityColorLegend === void 0 ? void 0 : entityColorLegend.closePanel();
             }
             hideUI();
             showUI();
@@ -11477,7 +11633,6 @@ function start () {
             const selectedGraphElement = (_c = getActiveElement()) === null || _c === void 0 ? void 0 : _c.graphElement;
             if (selectedGraphElement) {
                 performHighlights(getIris(selectedGraphElement));
-                selectEntity(getIri(selectedGraphElement) || '');
             }
             core.onStart();
         }
@@ -11532,7 +11687,7 @@ function loadQuery (queryBody, queryName) {
         countStarToggle$1.checked = isCountStarActive();
         distinctToggle.checked = isDistinctActive();
         if (queryBody.limit && queryBody.limit > 0)
-            limitInput$1.value = queryBody.limit.toString();
+            limitInput.value = queryBody.limit.toString();
         if (queryBody.offset || queryBody.offset === 0)
             offsetInput.value = queryBody.offset.toString();
         setQueryDirtyState(false);
@@ -11587,7 +11742,8 @@ function handleEntitySelection(entityIriString, entityType, entityOccurrence) {
                     if (!newBody)
                         return;
                     onNewBody(newBody);
-                    getOriginGrapholNodes().set(newBody.activeGraphElementId + entityIriString, entityOccurrence);
+                    if (entityOccurrence)
+                        getOriginGrapholNodes().set(newBody.activeGraphElementId + entityIriString, entityOccurrence);
                 });
                 break;
             }
@@ -11597,7 +11753,8 @@ function handleEntitySelection(entityIriString, entityType, entityOccurrence) {
                     if (!newBody)
                         return;
                     const newGraphElements = getdiffNew((_a = getQueryBody()) === null || _a === void 0 ? void 0 : _a.graph, newBody.graph);
-                    setOriginNode(entityOccurrence, newGraphElements, entityIriString);
+                    if (entityOccurrence)
+                        setOriginNode(entityOccurrence, newGraphElements, entityIriString);
                     onNewBody(newBody);
                 });
                 break;
@@ -11607,19 +11764,14 @@ function handleEntitySelection(entityIriString, entityType, entityOccurrence) {
     });
 }
 onRelatedClassSelection(handleObjectPropertySelection);
-function handleObjectPropertySelection(branch, relatedClassEntityOccurrence) {
-    var _a, _b;
+function handleObjectPropertySelection(branch, relatedClassIri, relatedClassEntityOccurrence) {
     const gscape = getGscape();
     lastObjProperty = branch;
-    if (!isFullPageActive()) {
+    if (!isFullPageActive() && relatedClassEntityOccurrence) {
         gscape.centerOnElement(relatedClassEntityOccurrence.id, relatedClassEntityOccurrence.diagramId);
         gscape.selectElement(relatedClassEntityOccurrence.id);
     }
-    const relatedClassCyElement = gscape.renderState
-        ? (_b = (_a = gscape.ontology.getDiagram(relatedClassEntityOccurrence.diagramId)) === null || _a === void 0 ? void 0 : _a.representations.get(gscape.renderState)) === null || _b === void 0 ? void 0 : _b.cy.$id(relatedClassEntityOccurrence.id)
-        : null;
-    if (relatedClassCyElement)
-        handleEntitySelection(relatedClassCyElement.data().iri, relatedClassCyElement.data().type, relatedClassEntityOccurrence);
+    handleEntitySelection(relatedClassIri, TypesEnum.CLASS, relatedClassEntityOccurrence);
 }
 function handleConceptSelection(cyEntity) {
     var _a, _b, _c;
@@ -11917,108 +12069,6 @@ function getExamplesQueryString(graphElement, endpoint, searchValue) {
     });
 }
 
-var sparqlingStyle = (theme) => [
-    {
-        selector: 'node[shape = "ellipse"], .bubble',
-        style: { 'underlay-shape': 'ellipse' }
-    },
-    {
-        selector: `.${HIGHLIGHT_CLASS}`,
-        style: {
-            'underlay-color': theme.colours["sparqling-highlight"] || theme.getColour(ColoursNames.success_muted),
-            'underlay-padding': '8px',
-            'underlay-opacity': 1,
-            'underlay-shape': (node) => node.style('shape') === Shape.ELLIPSE ? Shape.ELLIPSE : Shape.ROUND_RECTANGLE,
-            'border-opacity': 1,
-        }
-    },
-    {
-        selector: `.${SPARQLING_SELECTED}`,
-        style: {
-            "border-color": theme.getColour(ColoursNames.accent),
-            "border-width": 8,
-            padding: 4,
-        }
-    },
-    {
-        selector: '.faded',
-        style: {
-            'opacity': 0.25,
-        }
-    }
-];
-
-let widgetStates;
-function stopFullpage() {
-    const grapholscape = getGscape();
-    setFullPage(false);
-    widget.withoutBGP = false;
-    setContainer(bgpContainer);
-    setTimeout(() => cy.fit(), 500);
-    grapholscape.renderer.mount();
-    // (grapholscape.widgets.get(ui.WidgetEnum.DIAGRAM_SELECTOR) as unknown as ui.IBaseMixin).enable()
-    enableWidgetsForFullpage(grapholscape);
-    classSelector.hide();
-    if (grapholscape.renderer.cy)
-        addStylesheet(grapholscape.renderer.cy, sparqlingStyle(grapholscape.theme));
-    highlightsList.style.marginTop = '60px';
-}
-function startFullpage() {
-    // if (isFullPageActive()) return
-    const grapholscape = getGscape();
-    setFullPage(true);
-    grapholscape.renderer.stopRendering();
-    disableWidgetsForFullpage(grapholscape);
-    // move query graph inside grapholscape main container
-    setContainer(grapholscape.renderer.container);
-    widget.withoutBGP = true;
-    grapholscape.renderer.cy = cy;
-    const queryBody = getQueryBody();
-    if (!queryBody || !queryBody.graph || !queryBody.graph.id) {
-        // show class selector
-        initClassSelector();
-        classSelector.show();
-    }
-    highlightsList.style.marginTop = '10px';
-    // const rendererSelector = grapholscape.widgets.get(ui.WidgetEnum.RENDERER_SELECTOR) as unknown as any
-    // const rendererStates: RendererStatesEnum[] = rendererSelector.rendererStates.map(rs => rs.id)
-    // if (rendererStates.includes(RendererStatesEnum.INCREMENTAL)) {
-    //   hadIncremental = true
-    //   incrementalIndex = rendererStates.indexOf(RendererStatesEnum.INCREMENTAL)
-    //   incrementalViewRendererState = rendererSelector.rendererStates.splice(
-    //     incrementalIndex,
-    //     1
-    //   )[0]
-    //   rendererSelector.requestUpdate()
-    // }
-}
-function disableWidgetsForFullpage(grapholscape) {
-    const settingsWidget = grapholscape.widgets.get(ui.WidgetEnum.SETTINGS);
-    widgetStates = JSON.parse(JSON.stringify(settingsWidget.widgetStates));
-    grapholscape.widgets.get(ui.WidgetEnum.DIAGRAM_SELECTOR).disable();
-    grapholscape.widgets.get(ui.WidgetEnum.RENDERER_SELECTOR).disable();
-    grapholscape.widgets.get(ui.WidgetEnum.FILTERS).disable();
-    grapholscape.widgets.get(ui.WidgetEnum.ONTOLOGY_EXPLORER).disable();
-    grapholscape.widgets.get(ui.WidgetEnum.OWL_VISUALIZER).disable();
-    const actualWidgetStates = settingsWidget.widgetStates;
-    delete actualWidgetStates[ui.WidgetEnum.DIAGRAM_SELECTOR];
-    delete actualWidgetStates[ui.WidgetEnum.RENDERER_SELECTOR];
-    delete actualWidgetStates[ui.WidgetEnum.FILTERS];
-    delete actualWidgetStates[ui.WidgetEnum.ONTOLOGY_EXPLORER];
-    delete actualWidgetStates[ui.WidgetEnum.LAYOUT_SETTINGS];
-    delete actualWidgetStates[ui.WidgetEnum.OWL_VISUALIZER];
-    settingsWidget.requestUpdate();
-}
-function enableWidgetsForFullpage(grapholscape) {
-    const settingsWidget = grapholscape.widgets.get(ui.WidgetEnum.SETTINGS);
-    settingsWidget.widgetStates = widgetStates;
-    Object.entries(widgetStates).forEach(([key, widgetState]) => {
-        if (widgetState)
-            grapholscape.widgets.get(key).enable();
-    });
-    settingsWidget.requestUpdate();
-}
-
 function init() {
     const gscape = getGscape();
     if (gscape.renderer.cy)
@@ -12037,7 +12087,7 @@ function init() {
     });
     gscape.on(LifecycleEvent.ThemeChange, (newTheme) => {
         setTheme(newTheme);
-        if (gscape.renderer.cy)
+        if (gscape.renderer.cy && gscape.renderer.cy !== cy)
             addStylesheet(gscape.renderer.cy, sparqlingStyle(newTheme));
     });
     gscape.on(LifecycleEvent.DiagramChange, () => onChangeDiagramOrRenderer(gscape));
@@ -12058,7 +12108,7 @@ function init() {
 }
 function onChangeDiagramOrRenderer(gscape) {
     if (isFullPageActive()) {
-        stopFullpage();
+        stopFullPage();
     }
     if (gscape.renderer.cy && gscape.renderState !== RendererStatesEnum.INCREMENTAL) {
         setHandlers(gscape.renderer.cy);
@@ -12068,10 +12118,6 @@ function onChangeDiagramOrRenderer(gscape) {
         resetHighlights();
         performHighlightsEmptyUnfolding();
         refreshHighlights();
-        const activeElement = getActiveElement();
-        if (activeElement) {
-            getIris(activeElement.graphElement).forEach(iri => selectEntity(iri));
-        }
     }
 }
 function setHandlers(cy) {
@@ -12177,7 +12223,7 @@ onAddHead((graphElement) => __awaiter(void 0, void 0, void 0, function* () {
         });
     }
 }));
-onDelete$1((graphElement, iri) => {
+onDelete((graphElement, iri) => {
     var _a;
     if (!graphElement.id) {
         return;
@@ -12223,34 +12269,25 @@ onJoin((ge1, ge2) => __awaiter(void 0, void 0, void 0, function* () {
         });
     }
 }));
-onElementClick((graphElement, iri) => {
+onElementClick((graphElement, clickedIri) => {
     var _a;
     const gscape = getGscape();
-    if (!isFullPageActive()) {
-        // move ontology graph to show origin graphol node or any other iri occurrence
-        const originGrapholNodeOccurrence = getOriginGrapholNodes().get(graphElement.id + iri);
-        if (originGrapholNodeOccurrence) {
-            gscape.centerOnElement(originGrapholNodeOccurrence.id, originGrapholNodeOccurrence.diagramId, 1.5);
-            gscape.selectElement(originGrapholNodeOccurrence.id);
-        }
-        else {
-            gscape.selectEntity(iri);
-        }
-    }
     if (isClass(graphElement)) {
         // if the new graphElement is different from the current selected one the select it
         if (((_a = getActiveElement()) === null || _a === void 0 ? void 0 : _a.graphElement) !== graphElement) {
             setActiveElement({
                 graphElement: graphElement,
-                iri: new Iri(iri, gscape.ontology.namespaces)
+                iri: new Iri(clickedIri, gscape.ontology.namespaces)
             });
-            if (graphElement.entities)
-                performHighlights(getIris(graphElement));
-            else
-                performHighlights(iri);
+            performHighlights(getIris(graphElement));
         }
-        getIris(graphElement).forEach(iri => selectEntity(iri));
     }
+    if (!isFullPageActive()) {
+        centerOnGraphElement(graphElement, clickedIri);
+    }
+    const entityDetails = gscape.widgets.get(ui.WidgetEnum.ENTITY_DETAILS);
+    entityDetails.setGrapholEntity(gscape.ontology.getEntity(clickedIri));
+    entityDetails.show();
     // keep focus on selected class
     const activeElement = getActiveElement();
     if (activeElement === null || activeElement === void 0 ? void 0 : activeElement.graphElement.id)
@@ -12274,7 +12311,7 @@ onRemoveOptional(graphElement => {
         });
     }
 });
-onAddFilter$1(graphElement => {
+onAddFilter(graphElement => {
     showFormDialog(graphElement, filterDialog);
 });
 onSeeFilters(graphElement => {
@@ -12412,7 +12449,7 @@ filterDialog.onSeeExamples((variable) => __awaiter(void 0, void 0, void 0, funct
     }
 }));
 
-onDelete((headElement) => __awaiter(void 0, void 0, void 0, function* () {
+onDelete$2((headElement) => __awaiter(void 0, void 0, void 0, function* () {
     const qgApi = QueryGraphHeadApiFactory(undefined, getBasePath());
     const body = getQueryBody();
     if (headElement.id) {
@@ -12445,7 +12482,7 @@ onLocalize(headElement => {
         }
     }
 });
-onAddFilter(headElementId => {
+onAddFilter$2(headElementId => {
     const headElement = getHeadElementByID(headElementId);
     if (headElement)
         showFormDialog(headElement, filterDialog);
@@ -12661,9 +12698,10 @@ highlightsList.onSuggestionAddToQuery((entityIri, entityType, relatedClass) => {
                     if (b.objectPropertyIRI)
                         return b.objectPropertyIRI === entityIri || getPrefixedIri(b.objectPropertyIRI) === entityIri;
                 });
+                const relatedClassEntity = getGscape().ontology.getEntity(relatedClass);
                 const relatedClassOccurrence = getEntityOccurrence(relatedClass);
-                if (objectPropertyBranch && relatedClassOccurrence) {
-                    handleObjectPropertySelection(objectPropertyBranch, relatedClassOccurrence);
+                if (relatedClassEntity && objectPropertyBranch) {
+                    handleObjectPropertySelection(objectPropertyBranch, relatedClassEntity.iri.fullIri, relatedClassOccurrence);
                 }
             }
     }
@@ -12738,34 +12776,30 @@ classSelector.addEventListener('class-selection', ((event) => __awaiter(void 0, 
 
 function showInitialModeSelector() {
     const modeSelector = new ui.GscapeFullPageSelector();
-    modeSelector.title = 'How do you want to build your query?';
+    modeSelector.title = 'Do you want to use the Ontology Graph?';
     modeSelector.options = [
         {
-            name: 'Standard',
-            // description: 'Use the ontology graph and our suggestions to build your query',
-            icon: sparqlingIcon,
-            id: 'standard'
+            name: 'Only Suggestions',
+            description: 'You do not need to know the ontology graph. Start from a class and proceed using our suggestions.',
+            icon: lightbulb,
+            id: 'full-page'
         },
         {
-            name: 'Query Path',
-            // description: 'You do not need to know the ontology graph. Start from a class and proceed using our suggestions.',
-            icon: ui.icons.enterFullscreen,
-            id: 'full-page'
+            name: 'Ontology Graph & Suggestions',
+            description: 'Use the ontology graph and our suggestions to build your query.',
+            icon: ui.icons.bubbles,
+            id: 'standard'
         },
     ];
     modeSelector.onOptionSelection = (optionId) => {
-        var _a;
-        if (optionId === 'full-page') {
-            start().then(_ => {
-                startFullpage();
-            });
-            getGscape().renderer.stopRendering();
-        }
-        else {
-            if (isFullPageActive())
-                stopFullpage();
-            (_a = getGscape().widgets.get(ui.WidgetEnum.INITIAL_RENDERER_SELECTOR)) === null || _a === void 0 ? void 0 : _a.show();
-        }
+        start().then(_ => {
+            if (optionId === 'full-page') {
+                startFullPage();
+            }
+            else {
+                stopFullPage();
+            }
+        });
     };
     getGscape().container.appendChild(modeSelector);
 }
@@ -12782,7 +12816,7 @@ function sparqlingStandalone(gscape, file) {
     showInitialModeSelector();
     return sparqlingCore;
 }
-function sparqling(gscape, file, requestOptions, useOntologyGraph = true, config) {
+function sparqling(gscape, file, requestOptions, config) {
     var _a, _b;
     return __awaiter(this, void 0, void 0, function* () {
         clear();
@@ -12800,35 +12834,16 @@ function sparqling(gscape, file, requestOptions, useOntologyGraph = true, config
             yield updateEndpoints();
             startRunButtons.endpoints = getEndpoints();
             startRunButtons.selectedEndpointName = (_b = getSelectedEndpoint()) === null || _b === void 0 ? void 0 : _b.name;
-            if (useOntologyGraph) {
-                if (isFullPageActive()) {
-                    stopFullpage();
-                }
-                // show grapholscape renderer selector
-                if (!gscape.widgets.get(ui.WidgetEnum.INITIAL_RENDERER_SELECTOR)) {
-                    ui.initInitialRendererSelector(gscape);
-                }
-                const grapholscapeRendererSelector = gscape.widgets.get(ui.WidgetEnum.INITIAL_RENDERER_SELECTOR);
-                const onOptionSelection = grapholscapeRendererSelector === null || grapholscapeRendererSelector === void 0 ? void 0 : grapholscapeRendererSelector.onOptionSelection;
-                if (onOptionSelection) {
-                    grapholscapeRendererSelector.onOptionSelection = (optionId) => {
-                        onOptionSelection(optionId); // call original callback
-                        if (core.onToggleCatalog) {
-                            core.onToggleCatalog();
-                        }
-                        performHighlightsEmptyUnfolding();
-                        grapholscapeRendererSelector.onOptionSelection = onOptionSelection; // restore original callback
-                    };
-                    grapholscapeRendererSelector === null || grapholscapeRendererSelector === void 0 ? void 0 : grapholscapeRendererSelector.enable();
-                }
+            startRunButtons.allowOntologyGraph = (config === null || config === void 0 ? void 0 : config.allowOntologyGraph) !== false;
+            const useOntologyGraph = localStorage.getItem('obda-systems.sparqling-ontologyGraph');
+            if (useOntologyGraph === 'true' && (config === null || config === void 0 ? void 0 : config.allowOntologyGraph) !== false) {
+                isSparqlingRunning() ? stopFullPage() : start().then(stopFullPage);
+            }
+            else if (useOntologyGraph === 'false' || (config === null || config === void 0 ? void 0 : config.allowOntologyGraph) === false) {
+                isSparqlingRunning() ? startFullPage() : start().then(startFullPage);
             }
             else {
-                if (isSparqlingRunning()) {
-                    startFullpage();
-                }
-                else {
-                    start().then(_ => startFullpage());
-                }
+                showInitialModeSelector();
             }
         }
         return sparqlingCore;
