@@ -8,6 +8,7 @@ export type SparqlingConfig = {
   function?: boolean,
   queryHeadWidgetTitle?: string,
   queryGraphWidgetTitle?: string,
+  allowOntologyGraph?: boolean,
 }
 
 let config: SparqlingConfig = {}

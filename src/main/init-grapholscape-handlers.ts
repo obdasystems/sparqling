@@ -73,10 +73,6 @@ function onChangeDiagramOrRenderer(gscape: Grapholscape) {
     resetHighlights()
     performHighlightsEmptyUnfolding()
     refreshHighlights()
-    const activeElement = model.getActiveElement()
-    if (activeElement) {
-      getIris(activeElement.graphElement).forEach(iri => selectEntity(iri))
-    }
   }
 
 }

@@ -47,22 +47,12 @@ export async function sparqling(gscape: Grapholscape, file: string | Blob, reque
     await model.updateEndpoints()
     widgets.startRunButtons.endpoints = model.getEndpoints()
     widgets.startRunButtons.selectedEndpointName = model.getSelectedEndpoint()?.name
-
-    const grapholscapeRendererSelector = gscape.widgets.get(ui.WidgetEnum.INITIAL_RENDERER_SELECTOR) as any
-    const onOptionSelection = grapholscapeRendererSelector?.onOptionSelection
-    if (onOptionSelection) {
-      grapholscapeRendererSelector.onOptionSelection = (optionId) => {
-        onOptionSelection(optionId) // call original callback
-        performHighlightsEmptyUnfolding()
-        grapholscapeRendererSelector.onOptionSelection = onOptionSelection // restore original callback
-      }
-      grapholscapeRendererSelector?.enable()
-    }
+    widgets.startRunButtons.allowOntologyGraph = config?.allowOntologyGraph !== false
 
     const useOntologyGraph = localStorage.getItem('obda-systems.sparqling-ontologyGraph')
-    if (useOntologyGraph === 'true') {
+    if (useOntologyGraph === 'true' && config?.allowOntologyGraph !== false) {
       model.isSparqlingRunning() ? stopFullPage() : start().then(stopFullPage)
-    } else if (useOntologyGraph === 'false') {
+    } else if (useOntologyGraph === 'false' || config?.allowOntologyGraph === false) {
       model.isSparqlingRunning() ? startFullPage() : start().then(startFullPage)
     } else {
       showInitialModeSelector()

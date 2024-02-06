@@ -18,6 +18,7 @@ export default class SparqlingStartRunButtons extends ui.BaseMixin(ui.DropPanelM
   public selectedEndpointName?: string
   public queryName?: string
   public showResultsEnabled = false
+  public allowOntologyGraph = true
   public ontologyGraphEnabled = false
 
   private _onSparqlingStartCallback = () => { }
@@ -37,6 +38,7 @@ export default class SparqlingStartRunButtons extends ui.BaseMixin(ui.DropPanelM
     queryName: { type: String, attribute: false },
     showResultsEnabled: { type: Boolean, attribute: false },
     ontologyGraphEnabled: { type: Boolean },
+    allowOntologyGraph: { type: Boolean },
   }
 
   static styles = [
@@ -180,15 +182,18 @@ export default class SparqlingStartRunButtons extends ui.BaseMixin(ui.DropPanelM
 
             <div class="hr"></div>
 
-            <gscape-toggle
-              class="actionable"
-              label="Ontology Graph"
-              ?checked=${this.ontologyGraphEnabled}
-              @click=${(e) => {
-                e.preventDefault()
-                model.isFullPageActive() ? stopFullPage() : startFullPage()
-              }}
-            ></gscape-toggle>
+            ${this.allowOntologyGraph 
+              ? html`<gscape-toggle
+                class="actionable"
+                label="Ontology Graph"
+                ?checked=${this.ontologyGraphEnabled}
+                @click=${(e) => {
+                  e.preventDefault()
+                  model.isFullPageActive() ? stopFullPage() : startFullPage()
+                }}
+              ></gscape-toggle>`
+              : undefined
+            }
           `
           : null
         }

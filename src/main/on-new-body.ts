@@ -72,7 +72,6 @@ export default function onNewBody(newBody: QueryGraph) {
         queryGraph.selectElement(newBody.activeGraphElementId)
         clearHighlights()
         performHighlights(getIris(activeGraphElement))
-        getIris(activeGraphElement).forEach(iri => ontologyGraph.selectEntity(iri))
       }
     }
   }

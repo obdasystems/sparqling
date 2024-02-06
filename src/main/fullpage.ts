@@ -9,7 +9,7 @@ import { classSelector, highlightsList, initClassSelector, startRunButtons } fro
 import { moveUIForColorLegend } from "../widgets/move-ui-for-color-legend";
 import { refreshHighlights } from "./highlights";
 
-let widgetStates: { [key in ui.WidgetEnum]?: boolean } = {}
+let widgetStates: { [key in ui.WidgetEnum]?: { enabled: boolean, visible: boolean } } = {}
 
 export function stopFullPage() {
   const grapholscape = ontologyGraph.getGscape()
@@ -72,7 +72,7 @@ function disableWidgetsForFullpage(grapholscape: Grapholscape) {
   let widget: ui.IBaseMixin
   grapholscape.widgets.forEach((w, widgetKey) => {
     widget = w as unknown as ui.IBaseMixin
-    widgetStates[widgetKey] = widget.enabled
+    widgetStates[widgetKey] = { enabled: widget.enabled, visible: widget.isVisible }
     switch (widgetKey) {
       case ui.WidgetEnum.DIAGRAM_SELECTOR:
       case ui.WidgetEnum.RENDERER_SELECTOR:
@@ -88,25 +88,17 @@ function disableWidgetsForFullpage(grapholscape: Grapholscape) {
         (widget as any).showOccurrences = false
     }
   })
-  // const settingsWidget = grapholscape.widgets.get(ui.WidgetEnum.SETTINGS) as any
-  // widgetStates = JSON.parse(JSON.stringify(settingsWidget.widgetStates));
-  // (grapholscape.widgets.get(ui.WidgetEnum.DIAGRAM_SELECTOR) as unknown as ui.IBaseMixin).disable();
-  // (grapholscape.widgets.get(ui.WidgetEnum.RENDERER_SELECTOR) as unknown as ui.IBaseMixin).disable();
-  // (grapholscape.widgets.get(ui.WidgetEnum.FILTERS) as unknown as ui.IBaseMixin).disable();
-  // (grapholscape.widgets.get(ui.WidgetEnum.ONTOLOGY_EXPLORER) as unknown as ui.IBaseMixin).disable();
-  // (grapholscape.widgets.get(ui.WidgetEnum.OWL_VISUALIZER) as unknown as ui.IBaseMixin).disable();
 }
 
 function enableWidgetsForFullpage(grapholscape: Grapholscape) {
   let widget: ui.IBaseMixin
   Object.entries(widgetStates).forEach(([key, widgetState]) => {
-    if (widgetState) {
+    
+    if (widgetState.enabled && key !== ui.WidgetEnum.OWL_VISUALIZER) {
       widget = (grapholscape.widgets.get(key as ui.WidgetEnum) as unknown as ui.IBaseMixin)
       widget.enable()
-      if (key === ui.WidgetEnum.ENTITY_COLOR_LEGEND) {
-        if (!(grapholscape.widgets.get(ui.WidgetEnum.COLOR_BUTTON) as any).active) {
-          widget.hide() // keep color legend hidden if not active
-        }
+      if (!widgetState.visible) {
+        widget.hide() // keep it enabled but hidden if it was hidden before
       }
 
       if (key === ui.WidgetEnum.ENTITY_DETAILS) {

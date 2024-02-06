@@ -8,6 +8,7 @@ import getGscape from '../ontology-graph/get-gscape'
 import * as queryGraph from '../query-graph'
 import { cy } from '../query-graph/renderer'
 import * as queryHead from '../query-head'
+import * as ontologyGraph from '../ontology-graph'
 import HeadElementComponent from '../query-head/qh-element-component'
 import { bgpContainer } from '../util/get-container'
 import * as GEUtility from '../util/graph-element-utility'
@@ -87,9 +88,9 @@ queryGraph.onElementClick((graphElement, clickedIri) => {
       performHighlights(GEUtility.getIris(graphElement))
     }
   }
-
+  
   if (!model.isFullPageActive()) {
-    gscape.selectEntity(clickedIri)
+    ontologyGraph.centerOnGraphElement(graphElement, clickedIri)
   }
 
   const entityDetails = gscape.widgets.get(ui.WidgetEnum.ENTITY_DETAILS) as any
