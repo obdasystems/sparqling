@@ -258,7 +258,7 @@ export default class HighlightsList extends ui.DropPanelMixin(ui.BaseMixin(LitEl
                     : null
                   }
                 `
-                : this.allHighlights === undefined && html`
+                : html`
                   <div class="blank-slate">
                     ${ui.icons.searchOff}
                     <div class="header">No suggestions available</div>
