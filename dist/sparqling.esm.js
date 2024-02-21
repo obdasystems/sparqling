@@ -1,7 +1,7 @@
 /**
  * MIT License
  *
- * Copyright (c) 2022-2023 OBDA Systems
+ * Copyright (c) 2022-2024 OBDA Systems
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -3844,7 +3844,7 @@ class HighlightsList extends ui.DropPanelMixin(ui.BaseMixin(s)) {
                     ? ui.emptySearchBlankState
                     : null}
                 `
-                : this.allHighlights === undefined && x `
+                : x `
                   <div class="blank-slate">
                     ${ui.icons.searchOff}
                     <div class="header">No suggestions available</div>
