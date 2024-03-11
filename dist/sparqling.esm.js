@@ -22,7 +22,7 @@
  * SOFTWARE.
  */
 
-import { ui, TypesEnum, RendererStatesEnum, Iri, ColoursNames, Shape, util, EntityNameType, DefaultThemesEnum, toPNG, toSVG, loadConfig, GrapholRendererState, LifecycleEvent } from 'grapholscape';
+import { ui, TypesEnum, RendererStatesEnum, Iri, ColoursNames, Shape, util, EntityNameType, DefaultThemesEnum, toPNG, toSVG, loadConfig, GrapholRendererState, LifecycleEvent, incrementalGraphStyle } from 'grapholscape';
 import globalAxios from 'axios';
 import cytoscape from 'cytoscape';
 import cola from 'cytoscape-cola';
@@ -3732,20 +3732,20 @@ class HighlightsList extends ui.DropPanelMixin(ui.BaseMixin(s)) {
             if (this.shownIRIs && searchedText.length > 2) {
                 const isAmatch = (value1, value2) => value1.toLowerCase().includes(value2.toLowerCase());
                 const checkEntity = (e) => {
-                    return isAmatch(e.entityViewData.value.iri.remainder, searchedText) ||
-                        e.entityViewData.value.getLabels().some(label => isAmatch(label.lexicalForm, searchedText));
+                    return isAmatch(e.value.iri.remainder, searchedText) ||
+                        e.value.getLabels().some(label => isAmatch(label.lexicalForm, searchedText));
                 };
                 if (!this.entityFilters || this.entityFilters.areAllFiltersDisabled ||
                     this.entityFilters[TypesEnum.CLASS]) {
-                    this.shownIRIs.classes = ((_b = (_a = this.allHighlights) === null || _a === void 0 ? void 0 : _a.classes) === null || _b === void 0 ? void 0 : _b.filter(c => checkEntity(c)).map(e => e.entityViewData.value.iri.fullIri)) || [];
+                    this.shownIRIs.classes = ((_b = (_a = this.allHighlights) === null || _a === void 0 ? void 0 : _a.classes) === null || _b === void 0 ? void 0 : _b.filter(c => checkEntity(c)).map(e => e.value.iri.fullIri)) || [];
                 }
                 if (!this.entityFilters || this.entityFilters.areAllFiltersDisabled ||
                     this.entityFilters[TypesEnum.DATA_PROPERTY]) {
-                    this.shownIRIs.dataProperties = ((_d = (_c = this.allHighlights) === null || _c === void 0 ? void 0 : _c.dataProperties) === null || _d === void 0 ? void 0 : _d.filter(dp => checkEntity(dp)).map(e => e.entityViewData.value.iri.fullIri)) || [];
+                    this.shownIRIs.dataProperties = ((_d = (_c = this.allHighlights) === null || _c === void 0 ? void 0 : _c.dataProperties) === null || _d === void 0 ? void 0 : _d.filter(dp => checkEntity(dp)).map(e => e.value.iri.fullIri)) || [];
                 }
                 if (!this.entityFilters || this.entityFilters.areAllFiltersDisabled ||
                     this.entityFilters[TypesEnum.OBJECT_PROPERTY]) {
-                    this.shownIRIs.objectProperties = ((_f = (_e = this.allHighlights) === null || _e === void 0 ? void 0 : _e.objectProperties) === null || _f === void 0 ? void 0 : _f.filter(op => checkEntity(op)).map(e => e.entityViewData.value.iri.fullIri)) || [];
+                    this.shownIRIs.objectProperties = ((_f = (_e = this.allHighlights) === null || _e === void 0 ? void 0 : _e.objectProperties) === null || _f === void 0 ? void 0 : _f.filter(op => checkEntity(op)).map(e => e.value.iri.fullIri)) || [];
                 }
                 this.requestUpdate();
             }
@@ -3857,19 +3857,18 @@ class HighlightsList extends ui.DropPanelMixin(ui.BaseMixin(s)) {
     `;
     }
     getObjectPropertySuggestionTemplate(objectProperty) {
-        const disabled = objectProperty.hasUnfolding === false;
         return x `
       <gscape-entity-list-item
-        displayedname=${objectProperty.entityViewData.displayedName}
-        iri=${objectProperty.entityViewData.value.iri.fullIri}
-        .types=${objectProperty.entityViewData.value.types}
+        displayedname=${objectProperty.displayedName}
+        iri=${objectProperty.value.iri.fullIri}
+        .types=${objectProperty.value.types}
         ?asaccordion=${true}
-        ?disabled=${disabled}
+        ?disabled=${objectProperty.disabled}
         direct=${objectProperty.direct}
-        title=${objectProperty.hasUnfolding ? objectProperty.entityViewData.displayedName : emptyUnfoldingEntityTooltip()}
+        title=${!objectProperty.disabled ? objectProperty.displayedName : emptyUnfoldingEntityTooltip()}
       >
         <div slot="accordion-body">
-          ${objectProperty.connectedClasses.map(connectedClass => this.getEntitySuggestionTemplate(connectedClass, (e) => this.handleAddToQueryClick(e, connectedClass.entityViewData.value.iri.fullIri, objectProperty.entityViewData.value.types, objectProperty.entityViewData.value.iri.fullIri), disabled))}
+          ${objectProperty.connectedClasses.map(connectedClass => this.getEntitySuggestionTemplate(connectedClass, (e) => this.handleAddToQueryClick(e, connectedClass.value.iri.fullIri, objectProperty.value.types, objectProperty.value.iri.fullIri), objectProperty.disabled))}
         </div>
 
         ${!objectProperty.direct
@@ -3886,7 +3885,7 @@ class HighlightsList extends ui.DropPanelMixin(ui.BaseMixin(s)) {
                   size="s"
                   type="subtle"
                   @click=${(e) => {
-                this.handleSuggestionLocalization(e, objectProperty.entityViewData.value.iri.fullIri);
+                this.handleSuggestionLocalization(e, objectProperty.value.iri.fullIri);
             }}
                 >
                   <span slot='icon' class="slotted-icon">${crosshair}</span>
@@ -3899,20 +3898,20 @@ class HighlightsList extends ui.DropPanelMixin(ui.BaseMixin(s)) {
     `;
     }
     getEntitySuggestionTemplate(entity, customCallback, forceDisabled = false) {
-        const disabled = forceDisabled || entity.hasUnfolding === false;
+        const disabled = forceDisabled || entity.disabled === true;
         return x `
       <gscape-entity-list-item
-        displayedname=${entity.entityViewData.displayedName}
-        iri=${entity.entityViewData.value.iri}
-        .types=${entity.entityViewData.value.types}
+        displayedname=${entity.displayedName}
+        iri=${entity.value.iri}
+        .types=${entity.value.types}
         actionable
         ?disabled=${disabled}
-        title=${entity.hasUnfolding ? entity.entityViewData.displayedName : emptyUnfoldingEntityTooltip()}
+        title=${!entity.disabled ? entity.displayedName : emptyUnfoldingEntityTooltip()}
         @click=${(e) => {
             if (customCallback)
                 customCallback(e);
             else
-                this.handleAddToQueryClick(e, entity.entityViewData.value.iri.fullIri, entity.entityViewData.value.types);
+                this.handleAddToQueryClick(e, entity.value.iri.fullIri, entity.value.types);
         }}
       >
         <div slot="trailing-element" class="actions">
@@ -3923,30 +3922,13 @@ class HighlightsList extends ui.DropPanelMixin(ui.BaseMixin(s)) {
                 size="s"
                 type="subtle"
                 @click=${(e) => {
-                this.handleSuggestionLocalization(e, entity.entityViewData.value.iri.fullIri);
+                this.handleSuggestionLocalization(e, entity.value.iri.fullIri);
             }}
               >
                 <span slot='icon' class="slotted-icon">${crosshair}</span>
               </gscape-button>
             `
             : null}
-          <!-- ${!disabled
-            ? x `
-              <gscape-button
-                title="Add to query"
-                size="s"
-                type="subtle"
-                @click=${(e) => {
-                if (customCallback)
-                    customCallback(e);
-                else
-                    this.handleAddToQueryClick(e, entity.entityViewData.value.iri.fullIri, entity.entityViewData.value.types);
-            }}
-              >
-                <span slot='icon' class="slotted-icon">${ui.icons.insertInGraph}</span>
-              </gscape-button>
-            `
-            : null} -->
         </div>
       </gscape-entity-list-item>
     `;
@@ -3988,20 +3970,20 @@ class HighlightsList extends ui.DropPanelMixin(ui.BaseMixin(s)) {
     get objectProperties() {
         var _a, _b;
         return ((_b = (_a = this.allHighlights) === null || _a === void 0 ? void 0 : _a.objectProperties) === null || _b === void 0 ? void 0 : _b.sort((a, b) => {
-            return a.entityViewData.displayedName.localeCompare(b.entityViewData.displayedName);
-        }).filter(op => { var _a; return !this.shownIRIs || ((_a = this.shownIRIs) === null || _a === void 0 ? void 0 : _a.objectProperties.includes(op.entityViewData.value.iri.fullIri)); })) || [];
+            return a.displayedName.localeCompare(b.displayedName);
+        }).filter(op => { var _a; return !this.shownIRIs || ((_a = this.shownIRIs) === null || _a === void 0 ? void 0 : _a.objectProperties.includes(op.value.iri.fullIri)); })) || [];
     }
     get classes() {
         var _a, _b;
         return ((_b = (_a = this.allHighlights) === null || _a === void 0 ? void 0 : _a.classes) === null || _b === void 0 ? void 0 : _b.sort((a, b) => {
-            return a.entityViewData.displayedName.localeCompare(b.entityViewData.displayedName);
-        }).filter(c => { var _a; return !this.shownIRIs || ((_a = this.shownIRIs) === null || _a === void 0 ? void 0 : _a.classes.includes(c.entityViewData.value.iri.fullIri)); })) || [];
+            return a.displayedName.localeCompare(b.displayedName);
+        }).filter(c => { var _a; return !this.shownIRIs || ((_a = this.shownIRIs) === null || _a === void 0 ? void 0 : _a.classes.includes(c.value.iri.fullIri)); })) || [];
     }
     get dataProperties() {
         var _a, _b;
         return ((_b = (_a = this.allHighlights) === null || _a === void 0 ? void 0 : _a.dataProperties) === null || _b === void 0 ? void 0 : _b.sort((a, b) => {
-            return a.entityViewData.displayedName.localeCompare(b.entityViewData.displayedName);
-        }).filter(dp => { var _a; return !this.shownIRIs || ((_a = this.shownIRIs) === null || _a === void 0 ? void 0 : _a.dataProperties.includes(dp.entityViewData.value.iri.fullIri)); })) || [];
+            return a.displayedName.localeCompare(b.displayedName);
+        }).filter(dp => { var _a; return !this.shownIRIs || ((_a = this.shownIRIs) === null || _a === void 0 ? void 0 : _a.dataProperties.includes(dp.value.iri.fullIri)); })) || [];
     }
     set allHighlights(highlights) {
         this._allHighlights = highlights;
@@ -4013,9 +3995,9 @@ class HighlightsList extends ui.DropPanelMixin(ui.BaseMixin(s)) {
     setHighlights() {
         var _a, _b, _c;
         this.shownIRIs = {
-            classes: ((_a = this.allHighlights) === null || _a === void 0 ? void 0 : _a.classes.map(e => e.entityViewData.value.iri.fullIri)) || [],
-            dataProperties: ((_b = this.allHighlights) === null || _b === void 0 ? void 0 : _b.dataProperties.map(e => e.entityViewData.value.iri.fullIri)) || [],
-            objectProperties: ((_c = this.allHighlights) === null || _c === void 0 ? void 0 : _c.objectProperties.map(e => e.entityViewData.value.iri.fullIri)) || [],
+            classes: ((_a = this.allHighlights) === null || _a === void 0 ? void 0 : _a.classes.map(e => e.value.iri.fullIri)) || [],
+            dataProperties: ((_b = this.allHighlights) === null || _b === void 0 ? void 0 : _b.dataProperties.map(e => e.value.iri.fullIri)) || [],
+            objectProperties: ((_c = this.allHighlights) === null || _c === void 0 ? void 0 : _c.objectProperties.map(e => e.value.iri.fullIri)) || [],
         };
         if (this.shownIRIs && this.entityFilters && !this.entityFilters.areAllFiltersDisabled) {
             let count = 0;
@@ -5597,13 +5579,9 @@ function performHighlights(iri) {
                     if (op.objectPropertyIRI) {
                         const grapholEntity = grapholscape.ontology.getEntity(op.objectPropertyIRI);
                         if (grapholEntity) {
-                            const objPropViewData = util.grapholEntityToEntityViewData(grapholEntity, grapholscape);
-                            return {
-                                entityViewData: objPropViewData,
-                                hasUnfolding: !hasEntityEmptyUnfolding(op.objectPropertyIRI, TypesEnum.OBJECT_PROPERTY),
-                                connectedClasses: ((_a = op.relatedClasses) === null || _a === void 0 ? void 0 : _a.map(rc => _getEntityViewDataUnfolding(rc, grapholscape)).filter(rc => rc !== undefined)) || [],
-                                direct: op.direct,
-                            };
+                            let objPropViewData = util.grapholEntityToEntityViewData(grapholEntity, grapholscape);
+                            objPropViewData = Object.assign(Object.assign({}, objPropViewData), { direct: op.direct, connectedClasses: ((_a = op.relatedClasses) === null || _a === void 0 ? void 0 : _a.map(rc => _getEntityViewDataUnfolding(rc, grapholscape)).filter(rc => rc !== undefined)) || [], disabled: hasEntityEmptyUnfolding(op.objectPropertyIRI, TypesEnum.OBJECT_PROPERTY) });
+                            return objPropViewData;
                         }
                     }
                 }).filter(e => e !== undefined)) || [],
@@ -5647,8 +5625,11 @@ function performHighlightsEmptyUnfolding() {
 }
 function _getEntityViewDataUnfolding(entityIri, grapholscape) {
     const grapholEntity = grapholscape.ontology.getEntity(entityIri);
-    if (grapholEntity)
-        return util.getEntityViewDataUnfolding(grapholEntity, grapholscape, (iri, type) => !hasEntityEmptyUnfolding(iri, type));
+    if (grapholEntity) {
+        const result = util.grapholEntityToEntityViewData(grapholEntity, grapholscape);
+        result.disabled = hasEntityEmptyUnfolding(grapholEntity.iri.fullIri);
+        return result;
+    }
 }
 
 function onNewBody(newBody) {
@@ -12094,9 +12075,9 @@ function init() {
     gscape.on(LifecycleEvent.RendererChange, () => onChangeDiagramOrRenderer(gscape));
     function updateSuggestionsDisplayedNames() {
         const updateDisplayedName = (entity) => {
-            const grapholEntity = gscape.ontology.getEntity(entity.entityViewData.value.iri.fullIri);
+            const grapholEntity = gscape.ontology.getEntity(entity.value.iri.fullIri);
             if (grapholEntity)
-                entity.entityViewData.displayedName = grapholEntity.getDisplayedName(gscape.entityNameType, gscape.language);
+                entity.displayedName = grapholEntity.getDisplayedName(gscape.entityNameType, gscape.language);
         };
         if (highlightsList.allHighlights) {
             highlightsList.allHighlights.classes.forEach(c => updateDisplayedName(c));
@@ -12679,6 +12660,476 @@ function addAnnotation(annotationKind) {
     });
 }
 
+class PathSelector extends ui.ModalMixin(ui.BaseMixin(s)) {
+    constructor(theme) {
+        super();
+        this.theme = theme;
+        this._paths = [];
+        this.selectedPathID = 0;
+        this.canShowMore = false;
+        this.cy = cytoscape();
+        this.getDisplayedName = (entity) => entity.iri;
+    }
+    render() {
+        return x `
+      <div class="gscape-panel">
+        <div class="header">Select a path over the ontology</div>
+      
+        <!-- <div class="path-list">
+                      ${this.paths.map((path, i) => {
+            var _a;
+            return x `
+                          <div id=${i} class="path actionable" ?selected=${this.selectedPathID === i} @click=${this.handlePathClick}>
+                            ${i === 0
+                ? x `
+                                <span class="chip">
+                                  Shortest
+                                </span>
+                              `
+                : null}
+                            
+                            ${(_a = path.entities) === null || _a === void 0 ? void 0 : _a.map((entity) => {
+                var _a;
+                let types = new Set();
+                let displayedName;
+                if (entity.type === EntityTypeEnum.ObjectProperty ||
+                    entity.type === EntityTypeEnum.InverseObjectProperty) {
+                    if (!((_a = entity.iri) === null || _a === void 0 ? void 0 : _a.endsWith('subClassOf'))) {
+                        types.add(TypesEnum.OBJECT_PROPERTY);
+                    }
+                    else {
+                        displayedName = 'subClassOf';
+                    }
+                }
+                if (entity.type === EntityTypeEnum.Class) {
+                    types.add(TypesEnum.CLASS);
+                }
+                return x `
+                                <gscape-entity-list-item
+                                  displayedName=${displayedName || this.getDisplayedName(entity)}
+                                  iri=${entity.iri}
+                                  .types=${types}
+            
+                                >
+                                </gscape-entity-list-item>
+                              `;
+            })}
+                          </div>
+                        `;
+        })}
+                    </div> -->
+      
+        <div id="cy"></div>
+      
+        ${this.canShowMore
+            ? x `
+        <center>
+          <gscape-button label="Show More" type="subtle" size=${ui.SizeEnum.S} @click=${this.handleShowMoreClick}>
+          </gscape-button>
+        </center>
+        `
+            : null}
+      
+        <div class="buttons">
+          <gscape-button label="Cancel" type="subtle" @click=${this.handleCancel}></gscape-button>
+          <gscape-button label="Ok" @click=${this.handleConfirm}></gscape-button>
+        </div>
+      </div>
+    `;
+    }
+    setTheme(theme) {
+        var _a, _b;
+        const style = incrementalGraphStyle(theme);
+        style.push({
+            selector: 'node',
+            style: {
+                shape: 'round-rectangle',
+                width: 100,
+                height: 35,
+            }
+        }, {
+            selector: 'edge',
+            style: {
+                'curve-style': 'unbundled-bezier',
+                "control-point-distances": (elem) => this.getEdgePointDistances(elem),
+                "control-point-weights": (elem) => this.getEdgePointWeights(elem),
+                // 'source-endpoint': ['50%', 0],
+                // 'target-endpoint': ['-50%', 0],
+            }
+        }, {
+            selector: `[?inverseEdge]`,
+            style: {
+                'source-arrow-shape': 'triangle',
+                'source-arrow-fill': 'filled',
+            }
+        }, {
+            selector: `[?inverseEdge][type = "${TypesEnum.INCLUSION}"]`,
+            style: {
+                'target-arrow-shape': 'none',
+            }
+        }, {
+            selector: `[?inverseEdge][type = "${TypesEnum.OBJECT_PROPERTY}"]`,
+            style: {
+                'target-arrow-shape': 'square',
+                'target-arrow-fill': 'hollow',
+            }
+        }, {
+            selector: `.dimmed`,
+            style: {
+                'opacity': 0.4,
+            }
+        }, {
+            selector: `.highlighted`,
+            style: {
+                'underlay-opacity': '1',
+                'underlay-color': theme.getColour(ColoursNames.neutral_muted),
+                'opacity': 1,
+            } // avoid warning on 'underlay-*' not existing in cytoscape's types.
+        }, {
+            selector: `edge.selected`,
+            style: {
+                'width': 4,
+            }
+        }, {
+            selector: `.selected`,
+            style: {
+                'border-color': theme.getColour(ColoursNames.accent),
+                'border-width': 4,
+                'line-color': theme.getColour(ColoursNames.accent),
+                'target-arrow-color': theme.getColour(ColoursNames.accent),
+                'source-arrow-color': theme.getColour(ColoursNames.accent),
+                'z-index': 10,
+            }
+        });
+        (_b = (_a = this.cy) === null || _a === void 0 ? void 0 : _a.style()) === null || _b === void 0 ? void 0 : _b.fromJson(style).update();
+    }
+    getEdgePointDistances(elem) {
+        if (elem.source().same(elem.cy().elements().roots()) &&
+            elem.target().same(elem.cy().elements().leaves())) {
+            return [-60];
+        }
+        let result;
+        const sourcePos = elem.source().position();
+        const targetPos = elem.target().position();
+        const xDiff = Math.abs(sourcePos.x - targetPos.x);
+        let yDiff = sourcePos.y - targetPos.y;
+        const isSourceAbove = yDiff < 0;
+        yDiff = Math.abs(yDiff);
+        if (xDiff < Math.abs(yDiff)) {
+            result = xDiff;
+        }
+        else {
+            result = yDiff;
+        }
+        result = result / 4;
+        return isSourceAbove ? [-result, result] : [result, -result];
+    }
+    getEdgePointWeights(edge) {
+        var _a;
+        if (edge.source().same(edge.cy().elements().roots()) &&
+            edge.target().same(edge.cy().elements().leaves())) {
+            return [0.5];
+        }
+        // if last edge in path and path is shorter than the longest one, we must move
+        // control points towards the sink node to avoid cluttering diagram
+        if (edge.target().degree(false) === 1) {
+            Math.max(...this._paths.map(path => { var _a; return ((_a = path.entities) === null || _a === void 0 ? void 0 : _a.length) || 0; }));
+            ((_a = this._paths[edge.data().pathId].entities) === null || _a === void 0 ? void 0 : _a.length) || 0;
+        }
+        return [0.25, 0.75];
+    }
+    handlePathClick(e) {
+        var _a;
+        const id = (_a = e.currentTarget) === null || _a === void 0 ? void 0 : _a.getAttribute('id');
+        if (id) {
+            this.selectedPathID = parseInt(id);
+        }
+    }
+    handleShowMoreClick(e) {
+        return __awaiter(this, void 0, void 0, function* () {
+            yield this.updateComplete;
+            this.dispatchEvent(new CustomEvent('show-more-paths', {
+                bubbles: true,
+                composed: true,
+            }));
+        });
+    }
+    handleConfirm() {
+        return __awaiter(this, void 0, void 0, function* () {
+            yield this.updateComplete;
+            this.dispatchEvent(new CustomEvent('path-selection', {
+                bubbles: true,
+                composed: true,
+                detail: this.selectedPath
+            }));
+            this.remove();
+        });
+    }
+    handleCancel() {
+        return __awaiter(this, void 0, void 0, function* () {
+            yield this.updateComplete;
+            this.dispatchEvent(new CustomEvent('cancel', {
+                bubbles: true,
+                composed: true
+            }));
+            this.remove();
+        });
+    }
+    get selectedPath() {
+        return this.paths[this.selectedPathID];
+    }
+    get paths() {
+        return this._paths;
+    }
+    set paths(newPaths) {
+        this.updateComplete.then(() => {
+            this.cyInit();
+            if (!this.cy || newPaths.length <= 0 || !newPaths[0].entities)
+                return;
+            const oldValue = this._paths;
+            this._paths = newPaths;
+            const sourceNodeCy = this.cy.add(this.getEntityCyRepr(newPaths[0].entities[0], -1));
+            const sinkNodeCy = this.cy.add(this.getEntityCyRepr(newPaths[0].entities[newPaths[0].entities.length - 1], -1));
+            for (let [pathId, path] of newPaths.entries()) {
+                if (path.entities) {
+                    let edge, previousClassCy, successorClassCy;
+                    for (let [i, entity] of path.entities.entries()) {
+                        if (entity.type === EntityTypeEnum.ObjectProperty || entity.type === EntityTypeEnum.InverseObjectProperty) {
+                            let previousClass = path.entities[i - 1];
+                            let successorClass = path.entities[i + 1];
+                            if (previousClass && successorClass) {
+                                /**
+                                 * If i === 1 then previous class is sourceNode
+                                 * if i === length - 1 then successor class is sinkNode
+                                 *
+                                 * In all other cases check if there's already the class node
+                                 * for the current path, each path must have its own classes,
+                                 * so the can be replicated.
+                                 */
+                                if (i === 1) {
+                                    previousClassCy = sourceNodeCy;
+                                }
+                                else {
+                                    previousClassCy = this.cy.$(`[iri = "${previousClass.iri}"][type = "${EntityTypeEnum.Class}"][pathId = ${pathId}]`).first();
+                                    if (previousClassCy.empty()) {
+                                        previousClassCy = this.cy.add(this.getEntityCyRepr(previousClass, pathId));
+                                    }
+                                }
+                                if (i === path.entities.length - 2) {
+                                    successorClassCy = sinkNodeCy;
+                                }
+                                else {
+                                    successorClassCy = this.cy.$(`[iri = "${successorClass.iri}"][type = "${EntityTypeEnum.Class}"][pathId = ${pathId}]`).first();
+                                    if (successorClassCy.empty()) {
+                                        successorClassCy = this.cy.add(this.getEntityCyRepr(successorClass, pathId));
+                                    }
+                                }
+                                if (previousClassCy.empty() || successorClassCy.empty()) {
+                                    break;
+                                }
+                                edge = this.getEntityCyRepr(entity, pathId);
+                                edge.data.source = previousClassCy.id();
+                                edge.data.target = successorClassCy.id();
+                                this.cy.add(edge);
+                            }
+                            else {
+                                break;
+                            }
+                        }
+                    }
+                }
+            }
+            this.cy.layout({
+                name: 'klay',
+                klay: {
+                    spacing: 80,
+                    fixedAlignment: 'BALANCED',
+                },
+                padding: 30,
+                // some more options here...
+            }).run();
+            this.cy.fit();
+            this.selectPath(0);
+            this.requestUpdate('paths', oldValue);
+        });
+    }
+    getEntityCyRepr(entity, pathId) {
+        var _a;
+        let type;
+        switch (entity.type) {
+            case EntityTypeEnum.Class:
+                type = TypesEnum.CLASS;
+                break;
+            case EntityTypeEnum.InverseObjectProperty:
+            case EntityTypeEnum.ObjectProperty:
+                type = ((_a = entity.iri) === null || _a === void 0 ? void 0 : _a.endsWith('subClassOf')) ? TypesEnum.INCLUSION : TypesEnum.OBJECT_PROPERTY;
+                break;
+            default:
+                type = TypesEnum.CLASS;
+        }
+        return {
+            data: {
+                displayedName: this.getDisplayedName(entity),
+                type: type,
+                iri: entity.iri,
+                pathId: pathId,
+                inverseEdge: entity.type === EntityTypeEnum.InverseObjectProperty
+            }
+        };
+    }
+    cyInit() {
+        var _a;
+        this.cy = cytoscape({
+            container: (_a = this.shadowRoot) === null || _a === void 0 ? void 0 : _a.querySelector('#cy'),
+            autounselectify: true,
+            autoungrabify: true,
+            wheelSensitivity: 0.2,
+        });
+        this.setTheme(this.theme);
+        this.fixHover();
+        this.cy.on('mouseover', '*', (evt) => {
+            var _a;
+            const pathId = evt.target.data().pathId;
+            if (pathId !== undefined) {
+                this.highlightPath(pathId);
+                const container = (_a = this.cy) === null || _a === void 0 ? void 0 : _a.container();
+                if (container)
+                    container.style.cursor = 'pointer';
+            }
+        });
+        this.cy.on('tap', (evt) => {
+            if (evt.target === this.cy) {
+                this.paths.forEach((path, i) => {
+                    this.deHighlightPath(i);
+                });
+            }
+            else {
+                const pathId = evt.target.data().pathId;
+                if (pathId !== undefined) {
+                    this.selectPath(pathId);
+                }
+            }
+            this.fixHover();
+        });
+        this.cy.on('dbltap', (evt) => {
+            var _a;
+            if (evt.target === this.cy)
+                (_a = this.cy) === null || _a === void 0 ? void 0 : _a.fit();
+            this.fixHover();
+        });
+        this.cy.on('mouseout', '*', (evt) => {
+            var _a;
+            const pathId = evt.target.data().pathId;
+            if (pathId !== undefined) {
+                this.deHighlightPath(pathId);
+                const container = (_a = this.cy) === null || _a === void 0 ? void 0 : _a.container();
+                if (container)
+                    container.style.cursor = 'initial';
+            }
+        });
+    }
+    highlightPath(pathId) {
+        var _a;
+        if (pathId !== -1) // -1 is for source and sink nodes, common to every path
+            (_a = this.cy) === null || _a === void 0 ? void 0 : _a.$(`[pathId = ${pathId}]`).addClass('highlighted');
+    }
+    deHighlightPath(pathId) {
+        var _a;
+        if (pathId !== -1) // -1 is for source and sink nodes, common to every path
+            (_a = this.cy) === null || _a === void 0 ? void 0 : _a.$(`[pathId = ${pathId}]`).removeClass('highlighted');
+    }
+    selectPath(pathId) {
+        var _a, _b, _c, _d, _e;
+        if (pathId !== -1) {
+            (_a = this.cy) === null || _a === void 0 ? void 0 : _a.elements().removeClass('selected dimmed');
+            (_b = this.cy) === null || _b === void 0 ? void 0 : _b.$(`[pathId = -1]`).addClass('selected');
+            (_c = this.cy) === null || _c === void 0 ? void 0 : _c.$(`[pathId = ${pathId}]`).addClass('selected');
+            (_d = this.cy) === null || _d === void 0 ? void 0 : _d.$('*').difference((_e = this.cy) === null || _e === void 0 ? void 0 : _e.$('.selected')).addClass('dimmed');
+            this.selectedPathID = pathId;
+        }
+    }
+    /**
+     * --- HACKY ---
+     * Allow events not involving buttons to work on cytoscape when it's in a shadow dom.
+     * They don't work due to shadow dom event's retargeting
+     * Cytoscape listen to events on window object. When the event reach window due to bubbling,
+     * cytoscape handler for mouse movement handles it but event target appear to be the
+     * custom component and not the canvas due to retargeting, therefore listeners are not triggered.
+     * workaround found here: https://github.com/cytoscape/cytoscape.js/issues/2081
+     */
+    fixHover() {
+        try {
+            this.cy.renderer().hoverData.capture = true;
+        }
+        catch (_a) { }
+    }
+}
+PathSelector.properties = {
+    getMorePaths: { type: Boolean },
+    paths: { type: Array },
+    selectedPathID: { type: Number },
+    canShowMore: { type: Boolean }
+};
+PathSelector.styles = [
+    ui.baseStyle,
+    i$1 `
+      .gscape-panel {
+        position: absolute;
+        overflow: hidden;
+        top: 100px;
+        left: 50%;
+        transform: translate(-50%);
+        max-width: 80%;
+        min-width: 60%;
+        min-height: 50%;
+        display: flex;
+        flex-direction: column;
+      }
+
+      .header {
+        margin: 8px;
+      }
+
+      .buttons {
+        display: flex;
+        align-items: center;
+        justify-content: right;
+        gap: 8px;
+      }
+
+      .path {
+        display: flex;
+        align-items: center;
+        overflow: auto;
+        gap: 4px;
+        border: solid 1px var(--gscape-color-border-subtle);
+      }
+
+      .path[selected] {
+        border: solid 2px var(--gscape-color-accent);
+        background: var(--gscape-color-neutral-subtle);
+      }
+
+      gscape-entity-list-item {
+        max-width: 200px;
+        pointer-events: none;
+      }
+
+      .path-list {
+        margin: 16px 0;
+        display: flex;
+        flex-direction: column;
+        gap: 16px;
+      }
+
+      #cy {
+        position: relative;
+        flex-grow: 2;
+      }
+    `
+];
+customElements.define('sparqling-path-selector', PathSelector);
+
 highlightsList.onSuggestionLocalization((entityIri) => {
     if (!isFullPageActive())
         getGscape().centerOnEntity(entityIri);
@@ -12728,7 +13179,7 @@ function handlePathRequest(kShortest) {
                 addPath(paths[0], activeGraphElement);
             }
             else {
-                const pathSelector = new ui.PathSelector(gscape.theme);
+                const pathSelector = new PathSelector(gscape.theme);
                 pathSelector.paths = paths;
                 pathSelector.addEventListener('path-selection', ((evt) => {
                     addPath(evt.detail, activeGraphElement);
