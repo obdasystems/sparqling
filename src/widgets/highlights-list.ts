@@ -6,9 +6,9 @@ import sparqlingWidgetStyle from './sparqling-widget-style'
 import { isFullPageActive } from '../model'
 
 export type ViewHighlights = {
-  classes: ui.EntityViewDataUnfolding[],
-  dataProperties: ui.EntityViewDataUnfolding[],
-  objectProperties: ui.ViewObjectPropertyUnfolding[],
+  classes: ui.EntityViewData[],
+  dataProperties: ui.EntityViewData[],
+  objectProperties: ui.ViewObjectProperty[],
 }
 
 export default class HighlightsList extends ui.DropPanelMixin(ui.BaseMixin(LitElement)) {
@@ -127,9 +127,9 @@ export default class HighlightsList extends ui.DropPanelMixin(ui.BaseMixin(LitEl
       if (this.shownIRIs && searchedText.length > 2) {
         const isAmatch = (value1: string, value2: string) => value1.toLowerCase().includes(value2.toLowerCase())
 
-        const checkEntity = (e: ui.EntityViewDataUnfolding) => {
-          return isAmatch(e.entityViewData.value.iri.remainder, searchedText) ||
-          e.entityViewData.value.getLabels().some(label => isAmatch(label.lexicalForm, searchedText))
+        const checkEntity = (e: ui.EntityViewData) => {
+          return isAmatch(e.value.iri.remainder, searchedText) ||
+          e.value.getLabels().some(label => isAmatch(label.lexicalForm, searchedText))
         }
 
         if (!this.entityFilters || this.entityFilters.areAllFiltersDisabled ||
@@ -137,7 +137,7 @@ export default class HighlightsList extends ui.DropPanelMixin(ui.BaseMixin(LitEl
 
           this.shownIRIs.classes = this.allHighlights?.classes
           ?.filter(c => checkEntity(c))
-          .map(e => e.entityViewData.value.iri.fullIri) || []
+          .map(e => e.value.iri.fullIri) || []
         }
 
         if (!this.entityFilters || this.entityFilters.areAllFiltersDisabled ||
@@ -145,7 +145,7 @@ export default class HighlightsList extends ui.DropPanelMixin(ui.BaseMixin(LitEl
 
           this.shownIRIs.dataProperties = this.allHighlights?.dataProperties
             ?.filter(dp => checkEntity(dp))
-            .map(e => e.entityViewData.value.iri.fullIri) || []
+            .map(e => e.value.iri.fullIri) || []
         }
 
 
@@ -154,7 +154,7 @@ export default class HighlightsList extends ui.DropPanelMixin(ui.BaseMixin(LitEl
 
           this.shownIRIs.objectProperties = this.allHighlights?.objectProperties
             ?.filter(op => checkEntity(op))
-            .map(e => e.entityViewData.value.iri.fullIri) || []
+            .map(e => e.value.iri.fullIri) || []
         }
         
         
@@ -272,28 +272,27 @@ export default class HighlightsList extends ui.DropPanelMixin(ui.BaseMixin(LitEl
     `
   }
 
-  private getObjectPropertySuggestionTemplate(objectProperty: ui.ViewObjectPropertyUnfolding) {
-    const disabled = objectProperty.hasUnfolding === false
+  private getObjectPropertySuggestionTemplate(objectProperty: ui.ViewObjectProperty) {
     return html`
       <gscape-entity-list-item
-        displayedname=${objectProperty.entityViewData.displayedName}
-        iri=${objectProperty.entityViewData.value.iri.fullIri}
-        .types=${objectProperty.entityViewData.value.types}
+        displayedname=${objectProperty.displayedName}
+        iri=${objectProperty.value.iri.fullIri}
+        .types=${objectProperty.value.types}
         ?asaccordion=${true}
-        ?disabled=${disabled}
+        ?disabled=${objectProperty.disabled}
         direct=${objectProperty.direct}
-        title=${objectProperty.hasUnfolding ? objectProperty.entityViewData.displayedName : emptyUnfoldingEntityTooltip()}
+        title=${!objectProperty.disabled ? objectProperty.displayedName : emptyUnfoldingEntityTooltip()}
       >
         <div slot="accordion-body">
           ${objectProperty.connectedClasses.map(connectedClass => this.getEntitySuggestionTemplate(
             connectedClass, 
             (e) => this.handleAddToQueryClick(
               e, 
-              connectedClass.entityViewData.value.iri.fullIri,
-              objectProperty.entityViewData.value.types,
-              objectProperty.entityViewData.value.iri.fullIri
+              connectedClass.value.iri.fullIri,
+              objectProperty.value.types,
+              objectProperty.value.iri.fullIri
             ),
-            disabled
+            objectProperty.disabled
             ))}
         </div>
 
@@ -312,7 +311,7 @@ export default class HighlightsList extends ui.DropPanelMixin(ui.BaseMixin(LitEl
                   size="s"
                   type="subtle"
                   @click=${(e: MouseEvent) => {
-                    this.handleSuggestionLocalization(e, objectProperty.entityViewData.value.iri.fullIri)
+                    this.handleSuggestionLocalization(e, objectProperty.value.iri.fullIri)
                   }}
                 >
                   <span slot='icon' class="slotted-icon">${crosshair}</span>
@@ -326,21 +325,21 @@ export default class HighlightsList extends ui.DropPanelMixin(ui.BaseMixin(LitEl
     `
   }
 
-  private getEntitySuggestionTemplate(entity: ui.EntityViewDataUnfolding, customCallback?: (e: MouseEvent) => void, forceDisabled = false) {
-    const disabled = forceDisabled || entity.hasUnfolding === false
+  private getEntitySuggestionTemplate(entity: ui.EntityViewData, customCallback?: (e: MouseEvent) => void, forceDisabled = false) {
+    const disabled = forceDisabled || entity.disabled === true
     return html`
       <gscape-entity-list-item
-        displayedname=${entity.entityViewData.displayedName}
-        iri=${entity.entityViewData.value.iri}
-        .types=${entity.entityViewData.value.types}
+        displayedname=${entity.displayedName}
+        iri=${entity.value.iri}
+        .types=${entity.value.types}
         actionable
         ?disabled=${disabled}
-        title=${entity.hasUnfolding ? entity.entityViewData.displayedName : emptyUnfoldingEntityTooltip()}
+        title=${!entity.disabled ? entity.displayedName : emptyUnfoldingEntityTooltip()}
         @click=${(e: MouseEvent) => {
           if (customCallback)
             customCallback(e)
           else
-            this.handleAddToQueryClick(e, entity.entityViewData.value.iri.fullIri, entity.entityViewData.value.types)
+            this.handleAddToQueryClick(e, entity.value.iri.fullIri, entity.value.types)
         }}
       >
         <div slot="trailing-element" class="actions">
@@ -351,7 +350,7 @@ export default class HighlightsList extends ui.DropPanelMixin(ui.BaseMixin(LitEl
                 size="s"
                 type="subtle"
                 @click=${(e: MouseEvent) => {
-                  this.handleSuggestionLocalization(e, entity.entityViewData.value.iri.fullIri)
+                  this.handleSuggestionLocalization(e, entity.value.iri.fullIri)
                 }}
               >
                 <span slot='icon' class="slotted-icon">${crosshair}</span>
@@ -359,24 +358,6 @@ export default class HighlightsList extends ui.DropPanelMixin(ui.BaseMixin(LitEl
             `
             : null
           }
-          <!-- ${!disabled
-            ? html`
-              <gscape-button
-                title="Add to query"
-                size="s"
-                type="subtle"
-                @click=${(e: MouseEvent) => {
-                  if (customCallback)
-                    customCallback(e)
-                  else
-                    this.handleAddToQueryClick(e, entity.entityViewData.value.iri.fullIri, entity.entityViewData.value.types)
-                }}
-              >
-                <span slot='icon' class="slotted-icon">${ui.icons.insertInGraph}</span>
-              </gscape-button>
-            `
-            : null
-          } -->
         </div>
       </gscape-entity-list-item>
     `
@@ -431,20 +412,20 @@ export default class HighlightsList extends ui.DropPanelMixin(ui.BaseMixin(LitEl
 
   private get objectProperties() {
     return this.allHighlights?.objectProperties?.sort((a,b) => {
-      return a.entityViewData.displayedName.localeCompare(b.entityViewData.displayedName)
-    }).filter(op => !this.shownIRIs || this.shownIRIs?.objectProperties.includes(op.entityViewData.value.iri.fullIri)) || []
+      return a.displayedName.localeCompare(b.displayedName)
+    }).filter(op => !this.shownIRIs || this.shownIRIs?.objectProperties.includes(op.value.iri.fullIri)) || []
   }
 
   private get classes() {
     return this.allHighlights?.classes?.sort((a,b) => {
-      return a.entityViewData.displayedName.localeCompare(b.entityViewData.displayedName)
-    }).filter(c => !this.shownIRIs || this.shownIRIs?.classes.includes(c.entityViewData.value.iri.fullIri)) || []
+      return a.displayedName.localeCompare(b.displayedName)
+    }).filter(c => !this.shownIRIs || this.shownIRIs?.classes.includes(c.value.iri.fullIri)) || []
   }
 
   private get dataProperties() {
     return this.allHighlights?.dataProperties?.sort((a,b) => {
-      return a.entityViewData.displayedName.localeCompare(b.entityViewData.displayedName)
-    }).filter(dp => !this.shownIRIs || this.shownIRIs?.dataProperties.includes(dp.entityViewData.value.iri.fullIri)) || []
+      return a.displayedName.localeCompare(b.displayedName)
+    }).filter(dp => !this.shownIRIs || this.shownIRIs?.dataProperties.includes(dp.value.iri.fullIri)) || []
   }
 
   set allHighlights(highlights: ViewHighlights | undefined) {
@@ -459,9 +440,9 @@ export default class HighlightsList extends ui.DropPanelMixin(ui.BaseMixin(LitEl
   private setHighlights() {
     
     this.shownIRIs = {
-      classes: this.allHighlights?.classes.map(e => e.entityViewData.value.iri.fullIri) || [],
-      dataProperties: this.allHighlights?.dataProperties.map(e => e.entityViewData.value.iri.fullIri) || [],
-      objectProperties: this.allHighlights?.objectProperties.map(e => e.entityViewData.value.iri.fullIri) || [],
+      classes: this.allHighlights?.classes.map(e => e.value.iri.fullIri) || [],
+      dataProperties: this.allHighlights?.dataProperties.map(e => e.value.iri.fullIri) || [],
+      objectProperties: this.allHighlights?.objectProperties.map(e => e.value.iri.fullIri) || [],
     }
 
     if (this.shownIRIs && this.entityFilters && !this.entityFilters.areAllFiltersDisabled) {

@@ -18,28 +18,30 @@ export function performHighlights(iri: string | string[]) {
       highlightsList.allHighlights = {
         classes: highlights.classes?.map(iri => {
           return _getEntityViewDataUnfolding(iri, grapholscape)
-        }).filter(e => e !== undefined) as ui.EntityViewDataUnfolding[] || [],
+        }).filter(e => e !== undefined) as ui.EntityViewData[] || [],
 
         dataProperties: highlights.dataProperties?.map(iri => {
           return _getEntityViewDataUnfolding(iri, grapholscape)
-        }).filter(e => e !== undefined) as ui.EntityViewDataUnfolding[] || [],
+        }).filter(e => e !== undefined) as ui.EntityViewData[] || [],
 
         objectProperties: highlights.objectProperties?.map(op => {
           if (op.objectPropertyIRI) {
             const grapholEntity = grapholscape.ontology.getEntity(op.objectPropertyIRI)
             if (grapholEntity) {
-              const objPropViewData = util.grapholEntityToEntityViewData(grapholEntity, grapholscape)
-              return {
-                entityViewData: objPropViewData,
-                hasUnfolding: !hasEntityEmptyUnfolding(op.objectPropertyIRI, TypesEnum.OBJECT_PROPERTY),
-                connectedClasses: op.relatedClasses
-                  ?.map(rc => _getEntityViewDataUnfolding(rc, grapholscape))
-                  .filter(rc => rc !== undefined) as ui.EntityViewDataUnfolding[] || [],
+              let objPropViewData = util.grapholEntityToEntityViewData(grapholEntity, grapholscape)
+              objPropViewData = {
+                ...objPropViewData,
                 direct: op.direct,
-              } as ui.ViewObjectPropertyUnfolding
+                connectedClasses: op.relatedClasses
+                ?.map(rc => _getEntityViewDataUnfolding(rc, grapholscape))
+                .filter(rc => rc !== undefined) as ui.EntityViewData[] || [],
+                disabled: hasEntityEmptyUnfolding(op.objectPropertyIRI, TypesEnum.OBJECT_PROPERTY)
+              } as ui.ViewObjectProperty
+
+              return objPropViewData
             }
           }
-        }).filter(e => e !== undefined) as ui.ViewObjectPropertyUnfolding[] || [],
+        }).filter(e => e !== undefined) as ui.ViewObjectProperty[] || [],
       }
 
       highlightsList.loading = false
@@ -90,6 +92,9 @@ export function performHighlightsEmptyUnfolding() {
 
 function _getEntityViewDataUnfolding(entityIri: string, grapholscape: Grapholscape) {
   const grapholEntity = grapholscape.ontology.getEntity(entityIri)
-  if (grapholEntity)
-    return util.getEntityViewDataUnfolding(grapholEntity, grapholscape, (iri, type) => !hasEntityEmptyUnfolding(iri, type))
+  if (grapholEntity) {
+    const result = util.grapholEntityToEntityViewData(grapholEntity, grapholscape)
+    result.disabled = hasEntityEmptyUnfolding(grapholEntity.iri.fullIri)
+    return result
+  }
 }

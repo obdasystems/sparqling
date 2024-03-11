@@ -1,18 +1,17 @@
 import { Core } from "cytoscape"
-import { EntityNameType, Grapholscape, GrapholscapeTheme, TypesEnum, LifecycleEvent, RendererStatesEnum, ui } from "grapholscape"
+import { EntityNameType, Grapholscape, GrapholscapeTheme, LifecycleEvent, RendererStatesEnum, TypesEnum, ui } from "grapholscape"
 import { OntologyGraphHandlers } from "../handlers"
 import * as model from '../model'
 import { hasEntityEmptyUnfolding } from "../model"
 import * as ontologyGraph from '../ontology-graph'
-import { getGscape, resetHighlights, selectEntity } from "../ontology-graph"
+import { getGscape, resetHighlights } from "../ontology-graph"
 import sparqlingStyle from '../ontology-graph/style'
 import * as queryGraph from '../query-graph'
-import { getIris } from "../util/graph-element-utility"
+import { cy } from "../query-graph/renderer"
 import { cxtMenu, highlightsList } from "../widgets"
 import { emptyUnfoldingEntityTooltip } from "../widgets/assets/texts"
 import { stopFullPage } from "./fullpage"
 import { performHighlightsEmptyUnfolding, refreshHighlights } from "./highlights"
-import { cy } from "../query-graph/renderer"
 
 export default function init() {
   const gscape = getGscape()
@@ -44,10 +43,10 @@ export default function init() {
   gscape.on(LifecycleEvent.RendererChange, () => onChangeDiagramOrRenderer(gscape))
 
   function updateSuggestionsDisplayedNames() {
-    const updateDisplayedName = (entity: ui.EntityViewDataUnfolding) => {
-      const grapholEntity = gscape.ontology.getEntity(entity.entityViewData.value.iri.fullIri)
+    const updateDisplayedName = (entity: ui.EntityViewData) => {
+      const grapholEntity = gscape.ontology.getEntity(entity.value.iri.fullIri)
       if (grapholEntity)
-        entity.entityViewData.displayedName = grapholEntity.getDisplayedName(gscape.entityNameType, gscape.language)
+        entity.displayedName = grapholEntity.getDisplayedName(gscape.entityNameType, gscape.language)
     }
 
     if (highlightsList.allHighlights) {

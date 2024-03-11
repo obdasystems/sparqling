@@ -9,6 +9,7 @@ import getPrefixedIri from "../util/get-prefixed-iri"
 import { highlightsList } from "../widgets"
 import addAnnotation from "./annotations-handlers"
 import { handleEntitySelection, handleObjectPropertySelection } from "./og-handlers"
+import PathSelector, { PathSelectionEvent } from "../widgets/path-components/path-selector"
 
 highlightsList.onSuggestionLocalization((entityIri) => {
   if (!model.isFullPageActive())
@@ -65,9 +66,9 @@ function handlePathRequest(kShortest: boolean) {
       if (paths.length === 1) {
         addPath(paths[0], activeGraphElement)
       } else {
-        const pathSelector = new ui.PathSelector(gscape.theme)
+        const pathSelector = new PathSelector(gscape.theme)
         pathSelector.paths = paths
-        pathSelector.addEventListener('path-selection', ((evt: ui.PathSelectionEvent) => {
+        pathSelector.addEventListener('path-selection', ((evt: PathSelectionEvent) => {
           addPath(evt.detail, activeGraphElement)
         }) as EventListener)
 
