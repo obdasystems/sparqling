@@ -56,9 +56,9 @@ export function startFullPage() {
 
   const queryBody = getQueryBody()
 
+  initClassSelector()
   if (!queryBody || !queryBody.graph || !queryBody.graph.id) {
     // show class selector
-    initClassSelector()
     classSelector.show()
   }
 

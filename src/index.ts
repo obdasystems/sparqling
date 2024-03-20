@@ -67,8 +67,8 @@ function getCore(gscape: Grapholscape, file: string | Blob) {
 
     model.setOntologyFile(ontologyFile)
 
-    const actualGrapholscape = ontologyGraph.getGscape()
-    if (actualGrapholscape !== gscape) {
+    const currentGrapholscape = ontologyGraph.getGscape()
+    if (currentGrapholscape !== gscape) {
       ontologyGraph.setGrapholscapeInstance(gscape)
       initGrapholscapeHandlers()
     }
