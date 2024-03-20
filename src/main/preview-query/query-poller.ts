@@ -22,7 +22,7 @@ export default class QueryPoller {
   private endpoint: MastroEndpoint
   private executionID: string
   private limit: number
-  private interval: NodeJS.Timer
+  private interval: NodeJS.Timeout
   private lastRequestFulfilled: boolean = true
   private timeout: NodeJS.Timeout
   private _result: QueryResult
