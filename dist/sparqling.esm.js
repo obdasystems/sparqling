@@ -10330,9 +10330,9 @@ function startFullPage() {
     widget.withoutBGP = true;
     grapholscape.renderer.cy = cy;
     const queryBody = getQueryBody();
+    initClassSelector();
     if (!queryBody || !queryBody.graph || !queryBody.graph.id) {
         // show class selector
-        initClassSelector();
         classSelector.show();
     }
     highlightsList.style.marginTop = '10px';
@@ -11117,6 +11117,14 @@ function getClassesList(grapholscape) {
 const classSelector = new ui.IncrementalInitialMenu();
 classSelector.hide();
 function initClassSelector() {
+    var _a, _b;
+    const entitySelector = (_a = classSelector.shadowRoot) === null || _a === void 0 ? void 0 : _a.querySelector('gscape-entity-selector');
+    if (entitySelector) {
+        entitySelector['fullEntityList'] = [];
+        const searchInput = (_b = entitySelector.shadowRoot) === null || _b === void 0 ? void 0 : _b.querySelector('input');
+        if (searchInput)
+            searchInput.value = '';
+    }
     classSelector.classes = getClassesList(getGscape());
 }
 
@@ -13304,8 +13312,8 @@ function getCore(gscape, file) {
     if (file && gscape) {
         let ontologyFile = new File([file], `${gscape.ontology.name}-from-string.graphol`);
         setOntologyFile(ontologyFile);
-        const actualGrapholscape = getGscape();
-        if (actualGrapholscape !== gscape) {
+        const currentGrapholscape = getGscape();
+        if (currentGrapholscape !== gscape) {
             setGrapholscapeInstance(gscape);
             init();
         }
