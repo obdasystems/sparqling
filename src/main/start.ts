@@ -19,7 +19,7 @@ export default async function () {
 
     // If current ontology is already loaded, do not perform upload again
     await ontologyFile.text().then(async ontologyString => {
-      await handlePromise(standaloneApi.standaloneOntologyGrapholGet()).then(grapholFile => {
+      await handlePromise(standaloneApi.standaloneOntologyGrapholGet()).then((grapholFile: any)=> {
         if (ontologyString.trim() === grapholFile.trim()) {
           startSparqling()
         } else {

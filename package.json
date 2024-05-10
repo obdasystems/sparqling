@@ -47,7 +47,7 @@
     "typescript": "^5.0.4"
   },
   "dependencies": {
-    "axios": "^0.27.2",
+    "axios": "^1.6.8",
     "cytoscape": "^3.22.1",
     "cytoscape-automove": "^1.10.3",
     "cytoscape-cola": "^2.5.1",
