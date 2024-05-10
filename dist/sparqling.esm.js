@@ -48,14 +48,19 @@ PERFORMANCE OF THIS SOFTWARE.
 ***************************************************************************** */
 
 function __awaiter(thisArg, _arguments, P, generator) {
-    function adopt(value) { return value instanceof P ? value : new P(function (resolve) { resolve(value); }); }
-    return new (P || (P = Promise))(function (resolve, reject) {
-        function fulfilled(value) { try { step(generator.next(value)); } catch (e) { reject(e); } }
-        function rejected(value) { try { step(generator["throw"](value)); } catch (e) { reject(e); } }
-        function step(result) { result.done ? resolve(result.value) : adopt(result.value).then(fulfilled, rejected); }
-        step((generator = generator.apply(thisArg, _arguments || [])).next());
-    });
+  function adopt(value) { return value instanceof P ? value : new P(function (resolve) { resolve(value); }); }
+  return new (P || (P = Promise))(function (resolve, reject) {
+      function fulfilled(value) { try { step(generator.next(value)); } catch (e) { reject(e); } }
+      function rejected(value) { try { step(generator["throw"](value)); } catch (e) { reject(e); } }
+      function step(result) { result.done ? resolve(result.value) : adopt(result.value).then(fulfilled, rejected); }
+      step((generator = generator.apply(thisArg, _arguments || [])).next());
+  });
 }
+
+typeof SuppressedError === "function" ? SuppressedError : function (error, suppressed, message) {
+  var e = new Error(message);
+  return e.name = "SuppressedError", e.error = error, e.suppressed = suppressed, e;
+};
 
 let config = {};
 function setConfig(newConfig = {}) {
@@ -10257,31 +10262,31 @@ function resetHighlight(graphElement) {
 }
 
 var index = /*#__PURE__*/Object.freeze({
-    __proto__: null,
-    widget: widget,
-    selectElement: selectElement,
-    render: render,
-    removeNodesNotInQuery: removeNodesNotInQuery,
-    centerOnElem: centerOnElem,
-    getSelectedGraphElement: getSelectedGraphElement,
-    setContainer: setContainer,
-    unmount: unmount,
-    onAddHead: onAddHead,
-    onDelete: onDelete,
-    onAddFilter: onAddFilter,
-    onSeeFilters: onSeeFilters,
-    onShowExamples: onShowExamples,
-    onJoin: onJoin,
-    onElementClick: onElementClick,
-    isIriInQueryGraph: isIriInQueryGraph$1,
-    highlightNode: highlightNode,
-    resetHighlight: resetHighlight,
-    renderOptionals: renderOptionals,
-    setLanguage: setLanguage,
-    onMakeOptional: onMakeOptional,
-    onRemoveOptional: onRemoveOptional,
-    setDisplayedNameType: setDisplayedNameType,
-    setTheme: setTheme
+  __proto__: null,
+  widget: widget,
+  selectElement: selectElement,
+  render: render,
+  removeNodesNotInQuery: removeNodesNotInQuery,
+  centerOnElem: centerOnElem,
+  getSelectedGraphElement: getSelectedGraphElement,
+  setContainer: setContainer,
+  unmount: unmount,
+  onAddHead: onAddHead,
+  onDelete: onDelete,
+  onAddFilter: onAddFilter,
+  onSeeFilters: onSeeFilters,
+  onShowExamples: onShowExamples,
+  onJoin: onJoin,
+  onElementClick: onElementClick,
+  isIriInQueryGraph: isIriInQueryGraph$1,
+  highlightNode: highlightNode,
+  resetHighlight: resetHighlight,
+  renderOptionals: renderOptionals,
+  setLanguage: setLanguage,
+  onMakeOptional: onMakeOptional,
+  onRemoveOptional: onRemoveOptional,
+  setDisplayedNameType: setDisplayedNameType,
+  setTheme: setTheme
 });
 
 function moveUIForColorLegend(isActive) {
@@ -10352,7 +10357,7 @@ function disableWidgetsForFullpage(grapholscape) {
             case ui.WidgetEnum.ONTOLOGY_EXPLORER:
             case ui.WidgetEnum.OWL_VISUALIZER:
             case ui.WidgetEnum.COLOR_BUTTON:
-            case ui.WidgetEnum.ENTITY_COLOR_LEGEND:
+            case ui.WidgetEnum.INCREMENTAL_FILTERS:
                 widget.disable();
                 break;
             case ui.WidgetEnum.ENTITY_DETAILS:
@@ -11578,7 +11583,7 @@ function start () {
             const ontologyFile = getOntologyFile();
             // If current ontology is already loaded, do not perform upload again
             yield ontologyFile.text().then((ontologyString) => __awaiter(this, void 0, void 0, function* () {
-                yield handlePromise(standaloneApi.standaloneOntologyGrapholGet()).then(grapholFile => {
+                yield handlePromise(standaloneApi.standaloneOntologyGrapholGet()).then((grapholFile) => {
                     if (ontologyString.trim() === grapholFile.trim()) {
                         startSparqling();
                     }
@@ -11600,7 +11605,7 @@ function start () {
              * Close color legend and move left column container up on colors activations
              */
             const entityColorButton = getGscape().widgets.get(ui.WidgetEnum.COLOR_BUTTON);
-            const entityColorLegend = getGscape().widgets.get(ui.WidgetEnum.ENTITY_COLOR_LEGEND);
+            const entityColorLegend = getGscape().widgets.get(ui.WidgetEnum.INCREMENTAL_FILTERS);
             if (entityColorButton) {
                 const previousCallback = entityColorButton.onclick;
                 entityColorButton.onclick = (e) => {
