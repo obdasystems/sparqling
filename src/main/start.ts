@@ -42,7 +42,7 @@ export default async function () {
      * Close color legend and move left column container up on colors activations
      */
     const entityColorButton = (getGscape().widgets.get(ui.WidgetEnum.COLOR_BUTTON) as ui.GscapeButton);
-    const entityColorLegend = (getGscape().widgets.get(ui.WidgetEnum.ENTITY_COLOR_LEGEND) as ui.GscapeEntityColorLegend);
+    const entityColorLegend = (getGscape().widgets.get(ui.WidgetEnum.INCREMENTAL_FILTERS) as unknown as ui.IDropPanelMixin);
     if (entityColorButton) {
       const previousCallback = entityColorButton.onclick as any
 

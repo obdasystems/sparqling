@@ -80,7 +80,7 @@ function disableWidgetsForFullpage(grapholscape: Grapholscape) {
       case ui.WidgetEnum.ONTOLOGY_EXPLORER:
       case ui.WidgetEnum.OWL_VISUALIZER:
       case ui.WidgetEnum.COLOR_BUTTON:
-      case ui.WidgetEnum.ENTITY_COLOR_LEGEND:
+      case ui.WidgetEnum.INCREMENTAL_FILTERS:
         widget.disable()
         break
 
