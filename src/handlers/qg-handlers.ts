@@ -14,6 +14,7 @@ import { bgpContainer } from '../util/get-container'
 import * as GEUtility from '../util/graph-element-utility'
 import { exitFullscreenButton, filterDialog, filterListDialog, previewDialog, sparqlDialog } from '../widgets'
 import showFormDialog from './show-form-dialog'
+import core from '../core'
 
 queryGraph.onAddHead(async graphElement => {
   if (graphElement?.id) {
@@ -163,7 +164,13 @@ queryGraph.widget.onQueryClear = () => {
     'Are you sure to reset the query?',
     'Confirm Action',
     getGscape().uiContainer
-  ).onConfirm(clearQuery)
+  ).onConfirm(() => {
+    clearQuery()
+
+    if (core.onQueryReset) {
+      core.onQueryReset()
+    }
+  })
 }
 
 queryGraph.widget.onFullScreenEnter = () => {
