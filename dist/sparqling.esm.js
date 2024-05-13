@@ -11697,6 +11697,7 @@ var core = {
     runQueryButton: startRunButtons.runQueryButton,
     onQueryRun: undefined,
     onQuerySave: undefined,
+    onQueryReset: undefined,
     onShowSettings: undefined,
     onEndpointSelection: undefined,
     onToggleCatalog: undefined,
@@ -12335,7 +12336,12 @@ onShowExamples(graphElement => {
 });
 widget.onSparqlButtonClick = () => sparqlDialog.isVisible ? sparqlDialog.hide() : sparqlDialog.show();
 widget.onQueryClear = () => {
-    ui.showMessage('Are you sure to reset the query?', 'Confirm Action', getGscape().uiContainer).onConfirm(clearQuery);
+    ui.showMessage('Are you sure to reset the query?', 'Confirm Action', getGscape().uiContainer).onConfirm(() => {
+        clearQuery();
+        if (core.onQueryReset) {
+            core.onQueryReset();
+        }
+    });
 };
 widget.onFullScreenEnter = () => {
     bgpContainer.requestFullscreen().then(() => setTimeout(() => cy.fit(), 200));
