@@ -3,6 +3,7 @@ export type SparqlingRequestOptions = {
   version?: string,
   name?: string,
   headers?: any,
+  endpointName?: string
 }
 
 let _requestOptions: SparqlingRequestOptions = {
@@ -10,6 +11,7 @@ let _requestOptions: SparqlingRequestOptions = {
   version: undefined,
   headers: undefined,
   name: undefined,
+  endpointName: undefined,
 }
 
 export function setRequestOptions(requestOptions: SparqlingRequestOptions) {
@@ -20,6 +22,7 @@ export function getBasePath() { return _requestOptions.basePath }
 export function getVersion() { return _requestOptions.version }
 export function getName() {  return _requestOptions.name }
 export function getHeaders() { return _requestOptions.headers }
+export function getDefaultEndpoint() { return _requestOptions.endpointName }
 
 export function getRequestOptions() {
   // { params: { version: 'version' }, headers: { "x-monolith-session-id": '0de2de0a-af44-4046-a91b-46b10394f068', 'Access-Control-Allow-Origin': '*', } }

@@ -2,7 +2,7 @@ import axios from "axios"
 import { TypesEnum, ui } from "grapholscape"
 import { EntityTypeEnum } from "../api/swagger"
 import { handlePromise } from "../main/handle-promises"
-import { getName, getRequestOptions, getVersion, isStandalone } from "./request-options"
+import { getDefaultEndpoint, getName, getRequestOptions, getVersion, isStandalone } from "./request-options"
 
 export type MastroEndpoint = {
   description: string
@@ -81,8 +81,11 @@ export async function updateEndpoints() {
       endpoint.mastroID.ontologyID.ontologyVersion === getVersion()
     )
 
-  if (!selectedEndpoint || !endpoints.map(e => e.name).includes(selectedEndpoint.name)) {
-    await setSelectedEndpoint(endpoints[0])
+  if (!selectedEndpoint || !endpoints.find(e => e.name === selectedEndpoint?.name)) {
+    const defaultEndpointName = getDefaultEndpoint()
+    const endpointToSelect = endpoints.find(e => e.name === defaultEndpointName)
+    console.log(endpointToSelect)
+    await setSelectedEndpoint(endpointToSelect || endpoints[0])
   } else {
     await updateEntitiesEmptyUnfoldings()
   }
