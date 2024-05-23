@@ -11229,6 +11229,7 @@ let _requestOptions = {
     version: undefined,
     headers: undefined,
     name: undefined,
+    endpointName: undefined,
 };
 function setRequestOptions(requestOptions) {
     _requestOptions = requestOptions;
@@ -11237,6 +11238,7 @@ function getBasePath() { return _requestOptions.basePath; }
 function getVersion() { return _requestOptions.version; }
 function getName() { return _requestOptions.name; }
 function getHeaders() { return _requestOptions.headers; }
+function getDefaultEndpoint() { return _requestOptions.endpointName; }
 function getRequestOptions() {
     // { params: { version: 'version' }, headers: { "x-monolith-session-id": '0de2de0a-af44-4046-a91b-46b10394f068', 'Access-Control-Allow-Origin': '*', } }
     return {
@@ -11281,8 +11283,11 @@ function updateEndpoints() {
         endpoints = (yield handlePromise(globalAxios.request(mwsGetRunningEndpointsOptions))).endpoints
             .filter(endpoint => endpoint.mastroID.ontologyID.ontologyName === getName() &&
             endpoint.mastroID.ontologyID.ontologyVersion === getVersion());
-        if (!selectedEndpoint || !endpoints.map(e => e.name).includes(selectedEndpoint.name)) {
-            yield setSelectedEndpoint(endpoints[0]);
+        if (!selectedEndpoint || !endpoints.find(e => e.name === (selectedEndpoint === null || selectedEndpoint === void 0 ? void 0 : selectedEndpoint.name))) {
+            const defaultEndpointName = getDefaultEndpoint();
+            const endpointToSelect = endpoints.find(e => e.name === defaultEndpointName);
+            console.log(endpointToSelect);
+            yield setSelectedEndpoint(endpointToSelect || endpoints[0]);
         }
         else {
             yield updateEntitiesEmptyUnfoldings();
